@@ -3,8 +3,10 @@ import { useState, ChangeEvent, MouseEvent } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from "../../../../firebase/firebaseConfig";
 import { UserCredential } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 const SignUp: React.FC = () => {
+  const router = useRouter();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [createUserWithEmailAndPassword, , error] = useCreateUserWithEmailAndPassword(auth);
@@ -29,6 +31,7 @@ const SignUp: React.FC = () => {
       sessionStorage.setItem('user', 'true');
       setEmail('');
       setPassword('');
+      router.push('/');
     } catch (e) {
       if (e instanceof Error) console.error(e.message);
     }
@@ -58,6 +61,10 @@ const SignUp: React.FC = () => {
         >
           Sign Up
         </button>
+        <p className="text-gray-500 mt-4">
+          Already have an account? 
+          <a href="/login" className="text-blue-500 hover:text-blue-600 cursor-pointer"> Login</a>
+        </p>
       </div>
     </div>
   );

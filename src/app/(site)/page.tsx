@@ -1,20 +1,35 @@
 "use client";
 
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import { auth } from "../../../firebase/firebaseConfig";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { signOut } from "firebase/auth";
 
 export default function Home() {
-  const provider = new GoogleAuthProvider();
-  const login = () => {
-    const result = signInWithPopup(auth, provider);
-    console.log(result);
+
+  const [user] = useAuthState(auth);
+  const router = useRouter();
+  const userSession = sessionStorage.getItem('user');
+
+  if (!user && !userSession) {
+    return router.push('/login');
   }
 
   return (
     <>
-      <button onClick={login} className="btn btn-primary">
-        Click me
-      </button>
+      <div>
+        <div>
+          Home
+        </div>
+        <div>
+          <button onClick={() => {
+            signOut(auth)
+            sessionStorage.removeItem('user');
+          }}>
+            Sign Out
+          </button>
+        </div>
+      </div>
     </>
   );
 }
