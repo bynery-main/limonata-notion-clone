@@ -22,13 +22,17 @@ export default function LandingPageComponent() {
       <header className="flex items-center justify-between p-6">
         <div className="flex items-center space-x-2">
           <LogInIcon className="h-6 w-6" />
-          <span className="text-lg font-bold">my mind</span>
+          <span className="text-lg font-bold">Limonata <span className="font-light">Project</span></span>
+          
         </div>
         <div className="space-x-4">
           <Button variant="ghost" onClick={login}>
             LOG IN
           </Button>
-          <Button variant="default">SIGN UP</Button>
+          <Button variant="default"onClick={login}>
+            SIGN UP
+          
+          </Button>
         </div>
       </header>
       <main className="flex flex-col items-center justify-center py-20 space-y-10">
@@ -51,15 +55,15 @@ export default function LandingPageComponent() {
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Products you like</Badge>
+                <Badge>Audio Transcriptions</Badge>
               </CardHeader>
               <CardContent>
-                <p>Product image</p>
+                <p>Audio Wave</p>
               </CardContent>
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Images that inspire you</Badge>
+                <Badge>Photos of your handnotes</Badge>
               </CardHeader>
               <CardContent>
                 <p>Image</p>
@@ -67,15 +71,15 @@ export default function LandingPageComponent() {
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Quotes & Highlights</Badge>
+                <Badge>Class Slides</Badge>
               </CardHeader>
               <CardContent>
-                <p>"A quote or highlight text."</p>
+                <p>"A bunch of class slides."</p>
               </CardContent>
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Articles & Bookmarks</Badge>
+                <Badge>Relevant Articles and Papers</Badge>
               </CardHeader>
               <CardContent>
                 <p>Article content</p>
@@ -83,7 +87,7 @@ export default function LandingPageComponent() {
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Video bookmarks</Badge>
+                <Badge>Videos of your class</Badge>
               </CardHeader>
               <CardContent>
                 <p>Video content</p>
@@ -91,15 +95,15 @@ export default function LandingPageComponent() {
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Private notes</Badge>
+                <Badge>Notion, Docs or Obsidian Notes</Badge>
               </CardHeader>
               <CardContent>
-                <p>Note content</p>
+                <p>Notion, Google docs  content</p>
               </CardContent>
             </Card>
             <Card className="p-4">
               <CardHeader>
-                <Badge>Design inspiration</Badge>
+                <Badge>Youtube Videos</Badge>
               </CardHeader>
               <CardContent>
                 <p>Design content</p>
