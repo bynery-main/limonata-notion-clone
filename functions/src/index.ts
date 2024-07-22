@@ -1,19 +1,17 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+admin.initializeApp();
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+exports.addUserFirestore = functions.auth.user().onCreate((user) => {
+  return admin.firestore().collection("users").doc(user.uid).set({
+    email: user.email,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+});
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+exports.deleteUserFirestore = functions.auth.user().onDelete((user) => {
+  const doc = admin.firestore().collection("users").doc(user.uid);
+  return doc.delete();
+});
+
