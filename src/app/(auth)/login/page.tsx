@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, UserCredential } from "firebase/auth";
 import { auth } from '../../../../firebase/firebaseConfig';
 import { FormSchema } from '@/lib/types'; // Adjust this path if necessary
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
     const router = useRouter();
@@ -41,7 +42,7 @@ const LoginPage = () => {
         router.push('/');
       } catch (e) {
         if (e instanceof Error) {
-          console.error(e.message);
+          toast.error(e.message);
         }
       }
     };
@@ -53,7 +54,7 @@ const LoginPage = () => {
         router.push('/');
       } catch (e) {
         if (e instanceof Error) {
-          console.error(e.message);
+          toast.error(e.message);
           setSubmitError(e.message);
         }
       }

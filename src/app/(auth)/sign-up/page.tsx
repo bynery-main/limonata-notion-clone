@@ -4,6 +4,7 @@ import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from "../../../../firebase/firebaseConfig";
 import { UserCredential } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const SignUp: React.FC = () => {
   const router = useRouter();
@@ -24,7 +25,7 @@ const SignUp: React.FC = () => {
     try {
       const userCredential: UserCredential | undefined = await createUserWithEmailAndPassword(email, password);
       if (!userCredential) {
-        console.error('Failed to create user.');
+        toast.error('Failed to create user.');
         return;
       }
       console.log({ userCredential });
@@ -33,7 +34,7 @@ const SignUp: React.FC = () => {
       setPassword('');
       router.push('/');
     } catch (e) {
-      if (e instanceof Error) console.error(e.message);
+      if (e instanceof Error) toast.error(e.message);
     }
   };
 
