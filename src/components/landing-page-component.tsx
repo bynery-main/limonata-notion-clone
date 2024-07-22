@@ -3,7 +3,8 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
-
+import CircleGradients from './Circle-Gradients.svg';
+import { SizeIcon } from "@radix-ui/react-icons";
 export default function LandingPageComponent() {
   const provider = new GoogleAuthProvider();
 
@@ -35,15 +36,33 @@ export default function LandingPageComponent() {
           </Button>
         </div>
       </header>
-      <main className="flex flex-col items-center justify-center py-20 space-y-10">
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold">Study together. Study smarter.</h1>
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-yellow-500 to-purple-500 rounded-full blur-3xl opacity-50" />
-            <div className="relative w-40 h-40 bg-white rounded-full" />
-          </div>
+      <main className="flex flex-col items-left justify-left py-20 space-y-10">
+      <div style={{ position: 'relative', textAlign: 'left', height: '500px' }}>
+      <CircleGradients className="circle" style={{ position: 'absolute', left: '-100px', top:'-200px' }} />
+
+        <p style={{
+          position: 'absolute',
+          top: '20%',
+          marginLeft: '175px',
+          color: 'black', // Ensure this color contrasts with your SVG
+          fontSize: '60px', // Adjust size as needed
+          fontWeight: 'bold'
+        }}>
+        <div style={{ fontWeight: 'bold' }}>
+          Study together.
         </div>
-        <div className="flex space-x-10">
+        <div style={{ fontWeight: 'lighter' }}> {/* Adjust the font weight here */}
+          Study smarter
+    </div>
+        <div className="space-x-4">
+      <Button variant="default"onClick={login}>
+              Start a Class
+            </Button>  
+          </div>
+        </p>
+    </div>
+
+        <div className="flex space-x-10 mx-40">
           <div className="grid grid-cols-2 gap-4">
             <Card className="p-4">
               <CardHeader>
