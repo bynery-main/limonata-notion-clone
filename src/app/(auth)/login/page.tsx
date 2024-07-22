@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, UserCredential } from "firebase/auth";
-import { auth } from '../../../../firebase/firebaseConfig';
+import { auth } from '../../../firebase/firebaseConfig';
 import { FormSchema } from '@/lib/types'; // Adjust this path if necessary
 
 const LoginPage = () => {
