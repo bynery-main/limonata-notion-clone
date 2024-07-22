@@ -42,7 +42,13 @@ const LoginPage = () => {
         router.push('/');
       } catch (e) {
         if (e instanceof Error) {
-          toast.error(e.message);
+          if (e.message.includes('auth/invalid-email')) {
+            toast.error('Invalid email: Please check your email');
+          } else if (e.message.includes('auth/invalid-credential')) {
+            toast.error('Invalid credentials: Please check your email and password');
+          } else {
+            toast.error(e.message);
+          }
         }
       }
     };
