@@ -92,6 +92,7 @@ const LoginPage = () => {
             Sign In with Email
           </button>
           <button 
+            type="button" // Change to type="button" to prevent form submission
             onClick={handleSignInWithGoogle}
             className="w-full p-3 bg-red-600 rounded text-white hover:bg-red-500"
           >
@@ -102,9 +103,10 @@ const LoginPage = () => {
             Don't have an account? 
             <a href="/sign-up" className="text-blue-500 hover:text-blue-600 cursor-pointer"> Sign Up</a>
           </p>
-        </div>
+        </form>
       </div>
-    );
-  };
-  
-  export default LoginPage;
+    </div>
+  );
+};
+
+export default LoginPage;
