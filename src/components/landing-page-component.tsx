@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig.ts"; // Adjust the path if necessary
 import CircleGradients from "./Circle-Gradients.svg";
+import inputTypesImage from '../Images/Input-Types-Images.png';
 import { SizeIcon } from "@radix-ui/react-icons";
 export default function LandingPageComponent() {
   const provider = new GoogleAuthProvider();
@@ -67,83 +68,23 @@ export default function LandingPageComponent() {
             </div>
           </div>
         </div>
-
         <div className="flex space-x-10 mx-40">
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Documents</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Important PDF</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Audio Transcriptions</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Audio Wave</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Photos of your handnotes</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Image</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Class Slides</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>"A bunch of class slides."</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Relevant Articles and Papers</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Article content</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Videos of your class</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Video content</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Notion, Docs or Obsidian Notes</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Notion, Google docs content</p>
-              </CardContent>
-            </Card>
-            <Card className="p-4">
-              <CardHeader>
-                <Badge>Youtube Videos</Badge>
-              </CardHeader>
-              <CardContent>
-                <p>Design content</p>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold">
+          <img
+            src={inputTypesImage.src}
+            alt="Input Types Images"
+            style={{ float: "left", width: "50%", height: "auto", objectFit: "contain" }}
+          />
+
+         
+        <div className="flex flex-col justify-center space-y-4">
+            <h2 className="text-3xl font-bold text-left">
               Don't only take notes. Learn.
             </h2>
-            <p>
+            <p className="text-left">
               You can add study notes as images, links, notes, videos, quotes,
               PDFs, articles, any study resource from the web, or your computer.
             </p>
-            <p>
+            <p className="text-left">
               And don't forget,{" "}
               <a href="#" className="text-blue-500 underline">
                 it's all collaborative!
