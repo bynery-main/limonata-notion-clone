@@ -1,19 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
-import { pages } from "next/dist/build/templates/app-page";
 
 export default function Home() {
   const [user] = useAuthState(auth);
   const router = useRouter();
-  const userSession = sessionStorage.getItem('user');
+  const [userSession, setUserSession] = useState<string | null>(null);
 
-  if (!user && !userSession) {
-    return router.push('/login');
-  }
+  useEffect(() => {
+    const sessionUser = sessionStorage.getItem('user');
+    if (sessionUser) {
+      setUserSession(sessionUser);
+    } else if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
+  const handleSignOut = () => {
+    signOut(auth);
+    sessionStorage.removeItem('user');
+    router.push('/login');
+  };
 
   return (
     <>
@@ -22,10 +33,7 @@ export default function Home() {
           Home
         </div>
         <div>
-          <button onClick={() => {
-            signOut(auth);
-            sessionStorage.removeItem('user');
-          }}>
+          <button onClick={handleSignOut}>
             Sign Out
           </button>
         </div>
@@ -33,5 +41,3 @@ export default function Home() {
     </>
   );
 }
-
-export { Home };
