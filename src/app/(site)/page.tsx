@@ -17,9 +17,13 @@ export default function Home() {
   const [userSession, setUserSession] = useState<string | null>(null);
 
   useEffect(() => {
-    const sessionUser = sessionStorage.getItem('user');
+    const sessionUser = user;
+    if (!sessionUser){
+      console.log("No user session");
+      const user = auth.currentUser;
+    }
     if (sessionUser) {
-      setUserSession(sessionUser);
+      setUserSession(user.uid);
     } else if (!user) {
       router.push('/login');
     }

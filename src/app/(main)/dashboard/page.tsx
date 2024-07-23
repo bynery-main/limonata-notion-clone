@@ -14,15 +14,6 @@ const Dashboard = () => {
   console.log({ user, userSession });
   const [workspace, setWorkspace] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   // Safely accessing sessionStorage only in client-side
-  //   if (typeof window !== "undefined") {
-  //     const sessionUser = sessionStorage.getItem("user");
-  //     console.log({ sessionUser });
-  //     setUserSession(sessionUser);
-  //   }
-  // }, []);
-
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user && !userSession) {
