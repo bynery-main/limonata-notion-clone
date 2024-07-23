@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration
@@ -19,5 +19,14 @@ const app = initializeApp(firebaseConfig);
 // Get instances for Firebase services
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// Setting Auth persistence to session
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    console.log("Persistence set to session.");
+  })
+  .catch((error) => {
+    console.error("Failed to set persistence:", error.code, error.message);
+  });
 
 export { app, auth, db };
