@@ -20,13 +20,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Setting Auth persistence to session
-setPersistence(auth, browserSessionPersistence)
-  .then(() => {
-    console.log("Persistence set to session.");
-  })
-  .catch((error) => {
-    console.error("Failed to set persistence:", error.code, error.message);
-  });
+
 
 export { app, auth, db };
