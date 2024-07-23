@@ -3,8 +3,9 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
-import CircleGradients from './Circle-Gradients.svg';
+import CircleGradients from "./Circle-Gradients.svg";
 import { SizeIcon } from "@radix-ui/react-icons";
+
 export default function LandingPageComponent() {
   const provider = new GoogleAuthProvider();
 
@@ -23,44 +24,50 @@ export default function LandingPageComponent() {
       <header className="flex items-center justify-between p-6">
         <div className="flex items-center space-x-2">
           <LogInIcon className="h-6 w-6" />
-          <span className="text-lg font-bold">Limonata <span className="font-light">Project</span></span>
-          
+          <span className="text-lg font-bold">
+            Limonata <span className="font-light">Project</span>
+          </span>
         </div>
         <div className="space-x-4">
           <Button variant="ghost" onClick={login}>
             LOG IN
           </Button>
-          <Button variant="default"onClick={login}>
+          <Button variant="default" onClick={login}>
             SIGN UP
-          
           </Button>
         </div>
       </header>
       <main className="flex flex-col items-left justify-left py-20 space-y-10">
-      <div style={{ position: 'relative', textAlign: 'left', height: '500px' }}>
-      <CircleGradients className="circle" style={{ position: 'absolute', left: '-100px', top:'-200px' }} />
-
-        <p style={{
-          position: 'absolute',
-          top: '20%',
-          marginLeft: '175px',
-          color: 'black', // Ensure this color contrasts with your SVG
-          fontSize: '60px', // Adjust size as needed
-          fontWeight: 'bold'
-        }}>
-        <div style={{ fontWeight: 'bold' }}>
-          Study together.
-        </div>
-        <div style={{ fontWeight: 'lighter' }}> {/* Adjust the font weight here */}
-          Study smarter
-    </div>
-        <div className="space-x-4">
-      <Button variant="default"onClick={login}>
-              Start a Class
-            </Button>  
+        <div
+          style={{ position: "relative", textAlign: "left", height: "500px" }}
+        >
+          <CircleGradients
+            className="circle"
+            style={{ position: "absolute", left: "-100px", top: "-200px" }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "20%",
+              marginLeft: "175px",
+              color: "black", // Ensure this color contrasts with your SVG
+              fontSize: "60px", // Adjust size as needed
+              fontWeight: "bold",
+            }}
+          >
+            <div style={{ fontWeight: "bold" }}>Study together.</div>
+            <div style={{ fontWeight: "lighter" }}>
+              {" "}
+              {/* Adjust the font weight here */}
+              Study smarter
+            </div>
+            <div className="space-x-4">
+              <Button variant="default" onClick={login}>
+                Start a Class
+              </Button>
+            </div>
           </div>
-        </p>
-    </div>
+        </div>
 
         <div className="flex space-x-10 mx-40">
           <div className="grid grid-cols-2 gap-4">
@@ -117,7 +124,7 @@ export default function LandingPageComponent() {
                 <Badge>Notion, Docs or Obsidian Notes</Badge>
               </CardHeader>
               <CardContent>
-                <p>Notion, Google docs  content</p>
+                <p>Notion, Google docs content</p>
               </CardContent>
             </Card>
             <Card className="p-4">
@@ -130,10 +137,12 @@ export default function LandingPageComponent() {
             </Card>
           </div>
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold">Don't only take notes. Learn.</h2>
+            <h2 className="text-3xl font-bold">
+              Don't only take notes. Learn.
+            </h2>
             <p>
-              You can add study notes as images, links, notes, videos, quotes, PDFs, articles, any study resource from
-              the web, or your computer.
+              You can add study notes as images, links, notes, videos, quotes,
+              PDFs, articles, any study resource from the web, or your computer.
             </p>
             <p>
               And don't forget,{" "}
@@ -148,7 +157,7 @@ export default function LandingPageComponent() {
   );
 }
 
-function LogInIcon(props) {
+function LogInIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -169,7 +178,7 @@ function LogInIcon(props) {
   );
 }
 
-function XIcon(props) {
+function XIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
