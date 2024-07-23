@@ -22,6 +22,22 @@ const SignUp: React.FC = () => {
 
   const handleSignUp = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+  
+    // Validation checks
+    if (!email) {
+      toast.error('There is no email.');
+      return;
+    }
+    if (!password) {
+      toast.error('There is no password.');
+      return;
+    }
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters.');
+      return;
+    }
+  
+    // Attempt to create user with email and password
     try {
       const userCredential: UserCredential | undefined = await createUserWithEmailAndPassword(email, password);
       if (!userCredential) {
@@ -37,6 +53,7 @@ const SignUp: React.FC = () => {
       if (e instanceof Error) toast.error(e.message);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
