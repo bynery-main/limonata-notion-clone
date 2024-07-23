@@ -19,13 +19,14 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({ userId }) => {
     }
 
     // Reference to the user's workspace collection
-    const workspaceRef = doc(collection(db, `users/${userId}/workspace`));
+    const workspaceRef = doc(collection(db, "workspaces"));
 
     // Set the workspace document
     try {
       await setDoc(workspaceRef, {
         name: workspaceName,
         description: workspaceDescription,
+        owner: userId,
       });
       console.log("Workspace created successfully");
       alert("Workspace created successfully");
