@@ -98,6 +98,12 @@ const LoginPage = () => {
           >
             Sign In with Google
           </button>
+          <p 
+            onClick={() => router.push('/forgot-password')}
+            className="text-red-500 hover:text-red-600 cursor-pointer text-sm mt-4 text-center"
+          >
+            Forgot Password?
+          </p>
           {submitError && <p className="text-red-500 text-center mt-4">{submitError}</p>}
           <p className="text-gray-500 mt-4">
             Don't have an account? 
