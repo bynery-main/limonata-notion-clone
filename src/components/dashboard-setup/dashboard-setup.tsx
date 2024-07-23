@@ -1,47 +1,63 @@
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";  // Correct import for Next.js 13
-import { db } from "../../firebase/firebaseConfig";
-import { doc, setDoc, collection } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { getFunctions, httpsCallable, HttpsCallableResult } from "firebase/functions";
+import { User } from "firebase/auth";
+import { auth } from "@/firebase/firebaseConfig";
 
-interface DashboardSetupProps {
-  userId: string;
+
+
+
+
+// Define an interface for the expected data returned by the cloud function
+interface InitializeWorkspaceResponse {
+  message: string;
+  workspaceId: string;
 }
 
-const DashboardSetup: React.FC<DashboardSetupProps> = ({ userId }) => {
+const DashboardSetup = () => {
+
+  const user = auth.currentUser;
+
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const router = useRouter();
+  const functions = getFunctions();
+  const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
 
-  const createWorkspace = async () => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!workspaceName || !workspaceDescription) {
       alert("Please fill in all fields.");
       return;
     }
 
-    // Reference to the user's workspace collection
-    const workspaceRef = doc(collection(db, "workspaces"));
-
-    // Set the workspace document
     try {
-      await setDoc(workspaceRef, {
-        name: workspaceName,
-        description: workspaceDescription,
-        owner: userId,
+      // Call the cloud function to create the workspace
+      const result = await initializeWorkspace({
+        userId: user!.uid,
+        workspaceName: workspaceName,
+        workspaceDescription: workspaceDescription
       });
-      console.log("Workspace created successfully");
-      alert("Workspace created successfully");
-      // Use navigate from next/navigation
-      router.push(`/dashboard/${workspaceRef.id}`);
+
+      // Assert the type of the data returned by the cloud function
+      const data = result.data as InitializeWorkspaceResponse;
+
+      if (data.workspaceId) {
+        console.log(data.message); // Optional: Log the message from the function
+        router.push(`/dashboard/${data.workspaceId}`);
+      } else {
+        throw new Error('Workspace creation failed: No ID returned');
+      }
     } catch (error) {
       console.error("Error creating workspace:", error);
-      alert("Error creating workspace");
+      alert("Failed to create workspace. Please try again.");
     }
   };
 
   return (
     <div>
       <h1>Dashboard Setup</h1>
-      <form onSubmit={(e) => { e.preventDefault(); createWorkspace(); }}>
+      <form onSubmit={handleFormSubmit}>
         <input
           type="text"
           placeholder="Workspace Name"

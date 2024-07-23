@@ -1,17 +1,29 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Correct the import here
 import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
+import { getAuth } from "firebase/auth";
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
   const router = useRouter();
-  const userSession = sessionStorage.getItem('user');
+  const [userSession, setUserSession] = useState<string | null>(null);
   const [workspace, setWorkspace] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if window is defined (i.e., running on the client)
+    if (typeof window !== "undefined") {
+
+      const user = auth.currentUser;
+      setUserSession(user?.uid ?? null);
+      console.log("User session:", userSession);
+      console.log("User:", user?.email);
+    }
+  }, []);
 
   useEffect(() => {
       const fetchUserData = async () => {
@@ -55,7 +67,7 @@ const Dashboard = () => {
         items-center
         "
       >
-        <DashboardSetup userId={user?.uid ?? 'default-uid'} />
+        <DashboardSetup />
       </div>
     )}
   </div>
