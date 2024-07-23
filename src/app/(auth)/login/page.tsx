@@ -91,7 +91,7 @@ const LoginPage = () => {
           </button>
           {submitError && <p className="text-red-500 text-center mt-4">{submitError}</p>}
           <p className="text-gray-500 mt-4">
-            Don't have an account? 
+            Don&apos;t have an account? 
             <a href="/sign-up" className="text-blue-500 hover:text-blue-600 cursor-pointer"> Sign Up</a>
           </p>
         </div>
