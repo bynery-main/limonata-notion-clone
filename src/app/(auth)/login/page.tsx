@@ -37,6 +37,9 @@ const LoginPage = () => {
       const userCredential: UserCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log({ userCredential });
       sessionStorage.setItem('user', 'true'); // Updated value to a string for type consistency
+      console.log(sessionStorage
+        .getItem('user')
+      );
       setEmail('');
       setPassword('');
       router.push('/');
