@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import LandingPageComponent from "@/components/landing-page-component";
+// import { GoogleAuthProvider } from "firebase/auth/cordova";
 
 export default function Home() {
   const [user] = useAuthState(auth);
@@ -26,18 +31,22 @@ export default function Home() {
     router.push('/login');
   };
 
+  const provider = new GoogleAuthProvider();
+  const login = () => {
+    signInWithPopup(auth, provider)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
   return (
     <>
-      <div>
-        <div>
-          Home
-        </div>
-        <div>
-          <button onClick={handleSignOut}>
-            Sign Out
-          </button>
-        </div>
-      </div>
+    <LandingPageComponent />
+        
     </>
   );
+
 }

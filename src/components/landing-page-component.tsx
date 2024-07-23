@@ -2,10 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig.ts"; // Adjust the path if necessary
+import { auth } from "../firebase/firebaseConfig"; // Adjust the path if necessary
 import CircleGradients from "./Circle-Gradients.svg";
 import inputTypesImage from '../Images/Input-Types-Images.png';
 import { SizeIcon } from "@radix-ui/react-icons";
+
+
+
 export default function LandingPageComponent() {
   const provider = new GoogleAuthProvider();
 
