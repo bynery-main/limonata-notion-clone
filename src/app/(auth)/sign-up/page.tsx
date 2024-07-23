@@ -1,7 +1,7 @@
 'use client';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
-import { auth, db } from "../../../firebase/firebaseConfig";
+import { auth } from "../../../firebase/firebaseConfig";
 import { UserCredential } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -10,6 +10,7 @@ const SignUp: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [createUserWithEmailAndPassword, , error] = useCreateUserWithEmailAndPassword(auth);
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -18,6 +19,10 @@ const SignUp: React.FC = () => {
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
+  };
+
+  const handleConfirmPasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(event.target.value);
   };
 
   const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
@@ -36,6 +41,10 @@ const SignUp: React.FC = () => {
       toast.error('Password must be at least 6 characters.');
       return;
     }
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match.');
+      return;
+    }
   
     // Attempt to create user with email and password
     try {
@@ -48,6 +57,7 @@ const SignUp: React.FC = () => {
       sessionStorage.setItem('user', 'true');
       setEmail('');
       setPassword('');
+      setConfirmPassword('');
       router.push('/');
     } catch (e) {
       if (e instanceof Error) toast.error(e.message);
@@ -72,6 +82,13 @@ const SignUp: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={handlePasswordChange}
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={handleConfirmPasswordChange}
             className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
           />
           <button
