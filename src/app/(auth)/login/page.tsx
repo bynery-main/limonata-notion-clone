@@ -42,7 +42,7 @@ const LoginPage = () => {
       );
       setEmail('');
       setPassword('');
-      router.push('/');
+      router.push('/dashboard');
     } catch (e) {
       if (e instanceof Error) {
         if (e.message.includes('auth/invalid-email')) {
@@ -60,7 +60,7 @@ const LoginPage = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log(result);
-      router.push('/');
+      router.push('/dashboard');
     } catch (e) {
       if (e instanceof Error) {
         toast.error(e.message);
