@@ -1,17 +1,27 @@
+import Sidebar from "@/components/sidebar/sidebar";
 import React from "react";
 
 interface LayoutProps {
-    children: React.ReactNode;
-    params: any;
+  children: React.ReactNode;
+  params: any;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
-    return (
-        <div>
-            <h1>Layout</h1>
-            {children}
-        </div>
-    );
-}
+  return (
+    <main className="flex w-full h-full">
+      <Sidebar params={params} />
+      <div
+        className="dark:boder-Neutrals-12/70
+        border-l-[1px]
+        w-full
+        relative
+        overflow-scroll
+      "
+      >
+        {children}
+      </div>
+    </main>
+  );
+};
 
 export default Layout;
