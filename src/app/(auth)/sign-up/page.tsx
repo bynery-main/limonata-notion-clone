@@ -25,12 +25,12 @@ const SignUp: React.FC = () => {
   
     // Validation checks
     if (!email) {
-      toast.error('There is no email.');
+      toast.error('Please provide a valid email address.');
       return;
     }
     if (!password) {
-      toast.error('There is no password.');
-      return;
+      toast.error('Please provide a password.');
+      return; 
     }
     if (password.length < 6) {
       toast.error('Password must be at least 6 characters.');
