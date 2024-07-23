@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";  // Correct import for Next.js 13
 import { db } from "../../firebase/firebaseConfig";
-import { doc, setDoc, collection } from "firebase/firestore";
+import { doc, setDoc, collection, serverTimestamp } from "firebase/firestore";
 
 interface DashboardSetupProps {
   userId: string;
@@ -21,16 +21,16 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({ userId }) => {
     // Reference to the user's workspace collection
     const workspaceRef = doc(collection(db, "workspaces"));
 
-    // Set the workspace document
+    // Set the workspace document Modularise later
     try {
       await setDoc(workspaceRef, {
-        name: workspaceName,
+        title: workspaceName,
         description: workspaceDescription,
         owner: userId,
+        createdAt: serverTimestamp()
       });
       console.log("Workspace created successfully");
-      alert("Workspace created successfully");
-      // Use navigate from next/navigation
+      alert("Workspace created successfully")
       router.push(`/dashboard/${workspaceRef.id}`);
     } catch (error) {
       console.error("Error creating workspace:", error);
