@@ -60,9 +60,6 @@ const Dashboard = () => {
     )}
   </div>
   );
-
-  router.push('/dashboard/${wokspace.id}');
-
 };
 
 export default Dashboard;

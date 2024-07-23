@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";  // Correct import for Next.js 13
 import { db } from "../../firebase/firebaseConfig";
 import { doc, setDoc, collection } from "firebase/firestore";
 
@@ -9,6 +10,7 @@ interface DashboardSetupProps {
 const DashboardSetup: React.FC<DashboardSetupProps> = ({ userId }) => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
+  const router = useRouter();
 
   const createWorkspace = async () => {
     if (!workspaceName || !workspaceDescription) {
@@ -27,6 +29,8 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({ userId }) => {
       });
       console.log("Workspace created successfully");
       alert("Workspace created successfully");
+      // Use navigate from next/navigation
+      router.push(`/dashboard/${workspaceRef.id}`);
     } catch (error) {
       console.error("Error creating workspace:", error);
       alert("Error creating workspace");
