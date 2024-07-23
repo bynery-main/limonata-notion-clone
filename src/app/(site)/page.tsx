@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { auth } from "../../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
+import { pages } from "next/dist/build/templates/app-page";
 
 export default function Home() {
-
   const [user] = useAuthState(auth);
   const router = useRouter();
   const userSession = sessionStorage.getItem('user');
@@ -23,7 +23,7 @@ export default function Home() {
         </div>
         <div>
           <button onClick={() => {
-            signOut(auth)
+            signOut(auth);
             sessionStorage.removeItem('user');
           }}>
             Sign Out
@@ -33,3 +33,5 @@ export default function Home() {
     </>
   );
 }
+
+export { Home };
