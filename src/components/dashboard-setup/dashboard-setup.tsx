@@ -8,6 +8,7 @@ import { auth } from "@/firebase/firebaseConfig";
 
 
 
+
 // Define an interface for the expected data returned by the cloud function
 interface InitializeWorkspaceResponse {
   message: string;
@@ -30,6 +31,7 @@ const DashboardSetup = () => {
       alert("Please fill in all fields.");
       return;
     }
+
 
     try {
       // Call the cloud function to create the workspace
