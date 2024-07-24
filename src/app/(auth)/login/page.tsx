@@ -71,37 +71,36 @@ const LoginPage = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 p-10">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-full max-w-md">
         <h1 className="text-white text-2xl mb-5">Sign In</h1>
-        <form onSubmit={handleSignInWithEmail}>
+        <form onSubmit={handleSignInWithEmail} className="flex flex-col items-center">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={handleEmailChange}
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500 shadow-md rounded-lg"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={handlePasswordChange}
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500 shadow-md rounded-lg"
           />
           <button
             type="submit"
-            className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 mb-4"
-          >
-            Sign In with Email
+            className="w-1/3 p-3 bg-white rounded text-black hover:bg-custom-orange shadow-md mb-4 rounded-lg"          >
+            Sign In
           </button>
           <button
             type="button"
             onClick={handleSignInWithGoogle}
-            className="w-full p-3 bg-red-600 rounded text-white hover:bg-red-500"
+            className="w-full p-3 bg-red-600 rounded text-white hover:bg-red-500 shadow-md rounded-lg"
           >
             Sign In with Google
           </button>
           <p
             onClick={() => router.push("/forgot-password")}
-            className="text-red-500 hover:text-red-600 cursor-pointer text-sm mt-4 text-center"
+            className="text-red-500 hover:text-red-600 cursor-pointer text-sm mt-4 text-center "
           >
             Forgot Password?
           </p>
