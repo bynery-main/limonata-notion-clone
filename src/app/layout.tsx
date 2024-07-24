@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import Footer from '../components/Footer'; // Import the Footer component, adjust the path as necessary
+import Footer from '../components/Footer';
+import { AuthProvider } from '../components/AuthProvider'; // Import the AuthProvider
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,9 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {children}
-        <Toaster position="top-right" />
-        <Footer /> {/* Add the Footer component here */}
+        <AuthProvider>
+          {children}
+          <Toaster position="top-right" />
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
