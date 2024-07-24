@@ -3,7 +3,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import Logo from '../../../public/cypresslogo.svg'; 
+import { auth } from '@/firebase/firebaseConfig';
 import { Grid, Navigation } from 'lucide-react';
+
+import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -14,7 +17,7 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
     NavigationMenuViewport,
-} from "@/components/ui/navigation-menu"
+} from "@/components/ui/navigation-menu";
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
@@ -22,7 +25,7 @@ const routes = [
     { title: 'Features', href: '#features' },
     { title: 'Resources', href: '#resources' },
     { title: 'Pricing', href: '#pricing' },
-    { title: 'Testimonials', href: '#testimonial' },
+    { title: 'Settings', href: '#settings' },
 ];
 
 const components: { title: string; href: string; description: string }[] = [
@@ -65,6 +68,38 @@ const components: { title: string; href: string; description: string }[] = [
 
 const Header = () => {
     const [path, setPath] = useState('#products');
+
+    const handleDeleteAccount = async () => {
+        if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+            const user = auth.currentUser;
+
+            if (user) {
+                try {
+                    await deleteUser(user);
+                    alert("Account deleted successfully.");
+                    window.location.href = "/login";
+                } catch (error: any) {
+                    console.error("Error deleting account:", error);
+                    if (error.code === 'auth/requires-recent-login') {
+                        alert("You need to reauthenticate before deleting your account. Please log in again.");
+                        const credential = EmailAuthProvider.credential(
+                            user.email!,
+                            prompt('Please enter your password again:')!
+                        );
+                        try {
+                            await reauthenticateWithCredential(user, credential);
+                            handleDeleteAccount(); // Retry account deletion after reauthentication
+                        } catch (reauthError: any) {
+                            alert("Reauthentication failed: " + reauthError.message);
+                        }
+                    } else {
+                        alert("Error deleting account: " + error.message);
+                    }
+                }
+            }
+        }
+    };
+
     return (
         <header className="p-4 flex justify-center items-center">
             <Link href={'/'} className='w-full flex gap-2 justify-left items-center'>
@@ -135,31 +170,29 @@ const Header = () => {
                     <NavigationMenuItem>
                         <Link href={'#'}>
                             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), {
-                                'dark:text-white': path === '#testimonials',
-                                'dark:text-white/40': path !== '#testimonials',
+                                'dark:text-white': path === '#settings',
+                                'dark:text-white/40': path !== '#settings',
                                 'font-normal': true,
                                 'text-xl': true,
                             })}>
-                                Testimonial
+                                Settings
                             </NavigationMenuLink>
                         </Link>
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
             <aside className="flex w-full gap-2 justify-end">
-                <Link href={'/login'}>
+                <Link href={'/logout'}>
                     <Button variant="default" className="p-1 hidden sm:block">
-                        Login
+                        Sign Out
                     </Button>
                 </Link>
-                <Link href="/signup">
-                    <Button variant="default" className="whitespace-nowrap">
-                        Sign Up
-                    </Button>
-                </Link>
+                <Button onClick={handleDeleteAccount} variant="default" className="whitespace-nowrap">
+                    Delete Account
+                </Button>
             </aside>
         </header>
-    )
+    );
 };
 
 const ListItem = React.forwardRef<
