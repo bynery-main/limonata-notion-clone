@@ -2,33 +2,29 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
-  UserCredential,
   setPersistence,
-  browserSessionPersistence,
+  browserLocalPersistence,
 } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
-import { FormSchema } from "@/lib/types"; // Adjust this path if necessary
 import toast from "react-hot-toast";
+import { useAuth } from "@/components/AuthProvider";
 
 const LoginPage = () => {
   const router = useRouter();
-  const [submitError, setSubmitError] = useState("");
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const provider = new GoogleAuthProvider();
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    mode: "onChange",
-    resolver: zodResolver(FormSchema),
-    defaultValues: { email: "", password: "" },
-  });
+  // Redirect if user is already logged in
+  if (user) {
+    router.push("/dashboard");
+    return null;
+  }
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -41,16 +37,8 @@ const LoginPage = () => {
   const handleSignInWithEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const userCredential: UserCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log({ userCredential });
-      sessionStorage.setItem("user", "true"); // Updated value to a string for type consistency
-      console.log(sessionStorage.getItem("user"));
-      setEmail("");
-      setPassword("");
+      await setPersistence(auth, browserLocalPersistence);
+      await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
     } catch (e) {
       if (e instanceof Error) {
@@ -69,25 +57,12 @@ const LoginPage = () => {
 
   const handleSignInWithGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      console.log(result);
-      // Setting Auth persistence to session
-      setPersistence(auth, browserSessionPersistence)
-        .then(() => {
-          console.log("Persistence set to session.");
-        })
-        .catch((error) => {
-          console.error(
-            "Failed to set persistence:",
-            error.code,
-            error.message
-          );
-        });
+      await setPersistence(auth, browserLocalPersistence);
+      await signInWithPopup(auth, provider);
       router.push("/dashboard");
     } catch (e) {
       if (e instanceof Error) {
         toast.error(e.message);
-        setSubmitError(e.message);
       }
     }
   };
@@ -118,7 +93,7 @@ const LoginPage = () => {
             Sign In with Email
           </button>
           <button
-            type="button" // Change to type="button" to prevent form submission
+            type="button"
             onClick={handleSignInWithGoogle}
             className="w-full p-3 bg-red-600 rounded text-white hover:bg-red-500"
           >
@@ -130,9 +105,6 @@ const LoginPage = () => {
           >
             Forgot Password?
           </p>
-          {submitError && (
-            <p className="text-red-500 text-center mt-4">{submitError}</p>
-          )}
           <p className="text-gray-500 mt-4">
             Don't have an account?
             <a

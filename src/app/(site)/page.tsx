@@ -1,56 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { signOut } from "firebase/auth";
 import LandingPageComponent from "@/components/landing-page-component";
-// import { GoogleAuthProvider } from "firebase/auth/cordova";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Home() {
-  const [user] = useAuthState(auth);
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const [userSession, setUserSession] = useState<string | null>(null);
+
+  console.log(user)
 
   useEffect(() => {
-    const sessionUser = user;
-    if (!sessionUser){
-      console.log("No user session");
-      const user = auth.currentUser;
-    }
-    if (sessionUser) {
-      setUserSession(user.uid);
-    } else if (!user) {
+    if (!loading && !user) {
       router.push('/login');
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
   const handleSignOut = () => {
     signOut(auth);
-    sessionStorage.removeItem('user');
     router.push('/login');
   };
 
-  const provider = new GoogleAuthProvider();
-  const login = () => {
-    signInWithPopup(auth, provider)
-      .then(result => {
-        console.log(result);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return null; // The useEffect will handle redirection
+  }
 
   return (
     <>
-    <LandingPageComponent />
-        
+      <LandingPageComponent />
+      <button onClick={handleSignOut}>Sign Out</button>
     </>
   );
-
 }
