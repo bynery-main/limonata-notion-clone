@@ -1,4 +1,16 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+// next.config.mjs
 
-export default nextConfig;
+const nextConfig = {
+    webpack(config, options) {
+      config.module.rules.push({
+        test: /\.svg$/,
+        issuer: { and: [/\.(js|ts)x?$/] }, // Process only JavaScript and TypeScript files
+        use: ['@svgr/webpack'] // Use '@svgr/webpack' to transform SVGs into React components
+      });
+  
+      return config;
+    },
+  };
+  
+  export default nextConfig;
+  
