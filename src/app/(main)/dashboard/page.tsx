@@ -1,40 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { db } from "../../../firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
-import {
-  doc,
-  getDoc,
-  getDocs,
-  collection,
-  query,
-  where,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
-
-interface Workspace {
-  id: string;
-  name: string;
-}
+import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaboratorWorkspaces, setCollaboratorWorkspaces] = useState<Workspace[]>([]);
-
   const [showDS, setShowDS] = useState(false);
 
-  const handleButtonClick = () => {
-    setShowDS(true);
-  };
-
   useEffect(() => {
-    const fetchUserWorkspaces = async () => {
+    const loadWorkspaces = async () => {
       if (!user) {
         router.push("/login");
         return;
@@ -44,95 +27,75 @@ const Dashboard = () => {
       const userDoc = await getDoc(userRef);
 
       if (userDoc.exists()) {
-        // Query for workspaces where user is owner
-        const ownedWorkspacesQuery = query(
-          collection(db, "workspaces"),
-          where("owners", "array-contains", user.uid)
-        );
-        const ownedWorkspacesSnapshot = await getDocs(ownedWorkspacesQuery);
+        const owned = await fetchWorkspaces("owners", user.uid);
+        const collaborated = await fetchWorkspaces("collaborators", user.uid);
 
-        // Query for workspaces where user is collaborator
-        const collaboratorWorkspacesQuery = query(
-          collection(db, "workspaces"),
-          where("collaborators", "array-contains", user.uid)
-        );
-        const collaboratorWorkspacesSnapshot = await getDocs(
-          collaboratorWorkspacesQuery
-        );
-
-        const allWorkspaces = [
-          ...ownedWorkspacesSnapshot.docs,
-          ...collaboratorWorkspacesSnapshot.docs,
-        ].map((doc) => ({
-          id: doc.id,
-          name: doc.data().name || "Unnamed Workspace",
-        }));
-
-        const ownedWorkspaces = ownedWorkspacesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name || "Unnamed Workspace",
-        }));
-
-        const collaboratorWorkspaces = collaboratorWorkspacesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name || "Unnamed Workspace",
-        }));
-
-
-        setWorkspaces(allWorkspaces);
-        setOwnedWorkspaces(ownedWorkspaces);
-        setCollaboratorWorkspaces(collaboratorWorkspaces);
+        setOwnedWorkspaces(owned);
+        setCollaboratorWorkspaces(collaborated);
       } else {
         console.error("No document for this user.");
-        setWorkspaces([]);
+        setOwnedWorkspaces([]);
+        setCollaboratorWorkspaces([]);
       }
     };
 
     if (!loading) {
-      fetchUserWorkspaces();
+      loadWorkspaces();
     }
   }, [user, loading, router]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return null; // The useEffect will handle redirection
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user) return null;
 
   return (
-    <div>
-      {workspaces.length > 0 ? (
-        <div>
-          <h2>Your Owned Workspaces:</h2>
-          <ul>
-            {ownedWorkspaces.map((workspace) => (
-              <li key={workspace.id}>
-                {workspace.name} (ID: {workspace.id})
-              </li>
-            ))}
-          </ul>
-          <h2>Your Collaborator Workspaces:</h2>
-          <ul>
-            {collaboratorWorkspaces.map((workspace) => (
-              <li key={workspace.id}>
-                {workspace.name} (ID: {workspace.id})
-              </li>
-            ))}
-          </ul>
-        </div>
+    <div className="p-6 max-w-4xl mx-auto">
+      {ownedWorkspaces.length > 0 || collaboratorWorkspaces.length > 0 ? (
+        <WorkspaceList
+          ownedWorkspaces={ownedWorkspaces}
+          collaboratorWorkspaces={collaboratorWorkspaces}
+        />
       ) : (
-        <div className="bg-background h-screen w-screen flex justify-center items-center">
+        <div className="bg-background h-screen flex justify-center items-center">
           <DashboardSetup />
         </div>
       )}
-      <div>
-        <Button onClick={handleButtonClick}>Show Dashboard Setup</Button>
+      <div className="mt-6">
+        <Button onClick={() => setShowDS(true)}>Show Dashboard Setup</Button>
         {showDS && <DashboardSetup />}
       </div>
     </div>
   );
 };
+
+const WorkspaceList: React.FC<{
+  ownedWorkspaces: Workspace[];
+  collaboratorWorkspaces: Workspace[];
+}> = ({ ownedWorkspaces, collaboratorWorkspaces }) => (
+  <div>
+    <WorkspaceSection title="Your Owned Workspaces" workspaces={ownedWorkspaces} />
+    <WorkspaceSection title="Your Collaborator Workspaces" workspaces={collaboratorWorkspaces} />
+  </div>
+);
+
+const WorkspaceSection: React.FC<{
+  title: string;
+  workspaces: Workspace[];
+}> = ({ title, workspaces }) => (
+  <div className="mb-6">
+    <h2 className="text-2xl font-bold mb-4">{title}</h2>
+    {workspaces.length > 0 ? (
+      <ul className="space-y-2">
+        {workspaces.map((workspace) => (
+          <li key={workspace.id} className="bg-gray-100 p-3 rounded-lg">
+            <span className="font-semibold">{workspace.name}</span>
+            <span className="text-sm text-gray-500 ml-2">(ID: {workspace.id})</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-gray-500">No workspaces found.</p>
+    )}
+  </div>
+);
 
 export default Dashboard;
