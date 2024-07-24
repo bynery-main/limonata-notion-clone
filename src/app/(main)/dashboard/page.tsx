@@ -3,9 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../../firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+} from "firebase/firestore";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import { useAuth } from "@/components/AuthProvider";
+import { Button } from "@/components/ui/button";
 
 interface Workspace {
   id: string;
@@ -16,6 +24,14 @@ const Dashboard = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
+  const [collaboratorWorkspaces, setCollaboratorWorkspaces] = useState<Workspace[]>([]);
+
+  const [showDS, setShowDS] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowDS(true);
+  };
 
   useEffect(() => {
     const fetchUserWorkspaces = async () => {
@@ -31,7 +47,7 @@ const Dashboard = () => {
         // Query for workspaces where user is owner
         const ownedWorkspacesQuery = query(
           collection(db, "workspaces"),
-          where("owner", "==", user.uid)
+          where("owners", "array-contains", user.uid)
         );
         const ownedWorkspacesSnapshot = await getDocs(ownedWorkspacesQuery);
 
@@ -40,17 +56,32 @@ const Dashboard = () => {
           collection(db, "workspaces"),
           where("collaborators", "array-contains", user.uid)
         );
-        const collaboratorWorkspacesSnapshot = await getDocs(collaboratorWorkspacesQuery);
+        const collaboratorWorkspacesSnapshot = await getDocs(
+          collaboratorWorkspacesQuery
+        );
 
         const allWorkspaces = [
           ...ownedWorkspacesSnapshot.docs,
-          ...collaboratorWorkspacesSnapshot.docs
-        ].map(doc => ({
+          ...collaboratorWorkspacesSnapshot.docs,
+        ].map((doc) => ({
           id: doc.id,
-          name: doc.data().name || "Unnamed Workspace"
+          name: doc.data().name || "Unnamed Workspace",
         }));
 
+        const ownedWorkspaces = ownedWorkspacesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name || "Unnamed Workspace",
+        }));
+
+        const collaboratorWorkspaces = collaboratorWorkspacesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name || "Unnamed Workspace",
+        }));
+
+
         setWorkspaces(allWorkspaces);
+        setOwnedWorkspaces(ownedWorkspaces);
+        setCollaboratorWorkspaces(collaboratorWorkspaces);
       } else {
         console.error("No document for this user.");
         setWorkspaces([]);
@@ -74,10 +105,20 @@ const Dashboard = () => {
     <div>
       {workspaces.length > 0 ? (
         <div>
-          <h2>Your Workspaces:</h2>
+          <h2>Your Owned Workspaces:</h2>
           <ul>
-            {workspaces.map(workspace => (
-              <li key={workspace.id}>{workspace.name} (ID: {workspace.id})</li>
+            {ownedWorkspaces.map((workspace) => (
+              <li key={workspace.id}>
+                {workspace.name} (ID: {workspace.id})
+              </li>
+            ))}
+          </ul>
+          <h2>Your Collaborator Workspaces:</h2>
+          <ul>
+            {collaboratorWorkspaces.map((workspace) => (
+              <li key={workspace.id}>
+                {workspace.name} (ID: {workspace.id})
+              </li>
             ))}
           </ul>
         </div>
@@ -86,6 +127,10 @@ const Dashboard = () => {
           <DashboardSetup />
         </div>
       )}
+      <div>
+        <Button onClick={handleButtonClick}>Show Dashboard Setup</Button>
+        {showDS && <DashboardSetup />}
+      </div>
     </div>
   );
 };
