@@ -1,13 +1,12 @@
 'use client';
-import { useState, ChangeEvent, FormEvent } from 'react';
+
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from "../../../firebase/firebaseConfig";
 import { UserCredential } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
-
-
 
 const SignUpFormSchema = z
   .object({
@@ -26,10 +25,7 @@ const SignUpFormSchema = z
     path: ['confirmPassword'],
   });
 
-
-
-
-const SignUp: React.FC = () => {
+export const StyledSignUpPage: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -85,49 +81,87 @@ const SignUp: React.FC = () => {
     } catch (e) {
       if (e instanceof Error) toast.error(e.message);
     }
+
+    
+
   };
-  
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
-        <h1 className="text-white text-2xl mb-5">Sign Up</h1>
-        <form onSubmit={handleSignUp}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={handleEmailChange}
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={handlePasswordChange}
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-          />
-          <button
-            type="submit"
-            className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
-          >
-            Sign Up
-          </button>
-        </form>
-        <p className="text-gray-500 mt-4">
-          Already have an account? 
-          <a href="/login" className="text-blue-500 hover:text-blue-600 cursor-pointer"> Login</a>
-        </p>
+    <div className="bg-white flex flex-row justify-center w-full">
+      <div className="bg-white w-[1440px] h-[810px]">
+        <div className="flex flex-col w-[1440px] h-[810px] items-start px-[35px] py-0 relative">
+          <div className="relative w-[1370px] h-[810px] bg-[#f6f8fa] overflow-hidden">
+            <div className="relative w-[1426px] h-[810px] left-[-31px]">
+              <div className="flex w-[1426px] h-[810px] items-start justify-center absolute top-0 left-0">
+                <div className="relative w-[754px] h-[740px] bg-[#f6f8fa] overflow-hidden">
+                  <div className="flex flex-col w-[654px] h-[740.4px] items-center justify-center pl-[140.42px] pr-[140.55px] py-0 relative top-[50px] left-[50px]">
+                    <div className="inline-flex flex-col h-[510px] items-center justify-center px-0 py-[45.7px] relative">
+                      <div className="inline-flex flex-col max-w-[400px] items-start pt-0 pb-5 px-0 relative flex-[0_0_auto]">
+                        <div className="inline-flex flex-col max-w-[400px] items-center relative flex-[0_0_auto]">
+                          <div className="relative w-fit mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[66.2px] text-center tracking-[-4.00px] leading-[80px]">
+                            Create a new<br />account
+                          </div>
+                        </div>
+                      </div>
+                      <form onSubmit={handleSignUp} className="flex flex-col items-center w-full">
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          value={email}
+                          onChange={handleEmailChange}
+                          className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
+                        />
+                        <input
+                          type="password"
+                          placeholder="Password"
+                          value={password}
+                          onChange={handlePasswordChange}
+                          className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
+                        />
+                        <input
+                          type="password"
+                          placeholder="Confirm Password"
+                          value={confirmPassword}
+                          onChange={handleConfirmPasswordChange}
+                          className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
+                        />
+                        <button
+                          type="submit"
+                          className="w-full p-3 bg-[#ff5924] rounded-[25px] text-white hover:bg-[#ff7a4c] shadow-[5px_5px_10px_#0000001a] mb-4"
+                        >
+                          Sign Up
+                        </button>
+                      </form>
+                    </div>
+                    <div className="flex flex-col w-[373px] items-start pt-[50px] pb-0 px-0 relative flex-[0_0_auto]">
+                      <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
+                        <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-transparent text-[22px] text-center tracking-[0] leading-[30px] whitespace-nowrap">
+                          <span className="text-black">Already have an account? </span>
+                          <span onClick={() => router.push("/login")} className="text-[#ff5924] underline cursor-pointer">Sign in here.</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="inline-flex flex-col items-start pt-5 pb-0 px-0 relative flex-[0_0_auto]">
+                      <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
+                        <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-black text-lg text-center tracking-[0] leading-[30px] whitespace-nowrap">
+                          <span className="underline cursor-pointer">Terms of Use</span>
+                          <span className="[font-family:'Nunito-Light',Helvetica] font-light text-black text-lg tracking-[0] leading-[30px]">
+                            {" "}
+                            |{" "}
+                          </span>
+                          <span className="underline cursor-pointer">Privacy Policy</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SignUp;
+export default StyledSignUpPage;
