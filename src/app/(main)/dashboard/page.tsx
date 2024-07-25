@@ -58,6 +58,12 @@ const Dashboard = () => {
     }
   };
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.target === e.currentTarget) {
+      handleCancel();
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (!user) return null;
 
@@ -79,7 +85,7 @@ const Dashboard = () => {
         </div>
       )}
       {showDashboardSetup && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOverlayClick}>
           <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
         </div>
       )}
