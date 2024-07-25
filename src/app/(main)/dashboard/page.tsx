@@ -56,13 +56,17 @@ const Dashboard = () => {
           collaboratorWorkspaces={collaboratorWorkspaces}
         />
       ) : (
-        <div className="bg-background h-screen flex justify-center items-center">
-          <DashboardSetup />
+        <div className="h-screen flex justify-center items-center">
+          <DashboardSetup onCancel={function (): void {
+              throw new Error("Function not implemented.");
+            } } />
         </div>
       )}
       <div className="mt-6">
-        <Button onClick={() => setShowDS(true)}>Show Dashboard Setup</Button>
-        {showDS && <DashboardSetup />}
+        {showDS ? null : <Button onClick={() => setShowDS(true)}>Show Dashboard Setup</Button>}
+        {showDS && <DashboardSetup onCancel={function (): void {
+          throw new Error("Function not implemented.");
+        } } />}
       </div>
     </div>
   );
