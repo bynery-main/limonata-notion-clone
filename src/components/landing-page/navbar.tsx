@@ -1,10 +1,26 @@
 import React from 'react';
-import { LogInIcon } from 'lucide-react'; // Adjust the import path as necessary
-import { Button } from '../ui/button'; // Adjust the import path as necessary
+import { LogInIcon } from 'lucide-react';
+import { Button } from '../ui/button';
+import { useRouter } from 'next/navigation';
+import { useAuth } from "@/components/auth-provider/AuthProvider";
+import { signOut } from 'firebase/auth';
+import { auth } from '@/firebase/firebaseConfig'; // Adjust this import based on your firebase setup
 
-const Navbar: React.FC = () => {
-    const login = () => {
-        // Define the login function logic here
+const Navbar = () => {
+    const router = useRouter();
+    const { user, loading } = useAuth();
+
+    const handleLogin = () => {
+        router.push('/login');
+    };
+
+    const handleSignUp = () => {
+        router.push('/sign-up');
+    };
+
+    const handleSignOut = () => {
+        signOut(auth);
+        router.push('/login');
     };
 
     return (
@@ -16,12 +32,22 @@ const Navbar: React.FC = () => {
                 </span>
             </div>
             <div className="space-x-4">
-                <Button variant="ghost" onClick={login}>
-                    LOG IN
-                </Button>
-                <Button variant="default" onClick={login}>
-                    SIGN UP
-                </Button>
+                {!loading && (
+                    user ? (
+                        <Button variant="default" onClick={handleSignOut}>
+                            SIGN OUT
+                        </Button>
+                    ) : (
+                        <>
+                            <Button variant="ghost" onClick={handleLogin}>
+                                LOG IN
+                            </Button>
+                            <Button variant="default" onClick={handleSignUp}>
+                                SIGN UP
+                            </Button>
+                        </>
+                    )
+                )}
             </div>
         </header>
     );
