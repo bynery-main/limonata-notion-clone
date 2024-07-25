@@ -64,7 +64,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onCancel}>
     <div className="absolute inset-0 bg-black backdrop-blur-lg z-[9980]"></div>
-    <div className="relative opacity-100 bg-white rounded-[53px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.3)] p-10 w-[606px] z-[10000]" onClick={handlePopupClick}>
+    <div className="relative bg-white rounded-[53px] shadow-[0_15px_60px_-15px_rgba(0,0,0,1)] p-10 w-[606px] z-[10000]" style={{ backgroundColor: 'white' }} onClick={handlePopupClick}>
         <div className="text-center mb-8">
           <h2 className="font-medium text-black text-3xl mb-2">Create a Workspace</h2>
           <p className="font-light text-black text-[15px]">
