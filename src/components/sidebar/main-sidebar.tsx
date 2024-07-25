@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
 
@@ -38,6 +38,12 @@ export const MainSidebar = (): JSX.Element => {
   const handleSuccess = () => {
     // Add your success handling logic here
     setShowDS(false);
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.target === e.currentTarget) {
+      setShowSettings(false);
+    }
   };
 
   return (
@@ -75,7 +81,7 @@ export const MainSidebar = (): JSX.Element => {
           <div className="w-14 h-[70px] top-[406px] [background:linear-gradient(180deg,rgba(1,2,86,0)_0%,rgb(1,2,86)_100%)] absolute left-0" />
         </div>
       </div>
-      <div className="flex-col justify-end gap-5 pt-2 pb-4 px-4 top-[718px] inline-flex items-start absolute left-0">
+      <div className="flex-col justify-end gap-5 pt-2 pb-4 px-4 bottom-0 inline-flex items-start absolute left-0">
         <img className="relative w-6 h-6" alt="Frame" src="frame-2.svg" />
         <div className="relative w-6 h-6 bg-[#ff6d00] rounded-[999px] overflow-hidden cursor-pointer" onClick={() => setShowSettings(!showSettings)}>
           <div className="absolute w-[18px] h-3 top-[5px] left-[3px] [font-family:'Inter-Bold',Helvetica] font-bold text-[#4c2103] text-[10px] text-center tracking-[0.40px] leading-3 whitespace-nowrap">
@@ -83,12 +89,14 @@ export const MainSidebar = (): JSX.Element => {
           </div>
         </div>
         {showSettings && (
-          <div className="absolute left-10 bottom-10 w-32 bg-white rounded-lg shadow-lg p-2">
-            <Link href="/settings" passHref>
-              <div className="block text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer">
-                Settings
-              </div>
-            </Link>
+          <div className="absolute bottom-0 left-16 z-50" onClick={handleOverlayClick}>
+            <div className="relative w-32 bg-white rounded-lg shadow-lg p-2 mb-2">
+              <Link href="/settings" passHref>
+                <div className="block text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer flex items-center">
+                  <FaCog className="mr-2" /> Settings
+                </div>
+              </Link>
+            </div>
           </div>
         )}
       </div>
