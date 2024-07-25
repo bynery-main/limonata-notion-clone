@@ -6,12 +6,14 @@ import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
 import { FaPlus } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
+import Link from "next/link";
 
 export const MainSidebar = (): JSX.Element => {
   const { user } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const router = useRouter();
   const [showDS, setShowDS] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const loadWorkspaces = async () => {
@@ -34,15 +36,8 @@ export const MainSidebar = (): JSX.Element => {
   };
 
   const handleSuccess = () => {
+    // Add your success handling logic here
     setShowDS(false);
-    // Optionally, you can reload workspaces to include the new one
-    if (user) {
-      fetchWorkspaces("owners", user.uid).then((owned) => {
-        fetchWorkspaces("collaborators", user.uid).then((collaborated) => {
-          setWorkspaces([...owned, ...collaborated]);
-        });
-      });
-    }
   };
 
   return (
@@ -82,11 +77,20 @@ export const MainSidebar = (): JSX.Element => {
       </div>
       <div className="flex-col justify-end gap-5 pt-2 pb-4 px-4 top-[718px] inline-flex items-start absolute left-0">
         <img className="relative w-6 h-6" alt="Frame" src="frame-2.svg" />
-        <div className="relative w-6 h-6 bg-[#ff6d00] rounded-[999px] overflow-hidden">
+        <div className="relative w-6 h-6 bg-[#ff6d00] rounded-[999px] overflow-hidden cursor-pointer" onClick={() => setShowSettings(!showSettings)}>
           <div className="absolute w-[18px] h-3 top-[5px] left-[3px] [font-family:'Inter-Bold',Helvetica] font-bold text-[#4c2103] text-[10px] text-center tracking-[0.40px] leading-3 whitespace-nowrap">
             MG
           </div>
         </div>
+        {showSettings && (
+          <div className="absolute left-10 bottom-10 w-32 bg-white rounded-lg shadow-lg p-2">
+            <Link href="/settings" passHref>
+              <div className="block text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer">
+                Settings
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
       {showDS && (
         <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
