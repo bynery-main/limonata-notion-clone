@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 
@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [collaboratorWorkspaces, setCollaboratorWorkspaces] = useState<Workspace[]>([]);
   const [showDS, setShowDS] = useState(false);
 
+  
   useEffect(() => {
     const loadWorkspaces = async () => {
       if (!user) {

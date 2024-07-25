@@ -1,4 +1,4 @@
-import Sidebar from "@/components/sidebar/sidebar";
+import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import React from "react";
 
 interface LayoutProps {
@@ -9,7 +9,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   return (
     <main className="flex w-full h-full">
-      <Sidebar params={params} />
+      <WorkspaceSidebar params={params} />
       <div
         className="dark:boder-Neutrals-12/70
         border-l-[1px]
