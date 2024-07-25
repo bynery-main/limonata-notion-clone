@@ -15,23 +15,30 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CollaboratorSearchProps {
     children: React.ReactNode;
-    existingCollaborators: string[]; // Array of user IDs
+    existingCollaborators: string[];
     currentUserUid: string;
+    onAddCollaborators: (selectedUsers: { uid: string; email: string }[]) => void;
 }
 
-const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, existingCollaborators, currentUserUid }) => {
+const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, existingCollaborators, currentUserUid, onAddCollaborators }) => {
   const [users, setUsers] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<{ uid: string; email: string }[]>([]);
 
   useEffect(() => {
     const loadUsers = async () => {
       const fetchedUsers = await fetchUsers();
-      setUsers(fetchedUsers);
+      setUsers(fetchedUsers.filter(user => user.uid !== currentUserUid && !existingCollaborators.includes(user.uid)));
     };
     loadUsers();
-  }, []);
+  }, [existingCollaborators, currentUserUid]);
 
-  const filteredUsers = users.filter(user => user.uid !== currentUserUid && !existingCollaborators.includes(user.uid));
+  const handleAddCollaborator = (user: { uid: string; email: string }) => {
+    setSelectedUsers(prev => [...prev, user]);
+  };
+
+  const handleConfirmAddition = () => {
+    onAddCollaborators(selectedUsers);
+  };
 
   return (
     <div>
@@ -46,18 +53,8 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, exist
               </p>
             </SheetDescription>
           </SheetHeader>
-          <div className="flex justify-center items-center gap-2 mt-2">
-            <Search />
-            <Input
-              name="search"
-              className="dark:bg-background"
-              placeholder="Search by email"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
-          </div>
           <ScrollArea className="mt-6 overflow-y-scroll w-full rounded-md">
-            {filteredUsers.map((user) => (
+            {users.map((user) => (
               <div key={user.uid} className="p-4 flex justify-between items-center">
                 <div className="flex gap-4 items-center">
                   <div className="text-sm gap-2 overflow-hidden overflow-ellipsis w-[180px] text-muted-foreground">
@@ -66,13 +63,14 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, exist
                 </div>
                 <Button
                   variant="secondary"
-                  onClick={() => console.log("Add", user)} // Placeholder for addCollaborator function
+                  onClick={() => handleAddCollaborator(user)}
                 >
                   Add
                 </Button>
               </div>
             ))}
           </ScrollArea>
+          <Button onClick={handleConfirmAddition}>Confirm Additions</Button>
         </SheetContent>
       </Sheet>
     </div>
