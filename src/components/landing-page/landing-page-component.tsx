@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig"; // Adjust the path if necessary
+import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
 import CircleGradients from "./Circle-Gradients.svg";
-import inputTypesImage from '../Images/Input-Types-Images.png';
-import { SizeIcon } from "@radix-ui/react-icons";
+import inputTypesImage from './Images/Input-Types-Images.png';
+
 
 
 
@@ -24,22 +22,6 @@ export default function LandingPageComponent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="flex items-center justify-between p-6">
-        <div className="flex items-center space-x-2">
-          <LogInIcon className="h-6 w-6" />
-          <span className="text-lg font-bold">
-            Limonata <span className="font-light">Project</span>
-          </span>
-        </div>
-        <div className="space-x-4">
-          <Button variant="ghost" onClick={login}>
-            LOG IN
-          </Button>
-          <Button variant="default" onClick={login}>
-            SIGN UP
-          </Button>
-        </div>
-      </header>
       <main className="flex flex-col items-left justify-left py-20 space-y-10">
         <div
           style={{ position: "relative", textAlign: "left", height: "500px" }}
