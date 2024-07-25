@@ -16,23 +16,19 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const [workspaceType, setWorkspaceType] = useState("private");
-<<<<<<< HEAD
-  const [collaborators, setCollaborators] = useState<{ uid: string; email: string }[]>([]);
-=======
   const [existingCollaborators, setExistingCollaborators] = useState<string[]>([]);
->>>>>>> 3233523d630778d510ff9adfdcf745b900aecf17
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
 
-  const handleAddCollaborators = (selectedCollaborators: { uid: string; email: string }[]) => {
-    setCollaborators(selectedCollaborators);
-  };
+  // const handleAddCollaborators = (selectedCollaborators: { uid: string; email: string }[]) => {
+  //   setCollaborators(selectedCollaborators);
+  // };
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!workspaceName || !workspaceDescription || (workspaceType === "shared" && collaborators.length === 0)) {
+    if (!workspaceName || !workspaceDescription || (workspaceType === "shared")) {
       alert("Please fill in all fields.");
       return;
     }
@@ -45,18 +41,14 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
         workspaceName,
         workspaceDescription,
         workspaceType,
-        collaborators: collaborators.map(c => c.uid),
+        collaborators: [],
       });
 
       const data = result.data as InitializeWorkspaceResponse;
 
       if (data.workspaceId) {
         console.log(data.message);
-<<<<<<< HEAD
-        onSuccess(); // Navigate or close modal
-=======
         onSuccess();
->>>>>>> 3233523d630778d510ff9adfdcf745b900aecf17
         router.push(`/dashboard/${data.workspaceId}`);
       } else {
         throw new Error('Workspace creation failed: No ID returned');
@@ -118,31 +110,19 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             </label>
           </div>
           {workspaceType === 'shared' && (
-<<<<<<< HEAD
-            <CollaboratorSearch existingCollaborators={collaborators.map(c => c.uid)} currentUserUid={user!.uid} onAddCollaborators={handleAddCollaborators}>
-=======
           <div className="mb-4 w-full">
             <CollaboratorSearch
               existingCollaborators={existingCollaborators}
               currentUserUid={user!.uid}
               style={{ zIndex: 10010 }} // Add this line
             >
->>>>>>> 3233523d630778d510ff9adfdcf745b900aecf17
               <Button type="button" className="text-sm mt-4">
                 <Plus />
                 Add Collaborators
               </Button>
             </CollaboratorSearch>
-<<<<<<< HEAD
-          )}
-          {/* List of selected collaborators */}
-          {collaborators.map(c => (
-            <div key={c.uid}>{c.email}</div>
-          ))}
-=======
           </div>
         )}
->>>>>>> 3233523d630778d510ff9adfdcf745b900aecf17
           <div className="flex space-x-4">
             <button
               type="submit"
