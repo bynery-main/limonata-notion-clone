@@ -16,7 +16,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const [workspaceType, setWorkspaceType] = useState("private"); // new state for workspace type
-  const [collaborators, setCollaborators] = useState(""); // new state for collaborators
+  const [existingCollaborators, setExistingCollaborators] = useState<string[]>([]); // List of collaborator UIDs
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const functions = getFunctions();
@@ -24,7 +24,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!workspaceName || !workspaceDescription || (workspaceType === "shared" && !collaborators)) {
+    if (!workspaceName || !workspaceDescription || (workspaceType === "shared" && existingCollaborators.length === 0)) {
       alert("Please fill in all fields.");
       return;
     }
@@ -37,7 +37,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
         workspaceName,
         workspaceDescription,
         workspaceType,
-        collaborators: workspaceType === "shared" ? collaborators.split(",") : [] // only send collaborators if shared
+        collaborators: existingCollaborators,
       });
 
       const data = result.data as InitializeWorkspaceResponse;
@@ -106,7 +106,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             </label>
           </div>
           {workspaceType === 'shared' && (
-            <CollaboratorSearch>
+            <CollaboratorSearch existingCollaborators={existingCollaborators} currentUserUid={user!.uid}>
               <Button type="button" className="text-sm mt-4">
                 <Plus />
                 Add Collaborators
