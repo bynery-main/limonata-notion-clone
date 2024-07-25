@@ -7,6 +7,7 @@ import { UserCredential } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import the icons
 
 const SignUpFormSchema = z
   .object({
@@ -30,6 +31,8 @@ export const StyledSignUpPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [createUserWithEmailAndPassword, , error] = useCreateUserWithEmailAndPassword(auth);
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -81,9 +84,14 @@ export const StyledSignUpPage: React.FC = () => {
     } catch (e) {
       if (e instanceof Error) toast.error(e.message);
     }
+  };
 
-    
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
 
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prevShowConfirmPassword) => !prevShowConfirmPassword);
   };
 
   return (
@@ -111,20 +119,38 @@ export const StyledSignUpPage: React.FC = () => {
                           onChange={handleEmailChange}
                           className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
                         />
-                        <input
-                          type="password"
-                          placeholder="Password"
-                          value={password}
-                          onChange={handlePasswordChange}
-                          className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
-                        />
-                        <input
-                          type="password"
-                          placeholder="Confirm Password"
-                          value={confirmPassword}
-                          onChange={handleConfirmPasswordChange}
-                          className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
-                        />
+                        <div className="w-full relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
+                          />
+                          <button
+                            type="button"
+                            onClick={togglePasswordVisibility}
+                            className="absolute right-4 top-4"
+                          >
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                          </button>
+                        </div>
+                        <div className="w-full relative">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm Password"
+                            value={confirmPassword}
+                            onChange={handleConfirmPasswordChange}
+                            className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
+                          />
+                          <button
+                            type="button"
+                            onClick={toggleConfirmPasswordVisibility}
+                            className="absolute right-4 top-4"
+                          >
+                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                          </button>
+                        </div>
                         <button
                           type="submit"
                           className="w-full p-3 bg-[#ff5924] rounded-[25px] text-white hover:bg-[#ff7a4c] shadow-[5px_5px_10px_#0000001a] mb-4"
