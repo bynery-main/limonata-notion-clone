@@ -13,6 +13,7 @@ const Dashboard = () => {
   const router = useRouter();
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaboratorWorkspaces, setCollaboratorWorkspaces] = useState<Workspace[]>([]);
+  const [showDashboardSetup, setShowDashboardSetup] = useState(false);
 
   useEffect(() => {
     const loadWorkspaces = async () => {
@@ -42,6 +43,21 @@ const Dashboard = () => {
     }
   }, [user, loading, router]);
 
+  const handleCancel = () => {
+    setShowDashboardSetup(false);
+  };
+
+  const handleSuccess = async () => {
+    setShowDashboardSetup(false);
+    if (user) {
+      const owned = await fetchWorkspaces("owners", user.uid);
+      const collaborated = await fetchWorkspaces("collaborators", user.uid);
+
+      setOwnedWorkspaces(owned);
+      setCollaboratorWorkspaces(collaborated);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (!user) return null;
 
@@ -54,9 +70,17 @@ const Dashboard = () => {
         />
       ) : (
         <div className="h-screen flex justify-center items-center">
-          <DashboardSetup onCancel={function (): void {
-              throw new Error("Function not implemented.");
-            } } />
+          <button
+            onClick={() => setShowDashboardSetup(true)}
+            className="bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md hover:bg-[#e54e1f] transition-colors"
+          >
+            Create Workspace
+          </button>
+        </div>
+      )}
+      {showDashboardSetup && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
         </div>
       )}
     </div>

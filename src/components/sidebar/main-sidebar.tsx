@@ -33,6 +33,18 @@ export const MainSidebar = (): JSX.Element => {
     setShowDS(false);
   };
 
+  const handleSuccess = () => {
+    setShowDS(false);
+    // Optionally, you can reload workspaces to include the new one
+    if (user) {
+      fetchWorkspaces("owners", user.uid).then((owned) => {
+        fetchWorkspaces("collaborators", user.uid).then((collaborated) => {
+          setWorkspaces([...owned, ...collaborated]);
+        });
+      });
+    }
+  };
+
   return (
     <div className="relative w-14 h-[810px] bg-[#010256]">
       <div className="top-0 bg-[#010256] inline-flex items-start absolute left-0">
@@ -78,7 +90,7 @@ export const MainSidebar = (): JSX.Element => {
       </div>
       {showDS && (
         <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <DashboardSetup onCancel={handleCancel} />
+          <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
         </div>
       )}
     </div>
