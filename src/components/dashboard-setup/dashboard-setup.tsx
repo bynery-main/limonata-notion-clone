@@ -8,10 +8,11 @@ interface InitializeWorkspaceResponse {
   workspaceId: string;
 }
 
-const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
+const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) => {
   const user = auth.currentUser;
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
@@ -22,6 +23,8 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
       alert("Please fill in all fields.");
       return;
     }
+
+    setLoading(true);
 
     try {
       const result = await initializeWorkspace({
@@ -34,6 +37,7 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
 
       if (data.workspaceId) {
         console.log(data.message);
+        onSuccess(); // Call onSuccess to close the popup
         router.push(`/dashboard/${data.workspaceId}`);
       } else {
         throw new Error('Workspace creation failed: No ID returned');
@@ -41,6 +45,8 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
     } catch (error) {
       console.error("Error creating workspace:", error);
       alert("Failed to create workspace. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,9 +78,10 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
           <div className="flex space-x-4">
             <button
               type="submit"
-              className="bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md hover:bg-[#e54e1f] transition-colors"
+              className={`bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#e54e1f]'}`}
+              disabled={loading}
             >
-              Create Workspace
+              {loading ? 'Creating...' : 'Create Workspace'}
             </button>
             <button
               type="button"
