@@ -155,7 +155,7 @@ export const LoginPage = (): JSX.Element => {
                           Forgot Password?
                         </a>
                         <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-black text-lg text-center tracking-[0] leading-[30px] whitespace-nowrap">
-                          Don't have an account?{" "}
+                          Don&apos;t have an account?{" "}
                           <span
                             onClick={() => router.push("/sign-up")}
                             className="text-[#ff5924] underline cursor-pointer"
