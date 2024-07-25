@@ -26,7 +26,7 @@ const SignUpFormSchema = z
     path: ['confirmPassword'],
   });
 
-export const StyledSignUpPage: React.FC = () => {
+const StyledSignUpPage: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
