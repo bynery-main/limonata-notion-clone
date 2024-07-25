@@ -29,6 +29,10 @@ export const MainSidebar = (): JSX.Element => {
     router.push(`/dashboard/${workspaceId}`);
   };
 
+  const handleCancel = () => {
+    setShowDS(false);
+  };
+
   return (
     <div className="relative w-14 h-[810px] bg-[#010256]">
       <div className="top-0 bg-[#010256] inline-flex items-start absolute left-0">
@@ -74,9 +78,7 @@ export const MainSidebar = (): JSX.Element => {
       </div>
       {showDS && (
         <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <DashboardSetup onCancel={function (): void {
-            throw new Error("Function not implemented.");
-          } } />
+          <DashboardSetup onCancel={handleCancel} />
         </div>
       )}
     </div>
