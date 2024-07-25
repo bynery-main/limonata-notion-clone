@@ -14,12 +14,14 @@ import { Button } from "../ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CollaboratorSearchProps {
-    children: React.ReactNode;
-    existingCollaborators: string[]; // Array of user IDs
-    currentUserUid: string;
+  children: React.ReactNode;
+  existingCollaborators: string[]; // Array of user IDs
+  currentUserUid: string;
+  style?: React.CSSProperties;
 }
 
-const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, existingCollaborators, currentUserUid }) => {
+
+const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, existingCollaborators, currentUserUid, style }) => {
   const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -34,10 +36,11 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, exist
   const filteredUsers = users.filter(user => user.uid !== currentUserUid && !existingCollaborators.includes(user.uid));
 
   return (
-    <div>
+    <div style={style}> 
       <Sheet>
         <SheetTrigger className="w-full">{children}</SheetTrigger>
-        <SheetContent className="w-[400px] sm:w-[540px]">
+        <SheetContent className="w-[400px] sm:w-[540px]" style={{ zIndex: 10020 }}> {/* Add zIndex here */}
+
           <SheetHeader>
             <SheetTitle>Search Collaborator</SheetTitle>
             <SheetDescription>
