@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import the icons
 
-const LoginPage = (): JSX.Element => { // Changed to const
+const LoginPage = () => { // Changed to const
   const router = useRouter();
   const { user } = useAuth();
   const [email, setEmail] = useState("");
