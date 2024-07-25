@@ -53,8 +53,10 @@ const Dashboard = () => {
           collaboratorWorkspaces={collaboratorWorkspaces}
         />
       ) : (
-        <div className="bg-background h-screen flex justify-center items-center">
-          <DashboardSetup />
+        <div className="h-screen flex justify-center items-center">
+          <DashboardSetup onCancel={function (): void {
+              throw new Error("Function not implemented.");
+            } } />
         </div>
       )}
     </div>
