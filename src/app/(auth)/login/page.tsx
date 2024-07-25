@@ -11,7 +11,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import toast from "react-hot-toast";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import the icons
 
 export const LoginPage = (): JSX.Element => {

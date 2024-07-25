@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
 import LandingPageComponent from "@/components/landing-page-component";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/components/auth-provider/AuthProvider";
 
 export default function Home() {
   const { user, loading } = useAuth();
