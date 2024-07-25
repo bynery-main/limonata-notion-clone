@@ -6,7 +6,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
-import { Button } from "@/components/ui/button";
 import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 
 const Dashboard = () => {
@@ -14,9 +13,7 @@ const Dashboard = () => {
   const router = useRouter();
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaboratorWorkspaces, setCollaboratorWorkspaces] = useState<Workspace[]>([]);
-  const [showDS, setShowDS] = useState(false);
 
-  
   useEffect(() => {
     const loadWorkspaces = async () => {
       if (!user) {
@@ -62,12 +59,6 @@ const Dashboard = () => {
             } } />
         </div>
       )}
-      <div className="mt-6">
-        {showDS ? null : <Button onClick={() => setShowDS(true)}>Show Dashboard Setup</Button>}
-        {showDS && <DashboardSetup onCancel={function (): void {
-          throw new Error("Function not implemented.");
-        } } />}
-      </div>
     </div>
   );
 };
