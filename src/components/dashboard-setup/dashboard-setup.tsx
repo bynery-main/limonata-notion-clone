@@ -8,11 +8,11 @@ interface InitializeWorkspaceResponse {
   workspaceId: string;
 }
 
-const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
+const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) => {
   const user = auth.currentUser;
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
-  const [loading, setLoading] = useState(false); // New state for managing loading state
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
@@ -24,7 +24,7 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
       return;
     }
 
-    setLoading(true); // Set loading state to true when form is submitted
+    setLoading(true);
 
     try {
       const result = await initializeWorkspace({
@@ -37,6 +37,7 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
 
       if (data.workspaceId) {
         console.log(data.message);
+        onSuccess(); // Call onSuccess to close the popup
         router.push(`/dashboard/${data.workspaceId}`);
       } else {
         throw new Error('Workspace creation failed: No ID returned');
@@ -45,14 +46,14 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
       console.error("Error creating workspace:", error);
       alert("Failed to create workspace. Please try again.");
     } finally {
-      setLoading(false); // Re-enable the button after the request completes
+      setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div className="absolute inset-0 bg-black backdrop-blur-lg"></div>
-      <div className="relative bg-white rounded-[53px]  shadow-2xl p-10 w-[606px] z-[9999]">
+      <div className="relative bg-white rounded-[53px] shadow-2xl p-10 w-[606px] z-[9999]">
         <div className="text-center mb-8">
           <h2 className="font-medium text-black text-3xl mb-2">Create a Workspace</h2>
           <p className="font-light text-black text-[15px]">
@@ -78,9 +79,9 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
             <button
               type="submit"
               className={`bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#e54e1f]'}`}
-              disabled={loading} // Disable button when loading
+              disabled={loading}
             >
-              {loading ? 'Creating...' : 'Create Workspace'} {/* Show loading text when loading */}
+              {loading ? 'Creating...' : 'Create Workspace'}
             </button>
             <button
               type="button"
