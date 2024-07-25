@@ -74,7 +74,9 @@ export const MainSidebar = (): JSX.Element => {
       </div>
       {showDS && (
         <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <DashboardSetup />
+          <DashboardSetup onCancel={function (): void {
+            throw new Error("Function not implemented.");
+          } } />
         </div>
       )}
     </div>
