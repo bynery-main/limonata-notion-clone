@@ -50,10 +50,14 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
     }
   };
 
+  const handlePopupClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation(); // Prevent event propagation to the overlay
+  };
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onCancel}>
       <div className="absolute inset-0 bg-black backdrop-blur-lg"></div>
-      <div className="relative bg-white opacity-100 rounded-[53px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.3)] p-10 w-[606px] z-[9999]">
+      <div className="relative bg-white rounded-[53px] shadow-2xl p-10 w-[606px] z-[9999]" onClick={handlePopupClick}>
         <div className="text-center mb-8">
           <h2 className="font-medium text-black text-3xl mb-2">Create a Workspace</h2>
           <p className="font-light text-black text-[15px]">
