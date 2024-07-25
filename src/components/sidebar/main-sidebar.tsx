@@ -4,11 +4,14 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
+import { FaPlus } from "react-icons/fa";
+import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 
 export const MainSidebar = (): JSX.Element => {
   const { user } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const router = useRouter();
+  const [showDS, setShowDS] = useState(false);
 
   useEffect(() => {
     const loadWorkspaces = async () => {
@@ -30,17 +33,14 @@ export const MainSidebar = (): JSX.Element => {
     <div className="relative w-14 h-[810px] bg-[#010256]">
       <div className="top-0 bg-[#010256] inline-flex items-start absolute left-0">
         <div className="inline-flex items-start pt-0 pb-12 px-0 relative flex-[0_0_auto]">
-          <div className="relative w-14 h-[476px]">
+          <div className="relative w-14">
             <div className="relative h-[106px] top-[7px]">
-              <div className="absolute w-[34px] h-[34px] top-3 left-[11px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#b4cfff]">
-                
-              </div>
               <button className="absolute w-[34px] h-[34px] top-3 left-[11px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#b4cfff]" onClick={() => router.push("/dashboard")}>
-                <div className="relative h-[34px] rounded-md overflow-hidden border border-solid border-[#0000001a] bg-[url(/frame.svg)] bg-cover bg-[50%_50%]">
+                <div className="relative h-[34px] rounded-md overflow-hidden border border-solid border-[#0000001a] bg-cover bg-[50%_50%]">
                   <img
                     className="w-[34px] h-[34px] top-0 object-cover absolute left-0"
                     alt="Rectangle"
-                    src="rectangle.png"
+                    src="/mnt/data/image.png"
                   />
                 </div>
               </button>
@@ -52,6 +52,13 @@ export const MainSidebar = (): JSX.Element => {
                   onClick={() => handleWorkspaceClick(workspace.id)}
                 />
               ))}
+              <div 
+                className="absolute w-10 h-10 left-2 rounded-md overflow-hidden cursor-pointer bg-[#020039] flex items-center justify-center text-white text-2xl"
+                style={{ top: `${60 + workspaces.length * 44}px` }}
+                onClick={() => setShowDS(true)}
+              >
+                <FaPlus color="#00bfff" /> {/* Light blue color */}
+              </div>
             </div>
           </div>
           <div className="w-14 h-[70px] top-[406px] [background:linear-gradient(180deg,rgba(1,2,86,0)_0%,rgb(1,2,86)_100%)] absolute left-0" />
@@ -65,6 +72,11 @@ export const MainSidebar = (): JSX.Element => {
           </div>
         </div>
       </div>
+      {showDS && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <DashboardSetup />
+        </div>
+      )}
     </div>
   );
 };
