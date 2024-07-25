@@ -12,6 +12,7 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
   const user = auth.currentUser;
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
+  const [loading, setLoading] = useState(false); // New state for managing loading state
   const router = useRouter();
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
@@ -22,6 +23,8 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
       alert("Please fill in all fields.");
       return;
     }
+
+    setLoading(true); // Set loading state to true when form is submitted
 
     try {
       const result = await initializeWorkspace({
@@ -41,6 +44,8 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
     } catch (error) {
       console.error("Error creating workspace:", error);
       alert("Failed to create workspace. Please try again.");
+    } finally {
+      setLoading(false); // Re-enable the button after the request completes
     }
   };
 
@@ -72,9 +77,10 @@ const DashboardSetup = ({ onCancel }: { onCancel: () => void }) => {
           <div className="flex space-x-4">
             <button
               type="submit"
-              className="bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md hover:bg-[#e54e1f] transition-colors"
+              className={`bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#e54e1f]'}`}
+              disabled={loading} // Disable button when loading
             >
-              Create Workspace
+              {loading ? 'Creating...' : 'Create Workspace'} {/* Show loading text when loading */}
             </button>
             <button
               type="button"
