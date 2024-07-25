@@ -1,13 +1,14 @@
-// page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from "@/firebase/firebaseConfig";
 import { deleteUser } from 'firebase/auth';
+import ConfirmationModal from '@/components/settings/ConfirmationModal';
 
 const SettingsPage = () => {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
   const handleDeleteAccount = async () => {
     const user = auth.currentUser;
@@ -32,14 +33,18 @@ const SettingsPage = () => {
     }
   };
 
+  const handleCancel = () => {
+    setShowModal(false);
+  };
+
   return (
     <div>
       <h1>Settings</h1>
       <button
-        onClick={handleDeleteAccount}
+        onClick={() => setShowModal(true)}
         style={{
-          background: 'red',
-          color: 'white',
+          background: '#ff5924', // Same red color
+          color: 'white', // White text
           padding: '10px',
           border: 'none',
           borderRadius: '5px',
@@ -47,6 +52,12 @@ const SettingsPage = () => {
       >
         Delete Account
       </button>
+      {showModal && (
+        <ConfirmationModal
+          onConfirm={handleDeleteAccount}
+          onCancel={handleCancel}
+        />
+      )}
     </div>
   );
 };
