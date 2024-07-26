@@ -41,11 +41,11 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
         workspaceName,
         workspaceDescription,
         userId: user!.uid,
-        selectedCollaborators,
+        collaborators: selectedCollaborators.map(collab => collab.uid), // Only send UIDs as an array of strings
       });
-
+  
       const data = result.data as InitializeWorkspaceResponse;
-
+  
       if (data.workspaceId) {
         console.log(data.message);
         onSuccess();
