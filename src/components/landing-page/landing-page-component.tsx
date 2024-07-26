@@ -68,7 +68,7 @@ export default function LandingPageComponent() {
             <p className="text-left">
               You can add study notes as images, links, notes, videos, quotes,
               PDFs, articles, any study resource from the web, or your computer.
-            </p>``
+            </p>
             <p className="text-left">
               And don&apos;t forget,{" "}
               <a href="#" className="text-blue-500 underline">
