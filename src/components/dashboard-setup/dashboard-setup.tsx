@@ -13,18 +13,23 @@ interface InitializeWorkspaceResponse {
 
 const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) => {
   const user = auth.currentUser;
+  const [selectedCollaborators, setSelectedCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const [workspaceType, setWorkspaceType] = useState("private");
-  const [existingCollaborators, setExistingCollaborators] = useState<string[]>([]);
+  const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
 
+  const addCollaborator = (collaborator: { uid: string; email: string }) => {
+    setSelectedCollaborators(prev => [...prev, collaborator]);
+  };
+
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!workspaceName || !workspaceDescription || (workspaceType === "shared" && existingCollaborators.length === 0)) {
+    if (!workspaceName || !workspaceDescription) {
       alert("Please fill in all fields.");
       return;
     }
@@ -33,15 +38,14 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
 
     try {
       const result = await initializeWorkspace({
-        userId: user!.uid,
         workspaceName,
         workspaceDescription,
-        workspaceType,
-        collaborators: existingCollaborators,
+        userId: user!.uid,
+        collaborators: selectedCollaborators.map(collab => collab.uid), // Only send UIDs as an array of strings
       });
-
+  
       const data = result.data as InitializeWorkspaceResponse;
-
+  
       if (data.workspaceId) {
         console.log(data.message);
         onSuccess();
@@ -107,16 +111,25 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
           </div>
           {workspaceType === 'shared' && (
           <div className="mb-4 w-full">
-            <CollaboratorSearch
-              existingCollaborators={existingCollaborators}
-              currentUserUid={user!.uid}
-              style={{ zIndex: 10010 }} // Add this line
-            >
+          <CollaboratorSearch
+            existingCollaborators={existingCollaborators.map(c => c.uid)} // This line assumes existingCollaborators is already of correct object structure.
+            currentUserUid={user!.uid}
+            onAddCollaborator={addCollaborator}
+            style={{ zIndex: 10010 }}
+          >
               <Button type="button" className="text-sm mt-4">
                 <Plus />
                 Add Collaborators
               </Button>
             </CollaboratorSearch>
+            {selectedCollaborators.length > 0 && (
+              <div>
+                <h3>Selected Collaborators:</h3>
+                {selectedCollaborators.map(collab => (
+                  <p key={collab.uid}>{collab.email}</p>
+                ))}
+              </div>
+            )}
           </div>
         )}
           <div className="flex space-x-4">

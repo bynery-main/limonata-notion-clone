@@ -14,6 +14,6 @@ export const fetchUsers = async (): Promise<Users[]> => {
 
   return usersSnapshot.docs.map((doc) => ({
     uid: doc.id,
-    email: doc.data().name,
+    email: doc.data().email,
   }));
 };
