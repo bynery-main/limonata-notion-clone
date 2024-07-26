@@ -15,15 +15,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CollaboratorSearchProps {
   children: React.ReactNode;
-  existingCollaborators: string[]; // Array of user IDs
+  existingCollaborators: string[];
   currentUserUid: string;
+  onAddCollaborator: (user: { uid: string; email: string }) => void; // New prop to handle adding
   style?: React.CSSProperties;
 }
 
-
-const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, existingCollaborators, currentUserUid, style }) => {
+const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, existingCollaborators, currentUserUid, onAddCollaborator, style }) => {
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<{ uid: string; email: string }[]>([]);
+
+  const addCollaboratorLocal = (user: { uid: string; email: string }) => {
+    setSelectedUsers(prev => [...prev, user]);
+    onAddCollaborator(user); // Directly use the prop here instead of from 'props'
+  };
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -32,14 +37,6 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, exist
     };
     loadUsers();
   }, [existingCollaborators, currentUserUid]);
-
-  const handleAddCollaborator = (user: { uid: string; email: string }) => {
-    setSelectedUsers(prev => [...prev, user]);
-  };
-
-  const handleConfirmAddition = () => {
-    onAddCollaborators(selectedUsers);
-  };
 
   return (
     <div style={style}> 
@@ -65,14 +62,13 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({ children, exist
                 </div>
                 <Button
                   variant="secondary"
-                  onClick={() => handleAddCollaborator(user)}
+                  onClick={() => addCollaboratorLocal(user)}
                 >
                   Add
                 </Button>
               </div>
             ))}
           </ScrollArea>
-          <Button onClick={handleConfirmAddition}>Confirm Additions</Button>
         </SheetContent>
       </Sheet>
     </div>
