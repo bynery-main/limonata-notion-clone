@@ -3,23 +3,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from "next/link";
 import Picker from '@emoji-mart/react';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { BoxIcon, CirclePlusIcon, LayoutGridIcon, LockIcon, SettingsIcon, UserPlusIcon, UsersIcon, FolderIcon, ChevronRightIcon } from "lucide-react";
+import { BoxIcon, CirclePlusIcon, LayoutGridIcon, LockIcon, SettingsIcon, UserPlusIcon, UsersIcon, ChevronRightIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import NativeNavigation from "./native-navigation";
 import FoldersDropDown from "./folders-dropdown";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/firebase/firebaseConfig";
 
 interface WorkspaceSidebarProps {
     params: { workspaceId: string };
     className?: string;
-}
-
-interface Folder {
-    id: string;
-    name: string;
 }
 
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ params, className }) => {
@@ -27,7 +19,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ params, className }
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [emoji, setEmoji] = useState<string>('🏔️');
     const sidebarRef = useRef<HTMLDivElement>(null);
-    const [folders, setFolders] = useState<Folder[]>([]);
 
     useEffect(() => {
         const updateWidth = () => {
@@ -38,21 +29,10 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ params, className }
         updateWidth();
         window.addEventListener('resize', updateWidth);
 
-        const foldersRef = collection(db, "workspaces", params.workspaceId, "folders");
-        
-        const unsubscribe = onSnapshot(foldersRef, (snapshot) => {
-            const updatedFolders: Folder[] = snapshot.docs.map(doc => ({
-                id: doc.id,
-                name: doc.data().name || "Unnamed Folder", // Ensure the name property is included
-            }) as Folder);
-            setFolders(updatedFolders);
-        });
-
         return () => {
             window.removeEventListener('resize', updateWidth);
-            unsubscribe();
         };
-    }, [params.workspaceId]);
+    }, []);
 
     const handleMouseMove = (e: MouseEvent) => {
         if (sidebarRef.current) {
@@ -98,64 +78,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ params, className }
             </div>
             <div className="flex-1 overflow-y-auto px-4 py-6">
                 <nav className="grid gap-4 text-sm font-medium">
-                    <Collapsible className="space-y-2">
-                        <div className="flex items-center justify-between space-x-4 px-3">
-                            <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">Folders</h3>
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                    <ChevronRightIcon className="h-4 w-4" />
-                                    <span className="sr-only">Toggle</span>
-                                </Button>
-                            </CollapsibleTrigger>
-                        </div>
-                        <CollapsibleContent className="space-y-1">
-                            <FoldersDropDown workspaceId={params.workspaceId} />
-                            <Link
-                                href="#"
-                                className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]"
-                                prefetch={false}
-                            >
-                                <FolderIcon className="h-4 w-4" />
-                                New Folder
-                            </Link>
-                        </CollapsibleContent>
-                    </Collapsible>
-                    
-                    {folders.map((folder) => (
-                        <Collapsible key={folder.id} className="space-y-2">
-                            <div className="flex items-center justify-between space-x-4 px-3">
-                                <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">{folder.name}</h3>
-                                <CollapsibleTrigger asChild>
-                                    <Button variant="ghost" size="sm">
-                                        <ChevronRightIcon className="h-4 w-4" />
-                                        <span className="sr-only">Toggle</span>
-                                    </Button>
-                                </CollapsibleTrigger>
-                            </div>
-                            <CollapsibleContent className="space-y-1">
-                                <Link
-                                    href="#"
-                                    className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]"
-                                    prefetch={false}
-                                >
-                                    <CirclePlusIcon className="h-4 w-4" />
-                                    New Resource
-                                </Link>
-                                <div className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]">
-                                    <LayoutGridIcon className="h-4 w-4" />
-                                    AI Flashcards
-                                </div>
-                                <Link
-                                    href="#"
-                                    className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]"
-                                    prefetch={false}
-                                >
-                                    <BoxIcon className="h-4 w-4" />
-                                    AI Study Guide
-                                </Link>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    ))}
+                    <FoldersDropDown workspaceId={params.workspaceId} />
                     
                     <div>
                         <Button variant="ghost" size="sm" className="flex items-center">
