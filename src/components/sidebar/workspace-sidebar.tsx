@@ -7,6 +7,10 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/component
 import { Button } from "@/components/ui/button";
 import { BoxIcon, CalendarIcon, CirclePlusIcon, HomeIcon, LayoutGridIcon, LockIcon, MountainIcon, PackageIcon, PlusIcon, SettingsIcon, ShoppingCartIcon, UserPlusIcon, UsersIcon } from "lucide-react";
 
+import { twMerge } from "tailwind-merge";
+import NativeNavigation from "./native-navigation";
+import FoldersDropDown from "./folders-dropdown";
+
 interface WorkspaceSidebarProps {
     params: { workspaceId: string };
     className?: string;
@@ -149,10 +153,10 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ params, className }
                     </div>
                 </nav>
             </div>
-            <div
-                onMouseDown={handleMouseDown}
-                className="absolute top-0 right-0 w-2 h-full cursor-col-resize bg-gray-300"
-            />
+                <>
+            <NativeNavigation params={params} className={twMerge('my-2', className)} />
+            <FoldersDropDown workspaceId={params.workspaceId} />
+        </>
         </aside>
     );
 }
