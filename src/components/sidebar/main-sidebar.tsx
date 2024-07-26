@@ -47,44 +47,36 @@ export const MainSidebar = (): JSX.Element => {
   };
 
   return (
-    <div className="relative w-14 h-[810px] bg-[#010256]">
-      <div className="top-0 bg-[#010256] inline-flex items-start absolute left-0">
-        <div className="inline-flex items-start pt-0 pb-12 px-0 relative flex-[0_0_auto]">
-          <div className="relative w-14">
-            <div className="relative h-[106px] top-[7px]">
-              <button className="absolute w-[34px] h-[34px] top-3 left-[11px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#b4cfff]" onClick={() => router.push("/dashboard")}>
-                <div className="relative h-[34px] rounded-md overflow-hidden border border-solid border-[#0000001a] bg-cover bg-[50%_50%]">
-                  <img
-                    className="w-[34px] h-[34px] top-0 object-cover absolute left-0"
-                    alt="Rectangle"
-                    src="/mnt/data/image.png"
-                  />
-                </div>
-              </button>
-              {workspaces.map((workspace, index) => (
-                <WorkspaceIcon 
-                  key={workspace.id} 
-                  workspace={workspace} 
-                  index={index} 
-                  onClick={() => handleWorkspaceClick(workspace.id)}
-                />
-              ))}
-              <div 
-                className="absolute w-10 h-10 left-2 rounded-md overflow-hidden cursor-pointer bg-[#020039] flex items-center justify-center text-white text-2xl"
-                style={{ top: `${60 + workspaces.length * 44}px` }}
-                onClick={() => setShowDS(true)}
-              >
-                <FaPlus color="#00bfff" /> {/* Light blue color */}
-              </div>
-            </div>
+    <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
+      <div className="bg-[#010256] flex flex-col items-center">
+        <button className="mt-3 w-[34px] h-[34px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#b4cfff]" onClick={() => router.push("/dashboard")}>
+          <div className="w-[34px] h-[34px] rounded-md overflow-hidden border border-solid border-[#0000001a] bg-cover bg-[50%_50%]">
+            <img
+              className="w-[34px] h-[34px] object-cover"
+              alt="Rectangle"
+              src="/mnt/data/image.png"
+            />
           </div>
-          <div className="w-14 h-[70px] top-[406px] [background:linear-gradient(180deg,rgba(1,2,86,0)_0%,rgb(1,2,86)_100%)] absolute left-0" />
+        </button>
+        {workspaces.map((workspace, index) => (
+          <WorkspaceIcon 
+            key={workspace.id} 
+            workspace={workspace} 
+            index={index} 
+            onClick={() => handleWorkspaceClick(workspace.id)}
+          />
+        ))}
+        <div 
+          className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white text-2xl"
+          onClick={() => setShowDS(true)}
+        >
+          <FaPlus color="#00bfff" /> {/* Light blue color */}
         </div>
       </div>
-      <div className="flex-col justify-end gap-5 pt-2 pb-4 px-4 bottom-0 inline-flex items-start absolute left-0">
-        <img className="relative w-6 h-6" alt="Frame" src="frame-2.svg" />
-        <div className="relative w-6 h-6 bg-[#ff6d00] rounded-[999px] overflow-hidden cursor-pointer" onClick={() => setShowSettings(!showSettings)}>
-          <div className="absolute w-[18px] h-3 top-[5px] left-[3px] [font-family:'Inter-Bold',Helvetica] font-bold text-[#4c2103] text-[10px] text-center tracking-[0.40px] leading-3 whitespace-nowrap">
+      <div className="flex flex-col items-center pb-4">
+        <img className="w-6 h-6" alt="Frame" src="frame-2.svg" />
+        <div className="w-6 h-6 bg-[#ff6d00] rounded-full overflow-hidden cursor-pointer mt-2" onClick={() => setShowSettings(!showSettings)}>
+          <div className="w-[18px] h-3 mt-2 mx-auto font-bold text-[#4c2103] text-[10px] text-center leading-3">
             MG
           </div>
         </div>
@@ -92,7 +84,7 @@ export const MainSidebar = (): JSX.Element => {
           <div className="absolute bottom-0 left-16 z-50" onClick={handleOverlayClick}>
             <div className="relative w-32 bg-white rounded-lg shadow-lg p-2 mb-2">
               <Link href="/settings" passHref>
-                <div className="block text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer flex items-center">
+                <div className="text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer flex items-center">
                   <FaCog className="mr-2" /> Settings
                 </div>
               </Link>
@@ -118,13 +110,10 @@ interface WorkspaceIconProps {
 const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick }) => {
   return (
     <div 
-      className="absolute w-10 h-10 left-2 rounded-md overflow-hidden cursor-pointer"
-      style={{ top: `${60 + index * 44}px` }}
+      className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white font-bold text-lg"
       onClick={onClick}
     >
-      <div className="w-full h-full flex items-center justify-center bg-[#020039] text-white font-bold text-lg">
-        {workspace.name.charAt(0).toUpperCase()}
-      </div>
+      {workspace.name.charAt(0).toUpperCase()}
     </div>
   );
 };
