@@ -92,7 +92,7 @@ export const MainSidebar = (): JSX.Element => {
           <div className="absolute bottom-0 left-16 z-50" onClick={handleOverlayClick}>
             <div className="relative w-32 bg-white rounded-lg shadow-lg p-2 mb-2">
               <Link href="/settings" passHref>
-                <div className="block text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer items-center">
+                <div className="block text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer flex items-center">
                   <FaCog className="mr-2" /> Settings
                 </div>
               </Link>
