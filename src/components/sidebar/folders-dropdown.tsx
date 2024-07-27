@@ -5,7 +5,7 @@ import { collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firesto
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronRightIcon, CirclePlusIcon, FlipHorizontalIcon } from "lucide-react";
+import { ChevronRightIcon, CirclePlusIcon, FlipVerticalIcon } from "lucide-react";
 
 interface Folder {
   id: string;
@@ -90,7 +90,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
           {folder.name}
           <div className="flex items-center gap-2">
             <ChevronRightIcon className="h-4 w-4" />
-            <FlipHorizontalIcon className="h-4 w-4 cursor-pointer" onClick={() => setShowOptions(!showOptions)} />
+            <FlipVerticalIcon className="h-4 w-4 cursor-pointer" onClick={() => setShowOptions(!showOptions)} />
           </div>
         </Accordion.Trigger>
         {showOptions && (
