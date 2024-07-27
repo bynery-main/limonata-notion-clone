@@ -7,7 +7,7 @@ const Page = () => {
 
     return (
         <div>
-            <h1>Workspace Page</h1>
+            <h1>Topic (Folder) Name</h1>
             {/* <button onClick={handleDeleteAccount}>Delete Account</button> */}
         </div>
     );
