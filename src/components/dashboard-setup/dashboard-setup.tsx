@@ -5,6 +5,8 @@ import { auth } from "@/firebase/firebaseConfig";
 import { Plus } from "lucide-react";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import { Button } from "../ui/button";
+import Picker from '@emoji-mart/react';
+
 
 interface InitializeWorkspaceResponse {
   message: string;
@@ -15,6 +17,8 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const user = auth.currentUser;
   const [selectedCollaborators, setSelectedCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [workspaceName, setWorkspaceName] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emoji, setEmoji] = useState<string>('🍋'); // Default emoji
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const [workspaceType, setWorkspaceType] = useState("private");
   const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
@@ -25,6 +29,16 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
 
   const addCollaborator = (collaborator: { uid: string; email: string }) => {
     setSelectedCollaborators(prev => [...prev, collaborator]);
+  };
+
+  const handleEmojiSelect = (emoji: any) => {
+    setEmoji(emoji.native);
+    setShowEmojiPicker(false);
+  };
+
+  const toggleEmojiPicker = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission
+    setShowEmojiPicker(!showEmojiPicker);
   };
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -76,13 +90,27 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
           </p>
         </div>
         <form onSubmit={handleFormSubmit} className="flex flex-col items-center">
-          <input
-            type="text"
-            placeholder="Workspace Name"
-            value={workspaceName}
-            onChange={(e) => setWorkspaceName(e.target.value)}
-            className="w-full bg-[#e4e4e4] rounded-[29px] px-4 py-2 mb-2 font-light text-[#8a8a8a] text-[15px] focus:outline-none"
-          />
+          <div className="w-full flex items-center mb-2 relative">
+            <button
+              type="button" // Add this to prevent form submission
+              onClick={toggleEmojiPicker}
+              className="flex items-center gap-2 font-semibold mr-2"
+            >
+              <span>{emoji}</span>
+            </button>
+            {showEmojiPicker && (
+              <div className="absolute left-0 top-full mt-2 z-20">
+                <Picker onEmojiSelect={handleEmojiSelect} />
+              </div>
+            )}
+            <input
+              type="text"
+              placeholder="Workspace Name"
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              className="flex-grow bg-[#e4e4e4] rounded-[29px] px-4 py-2 font-light text-[#8a8a8a] text-[15px] focus:outline-none"
+            />
+          </div>
           <input
             type="text"
             placeholder="Workspace Description"
