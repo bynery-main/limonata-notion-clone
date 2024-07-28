@@ -99,7 +99,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
               onClick={() => deleteFolder(folder.id, parentFolderId)}
               className="p-2 text-red-600 hover:bg-gray-200 w-full text-left"
             >
-              Delete Folder
+              Delete Topic
             </button>
           </div>
         )}
@@ -126,16 +126,16 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
     <div>
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">Folders</h3>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">Topics</h3>
         </div>
         <input
           type="text"
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
-          placeholder="New folder name"
-          className="border p-2 rounded"
+          placeholder="New Topic name"
+          className="border p-2" // Added "rounded" class
         />
-        <button onClick={() => addFolder()} className="bg-blue-500 text-white p-2 rounded mt-2">Add Folder</button>
+        <button onClick={() => addFolder()} className="bg-blue-500 text-white p-2 rounded mt-4"> <CirclePlusIcon className="h-4 w-4 flex items-center justify" /> </button>
         <Accordion.Root type="multiple" className="space-y-2">
           {folders.map(folder => (
             <FolderComponent key={folder.id} folder={folder} />

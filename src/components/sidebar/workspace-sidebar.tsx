@@ -79,17 +79,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ params, className }
             <div className="flex-1 overflow-y-auto px-4 py-6">
                 <nav className="grid gap-4 text-sm font-medium">
                     <FoldersDropDown workspaceId={params.workspaceId} />
-                    
-                    <div>
-                        <Button variant="ghost" size="sm" className="flex items-center">
-                            <div className="flex">
-                                <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-[#24222066]">Add Assessment</h3>
-                                <CirclePlusIcon className="h-4 w-4 relative" />
-                            </div>
-                            <span className="sr-only">Toggle</span>
-                        </Button>
-                    </div>
-                    
+
                     <div>
                         <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">Settings and People</h3>
                         <div className="grid gap-1">
