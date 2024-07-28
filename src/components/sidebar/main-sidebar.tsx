@@ -15,6 +15,7 @@ export const MainSidebar = (): JSX.Element => {
   const router = useRouter();
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [activeIcon, setActiveIcon] = useState<string | null>(null);
 
   useEffect(() => {
     const loadWorkspaces = async () => {
@@ -29,9 +30,22 @@ export const MainSidebar = (): JSX.Element => {
   }, [user]);
 
   const handleWorkspaceClick = (workspaceId: string) => {
-    router.push(`/dashboard/${workspaceId}`);
+
+    if (workspaceId === 'home') {
+      setActiveIcon('home');
+      router.push("/dashboard")
+    }
+    else {
+      router.push(`/dashboard/${workspaceId}`);
+    }
+    setActiveIcon(workspaceId);
+    console.log('Icon clicked:', workspaceId);
+    return;
+
   };
 
+
+  
   const handleCancel = () => {
     setShowDS(false);
   };
@@ -47,17 +61,21 @@ export const MainSidebar = (): JSX.Element => {
     }
   };
 
+  
+    
   return (
     <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
-      <div className="bg-[#010256] flex flex-col items-center">
-        <button className="mt-3 w-[34px] h-[34px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#6FA2FF] " onClick={() => router.push("/dashboard")}>
-          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden  bg-cover bg-[50%_50%]">
-          <Home className=" w-5 h-5 text-[#6FA2FF]" alt="Home Icon" />
+      <div className=" mt-3 bg-[#010256] flex flex-col items-center">
+        <button className="w-[34px] h-[34px] bg-[#020039] rounded-md " onClick={() =>  handleWorkspaceClick('home')}>
+          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden  bg-cover bg-[50%_50%] hover:border-2 hover:border-[#6FA2FF]">
+          <Home className=" w-5 h-5 text-[#6FA2FF]" alt="Home Icon"
+           />
           </div>
         </button>
         {workspaces.map((workspace, index) => (
           <WorkspaceIcon 
             key={workspace.id} 
+            isActive={activeIcon === workspace.id}
             workspace={workspace} 
             index={index} 
             onClick={() => handleWorkspaceClick(workspace.id)}
@@ -98,17 +116,17 @@ export const MainSidebar = (): JSX.Element => {
 };
 
 interface WorkspaceIconProps {
+  isActive: boolean;
   workspace: Workspace;
   index: number;
   onClick: () => void;
 }
 
-const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick }) => {
+const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick,isActive }) => {
   return (
     <div 
-      className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md hover:border-2"
-      style={{ color: '#6FA2FF', borderColor: '#6FA2FF' }}
-      onClick={onClick}
+    className={`mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-[#6FA2FF] font-semibold text-md hover:border-2 hover:border-[#6FA2FF] ${isActive ? 'border-2 border-[#6FA2FF]' : ''}`}
+    onClick={onClick}
     >
       {workspace.name.charAt(0).toUpperCase()}
     </div>
