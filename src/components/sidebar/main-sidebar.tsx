@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
+import { Home } from 'lucide-react';
 
 export const MainSidebar = (): JSX.Element => {
   const { user } = useAuth();
@@ -49,13 +50,9 @@ export const MainSidebar = (): JSX.Element => {
   return (
     <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
       <div className="bg-[#010256] flex flex-col items-center">
-        <button className="mt-3 w-[34px] h-[34px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#b4cfff]" onClick={() => router.push("/dashboard")}>
-          <div className="w-[34px] h-[34px] rounded-md overflow-hidden border border-solid border-[#0000001a] bg-cover bg-[50%_50%]">
-            <img
-              className="w-[34px] h-[34px] object-cover"
-              alt="Rectangle"
-              src="/mnt/data/image.png"
-            />
+        <button className="mt-3 w-[34px] h-[34px] bg-[#020039] rounded-md overflow-hidden shadow-[0px_0px_0px_2px_#6FA2FF] " onClick={() => router.push("/dashboard")}>
+          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden  bg-cover bg-[50%_50%]">
+          <Home className=" w-5 h-5 text-[#6FA2FF]" alt="Home Icon" />
           </div>
         </button>
         {workspaces.map((workspace, index) => (
@@ -67,14 +64,13 @@ export const MainSidebar = (): JSX.Element => {
           />
         ))}
         <div 
-          className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white text-2xl"
+          className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white text-md text-[#6FA2FF] hover:text-[#FF5924] hover:border-2 hover:border-[#FF5924]"
           onClick={() => setShowDS(true)}
         >
-          <FaPlus color="#00bfff" /> {/* Light blue color */}
+          <FaPlus className="" /> {/* Light blue color */}
         </div>
       </div>
       <div className="flex flex-col items-center pb-4">
-        <img className="w-6 h-6" alt="Frame" src="frame-2.svg" />
         <div className="w-6 h-6 bg-[#ff6d00] rounded-full overflow-hidden cursor-pointer mt-2" onClick={() => setShowSettings(!showSettings)}>
           <div className="w-[18px] h-3 mt-2 mx-auto font-bold text-[#4c2103] text-[10px] text-center leading-3">
             MG
@@ -93,7 +89,7 @@ export const MainSidebar = (): JSX.Element => {
         )}
       </div>
       {showDS && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="absolute top-0 left-0 w-full h-full bg-[#6FA2FF] bg-opacity-50 flex items-center justify-center">
           <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
         </div>
       )}
@@ -110,7 +106,8 @@ interface WorkspaceIconProps {
 const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick }) => {
   return (
     <div 
-      className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white font-bold text-lg"
+      className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md hover:border-2"
+      style={{ color: '#6FA2FF', borderColor: '#6FA2FF' }}
       onClick={onClick}
     >
       {workspace.name.charAt(0).toUpperCase()}
