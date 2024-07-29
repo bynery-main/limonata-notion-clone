@@ -1,15 +1,20 @@
-"use client";
-
 import React, { useState } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 
-interface UploadFileProps {
-  folderRef: string;
+interface FileData {
+  id: string;
+  name: string;
+  url: string;
 }
 
-const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
+interface UploadFileProps {
+  folderRef: string;
+  onFileUpload: (file: FileData) => void;
+}
+
+const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
@@ -28,7 +33,8 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
         console.log(`Upload is ${progress}% done`);
       },
@@ -39,6 +45,13 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         await saveFileData(file.name, downloadURL);
         console.log("File available at", downloadURL);
+
+        onFileUpload({
+          id: file.name,
+          name: file.name,
+          url: downloadURL,
+        });
+
         setUploadProgress(0); // Reset progress after upload is complete
       }
     );
@@ -60,7 +73,10 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
   return (
     <div className="upload-file">
       <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload} className="bg-blue-500 text-white p-2 rounded mt-2">
+      <button
+        onClick={handleUpload}
+        className="bg-blue-500 text-white p-2 rounded mt-2"
+      >
         Upload File
       </button>
       {uploadProgress > 0 && <div>Upload Progress: {uploadProgress}%</div>}
