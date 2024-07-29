@@ -1,16 +1,24 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
-import { collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
-import { db } from "@/firebase/firebaseConfig";
+import { collection, doc, setDoc, deleteDoc, onSnapshot, QuerySnapshot, DocumentData } from "firebase/firestore";
+import { db, storage } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronRightIcon, CirclePlusIcon, TrashIcon } from "lucide-react";
 import UploadFile from "./upload-file"; // Import the UploadFile component
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 interface Folder {
   id: string;
   name: string;
   contents: any[];
+  files: FileData[];
+}
+
+interface FileData {
+  id: string;
+  name: string;
+  url: string;
 }
 
 interface FoldersDropDownProps {
@@ -23,18 +31,42 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
 
   useEffect(() => {
     const foldersRef = collection(db, "workspaces", workspaceId, "folders");
-    
+  
     const unsubscribe = onSnapshot(foldersRef, (snapshot) => {
-      const updatedFolders: Folder[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name || "Unnamed Folder", // Ensure the name property is included
-        contents: doc.data().contents || [] // Ensure contents is included
-      }) as Folder);
-      setFolders(updatedFolders);
+      const fetchFolders = async () => {
+        const updatedFolders: Folder[] = await Promise.all(snapshot.docs.map(async (doc) => {
+          const folderData = doc.data();
+          const filesCollectionRef = collection(db, "workspaces", workspaceId, "folders", doc.id, "files");
+  
+          const filesSnapshot = await getFilesSnapshot(filesCollectionRef);
+  
+          const files: FileData[] = filesSnapshot.docs.map((fileDoc: DocumentData) => ({
+            id: fileDoc.id,
+            name: fileDoc.data().name,
+            url: fileDoc.data().url,
+          }));
+  
+          return {
+            id: doc.id,
+            name: folderData.name || "Unnamed Folder",
+            contents: folderData.contents || [],
+            files,
+          };
+        }));
+        setFolders(updatedFolders);
+      };
+  
+      fetchFolders();
     });
-
+  
     return () => unsubscribe();
   }, [workspaceId]);
+
+  const getFilesSnapshot = (filesCollectionRef: any) => {
+    return new Promise<QuerySnapshot<DocumentData>>((resolve, reject) => {
+      onSnapshot(filesCollectionRef, resolve, reject);
+    });
+  };
 
   const addFolder = async (parentFolderId?: string) => {
     if (newFolderName.trim() === "") return;
@@ -132,6 +164,18 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
           />
           <button onClick={addSubFolder} className="bg-blue-500 text-white p-2 rounded mt-2">Add Subfolder</button>
           <UploadFile folderRef={`workspaces/${workspaceId}/folders/${folder.id}`} /> {/* Include the UploadFile component */}
+          <div className="mt-2">
+            <h4 className="font-medium">Files</h4>
+            <ul>
+              {folder.files.map((file) => (
+                <li key={file.id}>
+                  <a href={file.url} download className="text-blue-500 hover:underline">
+                    {file.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
           <Accordion.Root type="multiple" className="space-y-2">
             {folder.contents.map((subfolder: Folder) => (
               <FolderComponent key={subfolder.id} folder={subfolder} parentFolderId={folder.id} />
