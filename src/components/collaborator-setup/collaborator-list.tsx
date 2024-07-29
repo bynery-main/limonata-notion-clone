@@ -1,21 +1,42 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import firebase from 'firebase/app';
+import 'firebase/functions';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 interface CollaboratorListProps {
+    workspaceId: string;
     existingCollaborators: string[];
     newCollaborators: { uid: string; email: string }[];
     onRemove: (uid: string) => void;
 }
 
-const CollaboratorList: React.FC<CollaboratorListProps> = ({ existingCollaborators, newCollaborators, onRemove }) => {
+const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existingCollaborators, newCollaborators, onRemove }) => {
+    const removeCollaborator = async (uid: string) => {
+
+
+        const functions = getFunctions();
+
+        const removeCollaboratorFunction = httpsCallable(functions, "removeCollaborator");
+
+
+        try {
+            const result = await removeCollaboratorFunction({ workspaceId, userId: uid });
+            console.log(result.data);
+        } catch (error) {
+            console.error("Error removing collaborator:", error);
+        }
+    };
+
     return (
         <div className="space-y-2">
             <h3 className="font-semibold">Existing Collaborators</h3>
             {existingCollaborators.map(uid => (
                 <div key={uid} className="flex justify-between items-center">
                     <span>{uid}</span>
-                    {/* You might want to add a remove button here as well, 
-                    but it would require additional logic to remove from the database */}
+                    <Button onClick={() => removeCollaborator(uid)} variant="destructive" size="sm">
+                        Remove
+                    </Button>
                 </div>
             ))}
             

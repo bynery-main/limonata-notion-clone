@@ -371,6 +371,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               existingCollaborators={existingCollaborators}
               newCollaborators={newCollaborators}
               onRemove={handleRemoveCollaborator}
+              workspaceId={params.workspaceId}
             />
             <Button onClick={handleSaveCollaborators} className="mt-4">
               Save Changes
