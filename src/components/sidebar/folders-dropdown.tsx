@@ -1,12 +1,12 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
-import { collection, doc, setDoc, deleteDoc, onSnapshot, QuerySnapshot, DocumentData } from "firebase/firestore";
+import { collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { ref, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronRightIcon, CirclePlusIcon, TrashIcon } from "lucide-react";
 import UploadFile from "./upload-file"; // Import the UploadFile component
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 interface Folder {
   id: string;
@@ -31,23 +31,16 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
 
   useEffect(() => {
     const foldersRef = collection(db, "workspaces", workspaceId, "folders");
-  
+
     const unsubscribe = onSnapshot(foldersRef, (snapshot) => {
       const fetchFolders = async () => {
         const updatedFolders: Folder[] = await Promise.all(snapshot.docs.map(async (doc) => {
           const folderData = doc.data();
-          const filesCollectionRef = collection(db, "workspaces", workspaceId, "folders", doc.id, "files");
-  
-          const filesSnapshot = await getFilesSnapshot(filesCollectionRef);
-  
-          const files: FileData[] = filesSnapshot.docs.map((fileDoc: DocumentData) => ({
-            id: fileDoc.id,
-            name: fileDoc.data().name,
-            url: fileDoc.data().url,
-          }));
-  
+          const folderId = doc.id;
+          const files = await fetchFiles(folderId);
+
           return {
-            id: doc.id,
+            id: folderId,
             name: folderData.name || "Unnamed Folder",
             contents: folderData.contents || [],
             files,
@@ -55,17 +48,27 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
         }));
         setFolders(updatedFolders);
       };
-  
+
       fetchFolders();
     });
-  
+
     return () => unsubscribe();
   }, [workspaceId]);
 
-  const getFilesSnapshot = (filesCollectionRef: any) => {
-    return new Promise<QuerySnapshot<DocumentData>>((resolve, reject) => {
-      onSnapshot(filesCollectionRef, resolve, reject);
-    });
+  const fetchFiles = async (folderId: string): Promise<FileData[]> => {
+    const filesRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
+    const filesList = await listAll(filesRef);
+    const files: FileData[] = await Promise.all(
+      filesList.items.map(async (itemRef) => {
+        const url = await getDownloadURL(itemRef);
+        return {
+          id: itemRef.name,
+          name: itemRef.name,
+          url,
+        };
+      })
+    );
+    return files;
   };
 
   const addFolder = async (parentFolderId?: string) => {
@@ -95,6 +98,28 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
     await deleteDoc(folderRef);
     console.log(`Deleted folder: ${folderId} from ${parentFolderId ? `subfolder of ${parentFolderId}` : "root"}`);
   };
+
+  const deleteFile = async (folderId: string, fileName: string) => {
+    const fileRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}/${fileName}`);
+    await deleteObject(fileRef);
+    console.log(`Deleted file: ${fileName}`);
+    
+    const fileDocRef = doc(db, "workspaces", workspaceId, "folders", folderId, "files", fileName);
+    await deleteDoc(fileDocRef);
+    console.log(`Deleted file entry from Firestore: ${fileName}`);
+  
+    setFolders((prevFolders) =>
+      prevFolders.map((folder) =>
+        folder.id === folderId
+          ? {
+              ...folder,
+              files: folder.files.filter((file) => file.name !== fileName),
+            }
+          : folder
+      )
+    );
+  };
+  
 
   const FolderComponent: React.FC<{ folder: Folder, parentFolderId?: string }> = ({ folder, parentFolderId }) => {
     const [newSubFolderName, setNewSubFolderName] = useState("");
@@ -168,10 +193,14 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
             <h4 className="font-medium">Files</h4>
             <ul>
               {folder.files.map((file) => (
-                <li key={file.id}>
+                <li key={file.id} className="flex items-center justify-between">
                   <a href={file.url} download className="text-blue-500 hover:underline">
                     {file.name}
                   </a>
+                  <TrashIcon
+                    className="h-4 w-4 cursor-pointer text-red-600"
+                    onClick={() => deleteFile(folder.id, file.name)}
+                  />
                 </li>
               ))}
             </ul>
