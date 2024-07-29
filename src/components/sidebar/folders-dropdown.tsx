@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { Button } from "@/components/ui/button";
-import { ChevronRightIcon, CirclePlusIcon, DeleteIcon, FlipVerticalIcon, TrashIcon } from "lucide-react";
+import { ChevronRightIcon, CirclePlusIcon, TrashIcon } from "lucide-react";
+import UploadFile from "./upload-file"; // Import the UploadFile component
 
 interface Folder {
   id: string;
@@ -131,6 +131,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
             className="border p-2 rounded"
           />
           <button onClick={addSubFolder} className="bg-blue-500 text-white p-2 rounded mt-2">Add Subfolder</button>
+          <UploadFile folderRef={`workspaces/${workspaceId}/folders/${folder.id}`} /> {/* Include the UploadFile component */}
           <Accordion.Root type="multiple" className="space-y-2">
             {folder.contents.map((subfolder: Folder) => (
               <FolderComponent key={subfolder.id} folder={subfolder} parentFolderId={folder.id} />
