@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from "next/link";
 import Picker from '@emoji-mart/react';
-import { Button } from "@/components/ui/button";
 import { BoxIcon, CirclePlusIcon, LayoutGridIcon, LockIcon, SettingsIcon, UserPlusIcon, UsersIcon, ChevronRightIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import NativeNavigation from "./native-navigation";

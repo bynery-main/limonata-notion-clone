@@ -4,6 +4,7 @@ import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import Picker from '@emoji-mart/react';
+import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -49,8 +50,10 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       "
       >
         {children}
+
         </div>
       </div>
+
     </main>
   );
 };

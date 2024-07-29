@@ -5,7 +5,7 @@ import { collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firesto
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronRightIcon, CirclePlusIcon, FlipVerticalIcon } from "lucide-react";
+import { ChevronRightIcon, CirclePlusIcon, DeleteIcon, FlipVerticalIcon, TrashIcon } from "lucide-react";
 
 interface Folder {
   id: string;
@@ -67,6 +67,11 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
   const FolderComponent: React.FC<{ folder: Folder, parentFolderId?: string }> = ({ folder, parentFolderId }) => {
     const [newSubFolderName, setNewSubFolderName] = useState("");
     const [showOptions, setShowOptions] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const handleClick = () => {
+      setIsPressed(!isPressed);
+    };
 
     const addSubFolder = async () => {
       if (newSubFolderName.trim() === "") return;
@@ -86,12 +91,26 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
 
     return (
       <Accordion.Item value={folder.id} className="border rounded relative group">
-        <Accordion.Trigger className="flex items-center justify-between w-full p-2 text-left">
+        <Accordion.Trigger className="flex items-center justify-between w-full p-2 text-left" onClick={handleClick}>
           {folder.name}
           <div className="flex items-center gap-2">
-            <ChevronRightIcon className="h-4 w-4" />
-            <FlipVerticalIcon className="h-4 w-4 cursor-pointer" onClick={() => setShowOptions(!showOptions)} />
-          </div>
+          <div >
+              <ChevronRightIcon
+                className="h-4 w-4"
+                style={{
+                  transform: isPressed ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+            </div>
+              <TrashIcon
+                className="h-4 w-4 cursor-pointer"
+                onClick={() => setShowOptions(!showOptions)}
+                style={{ color: isHovered ? 'red' : 'inherit' }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              />          
+            </div>
         </Accordion.Trigger>
         {showOptions && (
           <div className="absolute right-0 top-8 bg-white border rounded shadow-md z-10">
@@ -135,7 +154,9 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
           placeholder="New Topic name"
           className="border p-2" // Added "rounded" class
         />
-        <button onClick={() => addFolder()} className="bg-blue-500 text-white p-2 rounded mt-4"> <CirclePlusIcon className="h-4 w-4 flex items-center justify" /> </button>
+        <button onClick={() => addFolder()} className="bg-blue-500 text-white p-2 rounded mt-4"> 
+          <CirclePlusIcon className="h-4 w-4 flex items-center justify" />
+           </button>
         <Accordion.Root type="multiple" className="space-y-2">
           {folders.map(folder => (
             <FolderComponent key={folder.id} folder={folder} />
