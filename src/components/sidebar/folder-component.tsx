@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from 'next/navigation';
 import { collection, doc, setDoc } from "firebase/firestore";
 import { ChevronRightIcon, TrashIcon } from "lucide-react";
 import { db } from "@/firebase/firebaseConfig";
@@ -35,6 +36,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   deleteFolder, 
   deleteFile 
 }) => {
+  const router = useRouter();
   const [newSubFolderName, setNewSubFolderName] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -67,17 +69,46 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     setNewSubFolderName(""); 
   };
 
+  const navigatePage = (accordionId: string, type: string) => {
+    if (type === 'folder') {
+      router.push(`/dashboard/${workspaceId}/${accordionId}`);
+    }
+    if (type === 'file') {
+      router.push(`/dashboard/${workspaceId}/${folder.id}/${accordionId}`);
+    }
+  };
+
   return (
-    <Accordion.Item value={folder.id} className="border rounded relative group">
-      <Accordion.Trigger className="flex items-center justify-between w-full p-2 text-left" onClick={handleClick}>
-        {folder.name}
-        <div className="flex items-center gap-2">
-          <div>
+    <Accordion.Item
+      value={folder.id}
+      className="border rounded relative group"
+      onClick={(e) => {
+        e.stopPropagation();
+        navigatePage(folder.id, 'folder');
+      }}
+    >
+      <Accordion.Trigger
+        id="folder"
+        className="hover:no-underline p-2 dark:text-muted-foreground text-sm"
+        disabled={false}
+      >
+        <div className="flex gap-4 items-center justify-center overflow-hidden">
+          <div className="relative">
             <ChevronRightIcon
               className="h-4 w-4"
               style={{ transform: isPressed ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}
             />
           </div>
+          <input
+            type="text"
+            value={folder.name}
+            className="outline-none overflow-hidden w-[140px] text-Neutrals/neutrals-7 bg-transparent cursor-pointer"
+            readOnly
+            onClick={(e) => {
+              e.stopPropagation();
+              navigatePage(folder.id, 'folder');
+            }}
+          />
           <TrashIcon
             className="h-4 w-4 cursor-pointer"
             onClick={() => setShowOptions(!showOptions)}
@@ -120,7 +151,15 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           <ul>
             {folder.files.map((file) => (
               <li key={file.id} className="flex items-center justify-between">
-                <a href={file.url} download className="text-blue-500 hover:underline">
+                <a
+                  href={file.url}
+                  download
+                  className="text-blue-500 hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigatePage(file.id, 'file');
+                  }}
+                >
                   {file.name}
                 </a>
                 <TrashIcon className="h-4 w-4 cursor-pointer text-red-600" onClick={() => deleteFile(workspaceId, folder.id, file.name)} />
