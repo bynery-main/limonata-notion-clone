@@ -119,8 +119,25 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
 
           <BentoGridDemo />
+          
       </div>
-
+          {/* Gradient Overlay */}
+          <div style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            height: '200px', /* Adjust the height as needed */
+            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 50%)',
+            pointerEvents: 'none' /* Ensure it doesn't block interactions */
+          }}>
+    <button style={{
+              marginBottom: '20px', /* Adjust the margin as needed */
+              pointerEvents: 'auto' /* Ensure the button is clickable */
+            }}>
+              Centered Button
+            </button>
+          </div>
     </main>
   );
 };
