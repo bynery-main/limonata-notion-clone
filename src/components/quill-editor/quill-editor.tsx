@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import "quill/dist/quill.snow.css";
 
 interface QuillEditorProps {
-  dirType: string;
+  dirDetails: any;
+  dirType: "workspace" | "folder" | "file";
   fileId: string;
-  dirDetails: any; // Adjust type according to your actual data structure
 }
 
 var TOOLBAR_OPTIONS = [
@@ -36,6 +36,22 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
 }) => {
   const [quill, setQuill] = useState<any>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const details = useMemo(() => {
+    let selectedDir;
+
+    if (dirType === "file") {
+
+    }
+
+    if (dirType === "folder") {
+
+    }
+
+    if (dirType === "workspace") {
+
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window === "undefined") return;
