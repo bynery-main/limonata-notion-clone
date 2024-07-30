@@ -8,8 +8,7 @@ const Page = () => {
 
     return (
         <div>
-            <h1>Topic (Folder) Name</h1>
-                
+            <h1>Topic (Folder) Name</h1>                
             </div>
 
     );
