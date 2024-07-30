@@ -28,7 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   return (
     <main className="flex w-full h-full">
       <WorkspaceSidebar params={params} />
-      <div className="flex h-20 shrink-0 items-center border-b px-6 relative text-xl">
+      {/* <div className="flex h-20 shrink-0 items-center border-b px-6 relative text-xl">
                 <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="flex mx-5 items-center gap-2 font-semibold">
                     <span>{emoji}</span>
                 </button>
@@ -48,11 +48,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         text-xl
         font-semibold
       "
-      >
+      > */}
         {children}
-
+{/* 
         </div>
-      </div>
+      </div> */}
 
     </main>
   );
