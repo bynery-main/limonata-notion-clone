@@ -66,6 +66,7 @@ export const MainSidebar = (): JSX.Element => {
   return (
     <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
       <div className=" mt-3 bg-[#010256] flex flex-col items-center">
+       
         <button className="w-[34px] h-[34px] bg-[#020039] rounded-md " onClick={() =>  handleWorkspaceClick('home')}>
           <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden  bg-cover bg-[50%_50%] hover:border-2 hover:border-[#6FA2FF]">
           <Home className=" w-5 h-5 text-[#6FA2FF]" alt="Home Icon"

@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import Picker from '@emoji-mart/react';
 import { BentoGrid, BentoGridItem } from "../../../../components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
+import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
    function BentoGridDemo() {
     return (
       <BentoGrid className="max-w-4xl mx-auto">
+
         {items.map((item, i) => (
           <BentoGridItem
             key={i}
@@ -86,8 +88,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     <main className="flex w-full h-full">
       <WorkspaceSidebar params={params} />
       
-      <div className="flex h-full relative text-xl flex-col mx-4">        <div className="flex h-20 shrink-0 items-center border-b px-6 relative text-xl fixed top-0 left-0 right-0">
-                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="flex mx-5 items-center gap-2 font-semibold">
+      <div className="flex h-full relative text-xl flex-col mx-4 flex-grow overflow-auto">        
+      <div className="flex h-20 shrink-0 items-center border-b px-6 relative text-xl fixed top-0 left-0 right-0 mb-10">                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="flex mx-5 items-center gap-2 font-semibold">
                       <span>{emoji}</span>
                   </button>
                   {showEmojiPicker && (
@@ -97,18 +99,26 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   )}
                   
           <div
-          className="
-          w-full
-          relative
-          overflow-scroll
-          font-inter
-          text-xl
-          font-light">
+            className="
+            w-full
+            relative
+            overflow-scroll
+            font-inter
+            text-3xl
+            font-extralight">
 
-          {children}
+            {children}
+            <line x1="0" y1="0" x2="100" y2="100" stroke="black" />
           </div>
+          <Button className=" bg-primary-500 text-[#FF5924] border-color-[#FF5924] hover:bg-primary-600 hover:border-color-[#FF5924] hover:text-white
+          ">
+          
+            <Share2Icon size={15} className="mr-2"/>
+            Invite Members
+          </Button>
         </div>
-        <BentoGridDemo />     
+
+          <BentoGridDemo />
       </div>
 
     </main>
