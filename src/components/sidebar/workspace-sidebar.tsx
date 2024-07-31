@@ -23,6 +23,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from 'next/navigation';
+import { useFolder } from '@/contexts/FolderContext';
 
 interface Folder {
   id: string;
@@ -35,7 +36,7 @@ interface FileData {
   name: string;
   url: string;
 }
-interface WorkspaceSidebarProps {
+export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
   className?: string;
   onFoldersUpdate: (folders: Folder[]) => void;
@@ -53,6 +54,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const { setCurrentFolder } = useFolder();
 
   useEffect(() => {
     const updateWidth = () => {
@@ -67,11 +69,13 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       window.removeEventListener("resize", updateWidth);
     };
   }, []);
-  const handleFolderSelect = (folderId: string) => {
-    setCurrentFolderId(folderId);
-    // Redirect to the folder page
-    window.location.href = `/dashboard/${params.workspaceId}/${folderId}`;
+
+  const handleFolderSelect = (folder: Folder) => {
+    setCurrentFolderId(folder.id);
+    setCurrentFolder(folder);
+    router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
+
   const handleMouseMove = (e: MouseEvent) => {
     if (sidebarRef.current) {
       const newWidth = e.clientX;
@@ -80,6 +84,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       }
     }
   };
+
   const handleMouseUp = () => {
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
@@ -165,7 +170,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
-  
+
   return (
     <>
       <aside
@@ -191,12 +196,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-          <FoldersDropDown 
-            workspaceId={params.workspaceId} 
-            onFoldersUpdate={onFoldersUpdate}
-            currentFolderId={currentFolderId}
-            onFolderSelect={handleFolderSelect}
-          />
+            <FoldersDropDown 
+              workspaceId={params.workspaceId} 
+              onFoldersUpdate={onFoldersUpdate}
+              currentFolderId={currentFolderId}
+              onFolderSelect={handleFolderSelect}
+            />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
                 Settings and People
@@ -216,12 +221,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   onAddCollaborator={handleAddCollaborator}
                 >
                   <div className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
-                  onClick={() => setShowCollaborators(true)}
+                    onClick={() => setShowCollaborators(true)}
                   >
                     <UserPlusIcon className="h-4 w-4" />
                     Add People
                   </div>
-
                 </CollaboratorSearch>
                 {/* ... (keep other navigation items) */}
               </div>
