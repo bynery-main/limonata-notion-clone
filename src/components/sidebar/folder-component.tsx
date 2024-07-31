@@ -94,11 +94,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       >
         <div className="flex gap-4 items-center justify-center overflow-hidden">
           <div className="relative">
-    <Accordion.Item value={folder.id} className="border border-[#d17c5d] rounded-lg relative group">
-      <Accordion.Trigger className="flex items-center justify-between w-full p-2 text-left" onClick={handleClick}>
-        {folder.name}
-        <div className="flex items-center gap-2">
-          <div>
             <ChevronRightIcon
               className="h-4 w-4"
               style={{ transform: isPressed ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}
