@@ -82,7 +82,29 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     <main className="flex w-full h-full z-10">
       <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
       <div className="relative overflow-scroll font-inter text-xl font-semibold">
-
+      <div className="flex h-40 shrink-0 items-center border-b px-6 relative text-xl">
+                <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="flex mx-5 items-center gap-2 font-semibold">
+                    <span>{emoji}</span>
+                </button>
+                {showEmojiPicker && (
+                    <div className="absolute top-full left-0 mt-2 z-20 text-4xl">
+                        <Picker onEmojiSelect={handleEmojiSelect} />
+                    </div>
+                )}
+                
+      <div
+        className="dark:boder-Neutrals-12/70
+        border-l-[1px]
+        w-full
+        relative
+        overflow-scroll
+        font-inter
+        text-4xl
+        font-light
+      ">
+        Unit 1: The Cell
+        </div>
+      </div>
         {children}
         <BentoGrid className="max-w-4xl mx-auto">
           {foldersData.flatMap(folder => 
