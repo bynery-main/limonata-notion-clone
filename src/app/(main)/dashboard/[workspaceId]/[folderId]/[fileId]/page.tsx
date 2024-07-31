@@ -1,22 +1,22 @@
 export const dynamic = 'force-dynamic';
 
 import QuillEditor from '@/components/quill-editor/quill-editor';
-import { getFolderDetails } from '@/lib/queries/queries';
+import { getFileDetails } from '@/lib/queries/queries';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-const Folder = async ({ params }: { params: { folderId: string } }) => {
-  const { data } = await getFolderDetails(params.folderId);
+const File = async ({ params }: { params: { fileId: string } }) => {
+  const { data } = await getFileDetails(params.fileId);
 
   return (
     <div className="relative">
       <QuillEditor
-        dirType="folder"
-        fileId={params.folderId}
+        dirType="file"
+        fileId={params.fileId}
         dirDetails={data || {}}
       />
     </div>
   );
 };
 
-export default Folder;
+export default File;
