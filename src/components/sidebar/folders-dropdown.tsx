@@ -24,20 +24,20 @@ interface Folder {
 interface FoldersDropDownProps {
   workspaceId: string;
   onFoldersUpdate: (folders: Folder[]) => void;
+  onFolderSelect: (folder: Folder) => void;
   currentFolderId: string | null;
-  onFolderSelect: (folderId: string) => void;
 }
 
 const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   workspaceId,
   onFoldersUpdate,
   currentFolderId,
-  onFolderSelect }) => {
+  onFolderSelect, }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [newFolderName, setNewFolderName] = useState("");
 
   useEffect(() => {
-    const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+    const foldersRef = collection(db, 'workspaces', workspaceId, 'folders');
   
     const unsubscribe = onSnapshot(foldersRef, (snapshot) => {
       const fetchFolders = async () => {
@@ -49,7 +49,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   
             return {
               id: folderId,
-              name: folderData.name || "Unnamed Folder",
+              name: folderData.name || 'Unnamed Folder',
               contents: folderData.contents || [],
               files,
             };
@@ -62,9 +62,10 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   
       fetchFolders();
     });
-  
+
     return () => unsubscribe();
   }, [workspaceId, onFoldersUpdate]);
+
 
   const handleAddFolder = async () => {
     await addFolder(workspaceId, newFolderName);
@@ -94,16 +95,16 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
         </button>
         <Accordion.Root type="multiple" className="space-y-2">
         {folders.map((folder) => (
-          <FolderComponent 
-            key={folder.id} 
-            folder={folder} 
-            workspaceId={workspaceId}
-            setFolders={setFolders}
-            deleteFolder={deleteFolder}
-            deleteFile={deleteFile}
-            isActive={currentFolderId === folder.id}
-            onSelect={() => onFolderSelect(folder.id)}
-          />
+            <FolderComponent
+              key={folder.id}
+              folder={folder}
+              workspaceId={workspaceId}
+              setFolders={setFolders}
+              deleteFolder={deleteFolder}
+              deleteFile={deleteFile}
+              isActive={currentFolderId === folder.id}
+              onSelect={() => onFolderSelect(folder)} // Updated
+            />
         ))}
       </Accordion.Root>
       </div>

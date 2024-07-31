@@ -174,6 +174,8 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
               setFolders={setFolders}
               deleteFolder={deleteFolder}
               deleteFile={deleteFile}
+              isActive={isActive}
+              onSelect={onSelect}
             />
           ))}
         </Accordion.Root>
