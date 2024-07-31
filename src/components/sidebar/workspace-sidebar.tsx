@@ -23,14 +23,27 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
 
+interface Folder {
+  id: string;
+  name: string;
+  contents: any[];
+  files: FileData[];
+}
+interface FileData {
+  id: string;
+  name: string;
+  url: string;
+}
 interface WorkspaceSidebarProps {
   params: { workspaceId: string };
   className?: string;
+  onFoldersUpdate: (folders: Folder[]) => void;
 }
 
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   params,
   className,
+  onFoldersUpdate
 }) => {
   const [width, setWidth] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -172,8 +185,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-            <FoldersDropDown workspaceId={params.workspaceId} />
-
+          <FoldersDropDown workspaceId={params.workspaceId} onFoldersUpdate={onFoldersUpdate} />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
                 Settings and People
