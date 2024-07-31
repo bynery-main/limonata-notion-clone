@@ -26,6 +26,8 @@ interface FolderComponentProps {
   setFolders: React.Dispatch<React.SetStateAction<Folder[]>>;
   deleteFolder: (workspaceId: string, folderId: string, parentFolderId?: string) => Promise<void>;
   deleteFile: (workspaceId: string, folderId: string, fileName: string) => Promise<void>;
+  isActive: boolean;
+  onSelect: () => void;
 }
 
 const FolderComponent: React.FC<FolderComponentProps> = ({ 
@@ -34,7 +36,9 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   workspaceId, 
   setFolders, 
   deleteFolder, 
-  deleteFile 
+  deleteFile,
+  isActive,
+  onSelect
 }) => {
   const router = useRouter();
   const [newSubFolderName, setNewSubFolderName] = useState("");
@@ -42,8 +46,10 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsPressed(!isPressed);
+    onSelect();
   };
 
   const addSubFolder = async () => {
@@ -81,37 +87,28 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   return (
     <Accordion.Item
       value={folder.id}
-      className="border rounded relative group"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigatePage(folder.id, 'folder');
-      }}
+      className={`border rounded relative group ${isActive ? 'bg-gray-100' : ''}`}
+      onClick={handleClick}
     >
       <Accordion.Trigger
         id="folder"
-        className="hover:no-underline p-2 dark:text-muted-foreground text-sm"
+        className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
         disabled={false}
       >
-        <div className="flex gap-4 items-center justify-center overflow-hidden">
-          <div className="relative">
+        <div className="flex gap-4 items-center justify-between overflow-hidden">
+          <div className="flex items-center gap-2">
             <ChevronRightIcon
               className="h-4 w-4"
               style={{ transform: isPressed ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}
             />
+            <span className="overflow-hidden text-ellipsis">{folder.name}</span>
           </div>
-          <input
-            type="text"
-            value={folder.name}
-            className="outline-none overflow-hidden w-[140px] text-Neutrals/neutrals-7 bg-transparent cursor-pointer"
-            readOnly
-            onClick={(e) => {
-              e.stopPropagation();
-              navigatePage(folder.id, 'folder');
-            }}
-          />
           <TrashIcon
             className="h-4 w-4 cursor-pointer"
-            onClick={() => setShowOptions(!showOptions)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowOptions(!showOptions);
+            }}
             style={{ color: isHovered ? "red" : "inherit" }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}

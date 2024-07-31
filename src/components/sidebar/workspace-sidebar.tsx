@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
+import { useRouter } from 'next/navigation';
 
 interface Folder {
   id: string;
@@ -45,11 +46,13 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   className,
   onFoldersUpdate
 }) => {
+  const router = useRouter();
   const [width, setWidth] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emoji, setEmoji] = useState<string>("🏔️");
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -64,7 +67,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       window.removeEventListener("resize", updateWidth);
     };
   }, []);
-
+  const handleFolderSelect = (folderId: string) => {
+    setCurrentFolderId(folderId);
+    // Redirect to the folder page
+    window.location.href = `/dashboard/${params.workspaceId}/${folderId}`;
+  };
   const handleMouseMove = (e: MouseEvent) => {
     if (sidebarRef.current) {
       const newWidth = e.clientX;
@@ -73,7 +80,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       }
     }
   };
-
   const handleMouseUp = () => {
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
@@ -185,7 +191,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-          <FoldersDropDown workspaceId={params.workspaceId} onFoldersUpdate={onFoldersUpdate} />
+          <FoldersDropDown 
+            workspaceId={params.workspaceId} 
+            onFoldersUpdate={onFoldersUpdate}
+            currentFolderId={currentFolderId}
+            onFolderSelect={handleFolderSelect}
+          />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
                 Settings and People
