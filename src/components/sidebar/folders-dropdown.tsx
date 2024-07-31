@@ -24,10 +24,15 @@ interface Folder {
 interface FoldersDropDownProps {
   workspaceId: string;
   onFoldersUpdate: (folders: Folder[]) => void;
+  currentFolderId: string | null;
+  onFolderSelect: (folderId: string) => void;
 }
 
-
-const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId, onFoldersUpdate }) => {
+const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
+  workspaceId,
+  onFoldersUpdate,
+  currentFolderId,
+  onFolderSelect }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [newFolderName, setNewFolderName] = useState("");
 
@@ -88,17 +93,19 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId, onFolder
           <CirclePlusIcon className="h-4 w-4 flex items-center justify" />
         </button>
         <Accordion.Root type="multiple" className="space-y-2">
-          {folders.map((folder) => (
-            <FolderComponent 
-              key={folder.id} 
-              folder={folder} 
-              workspaceId={workspaceId}
-              setFolders={setFolders}
-              deleteFolder={deleteFolder}
-              deleteFile={deleteFile}
-            />
-          ))}
-        </Accordion.Root>
+        {folders.map((folder) => (
+          <FolderComponent 
+            key={folder.id} 
+            folder={folder} 
+            workspaceId={workspaceId}
+            setFolders={setFolders}
+            deleteFolder={deleteFolder}
+            deleteFile={deleteFile}
+            isActive={currentFolderId === folder.id}
+            onSelect={() => onFolderSelect(folder.id)}
+          />
+        ))}
+      </Accordion.Root>
       </div>
     </div>
   );
