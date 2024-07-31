@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-import QuillEditor from '@/components/quill-editor/quill-editor';
 import { getFolderDetails } from '@/lib/queries/queries';
 import { redirect } from 'next/navigation';
 import React from 'react';
@@ -10,11 +9,7 @@ const Folder = async ({ params }: { params: { folderId: string } }) => {
 
   return (
     <div className="relative">
-      <QuillEditor
-        dirType="folder"
-        fileId={params.folderId}
-        dirDetails={data || {}}
-      />
+
     </div>
   );
 };
