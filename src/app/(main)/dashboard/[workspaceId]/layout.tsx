@@ -7,6 +7,7 @@ import Picker from '@emoji-mart/react';
 import { BentoGrid, BentoGridItem } from "../../../../components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
 import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
+import Image from "next/image";
 
 interface FileData {
   id: string;
@@ -40,6 +41,30 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     e.preventDefault(); // Prevent form submission
     setShowEmojiPicker(!showEmojiPicker);
   };
+
+  const getFilePreview = (file: FileData) => {
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    if (imageExtensions.includes(fileExtension || '')) {
+      return (
+        <div className="w-full h-48 relative">
+          <Image
+            src={file.url}
+            alt={file.name}
+            fill
+            style={{ objectFit: 'cover' }}
+          />
+        </div>
+      );
+    } else {
+      // For non-image files, display an icon or placeholder
+      return (
+        <div className="w-full h-48 flex items-center justify-center bg-gray-200">
+          <span className="text-4xl">📄</span>
+        </div>
+      );
+    }
+  }
    function BentoGridDemo() {
     return (
       <BentoGrid className="max-w-4xl mx-auto">
@@ -113,8 +138,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 key={file.id}
                 title={file.name}
                 description={`In folder: ${folder.name}`}
-                header={<Skeleton />}
-                className={i === 3 || i === 6 ? "md:col-span-2" : ""}
+                header={getFilePreview(file)}
+                  className={i === 3 || i === 6 ? "md:col-span-2" : ""}
               />
             ))
           )}
