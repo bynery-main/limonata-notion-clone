@@ -68,7 +68,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   };
 
   return (
-    <Accordion.Item value={folder.id} className="border rounded relative group">
+    <Accordion.Item value={folder.id} className="border border-[#d17c5d] rounded-lg relative group">
       <Accordion.Trigger className="flex items-center justify-between w-full p-2 text-left" onClick={handleClick}>
         {folder.name}
         <div className="flex items-center gap-2">

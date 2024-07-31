@@ -1,17 +1,22 @@
-import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
-import React from "react";
-// import { auth } from '@/firebase/firebaseConfig';
-// import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+export const dynamic = 'force-dynamic';
 
-const Page = () => {
+import QuillEditor from '@/components/quill-editor/quill-editor';
+import { getWorkspaceDetails } from '@/lib/queries/queries';
+import { redirect } from 'next/navigation';
+import React from 'react';
 
-
-    return (
-        <div>
-            <h1>Topic (Folder) Name</h1>                
-            </div>
-
-    );
+const Workspace = async ({ params }: { params: { workspaceId: string } }) => {
+  const { data, error } = await getWorkspaceDetails(params.workspaceId);
+  if (error || !data) redirect('/dashboard');
+  return (
+    <div className="relative">
+      <QuillEditor
+        dirType="workspace"
+        fileId={params.workspaceId}
+        dirDetails={data || {}}
+      />
+    </div>
+  );
 };
 
-export default Page;
+export default Workspace;
