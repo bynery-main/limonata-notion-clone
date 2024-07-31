@@ -16,3 +16,35 @@ export const getWorkspaceDetails = async (workspaceId: string) => {
     return { data: null, error: 'Error fetching workspace details' };
   }
 };
+
+export const getFolderDetails = async (folderId: string) => {
+  try {
+    const folderRef = doc(db, "folders", folderId);
+    const folderSnap = await getDoc(folderRef);
+
+    if (folderSnap.exists()) {
+      return { data: folderSnap.data(), error: null };
+    } else {  
+      return { data: null, error: 'Folder not found' };
+    }
+  } catch (error) {
+    console.log(error);
+    return { data: null, error: 'Error fetching folder details' };
+  }
+};
+
+export const getFileDetails = async (fileId: string) => {
+  try {
+    const fileRef = doc(db, "files", fileId);
+    const fileSnap = await getDoc(fileRef);
+
+    if (fileSnap.exists()) {
+      return { data: fileSnap.data(), error: null };
+    } else {
+      return { data: null, error: 'File not found' };
+    }
+  } catch (error) {
+    console.log(error);
+    return { data: null, error: 'Error fetching file details' };
+  }
+};
