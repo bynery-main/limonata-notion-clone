@@ -23,15 +23,17 @@ interface Folder {
 
 interface FoldersDropDownProps {
   workspaceId: string;
+  onFoldersUpdate: (folders: Folder[]) => void;
 }
 
-const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
+
+const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId, onFoldersUpdate }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [newFolderName, setNewFolderName] = useState("");
 
   useEffect(() => {
     const foldersRef = collection(db, "workspaces", workspaceId, "folders");
-
+  
     const unsubscribe = onSnapshot(foldersRef, (snapshot) => {
       const fetchFolders = async () => {
         const updatedFolders: Folder[] = await Promise.all(
@@ -39,7 +41,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
             const folderData = doc.data();
             const folderId = doc.id;
             const files = await fetchFiles(workspaceId, folderId);
-
+  
             return {
               id: folderId,
               name: folderData.name || "Unnamed Folder",
@@ -48,14 +50,16 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({ workspaceId }) => {
             };
           })
         );
+  
         setFolders(updatedFolders);
+        onFoldersUpdate(updatedFolders);  // Call the callback whenever folders are updated
       };
-
+  
       fetchFolders();
     });
-
+  
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, onFoldersUpdate]);
 
   const handleAddFolder = async () => {
     await addFolder(workspaceId, newFolderName);
