@@ -4,10 +4,10 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 
 interface CollaboratorListProps {
     workspaceId: string;
-    existingCollaborators: string[];
+    existingCollaborators: { uid: string; email: string }[];
     newCollaborators: { uid: string; email: string }[];
     onRemove: (uid: string) => void;
-    onCollaboratorRemoved: () => void; // Add this prop
+    onCollaboratorRemoved: () => void;
 }
 
 const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existingCollaborators, newCollaborators, onRemove, onCollaboratorRemoved }) => {
@@ -18,7 +18,7 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existi
         try {
             const result = await removeCollaboratorFunction({ workspaceId, userId: uid });
             console.log(result.data);
-            onCollaboratorRemoved(); // Call the callback after removing the collaborator
+            onCollaboratorRemoved();
         } catch (error) {
             console.error("Error removing collaborator:", error);
         }
@@ -27,9 +27,9 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existi
     return (
         <div className="space-y-2">
             <h3 className="font-semibold">Existing Collaborators</h3>
-            {existingCollaborators.map(uid => (
+            {existingCollaborators.map(({ uid, email }) => (
                 <div key={uid} className="flex justify-between items-center">
-                    <span>{uid}</span>
+                    <span>{email}</span>
                     <Button onClick={() => removeCollaborator(uid)} variant="destructive" size="sm">
                         Remove
                     </Button>
@@ -37,10 +37,10 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existi
             ))}
             
             <h3 className="font-semibold mt-4">New Collaborators</h3>
-            {newCollaborators.map(user => (
-                <div key={user.uid} className="flex justify-between items-center">
-                    <span>{user.email}</span>
-                    <Button onClick={() => onRemove(user.uid)} variant="destructive" size="sm">
+            {newCollaborators.map(({ uid, email }) => (
+                <div key={uid} className="flex justify-between items-center">
+                    <span>{email}</span>
+                    <Button onClick={() => onRemove(uid)} variant="destructive" size="sm">
                         Remove
                     </Button>
                 </div>
