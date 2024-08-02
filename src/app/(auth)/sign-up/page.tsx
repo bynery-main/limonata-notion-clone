@@ -7,7 +7,7 @@ import { UserCredential } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import the icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignUpFormSchema = z
   .object({
@@ -158,12 +158,12 @@ const StyledSignUpPage = () => {
                           Sign Up
                         </button>
                       </form>
-                    </div>
-                    <div className="flex flex-col w-[373px] items-start pt-[50px] pb-0 px-0 relative flex-[0_0_auto]">
-                      <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
-                        <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-transparent text-[22px] text-center tracking-[0] leading-[30px] whitespace-nowrap">
-                          <span className="text-black">Already have an account? </span>
-                          <span onClick={() => router.push("/login")} className="text-[#ff5924] underline cursor-pointer">Sign in here.</span>
+                      <div className="flex flex-col items-center w-full">
+                        <p className="text-lg mb-4">
+                          Already have an account?{' '}
+                          <a href="/login" className="text-[#ff5924] underline cursor-pointer">
+                            Sign In
+                          </a>
                         </p>
                       </div>
                     </div>

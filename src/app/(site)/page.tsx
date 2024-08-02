@@ -37,7 +37,6 @@ export default function Home() {
     <>
       <Navbar />
       <LandingPageComponent />
-      <button onClick={handleSignOut}>Sign Out</button>
     </>
   );
 }

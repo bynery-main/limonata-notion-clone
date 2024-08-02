@@ -24,6 +24,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from 'next/navigation';
 import { useFolder } from '@/contexts/FolderContext';
+import { fetchUserEmailById } from "@/lib/db/users/get-users";
 
 interface Folder {
   id: string;
@@ -108,9 +109,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
 
-  const [existingCollaborators, setExistingCollaborators] = useState<string[]>(
-    []
-  );
+  const [existingCollaborators, setExistingCollaborators] = useState<
+    { uid: string; email: string }[]
+  >([]);
   const [newCollaborators, setNewCollaborators] = useState<
     { uid: string; email: string }[]
   >([]);
@@ -125,7 +126,17 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
     if (workspaceSnap.exists()) {
       const data = workspaceSnap.data();
-      setExistingCollaborators(data.collaborators || []);
+      const collaborators = data.collaborators || [];
+
+      // Fetch emails for each collaborator UID
+      const collaboratorsWithEmails = await Promise.all(
+        collaborators.map(async (uid: string) => {
+          const email = await fetchUserEmailById(uid); // Assuming this function fetches the email by UID
+          return { uid, email };
+        })
+      );
+
+      setExistingCollaborators(collaboratorsWithEmails);
     }
   };
 
@@ -135,7 +146,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const handleSaveCollaborators = async () => {
     const allCollaborators = [
-      ...existingCollaborators,
+      ...existingCollaborators.map((user) => user.uid),
       ...newCollaborators.map((user) => user.uid),
     ];
 
@@ -151,20 +162,19 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       };
       console.log(response.message);
 
-      // Update the existing collaborators list with the response from the server
-      setExistingCollaborators(response.updatedCollaborators);
+      // Fetch updated emails for the updated collaborators
+      const updatedCollaboratorsWithEmails = await Promise.all(
+        response.updatedCollaborators.map(async (uid: string) => {
+          const email = await fetchUserEmailById(uid);
+          return { uid, email };
+        })
+      );
 
-      // Clear the new collaborators list
+      setExistingCollaborators(updatedCollaboratorsWithEmails);
       setNewCollaborators([]);
 
-      // You might want to show a success message to the user here
-      // For example:
-      // toast.success(response.message);
     } catch (error) {
       console.error("Error updating collaborators:", error);
-      // You might want to show an error message to the user here
-      // For example:
-      // toast.error("Failed to update collaborators. Please try again.");
     }
   };
 
@@ -216,7 +226,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   People
                 </Link>
                 <CollaboratorSearch
-                  existingCollaborators={existingCollaborators}
+                  existingCollaborators={existingCollaborators.map(c => c.uid)}
                   currentUserUid={currentUserUid}
                   onAddCollaborator={handleAddCollaborator}
                 >
@@ -227,7 +237,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                     Add People
                   </div>
                 </CollaboratorSearch>
-                {/* ... (keep other navigation items) */}
               </div>
             </div>
           </nav>
@@ -250,7 +259,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               newCollaborators={newCollaborators}
               onRemove={handleRemoveCollaborator}
               workspaceId={params.workspaceId}
-              onCollaboratorRemoved={fetchExistingCollaborators} // Pass the callback here
+              onCollaboratorRemoved={fetchExistingCollaborators}
             />
             <Button onClick={handleSaveCollaborators} className="mt-4">
               Save Changes

@@ -160,7 +160,7 @@ const LoginPage = () => { // Changed to const
                             onClick={() => router.push("/sign-up")}
                             className="text-[#ff5924] underline cursor-pointer"
                           >
-                            Sign up here.
+                            Sign Up
                           </span>
                         </p>
                       </div>
