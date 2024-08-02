@@ -10,7 +10,7 @@ import Image from "next/image";
 import FoldersDropDown from "../../../../components/sidebar/folders-dropdown";
 import WorkspaceSidebar, { WorkspaceSidebarProps } from "@/components/sidebar/workspace-sidebar"; // Adjust the import path
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
-
+import {ChatComponent} from "../../../../components/chat/chat-component"; // Adjust the import path
 interface FileData {
   id: string;
   name: string;
@@ -100,7 +100,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       <main className="flex w-full h-full z-10">
         <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
+          
           <div className="flex h-40 shrink-0 items-center border-b px-6 relative text-xl">
+
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               className="flex mx-5 items-center gap-2 font-semibold"
@@ -127,7 +129,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             </div>
           </div>
           {children}
-          <BentoGrid className="max-w-4xl mx-auto mx-4">
+
+                <BentoGrid className="max-w-4xl mx-auto mx-4">
             {foldersData.flatMap((folder) =>
               folder.files.map((file, i) => (
                 <BentoGridItem
@@ -140,6 +143,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               ))
             )}
           </BentoGrid>
+        </div>
+        <div className="w-1/4 shadow-lg">
+          <ChatComponent />
         </div>
       </main>
     </FolderProvider>
