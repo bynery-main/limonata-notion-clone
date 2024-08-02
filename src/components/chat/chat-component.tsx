@@ -26,10 +26,10 @@ import { useState } from "react"
 export function ChatComponent() {
   const [isChatVisible, setIsChatVisible] = useState(true)
   const [messages, setMessages] = useState([
-    { type: 'assistant', content: "Hello! I'm Claude, an AI assistant created by Anthropic. How can I help you today?" },
-    { type: 'user', content: "Hi there! I'm looking for some help brainstorming ideas for a new website design. Do you have any suggestions?" },
-    { type: 'assistant', content: "Great! I'd be happy to help. Some ideas to consider for your website design:\n\n- Use a clean, minimalist layout with plenty of white space\n- Incorporate eye-catching visuals like high-quality images or illustrations\n- Prioritize user-friendly navigation and intuitive interactions\n- Lorem ipsum" },
-    { type: 'user', content: "Those are some great suggestions, thank you! I'll definitely keep those in mind as I start working on the design." },
+    { type: 'assistant', content: "Hello! I'm Lemon, an AI assistant created by Limonata.inc. How can I help you today?" },
+    { type: 'user', content: "Hi there! Do you what's the powerhouse of the cell?" },
+    { type: 'assistant', content: "Yes, the mitochondria is the powerhouse of the cell. It's responsible for producing energy in the form of ATP." },
+    { type: 'user', content: "Thanks! That's very helpful. You saved my exam" },
   ])
   const [inputMessage, setInputMessage] = useState("")
   const toggleChat = () => {
@@ -41,23 +41,24 @@ export function ChatComponent() {
       setInputMessage("")
     }
   }
+  
   return (
     <>
       {isChatVisible ? (
-        <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/60 backdrop-blur-lg md:w-[400px] transition-transform duration-300 ease-in-out">
+        <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/60 backdrop-blur-sm md:w-[400px] transition-transform duration-3000 ease-in-out shadow-2xl">
           <div className="flex h-full w-full flex-col">
-            <div className="flex items-center justify-between border-b bg-background/60 px-4 py-3">
+            <div className="flex items-center justify-between border-b border-background/10 bg-background/40  px-4 py-3 backdrop-blur-sm">
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8 border">
                   <AvatarImage src="/placeholder-user.jpg" alt="Image" />
                   <AvatarFallback>AC</AvatarFallback>
                 </Avatar>
-                <div className="text-sm font-medium">ChatGPT</div>
+                <div className="text-sm font-medium">LemonGPT</div>
               </div>
-              <Button onClick={toggleChat}>
-                <XIcon className="h-5 w-5" />
-                <span className="sr-only">Close</span>
-              </Button>
+              <Button onClick={toggleChat} className="bg-white p-2 hover:bg-black">
+              <XIcon className="h-5 w-5 text-black hover:text-white" />
+              <span className="sr-only">Close</span>
+            </Button>
             </div>
             <ScrollArea className="flex-1 overflow-y-auto">
               <div className="grid gap-4 p-4">
@@ -69,7 +70,7 @@ export function ChatComponent() {
                         <AvatarFallback>AC</AvatarFallback>
                       </Avatar>
                     )}
-                    <div className={`rounded-lg p-3 text-sm ${message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                    <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`}style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
                       <p>{message.content}</p>
                     </div>
                     {message.type === 'user' && (
@@ -82,14 +83,14 @@ export function ChatComponent() {
                 ))}
               </div>
             </ScrollArea>
-            <div className="border-t bg-background/60 px-4 py-3">
+            <div className="border-t border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
               <div className="relative flex">
               <Textarea
                   placeholder="Type your message..."
                   name="message"
                   id="message"
                   rows={1}
-                  className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm"
+                  className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/50 backdrop-blur-sm"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={(e) => {
@@ -101,7 +102,7 @@ export function ChatComponent() {
                 />
                 <Button
                   onClick={handleSend}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
                 >
                   <ArrowUpIcon className="h-4 w-4" />
                   <span className="sr-only">Send</span>
