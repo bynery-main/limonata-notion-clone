@@ -144,7 +144,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             )}
           </BentoGrid>
         </div>
-        <div className="w-1/4">
+        <div className="w-1/4 shadow-lg">
           <ChatComponent />
         </div>
       </main>
