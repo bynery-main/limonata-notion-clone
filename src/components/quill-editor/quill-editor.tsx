@@ -54,10 +54,15 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       const editor = document.createElement("div");
       wrapperRef.current!.append(editor);
       const { default: Quill } = await import("quill");
+      const QuillCursors = (await import("quill-cursors")).default;
+      Quill.register("modules/cursors", QuillCursors);
       const q = new Quill(editor, {
         theme: "snow",
         modules: {
           toolbar: TOOLBAR_OPTIONS,
+          cursors: {
+            transformOnTextChange: true,
+          },
         },
       });
       setQuill(q);
