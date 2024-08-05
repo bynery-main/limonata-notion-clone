@@ -3,14 +3,15 @@
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import Picker from "@emoji-mart/react";
-import { BentoGrid, BentoGridItem } from "../../../../components/ui/bento-grid";
+import { BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid"; // Adjust the import path
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
 import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
 import Image from "next/image";
-import FoldersDropDown from "../../../../components/sidebar/folders-dropdown";
+import FoldersDropDown from "@/components/sidebar/folders-dropdown"; // Adjust the import path
 import WorkspaceSidebar, { WorkspaceSidebarProps } from "@/components/sidebar/workspace-sidebar"; // Adjust the import path
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
-import { ChatComponent } from "../../../../components/chat/chat-component"; // Adjust the import path
+import { ChatComponent } from "@/components/chat/chat-component"; // Adjust the import path
+import Link from 'next/link';
 
 interface FileData {
   id: string;
@@ -29,6 +30,22 @@ interface LayoutProps {
   children: React.ReactNode;
   params: any;
 }
+
+interface BentoGridItemProps {
+  title: string;
+  description: string;
+  header: React.ReactNode;
+  className?: string;
+}
+
+interface BentoGridProps {
+  className?: string;
+  children: React.ReactNode;
+}
+
+const BentoGrid: React.FC<BentoGridProps> = ({ className, children }) => (
+  <div className={className}>{children}</div>
+);
 
 const Skeleton = () => (
   <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
@@ -61,6 +78,18 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
       );
     }
+
+    const BentoGridItem = React.forwardRef<HTMLDivElement, BentoGridItemProps>(
+      ({ title, description, header, className, ...props }, ref) => (
+        <div ref={ref} className={`${className} cursor-pointer`} {...props}>
+          {header}
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+      )
+    );
+    
+    BentoGridItem.displayName = 'BentoGridItem';
 
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
@@ -139,16 +168,21 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </div>
           {children}
 
-                <BentoGrid className="max-w-4xl mx-auto">
+          <BentoGrid className="max-w-4xl mx-auto">
             {foldersData.flatMap((folder) =>
               folder.files.map((file, i) => (
-                <BentoGridItem
-                  key={file.id}
-                  title={file.name}
-                  description={`In folder: ${folder.name}`}
-                  header={getFilePreview(file)}
-                  className={i === 3 || i === 6 ? "md:col-span-2" : ""}
-                />
+                <Link 
+                  key={file.id} 
+                  href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
+                  passHref
+                >
+                  <BentoGridItem
+                    title={file.name}
+                    description={`In folder: ${folder.name}`}
+                    header={getFilePreview(file)}
+                    className={i === 3 || i === 6 ? "md:col-span-2" : ""}
+                  />
+                </Link>
               ))
             )}
           </BentoGrid>
