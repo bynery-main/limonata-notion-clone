@@ -5,6 +5,7 @@ import "quill/dist/quill.snow.css";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
+import { useAuth } from "../auth-provider/AuthProvider";
 
 interface QuillEditorProps {
   dirDetails: any;
@@ -34,6 +35,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const { socket } = useSocket();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
 
   const details = useMemo(() => {
     return {
@@ -102,6 +104,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   useEffect(() => {
     if (!socket || !dirDetails) return;
     socket.emit("create-room", fileId);
+    console.log("Room created for file:", fileId);
     return () => {
       socket.emit("leave-room", fileId);
     };
@@ -112,6 +115,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     if (quill === null || socket === null || fileId === null) return;
 
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
+      if (source !== 'user') return;
+
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       setSaving(true);
       const contents = quill.getContents();
@@ -129,7 +134,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         }
         setSaving(false);
       }, 850);
-      socket.emit("send-changes", { delta, fileId });
+      socket.emit("send-changes", delta, fileId);
     };
 
     quill.on("text-change", quillHandler);
@@ -142,18 +147,19 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
 
   // Receive changes from other clients
   useEffect(() => {
-    if (quill === null || socket === null) return;
+    if (quill === null || socket === null || fileId === null) return;
 
-    const socketHandler = (deltas: any, id: string) => {
+    const receiveChangesHandler = (deltas: any, id: string) => {
       if (id === fileId) {
+        console.log("Received changes for the same file:", deltas);
         quill.updateContents(deltas);
       }
     };
 
-    socket.on('receive-changes', socketHandler);
+    socket.on("receive-changes", receiveChangesHandler);
 
     return () => {
-      socket.off('receive-changes', socketHandler);
+      socket.off("receive-changes", receiveChangesHandler);
     };
   }, [quill, socket, fileId]);
 
