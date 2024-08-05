@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { collection, doc, setDoc } from "firebase/firestore";
 import { ChevronDownIcon, ChevronLeft, ChevronLeftIcon, ChevronRightIcon, CirclePlusIcon, FolderIcon, FolderPlusIcon, MinusIcon, NotebookIcon, PlusCircleIcon, PlusIcon, ToggleLeftIcon, ToggleRight, ToggleRightIcon, TrashIcon, UploadIcon } from "lucide-react";
@@ -55,20 +55,29 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [showUpload, setShowUpload] = useState(false);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [showAddSubtopic, setShowAddSubtopic] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    setIsOpen(openFolderId === folder.id);
+  }, [openFolderId, folder.id]);
+
+
+  
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelect();
   };
-  const toggleChevron = (e: React.MouseEvent) => {
+  const toggleFolder = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (openFolderId === folder.id) {
+    if (isOpen) {
       setOpenFolderId(null);
+      router.push(`/dashboard/${workspaceId}`);
     } else {
       setOpenFolderId(folder.id);
     }
     onSelect();
   };
+
 
   const addSubFolder = async () => {
     if (newSubFolderName.trim() === "") return;
@@ -110,14 +119,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       <Accordion.Trigger
         id="folder"
         className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
-        onClick={toggleChevron}
+        onClick={toggleFolder}
       >
           <div className="flex gap-4 items-center justify-between overflow-hidden">
             <div className="flex items-center gap-2">
-              <ChevronRightIcon
+            <ChevronRightIcon
                 className="h-4 w-4 cursor-pointer"
                 style={{ 
-                  transform: openFolderId === folder.id ? "rotate(90deg)" : "rotate(0deg)", 
+                  transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
                   transition: "transform 0.3s ease" 
                 }}
               />
@@ -143,104 +152,108 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         </div>
       )}
       <Accordion.Content className="p-2 text-gray-500 font-light">
-      <div>
+      {isOpen && (
+        <>
+        <div>
 
-      <button onClick={() => setShowAddSubtopic(!showAddSubtopic)} className="flex items-center mt-2">
-      <FolderPlusIcon className="h-4 w-4 mx-2" />
-        {showAddSubtopic ? 'Hide subtopic' : 'Add a subtopic'}
-        {showAddSubtopic ? (
-          <MinusIcon className="h-4 w-4 ml-2" />
-        ) : (
-          <div/>
-        )}
-      </button>
-      <CSSTransition
-        in={showAddSubtopic}
-        timeout={300}
-        classNames="upload"
-        unmountOnExit
-      >
-        <div className="flex center my-2">
-          <input
-            type="text"
-            value={newSubFolderName}
-            onChange={(e) => setNewSubFolderName(e.target.value)}
-            placeholder="New subtopic name"
-            className="border p-2 rounded"
-          />
-          <button
-            onClick={addSubFolder}
-            className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white"
-          >
-            <CirclePlusIcon className="h-4 w-4" />
-          </button>
-        </div>
-      </CSSTransition>
-    </div>
-          <div>
-          <button onClick={() => setShowUpload(!showUpload)} className="flex items-center my-3">
-            <UploadIcon className="h-4 w-4 mx-2" />
-        Upload a File
-        {showUpload ? (
-          <MinusIcon className="h-4 w-4 ml-2" />
-        ) : (
-          <div/>
-        )}
-      </button>
-      <CSSTransition
-          in={showUpload}
+        <button onClick={() => setShowAddSubtopic(!showAddSubtopic)} className="flex items-center mt-2">
+        <FolderPlusIcon className="h-4 w-4 mx-2" />
+          {showAddSubtopic ? 'Hide subtopic' : 'Add a subtopic'}
+          {showAddSubtopic ? (
+            <MinusIcon className="h-4 w-4 ml-2" />
+          ) : (
+            <div/>
+          )}
+        </button>
+        <CSSTransition
+          in={showAddSubtopic}
           timeout={300}
           classNames="upload"
-          unmountOnExit>
-            <div className="mx-4">
-          <UploadFile
-            folderRef={`workspaces/${workspaceId}/folders/${folder.id}`}
-            onFileUpload={(file) => {
-              setFolders((prevFolders) =>
-                prevFolders.map((f) =>
-                  f.id === folder.id ? { ...f, files: [...f.files, file] } : f
-                )
-              );
-            }}
-          />
-          </div>
-      </CSSTransition>
-    </div>
-    <button onClick={() => setShowCreateNote(!showCreateNote)} className="flex items-center mt-2 mb-2">
-        <NotebookIcon className="h-4 w-4 mx-2" />
-        Create a Note
-        {showCreateNote ? (
-          <MinusIcon className="h-4 w-4 ml-2" />
-        ) : (
-          <div/>
-        )}
-      </button>
-      <CSSTransition
-        in={showCreateNote}
-        timeout={300}
-        classNames="create-note"
-        unmountOnExit
-      >
-        <div className="mx-3">
-          <CreateNote workspaceId={workspaceId} folderId={folder.id} />
-        </div>
-      </CSSTransition>
-
-        {folder.contents.map((subfolder: Folder) => (
-          <FolderComponent
-            key={subfolder.id}
-            folder={subfolder}
-            parentFolderId={folder.id}
-            workspaceId={workspaceId}
-            setFolders={setFolders}
-            deleteFolder={deleteFolder}
-            deleteFile={deleteFile}
-            isActive={isActive}
-            onSelect={onSelect}
-            openFolderId={openFolderId}
-            setOpenFolderId={setOpenFolderId}
+          unmountOnExit
+        >
+          <div className="flex center my-2">
+            <input
+              type="text"
+              value={newSubFolderName}
+              onChange={(e) => setNewSubFolderName(e.target.value)}
+              placeholder="New subtopic name"
+              className="border p-2 rounded"
             />
-          ))}
+            <button
+              onClick={addSubFolder}
+              className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white"
+            >
+              <CirclePlusIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </CSSTransition>
+      </div>
+            <div>
+            <button onClick={() => setShowUpload(!showUpload)} className="flex items-center my-3">
+              <UploadIcon className="h-4 w-4 mx-2" />
+          Upload a File
+          {showUpload ? (
+            <MinusIcon className="h-4 w-4 ml-2" />
+          ) : (
+            <div/>
+          )}
+        </button>
+        <CSSTransition
+            in={showUpload}
+            timeout={300}
+            classNames="upload"
+            unmountOnExit>
+              <div className="mx-4">
+            <UploadFile
+              folderRef={`workspaces/${workspaceId}/folders/${folder.id}`}
+              onFileUpload={(file) => {
+                setFolders((prevFolders) =>
+                  prevFolders.map((f) =>
+                    f.id === folder.id ? { ...f, files: [...f.files, file] } : f
+                  )
+                );
+              }}
+            />
+            </div>
+        </CSSTransition>
+      </div>
+      <button onClick={() => setShowCreateNote(!showCreateNote)} className="flex items-center mt-2 mb-2">
+          <NotebookIcon className="h-4 w-4 mx-2" />
+          Create a Note
+          {showCreateNote ? (
+            <MinusIcon className="h-4 w-4 ml-2" />
+          ) : (
+            <div/>
+          )}
+        </button>
+        <CSSTransition
+          in={showCreateNote}
+          timeout={300}
+          classNames="create-note"
+          unmountOnExit
+        >
+          <div className="mx-3">
+            <CreateNote workspaceId={workspaceId} folderId={folder.id} />
+          </div>
+        </CSSTransition>
+
+          {folder.contents.map((subfolder: Folder) => (
+            <FolderComponent
+              key={subfolder.id}
+              folder={subfolder}
+              parentFolderId={folder.id}
+              workspaceId={workspaceId}
+              setFolders={setFolders}
+              deleteFolder={deleteFolder}
+              deleteFile={deleteFile}
+              isActive={isActive}
+              onSelect={onSelect}
+              openFolderId={openFolderId}
+              setOpenFolderId={setOpenFolderId}
+              />
+            ))}
+              </>
+            )} 
       </Accordion.Content>
     </Accordion.Item>
   );
