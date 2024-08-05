@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 
 export function ChatComponent() {
-  const [isChatVisible, setIsChatVisible] = useState(true)
+  const [isChatVisible, setIsChatVisible] = useState(false)
   const [messages, setMessages] = useState([
     { type: 'assistant', content: "Hello! I'm Lemon, an AI assistant created by Limonata.inc. How can I help you today?" },
     { type: 'user', content: "Hi there! Do you what's the powerhouse of the cell?" },
