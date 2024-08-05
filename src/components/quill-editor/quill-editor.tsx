@@ -6,7 +6,6 @@ import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
 
-
 interface QuillEditorProps {
   dirDetails: any;
   dirType: "workspace" | "folder" | "file";
@@ -33,6 +32,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const [quill, setQuill] = useState<any>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const { socket, isConnected } = useSocket();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const details = useMemo(() => {
     return {
@@ -97,7 +98,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     fetchInformation();
   }, [fileId, dirType, quill, dirDetails]);
 
-  //Rooms
+  // Rooms
   useEffect(() => {
     if (!socket || !dirDetails) return;
     socket.emit("create-room", fileId);
@@ -106,18 +107,51 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
   }, [socket, quill, dirDetails]);
 
+  // Send changes to all clients
+  useEffect(() => {
+    if (quill === null || socket === null || fileId === null) return;
+
+    const selectionChangeHandler = () => {};
+    const quillHandler = (delta: any, oldDelta: any, source: any) => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      setSaving(true);
+      const contents = quill.getContents();
+      const quillLength = quill.getLength();
+      saveTimerRef.current = setTimeout(async () => {
+        if (contents && quillLength !== 1 && fileId) {
+          try {
+            const text = quill.root.innerHTML;
+            const fileDocRef = doc(db, "workspaces", details.workspaceId, "folders", details.folderId, "notes", details.fileId);
+            await setDoc(fileDocRef, { text }, { merge: true });
+            console.log("Document successfully updated in the save function!");
+          } catch (error) {
+            console.log("Error updating document in the save function: ", error);
+          }
+        }
+        setSaving(false);
+      }, 850);
+      socket.emit("send-changes", { delta, fileId });
+    };
+    quill.on("text-change", quillHandler);
+
+    return () => {
+      quill.off("text-change", quillHandler);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [quill, socket, fileId, details]);
+
   return (
     <>
-    <div className="
-      flex
-      justify-center
-      items-center
-      flex-col
-      mt-2
-      relative
-    ">
-      <div id="container" className="max-w-[800px]" ref={wrapperRef}></div>
-    </div>
+      <div className="
+        flex
+        justify-center
+        items-center
+        flex-col
+        mt-2
+        relative
+      ">
+        <div id="container" className="max-w-[800px]" ref={wrapperRef}></div>
+      </div>
     </>
   );
 };
