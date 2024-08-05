@@ -80,19 +80,21 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             Topics
           </h3>
         </div>
-        <input
-          type="text"
-          value={newFolderName}
-          onChange={(e) => setNewFolderName(e.target.value)}
-          placeholder="New Topic name"
-          className="border p-2"
-        />
-        <button
-          onClick={handleAddFolder}
-          className="bg-blue-500 text-white p-2 rounded mt-4"
-        >
-          <CirclePlusIcon className="h-4 w-4 flex items-center justify" />
-        </button>
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            placeholder="New Topic name"
+            className="border p-2 rounded flex-grow"
+          />
+          <button
+            onClick={handleAddFolder}
+            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
+          >
+            <CirclePlusIcon className="h-4 w-4" />
+          </button>
+        </div>
         <Accordion.Root type="multiple" className="space-y-2">
         {folders.map((folder) => (
             <FolderComponent
