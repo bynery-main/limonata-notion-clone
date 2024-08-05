@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import "quill/dist/quill.snow.css";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useSocket } from "@/lib/providers/socket-provider";
+
 
 interface QuillEditorProps {
   dirDetails: any;
@@ -30,6 +32,7 @@ const TOOLBAR_OPTIONS = [
 const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }) => {
   const [quill, setQuill] = useState<any>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const { socket, isConnected } = useSocket();
 
   const details = useMemo(() => {
     return {
@@ -94,7 +97,17 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     fetchInformation();
   }, [fileId, dirType, quill, dirDetails]);
 
+  //Rooms
+  useEffect(() => {
+    if (!socket || !dirDetails) return;
+    socket.emit("create-room", fileId);
+    return () => {
+      socket.emit("leave-room", fileId);
+    };
+  }, [socket, quill, dirDetails]);
+
   return (
+    <>
     <div className="
       flex
       justify-center
@@ -105,6 +118,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     ">
       <div id="container" className="max-w-[800px]" ref={wrapperRef}></div>
     </div>
+    </>
   );
 };
 
