@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { addNote } from "@/lib/utils";
+import { CirclePlusIcon } from "lucide-react";
 
 interface CreateNoteProps {
   workspaceId: string;
@@ -22,7 +23,11 @@ const CreateNote: React.FC<CreateNoteProps> = ({ workspaceId, folderId }) => {
         onChange={(e) => setNoteName(e.target.value)}
         placeholder="Enter note name"
       />
-      <button onClick={handleCreateNote}>Create Note</button>
+      <button onClick={handleCreateNote}
+            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white">
+            <CirclePlusIcon className="h-4 w-4" />
+          </button>
+
     </div>
   );
 };

@@ -1,0 +1,37 @@
+.upload-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.upload-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+.upload-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.upload-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.create-note-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.create-note-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+.create-note-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.create-note-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
