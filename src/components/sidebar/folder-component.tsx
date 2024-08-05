@@ -96,7 +96,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
     <Accordion.Item
       value={folder.id}
-      className={`border rounded-lg relative group shadow ${isActive ? 'bg-gray-100' : ''}`}
+      className={`border rounded-lg relative group shadow-lg ${isActive ? 'bg-gray-100' : ''}`}
       onClick={handleClick}
     >
 
@@ -128,7 +128,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         </div>
       </Accordion.Trigger>
       {showOptions && (
-        <div className="absolute right-0 top-8 bg-white border rounded shadow-md z-10">
+        <div className="absolute right-0 top-8 bg-white border rounded shadow-lg z-10">
           <button onClick={() => deleteFolder(workspaceId, folder.id, parentFolderId)} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left">
             Delete Topic
           </button>
