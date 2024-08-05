@@ -9,7 +9,7 @@ const Workspace = async ({ params }: { params: { workspaceId: string } }) => {
   const { data, error } = await getWorkspaceDetails(params.workspaceId);
   if (error || !data) redirect('/dashboard');
   return (
-    <div className="relative">
+    <div className="relative hidden">
       <QuillEditor
         dirType="workspace"
         fileId={params.workspaceId}

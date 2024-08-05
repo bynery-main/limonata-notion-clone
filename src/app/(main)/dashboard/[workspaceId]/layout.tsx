@@ -10,7 +10,8 @@ import Image from "next/image";
 import FoldersDropDown from "../../../../components/sidebar/folders-dropdown";
 import WorkspaceSidebar, { WorkspaceSidebarProps } from "@/components/sidebar/workspace-sidebar"; // Adjust the import path
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
-import {ChatComponent} from "../../../../components/chat/chat-component"; // Adjust the import path
+import { ChatComponent } from "../../../../components/chat/chat-component"; // Adjust the import path
+
 interface FileData {
   id: string;
   name: string;
@@ -53,6 +54,14 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   };
 
   const getFilePreview = (file: FileData) => {
+    if (!file || !file.name) {
+      return (
+        <div className="w-full h-48 flex items-center justify-center bg-gray-200">
+          <span className="text-4xl">📄</span>
+        </div>
+      );
+    }
+
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
     if (imageExtensions.includes(fileExtension || "")) {
@@ -130,7 +139,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </div>
           {children}
 
-                <BentoGrid className="max-w-4xl mx-auto mx-4">
+                <BentoGrid className="max-w-4xl mx-auto">
             {foldersData.flatMap((folder) =>
               folder.files.map((file, i) => (
                 <BentoGridItem
