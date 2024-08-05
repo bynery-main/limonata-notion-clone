@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { collection, doc, setDoc } from "firebase/firestore";
-import { ChevronDownIcon, ChevronLeft, ChevronLeftIcon, ChevronRightIcon, CirclePlusIcon, MinusIcon, NotebookIcon, PlusCircleIcon, PlusIcon, ToggleLeftIcon, ToggleRight, ToggleRightIcon, TrashIcon, UploadIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronLeft, ChevronLeftIcon, ChevronRightIcon, CirclePlusIcon, FolderIcon, FolderPlusIcon, MinusIcon, NotebookIcon, PlusCircleIcon, PlusIcon, ToggleLeftIcon, ToggleRight, ToggleRightIcon, TrashIcon, UploadIcon } from "lucide-react";
 import { db } from "@/firebase/firebaseConfig";
 import { CSSTransition } from 'react-transition-group';
 import * as Accordion from "@radix-ui/react-accordion";
@@ -50,11 +50,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showCreateNote, setShowCreateNote] = useState(false);
+  const [showAddSubtopic, setShowAddSubtopic] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsPressed(!isPressed);
     onSelect();
+  };
+  const toggleChevron = () => {
+    setIsPressed(!isPressed);
   };
 
   const addSubFolder = async () => {
@@ -90,21 +93,25 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   };
 
   return (
+
     <Accordion.Item
       value={folder.id}
       className={`border rounded-lg relative group shadow ${isActive ? 'bg-gray-100' : ''}`}
       onClick={handleClick}
     >
+
       <Accordion.Trigger
         id="folder"
         className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
         disabled={false}
+        onClick={toggleChevron}
       >
         <div className="flex gap-4 items-center justify-between overflow-hidden">
           <div className="flex items-center gap-2">
             <ChevronRightIcon
-              className="h-4 w-4"
-              style={{ transform: isPressed ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}
+             className="h-4 w-4 cursor-pointer"
+              style={{ transform: isPressed ? "rotate(90deg)" : "rotate(0deg)", 
+                transition: "transform 0.3s ease" }}
             />
             <span className="overflow-hidden text-ellipsis">{folder.name}</span>
           </div>
@@ -127,7 +134,25 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           </button>
         </div>
       )}
-      <Accordion.Content className="p-2">
+      <Accordion.Content className="p-2 text-gray-500 font-light">
+
+      <div>
+
+      <button onClick={() => setShowAddSubtopic(!showAddSubtopic)} className="flex items-center mt-2">
+      <FolderPlusIcon className="h-4 w-4 mx-2" />
+        {showAddSubtopic ? 'Hide subtopic' : 'Add a subtopic'}
+        {showAddSubtopic ? (
+          <MinusIcon className="h-4 w-4 ml-2" />
+        ) : (
+          <div/>
+        )}
+      </button>
+      <CSSTransition
+        in={showAddSubtopic}
+        timeout={300}
+        classNames="upload"
+        unmountOnExit
+      >
         <div className="flex center my-2">
           <input
             type="text"
@@ -136,12 +161,15 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             placeholder="New subtopic name"
             className="border p-2 rounded"
           />
-            <button
-              onClick={addSubFolder}
-              className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white">
-              <CirclePlusIcon className="h-4 w-4" />
-            </button>
-          </div>
+          <button
+            onClick={addSubFolder}
+            className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white"
+          >
+            <CirclePlusIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </CSSTransition>
+    </div>
           <div>
           <button onClick={() => setShowUpload(!showUpload)} className="flex items-center my-3">
             <UploadIcon className="h-4 w-4 mx-2" />
@@ -149,7 +177,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         {showUpload ? (
           <MinusIcon className="h-4 w-4 ml-2" />
         ) : (
-          <PlusIcon className="h-4 w-4 ml-2" />
+          <div/>
         )}
       </button>
       <CSSTransition
@@ -171,13 +199,13 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           </div>
       </CSSTransition>
     </div>
-    <button onClick={() => setShowCreateNote(!showCreateNote)} className="flex items-center mt-2">
+    <button onClick={() => setShowCreateNote(!showCreateNote)} className="flex items-center mt-2 mb-2">
         <NotebookIcon className="h-4 w-4 mx-2" />
         Create a Note
         {showCreateNote ? (
           <MinusIcon className="h-4 w-4 ml-2" />
         ) : (
-          <PlusIcon className="h-4 w-4 ml-2" />
+          <div/>
         )}
       </button>
       <CSSTransition
@@ -186,7 +214,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         classNames="create-note"
         unmountOnExit
       >
-        <div className="mx-4">
+        <div className="mx-3">
           <CreateNote workspaceId={workspaceId} folderId={folder.id} />
         </div>
       </CSSTransition>
@@ -204,8 +232,11 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
               onSelect={onSelect}
             />
           ))}
+
         </Accordion.Root>
+
       </Accordion.Content>
+
     </Accordion.Item>
   );
 };
