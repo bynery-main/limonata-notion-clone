@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import "quill/dist/quill.snow.css";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -37,9 +37,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       folderId: dirDetails.folderId,
       fileId: fileId
     };
-  }, [dirDetails]);
-
-  console.log("Details: ", dirDetails);
+  }, [dirDetails, fileId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -61,7 +59,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       q.on("text-change", async () => {
         const text = q.root.innerHTML;
         try {
-
           if (details && details.workspaceId && details.folderId && details.fileId) {
             const fileDocRef = doc(db, "workspaces", details.workspaceId, "folders", details.folderId, "notes", details.fileId);
             await setDoc(fileDocRef, { text }, { merge: true });
@@ -86,7 +83,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
 
         if (fileDoc.exists()) {
           const fileData = fileDoc.data();
-          quill.setContents(fileData.content || {});
+          quill.root.innerHTML = fileData.text || "";
           console.log("Document data:", fileData);
         } else {
           console.log("No such document!");
