@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider } from '@/components/auth-provider/AuthProvider'; // Import the AuthProvider
+import { AuthProvider } from "@/components/auth-provider/AuthProvider"; // Import the AuthProvider
+import { SocketProvider } from "@/lib/providers/socket-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,8 +21,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          {children}
-          <Toaster position="top-right" />
+          <SocketProvider>
+            {children}
+            <Toaster position="top-right" />
+          </SocketProvider>
         </AuthProvider>
       </body>
     </html>

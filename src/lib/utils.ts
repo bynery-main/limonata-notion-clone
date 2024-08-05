@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { collection, doc, setDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { collection, doc, setDoc, deleteDoc, getDocs, updateDoc, collectionGroup, query, where } from "firebase/firestore";
 import { ref, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 
@@ -80,4 +80,43 @@ export const addNote = async (workspaceId: string, folderId: string, noteName: s
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export const updateFileContent = async (
+  workspaceId: string,
+  folderId: string,
+  fileId: string,
+  content: string
+) => {
+  if (!workspaceId || !folderId || !fileId) {
+    console.log("Missing required parameters for updating file content");
+    return;
+  }
+
+  const fileDocRef = doc(db, "workspaces", workspaceId, "folders", folderId, "files", fileId);
+  await updateDoc(fileDocRef, {
+    content,
+  });
+  console.log(`Updated file content for file: ${fileId}`);
+};
+
+export async function findDocumentByFileId(fileId: string) {
+  try {
+    // Create a query against the collection group
+    const docQuery = query(collectionGroup(db, 'files'), where('fileId', '==', fileId));
+    
+    // Execute the query
+    const querySnapshot = await getDocs(docQuery);
+    
+    // Process the results
+    const results: any[] = [];
+    querySnapshot.forEach((doc) => {
+      results.push({ id: doc.id, data: doc.data() });
+    });
+    
+    return results;
+  } catch (error) {
+    console.error('Error finding document:', error);
+    return null;
+  }
 }
