@@ -31,7 +31,7 @@ const TOOLBAR_OPTIONS = [
 const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }) => {
   const [quill, setQuill] = useState<any>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const { socket, isConnected } = useSocket();
+  const { socket } = useSocket();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -63,7 +63,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       q.on("text-change", async () => {
         const text = q.root.innerHTML;
         try {
-          if (details && details.workspaceId && details.folderId && details.fileId) {
+          if (details.workspaceId && details.folderId && details.fileId) {
             const fileDocRef = doc(db, "workspaces", details.workspaceId, "folders", details.folderId, "notes", details.fileId);
             await setDoc(fileDocRef, { text }, { merge: true });
             console.log("Document successfully updated!");
@@ -111,7 +111,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   useEffect(() => {
     if (quill === null || socket === null || fileId === null) return;
 
-    const selectionChangeHandler = () => {};
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       setSaving(true);
@@ -132,6 +131,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       }, 850);
       socket.emit("send-changes", { delta, fileId });
     };
+
     quill.on("text-change", quillHandler);
 
     return () => {
@@ -140,19 +140,34 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
   }, [quill, socket, fileId, details]);
 
+  // Receive changes from other clients
+  useEffect(() => {
+    if (quill === null || socket === null) return;
+
+    const socketHandler = (deltas: any, id: string) => {
+      if (id === fileId) {
+        quill.updateContents(deltas);
+      }
+    };
+
+    socket.on('receive-changes', socketHandler);
+
+    return () => {
+      socket.off('receive-changes', socketHandler);
+    };
+  }, [quill, socket, fileId]);
+
   return (
-    <>
-      <div className="
-        flex
-        justify-center
-        items-center
-        flex-col
-        mt-2
-        relative
-      ">
-        <div id="container" className="max-w-[800px]" ref={wrapperRef}></div>
-      </div>
-    </>
+    <div className="
+      flex
+      justify-center
+      items-center
+      flex-col
+      mt-2
+      relative
+    ">
+      <div id="container" className="max-w-[800px]" ref={wrapperRef}></div>
+    </div>
   );
 };
 
