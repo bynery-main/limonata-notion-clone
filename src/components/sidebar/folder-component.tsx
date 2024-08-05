@@ -5,6 +5,7 @@ import { ChevronRightIcon, TrashIcon } from "lucide-react";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import UploadFile from "./upload-file"; 
+import CreateNote from "./create-note";  // Import the CreateNote component
 
 interface FileData {
   id: string;
@@ -143,14 +144,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             );
           }}
         />
+        <CreateNote workspaceId={workspaceId} folderId={folder.id} />  {/* Add CreateNote component */}
         <div className="mt-2">
           <h4 className="font-medium">Files</h4>
           <ul>
             {folder.files.map((file) => (
               <li key={file.id} className="flex items-center justify-between">
                 <a
-                  href={file.url}
-                  download
+                  href="#"
                   className="text-blue-500 hover:underline"
                   onClick={(e) => {
                     e.stopPropagation();
