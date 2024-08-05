@@ -1,7 +1,6 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-import { collection, doc, setDoc, deleteDoc } from "firebase/firestore";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { collection, doc, setDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { ref, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 
@@ -12,6 +11,7 @@ export interface FileData {
 }
 
 export const fetchFiles = async (workspaceId: string, folderId: string): Promise<FileData[]> => {
+  // Fetch files from Firebase Storage
   const filesRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
   const filesList = await listAll(filesRef);
   const files: FileData[] = await Promise.all(
@@ -20,7 +20,20 @@ export const fetchFiles = async (workspaceId: string, folderId: string): Promise
       return { id: itemRef.name, name: itemRef.name, url };
     })
   );
-  return files;
+
+  // Fetch notes from Firestore
+  const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+  const notesSnapshot = await getDocs(notesRef);
+  const notes: FileData[] = notesSnapshot.docs.map(doc => ({
+    id: doc.id,
+    name: doc.data().name,
+    url: ''  // No URL for notes, so set it as an empty string
+  }));
+
+  // Combine files and notes into a single array
+  const combinedData = [...files, ...notes];
+  
+  return combinedData;
 };
 
 export const addFolder = async (workspaceId: string, newFolderName: string, parentFolderId?: string) => {
@@ -55,7 +68,16 @@ export const deleteFile = async (workspaceId: string, folderId: string, fileName
   console.log(`Deleted file entry from Firestore: ${fileName}`);
 };
 
+export const addNote = async (workspaceId: string, folderId: string, noteName: string) => {
+  if (noteName.trim() === "") return;
+
+  const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+  const newNoteRef = doc(notesRef);
+
+  await setDoc(newNoteRef, { name: noteName });
+  console.log(`Created note: ${noteName} in folder: ${folderId}`);
+};
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
