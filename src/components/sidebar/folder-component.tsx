@@ -31,6 +31,8 @@ interface FolderComponentProps {
   deleteFile: (workspaceId: string, folderId: string, fileName: string) => Promise<void>;
   isActive: boolean;
   onSelect: () => void;
+  openFolderId: string | null;
+  setOpenFolderId: (folderId: string | null) => void;
 }
 
 const FolderComponent: React.FC<FolderComponentProps> = ({ 
@@ -41,12 +43,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   deleteFolder, 
   deleteFile,
   isActive,
-  onSelect
+  onSelect,
+  openFolderId,
+  setOpenFolderId
 }) => {
+
   const router = useRouter();
   const [newSubFolderName, setNewSubFolderName] = useState("");
   const [showOptions, setShowOptions] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showCreateNote, setShowCreateNote] = useState(false);
@@ -56,8 +60,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     e.stopPropagation();
     onSelect();
   };
-  const toggleChevron = () => {
-    setIsPressed(!isPressed);
+  const toggleChevron = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (openFolderId === folder.id) {
+      setOpenFolderId(null);
+    } else {
+      setOpenFolderId(folder.id);
+    }
+    onSelect();
   };
 
   const addSubFolder = async () => {
@@ -93,40 +103,38 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   };
 
   return (
-
     <Accordion.Item
       value={folder.id}
       className={`border rounded-lg relative group shadow-lg ${isActive ? 'bg-gray-100' : ''}`}
-      onClick={handleClick}
     >
-
       <Accordion.Trigger
         id="folder"
         className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
-        disabled={false}
         onClick={toggleChevron}
       >
-        <div className="flex gap-4 items-center justify-between overflow-hidden">
-          <div className="flex items-center gap-2">
-            <ChevronRightIcon
-             className="h-4 w-4 cursor-pointer"
-              style={{ transform: isPressed ? "rotate(90deg)" : "rotate(0deg)", 
-                transition: "transform 0.3s ease" }}
+          <div className="flex gap-4 items-center justify-between overflow-hidden">
+            <div className="flex items-center gap-2">
+              <ChevronRightIcon
+                className="h-4 w-4 cursor-pointer"
+                style={{ 
+                  transform: openFolderId === folder.id ? "rotate(90deg)" : "rotate(0deg)", 
+                  transition: "transform 0.3s ease" 
+                }}
+              />
+              <span className="overflow-hidden text-ellipsis">{folder.name}</span>
+            </div>
+            <TrashIcon
+              className="h-4 w-4 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowOptions(!showOptions);
+              }}
+              style={{ color: isHovered ? "red" : "inherit" }}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
             />
-            <span className="overflow-hidden text-ellipsis">{folder.name}</span>
           </div>
-          <TrashIcon
-            className="h-4 w-4 cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowOptions(!showOptions);
-            }}
-            style={{ color: isHovered ? "red" : "inherit" }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          />
-        </div>
-      </Accordion.Trigger>
+        </Accordion.Trigger>
       {showOptions && (
         <div className="absolute right-0 top-8 bg-white border rounded shadow-lg z-10">
           <button onClick={() => deleteFolder(workspaceId, folder.id, parentFolderId)} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left">
@@ -135,7 +143,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         </div>
       )}
       <Accordion.Content className="p-2 text-gray-500 font-light">
-
       <div>
 
       <button onClick={() => setShowAddSubtopic(!showAddSubtopic)} className="flex items-center mt-2">
@@ -218,25 +225,23 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           <CreateNote workspaceId={workspaceId} folderId={folder.id} />
         </div>
       </CSSTransition>
-        <Accordion.Root type="multiple" className="space-y-2">
-          {folder.contents.map((subfolder: Folder) => (
-            <FolderComponent
-              key={subfolder.id}
-              folder={subfolder}
-              parentFolderId={folder.id}
-              workspaceId={workspaceId}
-              setFolders={setFolders}
-              deleteFolder={deleteFolder}
-              deleteFile={deleteFile}
-              isActive={isActive}
-              onSelect={onSelect}
+
+        {folder.contents.map((subfolder: Folder) => (
+          <FolderComponent
+            key={subfolder.id}
+            folder={subfolder}
+            parentFolderId={folder.id}
+            workspaceId={workspaceId}
+            setFolders={setFolders}
+            deleteFolder={deleteFolder}
+            deleteFile={deleteFile}
+            isActive={isActive}
+            onSelect={onSelect}
+            openFolderId={openFolderId}
+            setOpenFolderId={setOpenFolderId}
             />
           ))}
-
-        </Accordion.Root>
-
       </Accordion.Content>
-
     </Accordion.Item>
   );
 };
