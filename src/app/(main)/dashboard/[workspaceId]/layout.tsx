@@ -139,7 +139,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </div>
           {children}
 
-                <BentoGrid className="max-w-4xl mx-auto mx-4">
+                <BentoGrid className="max-w-4xl mx-auto">
             {foldersData.flatMap((folder) =>
               folder.files.map((file, i) => (
                 <BentoGridItem
