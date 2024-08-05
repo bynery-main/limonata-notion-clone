@@ -25,6 +25,7 @@ import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from 'next/navigation';
 import { useFolder } from '@/contexts/FolderContext';
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
+import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 
 interface Folder {
   id: string;
@@ -203,6 +204,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           )}
           <span className="sr-only">Limonata</span>
         </div>
+
+        <SyncWorkspaceButton workspaceId={params.workspaceId} />
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
