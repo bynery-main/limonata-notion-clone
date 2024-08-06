@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchAllNotes, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app, db } from "@/firebase/firebaseConfig"; // Adjust this import based on your actual Firebase config file
+import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
 
@@ -54,7 +54,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
   };
 
   const handleCreateFlashcards = async () => {
-    const functions = getFunctions(app); // Ensure the correct usage of getFunctions
+    const functions = getFunctions(app);
     const createFlashcards = httpsCallable(functions, "flashcardAgent");
 
     setLoading(true);
