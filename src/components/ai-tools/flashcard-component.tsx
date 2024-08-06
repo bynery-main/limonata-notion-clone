@@ -3,16 +3,37 @@
 import React, { useEffect, useState } from "react";
 import { fetchAllNotes, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app } from "@/firebase/firebaseConfig"; // Adjust this import based on your actual Firebase config file
+import { app, db } from "@/firebase/firebaseConfig"; // Adjust this import based on your actual Firebase config file
+import { doc, updateDoc } from "firebase/firestore";
+import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
 
 interface FlashcardComponentProps {
   onClose: () => void;
   workspaceId: string;
 }
 
+interface Flashcard {
+  question: string;
+  answer: string;
+}
+
+const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
+  const flashcards: Flashcard[] = [];
+  const flashcardRegex = /Flashcard \d+: Question: (.+?) Answer: (.+?)(?=Flashcard \d+:|$)/g;
+
+  let match;
+  while ((match = flashcardRegex.exec(rawData)) !== null) {
+    flashcards.push({ question: match[1].trim(), answer: match[2].trim() });
+  }
+
+  return flashcards;
+};
+
 const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, workspaceId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
+  const [rawData, setRawData] = useState<string>("");
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -36,12 +57,24 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
     const createFlashcards = httpsCallable(functions, "flashcardAgent");
 
     try {
-      // Specify according to the cloud function
       const result = await createFlashcards({
         workspaceId,
         notes: selectedNotes,
       });
       console.log("Flashcards created successfully:", result.data);
+
+      const data = result.data as { flashcards: { raw: string } }; // Type assertion
+      const raw = data.flashcards.raw || "";
+      setRawData(raw);
+      console.log("Raw flashcard data:", raw);
+
+      // Save raw data to Firestore
+      const workspaceRef = doc(db, "workspaces", workspaceId);
+      await updateDoc(workspaceRef, { flashcardsRaw: raw });
+
+      // Parse raw data into flashcards
+      const parsedFlashcards = parseRawDataToFlashcards(raw);
+      setFlashcards(parsedFlashcards);
     } catch (error) {
       console.error("Error creating flashcards:", error);
     }
@@ -84,6 +117,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
             Create Flashcards
           </button>
         </div>
+        {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
       </div>
     </div>
   );
