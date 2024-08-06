@@ -15,9 +15,14 @@ interface Quiz {
   question: string;
 }
 
+interface NoteReference {
+  folderId: string;
+  noteId: string;
+}
+
 const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
-  const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
+  const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +69,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
 
       // Create a new quiz set named "New Quiz Set" and save it to Firestore
       const quizSetRef = doc(collection(db, "workspaces", workspaceId, "quizSets"));
-      await setDoc(quizSetRef, { name: "New Quiz Set" });
+      await setDoc(quizSetRef, { name: "New Quiz Set", notes: selectedNotes });
 
       // Save each quiz to Firestore under the new quiz set
       const quizzesCollectionRef = collection(quizSetRef, "quizzes");
