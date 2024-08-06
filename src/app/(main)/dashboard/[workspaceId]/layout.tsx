@@ -3,15 +3,15 @@
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import Picker from "@emoji-mart/react";
-import { BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid"; // Adjust the import path
+import { BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
 import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
 import Image from "next/image";
-import FoldersDropDown from "@/components/sidebar/folders-dropdown"; // Adjust the import path
-import WorkspaceSidebar, { WorkspaceSidebarProps } from "@/components/sidebar/workspace-sidebar"; // Adjust the import path
+import FoldersDropDown from "@/components/sidebar/folders-dropdown";
+import WorkspaceSidebar, { WorkspaceSidebarProps } from "@/components/sidebar/workspace-sidebar";
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
-import { ChatComponent } from "@/components/chat/chat-component"; // Adjust the import path
-import AIChatComponent from "@/components/ai-tools/ai-chat-component"; // Adjust the import path
+import { ChatComponent } from "@/components/chat/chat-component";
+import AIChatComponent from "@/components/ai-tools/ai-chat-component";
 import Link from 'next/link';
 
 interface FileData {
@@ -106,7 +106,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
       );
     } else {
-      // For non-image files, display an icon or placeholder
       return (
         <div className="w-full h-48 flex items-center justify-center bg-gray-200">
           <span className="text-4xl">📄</span>
@@ -174,7 +173,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               folder.files.map((file, i) => (
                 <Link 
                   key={file.id} 
-                  href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
+                  href={`/dashboard/${params.workspaceId}/folders/${folder.id}/files/${file.id}`}
                   passHref
                 >
                   <BentoGridItem
@@ -189,7 +188,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </BentoGrid>
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
-          <AIChatComponent workspaceId={params.workspaceId} /> {/* Pass workspaceId as prop */}
+          <AIChatComponent workspaceId={params.workspaceId} />
           <ChatComponent />
         </div>
       </main>
@@ -205,7 +204,6 @@ const CurrentFolderDetails = () => {
       {currentFolder ? (
         <div>
           <h1>{currentFolder.name}</h1>
-          {/* Display other folder details */}
         </div>
       ) : (
         <p>No folder selected</p>

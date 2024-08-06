@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { CirclePlusIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 
 interface FlashcardDeck {
   id: string;
@@ -13,19 +13,18 @@ interface FlashcardDeck {
 
 interface FlashcardsDropdownProps {
   workspaceId: string;
-  onFlashcardsUpdate: (flashcardDecks: FlashcardDeck[]) => void;
-  onFlashcardDeckSelect: (flashcardDeck: FlashcardDeck) => void;
   currentFlashcardDeckId: string | null;
+  onFlashcardsUpdate: (decks: FlashcardDeck[]) => void;
+  onFlashcardDeckSelect: (deck: FlashcardDeck) => void;
 }
 
 const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   workspaceId,
+  currentFlashcardDeckId,
   onFlashcardsUpdate,
   onFlashcardDeckSelect,
-  currentFlashcardDeckId,
 }) => {
-  const [flashcardDecks, setFlashcardDecks] = useState<FlashcardDeck[]>([]);
-  const [newDeckName, setNewDeckName] = useState("");
+  const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const [openDeckId, setOpenDeckId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,76 +36,47 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
         name: doc.data().name || "Unnamed Deck",
       }));
 
-      setFlashcardDecks(updatedDecks);
+      console.log("Received decks from Firestore:", updatedDecks);
+      setDecks(updatedDecks);
       onFlashcardsUpdate(updatedDecks);
     });
 
     return () => unsubscribe();
   }, [workspaceId, onFlashcardsUpdate]);
 
-  const handleAddDeck = async () => {
-    if (newDeckName.trim() === "") return;
-
-    const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
-
-    await setDoc(doc(decksRef), {
-      name: newDeckName,
-    });
-
-    setNewDeckName("");
-  };
-
   return (
     <div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between space-x-4 px-3">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
-            Flashcards
-          </h3>
-        </div>
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={newDeckName}
-            onChange={(e) => setNewDeckName(e.target.value)}
-            placeholder="New Deck Name"
-            className="border p-2 rounded flex-grow"
-          />
-          <button
-            onClick={handleAddDeck}
-            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
+      <Accordion.Root 
+        type="single" 
+        value={openDeckId || undefined} 
+        onValueChange={(value) => setOpenDeckId(value)}
+        className="space-y-2"
+      >
+        {decks.map((deck) => (
+          <Accordion.Item
+            key={deck.id}
+            value={deck.id}
+            className={`border rounded-lg shadow-lg ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
           >
-            <CirclePlusIcon className="h-4 w-4" />
-          </button>
-        </div>
-        <Accordion.Root
-          type="single"
-          value={openDeckId || undefined}
-          onValueChange={(value) => setOpenDeckId(value)}
-          className="space-y-2"
-        >
-          {flashcardDecks.map((deck) => (
-            <Accordion.Item
-              key={deck.id}
-              value={deck.id}
-              className="border rounded-lg relative group shadow-lg"
+            <Accordion.Trigger
+              className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+              onClick={() => {
+                console.log("Selected deck:", deck);
+                onFlashcardDeckSelect(deck);
+              }}
             >
-              <Accordion.Trigger
-                className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
-                onClick={() => onFlashcardDeckSelect(deck)}
-              >
-                <div className="flex gap-4 items-center justify-between overflow-hidden">
-                  <div className="flex items-center gap-2">
-                    <span className="overflow-hidden text-ellipsis">
-                      {deck.name}
-                    </span>
-                  </div>
-                </div>
-              </Accordion.Trigger>
-            </Accordion.Item>
-          ))}
-        </Accordion.Root>
-      </div>
+              <span>{deck.name}</span>
+              {deck.id === openDeckId ? (
+                <ChevronDownIcon className="h-4 w-4" />
+              ) : (
+                <ChevronRightIcon className="h-4 w-4" />
+              )}
+            </Accordion.Trigger>
+            <Accordion.Content>
+            </Accordion.Content>
+          </Accordion.Item>
+        ))}
+      </Accordion.Root>
     </div>
   );
 };
