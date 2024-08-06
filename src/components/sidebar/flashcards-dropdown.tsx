@@ -14,14 +14,12 @@ interface FlashcardDeck {
 interface FlashcardsDropdownProps {
   workspaceId: string;
   currentFlashcardDeckId: string | null;
-  onFlashcardsUpdate: (decks: FlashcardDeck[]) => void;
   onFlashcardDeckSelect: (deck: FlashcardDeck) => void;
 }
 
 const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   workspaceId,
   currentFlashcardDeckId,
-  onFlashcardsUpdate,
   onFlashcardDeckSelect,
 }) => {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
@@ -36,13 +34,11 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
         name: doc.data().name || "Unnamed Deck",
       }));
 
-      console.log("Received decks from Firestore:", updatedDecks);
       setDecks(updatedDecks);
-      onFlashcardsUpdate(updatedDecks);
     });
 
     return () => unsubscribe();
-  }, [workspaceId, onFlashcardsUpdate]);
+  }, [workspaceId]);
 
   return (
     <div>
@@ -61,7 +57,6 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
             <Accordion.Trigger
               className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
               onClick={() => {
-                console.log("Selected deck:", deck);
                 onFlashcardDeckSelect(deck);
               }}
             >
