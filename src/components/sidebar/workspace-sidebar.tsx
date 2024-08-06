@@ -17,7 +17,8 @@ import { twMerge } from "tailwind-merge";
 import NativeNavigation from "./native-navigation";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
-import QuizzesDropdown from "./quizzes-dropdown"; // Import QuizzesDropdown component
+import QuizzesDropdown from "./quizzes-dropdown";
+import StudyGuideDropdown from "./studyguide-dropdown";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const { setCurrentFolder } = useFolder();
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
-  const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null); // State for current quiz set
+  const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(null); // State for current study guide
 
   useEffect(() => {
     const updateWidth = () => {
@@ -88,9 +90,14 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
   };
 
-  const handleQuizSetSelect = (quizSet: { id: string }) => { // Handle quiz set selection
+  const handleQuizSetSelect = (quizSet: { id: string }) => {
     setCurrentQuizSetId(quizSet.id);
     router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
+  };
+
+  const handleStudyGuideSelect = (studyGuide: { id: string }) => { // Handle study guide selection
+    setCurrentStudyGuideId(studyGuide.id);
+    router.push(`/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -232,10 +239,15 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               currentFlashcardDeckId={currentFlashcardDeckId}
               onFlashcardDeckSelect={handleFlashcardDeckSelect}
             />
-            <QuizzesDropdown // Add QuizzesDropdown component
+            <QuizzesDropdown 
               workspaceId={params.workspaceId}
               currentQuizSetId={currentQuizSetId}
               onQuizSetSelect={handleQuizSetSelect}
+            />
+            <StudyGuideDropdown // Add StudyGuideDropdown component
+              workspaceId={params.workspaceId}
+              currentStudyGuideId={currentStudyGuideId}
+              onStudyGuideSelect={handleStudyGuideSelect}
             />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
