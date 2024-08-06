@@ -33,10 +33,10 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
 
   const handleCreateFlashcards = async () => {
     const functions = getFunctions(app);
-    const createFlashcards = httpsCallable(functions, "createFlashcards");
+    const createFlashcards = httpsCallable(functions, "flashcardAgent");
 
     try {
-      //specify according to the cloud function
+      // Specify according to the cloud function
       const result = await createFlashcards({
         workspaceId,
         notes: selectedNotes,
@@ -59,7 +59,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
         <p className="text-center">Which notes would you like to use?</p>
         <ul className="mt-4">
           {foldersNotes.map((folder) => (
-            <li key={folder.folderName}>
+            <li key={folder.folderId}>
               <h3 className="font-bold">{folder.folderName}</h3>
               <ul className="pl-4">
                 {folder.notes.map((note) => (
@@ -67,7 +67,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
                     <input
                       type="checkbox"
                       className="mr-2"
-                      onChange={(e) => handleCheckboxChange(folder.folderName, note.id, e.target.checked)}
+                      onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
                     />
                     {note.name}
                   </li>
