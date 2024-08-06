@@ -17,6 +17,7 @@ import { twMerge } from "tailwind-merge";
 import NativeNavigation from "./native-navigation";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
+import QuizzesDropdown from "./quizzes-dropdown"; // Import QuizzesDropdown component
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const { setCurrentFolder } = useFolder();
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
+  const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null); // State for current quiz set
 
   useEffect(() => {
     const updateWidth = () => {
@@ -84,6 +86,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
     setCurrentFlashcardDeckId(deck.id);
     router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
+  };
+
+  const handleQuizSetSelect = (quizSet: { id: string }) => { // Handle quiz set selection
+    setCurrentQuizSetId(quizSet.id);
+    router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -224,6 +231,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               workspaceId={params.workspaceId}
               currentFlashcardDeckId={currentFlashcardDeckId}
               onFlashcardDeckSelect={handleFlashcardDeckSelect}
+            />
+            <QuizzesDropdown // Add QuizzesDropdown component
+              workspaceId={params.workspaceId}
+              currentQuizSetId={currentQuizSetId}
+              onQuizSetSelect={handleQuizSetSelect}
             />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">

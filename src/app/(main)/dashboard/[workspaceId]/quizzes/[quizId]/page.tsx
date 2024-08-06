@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc, addDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -20,11 +20,16 @@ interface NoteReference {
   noteId: string;
 }
 
+interface QuizEvalResult {
+  evaluations: string[];
+}
+
 const QuizzesPage = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const [notes, setNotes] = useState<NoteReference[]>([]);
   const [loading, setLoading] = useState(false);
+  const [evaluations, setEvaluations] = useState<string[]>([]); // Add state for evaluations
   const router = useRouter();
   const params = useParams(); // Use useParams to get dynamic segments
 
@@ -74,7 +79,7 @@ const QuizzesPage = () => {
   const handleSubmit = async () => {
     setLoading(true);
     const functions = getFunctions(app);
-    const quizEvalAgent = httpsCallable(functions, "quizEvalAgent");
+    const quizEvalAgent = httpsCallable<{ workspaceId: string; notes: NoteReference[]; qa: QA[] }, QuizEvalResult>(functions, "quizEvalAgent");
 
     const qa: QA[] = quizzes.map((quiz, index) => ({
       question: quiz.question,
@@ -89,6 +94,15 @@ const QuizzesPage = () => {
       };
       console.log("Payload being passed to quizEvalAgent:", payload);
       const result = await quizEvalAgent(payload);
+      const evalResults = result.data.evaluations; // Assuming evaluations array is returned
+      setEvaluations(evalResults);
+
+      // Upload evaluations to Firestore
+      const evaluationsCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", quizId, "evaluations");
+      for (const evaluation of evalResults) {
+        await addDoc(evaluationsCollectionRef, { evaluation });
+      }
+
       console.log("Quiz evaluation response:", result.data);
     } catch (error) {
       console.error("Error during quiz evaluation:", error);
@@ -125,6 +139,14 @@ const QuizzesPage = () => {
           >
             {loading ? "Submitting..." : "Submit Answers"}
           </button>
+          {evaluations.length > 0 && (
+            <div className="mt-4 p-4 bg-gray-200 rounded">
+              <h3>Quiz Evaluation Results:</h3>
+              {evaluations.map((evaluation, index) => (
+                <p key={index}>{evaluation}</p>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <p>No quizzes available.</p>
