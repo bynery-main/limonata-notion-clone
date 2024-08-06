@@ -13,8 +13,6 @@ interface QuizzesComponentProps {
 
 interface Quiz {
   question: string;
-  options: string[];
-  correctAnswer: string;
 }
 
 const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId }) => {
@@ -54,8 +52,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       const result = await createQuizzes(payload);
       console.log("Quizzes created successfully:", result.data);
 
-      const data = result.data as { quizzes: { raw: string } }; // Type assertion
-      const raw = data.quizzes.raw || "";
+      const data = result.data as { answer: string }; // Adjusted type assertion
+      const raw = data.answer || "";
 
       // Log the raw data before parsing
       console.log("Raw data received from cloud function:", raw);
@@ -71,7 +69,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       // Save each quiz to Firestore under the new quiz set
       const quizzesCollectionRef = collection(quizSetRef, "quizzes");
       for (const quiz of parsedQuizzes) {
-        await addDoc(quizzesCollectionRef, { question: quiz.question, options: quiz.options, correctAnswer: quiz.correctAnswer });
+        await addDoc(quizzesCollectionRef, { question: quiz.question });
       }
     } catch (error) {
       console.error("Error creating quizzes:", error);
@@ -83,10 +81,10 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const parseRawDataToQuizzes = (rawData: string): Quiz[] => {
     console.log("Data received by parser:", rawData); // Log the raw data received by the parser
     const quizzes: Quiz[] = [];
-    const quizRegex = /Quiz \d+: Question: ([\s\S]+?) Options: ([\s\S]+?) Correct Answer: ([\s\S]+?)(?=\nQuiz \d+:|$)/g;
+    const quizRegex = /Question \d+: ([\s\S]+?)(?=\nQuestion \d+:|$)/g;
     let match;
     while ((match = quizRegex.exec(rawData)) !== null) {
-      quizzes.push({ question: match[1].trim(), options: match[2].split(',').map(opt => opt.trim()), correctAnswer: match[3].trim() });
+      quizzes.push({ question: match[1].trim() });
     }
 
     console.log("Quizzes parsed:", quizzes); // Log the quizzes parsed from the raw data
@@ -138,11 +136,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               {quizzes.map((quiz, index) => (
                 <li key={index}>
                   <h4 className="font-bold">{quiz.question}</h4>
-                  <ul className="pl-4">
-                    {quiz.options.map((option, i) => (
-                      <li key={i}>{option}</li>
-                    ))}
-                  </ul>
                 </li>
               ))}
             </ul>
