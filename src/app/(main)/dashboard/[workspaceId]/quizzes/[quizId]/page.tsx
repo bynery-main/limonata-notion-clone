@@ -99,8 +99,11 @@ const QuizzesPage = () => {
 
       // Upload evaluations to Firestore
       const evaluationsCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", quizId, "evaluations");
+      const evaluationDocRef = await addDoc(evaluationsCollectionRef, {}); // Create a new document for this set of evaluations
+
+      const evaluationSubCollectionRef = collection(evaluationDocRef, "evaluationDetails");
       for (const evaluation of evalResults) {
-        await addDoc(evaluationsCollectionRef, { evaluation });
+        await addDoc(evaluationSubCollectionRef, { evaluation });
       }
 
       console.log("Quiz evaluation response:", result.data);
