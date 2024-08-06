@@ -133,6 +133,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     ]);
   };
 
+  const onSendMessage = (workspaceId: string, query: string) => {
+    // Your message sending logic here
+    console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
+  };
+
   return (
     <FolderProvider>
       <main className="flex w-full h-full z-10">
@@ -189,7 +194,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
           <AIChatComponent workspaceId={params.workspaceId} />
-          <ChatComponent />
+          <ChatComponent onSendMessage={onSendMessage} />
         </div>
       </main>
     </FolderProvider>
