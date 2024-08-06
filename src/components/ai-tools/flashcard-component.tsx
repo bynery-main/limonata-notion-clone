@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { fetchAllNotes, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; // Adjust this import based on your actual Firebase config file
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
 
 interface FlashcardComponentProps {
@@ -18,22 +18,23 @@ interface Flashcard {
 }
 
 const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
+  console.log("Data received by parser:", rawData); // Log the raw data received by the parser
   const flashcards: Flashcard[] = [];
-  const flashcardRegex = /Flashcard \d+: Question: (.+?) Answer: (.+?)(?=Flashcard \d+:|$)/g;
-
+  const flashcardRegex = /Flashcard \d+: Question: ([\s\S]+?) Answer: ([\s\S]+?)(?=\nFlashcard \d+:|$)/g;
   let match;
   while ((match = flashcardRegex.exec(rawData)) !== null) {
     flashcards.push({ question: match[1].trim(), answer: match[2].trim() });
   }
 
+  console.log("Flashcards parsed:", flashcards); // Log the flashcards parsed from the raw data
   return flashcards;
 };
 
 const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, workspaceId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
-  const [rawData, setRawData] = useState<string>("");
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -53,9 +54,10 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
   };
 
   const handleCreateFlashcards = async () => {
-    const functions = getFunctions(app);
+    const functions = getFunctions(app); // Ensure the correct usage of getFunctions
     const createFlashcards = httpsCallable(functions, "flashcardAgent");
 
+    setLoading(true);
     try {
       const result = await createFlashcards({
         workspaceId,
@@ -65,18 +67,27 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
 
       const data = result.data as { flashcards: { raw: string } }; // Type assertion
       const raw = data.flashcards.raw || "";
-      setRawData(raw);
-      console.log("Raw flashcard data:", raw);
 
-      // Save raw data to Firestore
-      const workspaceRef = doc(db, "workspaces", workspaceId);
-      await updateDoc(workspaceRef, { flashcardsRaw: raw });
+      // Log the raw data before parsing
+      console.log("Raw data received from cloud function:", raw);
 
       // Parse raw data into flashcards
       const parsedFlashcards = parseRawDataToFlashcards(raw);
       setFlashcards(parsedFlashcards);
+
+      // Create a new deck named "New Deck" and save it to Firestore
+      const deckRef = doc(collection(db, "workspaces", workspaceId, "flashcardsDecks"));
+      await setDoc(deckRef, { name: "New Deck" });
+
+      // Save each flashcard to Firestore under the new deck
+      const flashcardsCollectionRef = collection(deckRef, "flashcards");
+      for (const flashcard of parsedFlashcards) {
+        await addDoc(flashcardsCollectionRef, { question: flashcard.question, answer: flashcard.answer });
+      }
     } catch (error) {
       console.error("Error creating flashcards:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,8 +124,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
           <button
             onClick={handleCreateFlashcards}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            disabled={loading}
           >
-            Create Flashcards
+            {loading ? "Creating..." : "Create Flashcards"}
           </button>
         </div>
         {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
