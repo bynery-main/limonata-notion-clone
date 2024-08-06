@@ -16,6 +16,7 @@ export interface NoteData {
 }
 
 export interface FolderNotes {
+  folderId: string;
   folderName: string;
   notes: NoteData[];
 }
@@ -149,6 +150,7 @@ export const fetchAllNotes = async (workspaceId: string): Promise<FolderNotes[]>
     }));
 
     foldersNotes.push({
+      folderId: folderDoc.id,
       folderName: folderDoc.data().name,
       notes,
     });
