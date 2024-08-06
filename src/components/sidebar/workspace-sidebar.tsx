@@ -16,6 +16,7 @@ import {
 import { twMerge } from "tailwind-merge";
 import NativeNavigation from "./native-navigation";
 import FoldersDropDown from "./folders-dropdown";
+import FlashcardsDropdown from "./flashcards-dropdown";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
   const { setCurrentFolder } = useFolder();
 
   useEffect(() => {
@@ -76,6 +78,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     setCurrentFolderId(folder.id);
     setCurrentFolder(folder);
     router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
+  };
+
+  const handleFlashcardDeckSelect = (deck: any) => {
+    setCurrentFlashcardDeckId(deck.id);
+    // Logic to handle flashcard deck selection
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -214,6 +221,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               onFoldersUpdate={onFoldersUpdate}
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
+            />
+            <FlashcardsDropdown
+              workspaceId={params.workspaceId}
+              onFlashcardsUpdate={(decks) => {}}
+              onFlashcardDeckSelect={handleFlashcardDeckSelect}
+              currentFlashcardDeckId={currentFlashcardDeckId}
             />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
