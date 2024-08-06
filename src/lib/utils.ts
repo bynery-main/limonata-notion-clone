@@ -27,6 +27,7 @@ export interface FlashcardDeck {
 }
 
 export const fetchFiles = async (workspaceId: string, folderId: string): Promise<FileData[]> => {
+  // Fetch files from Firebase Storage
   const filesRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
   const filesList = await listAll(filesRef);
   const files: FileData[] = await Promise.all(
@@ -36,14 +37,16 @@ export const fetchFiles = async (workspaceId: string, folderId: string): Promise
     })
   );
 
+  // Fetch notes from Firestore
   const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
   const notesSnapshot = await getDocs(notesRef);
   const notes: FileData[] = notesSnapshot.docs.map(doc => ({
     id: doc.id,
     name: doc.data().name,
-    url: '' 
+    url: ''  // No URL for notes, so set it as an empty string
   }));
 
+  // Combine files and notes into a single array
   const combinedData = [...files, ...notes];
   
   return combinedData;
@@ -115,12 +118,18 @@ export const updateFileContent = async (
 
 export async function findDocumentByFileId(fileId: string) {
   try {
+    // Create a query against the collection group
     const docQuery = query(collectionGroup(db, 'files'), where('fileId', '==', fileId));
+    
+    // Execute the query
     const querySnapshot = await getDocs(docQuery);
+    
+    // Process the results
     const results: any[] = [];
     querySnapshot.forEach((doc) => {
       results.push({ id: doc.id, data: doc.data() });
     });
+    
     return results;
   } catch (error) {
     console.error('Error finding document:', error);
@@ -130,9 +139,12 @@ export async function findDocumentByFileId(fileId: string) {
 
 export const fetchAllNotes = async (workspaceId: string): Promise<FolderNotes[]> => {
   const foldersNotes: FolderNotes[] = [];
+
+  // Fetch all folders in the workspace
   const foldersRef = collection(db, "workspaces", workspaceId, "folders");
   const foldersSnapshot = await getDocs(foldersRef);
 
+  // Iterate through each folder and fetch notes
   for (const folderDoc of foldersSnapshot.docs) {
     const notesRef = collection(db, "workspaces", workspaceId, "folders", folderDoc.id, "notes");
     const notesSnapshot = await getDocs(notesRef);
