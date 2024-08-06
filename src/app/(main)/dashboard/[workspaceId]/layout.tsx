@@ -11,7 +11,7 @@ import FoldersDropDown from "@/components/sidebar/folders-dropdown"; // Adjust t
 import WorkspaceSidebar, { WorkspaceSidebarProps } from "@/components/sidebar/workspace-sidebar"; // Adjust the import path
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
 import { ChatComponent } from "@/components/chat/chat-component"; // Adjust the import path
-import AIChatComponent from "@/components/ai-tools/ai-chat-component";
+import AIChatComponent from "@/components/ai-tools/ai-chat-component"; // Adjust the import path
 import Link from 'next/link';
 
 interface FileData {
@@ -189,7 +189,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </BentoGrid>
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
-          <AIChatComponent /> {/* Add the AIChatComponent above the ChatComponent */}
+          <AIChatComponent workspaceId={params.workspaceId} /> {/* Pass workspaceId as prop */}
           <ChatComponent />
         </div>
       </main>
