@@ -43,7 +43,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
                 onClick={toggleModal}>
 
         <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-        <span className="inline-flex h-full w-full cursor-pointer items-center justify-center gradient-text rounded-full bg-black px-3 py-1 text-sm font-medium backdrop-blur-2xl">
+        <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-3 py-1 text-sm font-medium text-[#393BB2] backdrop-blur-2xl">
             <StarsIcon />
         </span>
       </button>
