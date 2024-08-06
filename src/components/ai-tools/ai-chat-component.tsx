@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { CatIcon } from "lucide-react";
+import { CatIcon, StarsIcon } from "lucide-react";
 import FlashcardComponent from "./flashcard-component";
 import QuizzesComponent from "./quizzes-component";
+import "./ai-chat-component.css";
 
 interface AIChatComponentProps {
   workspaceId: string;
@@ -38,11 +39,13 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
 
   return (
     <>
-      <button
-        onClick={toggleModal}
-        className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg mb-2"
-      >
-        <CatIcon className="w-6 h-6" />
+        <button className="relative mb-2 inline-flex h-12 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+                onClick={toggleModal}>
+
+        <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+        <span className="inline-flex h-full w-full cursor-pointer items-center justify-center gradient-text rounded-full bg-black px-3 py-1 text-sm font-medium backdrop-blur-2xl">
+            <StarsIcon />
+        </span>
       </button>
 
       {isModalOpen && (

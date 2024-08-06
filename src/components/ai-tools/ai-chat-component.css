@@ -1,0 +1,12 @@
+.gradient-text {
+    background: linear-gradient(90deg, #E2CBFF 0%, #393BB2 50%, #E2CBFF 100%);
+    -webkit-background-clip: text;
+    background-clip: text; /* Standard property for compatibility */
+    -webkit-text-fill-color: transparent;
+  }
+.gradient-text {
+    background: linear-gradient(90deg, #E2CBFF 0%, #393BB2 50%, #E2CBFF 100%);
+    -webkit-background-clip: text;
+    background-clip: text; /* Standard property for compatibility */
+    -webkit-text-fill-color: transparent; /* Correct property for WebKit browsers */
+    }
