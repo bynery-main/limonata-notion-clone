@@ -168,7 +168,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         message: string;
         updatedCollaborators: string[];
       };
-      console.log(response.message);
 
       const updatedCollaboratorsWithEmails = await Promise.all(
         response.updatedCollaborators.map(async (uid: string) => {
@@ -224,7 +223,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             <FlashcardsDropdown 
               workspaceId={params.workspaceId}
               currentFlashcardDeckId={currentFlashcardDeckId}
-              onFlashcardsUpdate={(decks) => console.log(decks)}
               onFlashcardDeckSelect={handleFlashcardDeckSelect}
             />
             <div>
