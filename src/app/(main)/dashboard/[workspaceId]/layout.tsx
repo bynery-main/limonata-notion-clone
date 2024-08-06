@@ -178,7 +178,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               folder.files.map((file, i) => (
                 <Link 
                   key={file.id} 
-                  href={`/dashboard/${params.workspaceId}/folders/${folder.id}/files/${file.id}`}
+                  href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
                   passHref
                 >
                   <BentoGridItem
