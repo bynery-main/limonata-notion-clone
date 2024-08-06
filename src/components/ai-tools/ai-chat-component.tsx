@@ -2,13 +2,27 @@
 
 import React, { useState } from "react";
 import { CatIcon } from "lucide-react";
-import Image from "next/image";
+import FlashcardComponent from "./flashcard-component";
 
-const AIChatComponent: React.FC = () => {
+interface AIChatComponentProps {
+  workspaceId: string;
+}
+
+const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
+  };
+
+  const openFlashcardModal = () => {
+    setIsModalOpen(false);
+    setIsFlashcardModalOpen(true);
+  };
+
+  const closeFlashcardModal = () => {
+    setIsFlashcardModalOpen(false);
   };
 
   return (
@@ -31,7 +45,10 @@ const AIChatComponent: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2"></div>
+                <button
+                  onClick={openFlashcardModal}
+                  className="w-20 h-20 bg-gray-200 rounded-lg mb-2"
+                ></button>
                 <p className="text-center">Create Flashcards</p>
               </div>
               <div className="flex flex-col items-center">
@@ -43,12 +60,19 @@ const AIChatComponent: React.FC = () => {
                 <p className="text-center">AI Tutor</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2"></div>
+                <button
+                  onClick={toggleModal}
+                  className="w-20 h-20 bg-gray-200 rounded-lg mb-2"
+                ></button>
                 <p className="text-center">Create Quizzes</p>
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {isFlashcardModalOpen && (
+        <FlashcardComponent onClose={closeFlashcardModal} workspaceId={workspaceId} />
       )}
     </>
   );

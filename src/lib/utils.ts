@@ -10,6 +10,16 @@ export interface FileData {
   url: string;
 }
 
+export interface NoteData {
+  id: string;
+  name: string;
+}
+
+export interface FolderNotes {
+  folderName: string;
+  notes: NoteData[];
+}
+
 export const fetchFiles = async (workspaceId: string, folderId: string): Promise<FileData[]> => {
   // Fetch files from Firebase Storage
   const filesRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
@@ -120,3 +130,29 @@ export async function findDocumentByFileId(fileId: string) {
     return null;
   }
 }
+
+export const fetchAllNotes = async (workspaceId: string): Promise<FolderNotes[]> => {
+  const foldersNotes: FolderNotes[] = [];
+
+  // Fetch all folders in the workspace
+  const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+  const foldersSnapshot = await getDocs(foldersRef);
+
+  // Iterate through each folder and fetch notes
+  for (const folderDoc of foldersSnapshot.docs) {
+    const notesRef = collection(db, "workspaces", workspaceId, "folders", folderDoc.id, "notes");
+    const notesSnapshot = await getDocs(notesRef);
+
+    const notes: NoteData[] = notesSnapshot.docs.map(noteDoc => ({
+      id: noteDoc.id,
+      name: noteDoc.data().name,
+    }));
+
+    foldersNotes.push({
+      folderName: folderDoc.data().name,
+      notes,
+    });
+  }
+
+  return foldersNotes;
+};
