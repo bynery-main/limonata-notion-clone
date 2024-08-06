@@ -23,10 +23,10 @@ import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, getFirestore } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
-import { useRouter } from 'next/navigation';
-import { useFolder } from '@/contexts/FolderContext';
+import { useRouter } from "next/navigation";
+import { useFolder } from "@/contexts/FolderContext";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 
@@ -50,7 +50,7 @@ export interface WorkspaceSidebarProps {
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   params,
   className,
-  onFoldersUpdate
+  onFoldersUpdate,
 }) => {
   const router = useRouter();
   const [width, setWidth] = useState(0);
@@ -61,9 +61,24 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const { setCurrentFolder } = useFolder();
 
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
+    string | null
+  >(null);
   const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
-  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(null); // State for current study guide
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(
+    null
+  );
+
+  const [existingCollaborators, setExistingCollaborators] = useState<
+    { uid: string; email: string }[]
+  >([]);
+  const [newCollaborators, setNewCollaborators] = useState<
+    { uid: string; email: string }[]
+  >([]);
+
+  const functions = getFunctions();
+  const db = getFirestore();
+  const manageCollaborators = httpsCallable(functions, "manageCollaborators");
 
   useEffect(() => {
     const updateWidth = () => {
@@ -78,6 +93,37 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       window.removeEventListener("resize", updateWidth);
     };
   }, []);
+
+  useEffect(() => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+
+    const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        fetchExistingCollaborators();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [params.workspaceId]);
+
+  const fetchExistingCollaborators = async () => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    const workspaceSnap = await getDoc(workspaceRef);
+
+    if (workspaceSnap.exists()) {
+      const data = workspaceSnap.data();
+      const collaborators = data.collaborators || [];
+
+      const collaboratorsWithEmails = await Promise.all(
+        collaborators.map(async (uid: string) => {
+          const email = await fetchUserEmailById(uid);
+          return { uid, email };
+        })
+      );
+
+      setExistingCollaborators(collaboratorsWithEmails);
+    }
+  };
 
   const handleFolderSelect = (folder: Folder) => {
     setCurrentFolderId(folder.id);
@@ -95,9 +141,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
   };
 
-  const handleStudyGuideSelect = (studyGuide: { id: string }) => { // Handle study guide selection
+  const handleStudyGuideSelect = (studyGuide: { id: string }) => {
     setCurrentStudyGuideId(studyGuide.id);
-    router.push(`/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`);
+    router.push(
+      `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
+    );
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -132,40 +180,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
 
-  const [existingCollaborators, setExistingCollaborators] = useState<
-    { uid: string; email: string }[]
-  >([]);
-  const [newCollaborators, setNewCollaborators] = useState<
-    { uid: string; email: string }[]
-  >([]);
-
-  const functions = getFunctions();
-  const db = getFirestore();
-  const manageCollaborators = httpsCallable(functions, "manageCollaborators");
-
-  const fetchExistingCollaborators = async () => {
-    const workspaceRef = doc(db, "workspaces", params.workspaceId);
-    const workspaceSnap = await getDoc(workspaceRef);
-
-    if (workspaceSnap.exists()) {
-      const data = workspaceSnap.data();
-      const collaborators = data.collaborators || [];
-
-      const collaboratorsWithEmails = await Promise.all(
-        collaborators.map(async (uid: string) => {
-          const email = await fetchUserEmailById(uid);
-          return { uid, email };
-        })
-      );
-
-      setExistingCollaborators(collaboratorsWithEmails);
-    }
-  };
-
-  useEffect(() => {
-    fetchExistingCollaborators();
-  }, [params.workspaceId, db]);
-
   const handleSaveCollaborators = async () => {
     const allCollaborators = [
       ...existingCollaborators.map((user) => user.uid),
@@ -192,7 +206,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
       setExistingCollaborators(updatedCollaboratorsWithEmails);
       setNewCollaborators([]);
-
     } catch (error) {
       console.error("Error updating collaborators:", error);
     }
@@ -228,23 +241,23 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-            <FoldersDropDown 
-              workspaceId={params.workspaceId} 
+            <FoldersDropDown
+              workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
             />
-            <FlashcardsDropdown 
+            <FlashcardsDropdown
               workspaceId={params.workspaceId}
               currentFlashcardDeckId={currentFlashcardDeckId}
               onFlashcardDeckSelect={handleFlashcardDeckSelect}
             />
-            <QuizzesDropdown 
+            <QuizzesDropdown
               workspaceId={params.workspaceId}
               currentQuizSetId={currentQuizSetId}
               onQuizSetSelect={handleQuizSetSelect}
             />
-            <StudyGuideDropdown // Add StudyGuideDropdown component
+            <StudyGuideDropdown
               workspaceId={params.workspaceId}
               currentStudyGuideId={currentStudyGuideId}
               onStudyGuideSelect={handleStudyGuideSelect}
@@ -263,11 +276,14 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   People
                 </Link>
                 <CollaboratorSearch
-                  existingCollaborators={existingCollaborators.map(c => c.uid)}
+                  existingCollaborators={existingCollaborators.map(
+                    (c) => c.uid
+                  )}
                   currentUserUid={currentUserUid}
                   onAddCollaborator={handleAddCollaborator}
                 >
-                  <div className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
+                  <div
+                    className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
                     onClick={() => setShowCollaborators(true)}
                   >
                     <UserPlusIcon className="h-4 w-4" />
