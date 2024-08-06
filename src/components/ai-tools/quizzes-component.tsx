@@ -1,13 +1,154 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { fetchAllNotes, FolderNotes } from "@/lib/utils";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app, db } from "@/firebase/firebaseConfig"; // Adjust this import based on your actual Firebase config file
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 
-const QuizzesComponent: React.FC = () => {
+interface QuizzesComponentProps {
+  onClose: () => void;
+  workspaceId: string;
+}
+
+interface Quiz {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId }) => {
+  const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
+  const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const fetchedNotes = await fetchAllNotes(workspaceId);
+      setFoldersNotes(fetchedNotes);
+    };
+
+    fetchNotes();
+  }, [workspaceId]);
+
+  const handleCheckboxChange = (folderId: string, noteId: string, isChecked: boolean) => {
+    if (isChecked) {
+      setSelectedNotes([...selectedNotes, { folderId, noteId }]);
+    } else {
+      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId));
+    }
+  };
+
+  const handleCreateQuizzes = async () => {
+    const functions = getFunctions(app);
+    const createQuizzes = httpsCallable(functions, "quizGenAgent");
+
+    setLoading(true);
+    try {
+      const payload = {
+        workspaceId,
+        notes: selectedNotes,
+      };
+      console.log("Payload being passed to quizGenAgent:", payload);
+      const result = await createQuizzes(payload);
+      console.log("Quizzes created successfully:", result.data);
+
+      const data = result.data as { quizzes: { raw: string } }; // Type assertion
+      const raw = data.quizzes.raw || "";
+
+      // Log the raw data before parsing
+      console.log("Raw data received from cloud function:", raw);
+
+      // Parse raw data into quizzes (implement parsing logic as needed)
+      const parsedQuizzes = parseRawDataToQuizzes(raw);
+      setQuizzes(parsedQuizzes);
+
+      // Create a new quiz set named "New Quiz Set" and save it to Firestore
+      const quizSetRef = doc(collection(db, "workspaces", workspaceId, "quizSets"));
+      await setDoc(quizSetRef, { name: "New Quiz Set" });
+
+      // Save each quiz to Firestore under the new quiz set
+      const quizzesCollectionRef = collection(quizSetRef, "quizzes");
+      for (const quiz of parsedQuizzes) {
+        await addDoc(quizzesCollectionRef, { question: quiz.question, options: quiz.options, correctAnswer: quiz.correctAnswer });
+      }
+    } catch (error) {
+      console.error("Error creating quizzes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const parseRawDataToQuizzes = (rawData: string): Quiz[] => {
+    console.log("Data received by parser:", rawData); // Log the raw data received by the parser
+    const quizzes: Quiz[] = [];
+    const quizRegex = /Quiz \d+: Question: ([\s\S]+?) Options: ([\s\S]+?) Correct Answer: ([\s\S]+?)(?=\nQuiz \d+:|$)/g;
+    let match;
+    while ((match = quizRegex.exec(rawData)) !== null) {
+      quizzes.push({ question: match[1].trim(), options: match[2].split(',').map(opt => opt.trim()), correctAnswer: match[3].trim() });
+    }
+
+    console.log("Quizzes parsed:", quizzes); // Log the quizzes parsed from the raw data
+    return quizzes;
+  };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Create Quizzes</h1>
-      {/* Add your quiz creation logic here */}
-      <p>Quiz creation functionality goes here...</p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Create Quizzes</h2>
+          <button onClick={onClose} className="text-xl font-bold">
+            &times;
+          </button>
+        </div>
+        <p className="text-center">Which notes would you like to use?</p>
+        <ul className="mt-4">
+          {foldersNotes.map((folder) => (
+            <li key={folder.folderId}>
+              <h3 className="font-bold">{folder.folderName}</h3>
+              <ul className="pl-4">
+                {folder.notes.map((note) => (
+                  <li key={note.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
+                    />
+                    {note.name}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={handleCreateQuizzes}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create Quizzes"}
+          </button>
+        </div>
+        {quizzes.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-xl font-semibold">Generated Quizzes</h3>
+            <ul>
+              {quizzes.map((quiz, index) => (
+                <li key={index}>
+                  <h4 className="font-bold">{quiz.question}</h4>
+                  <ul className="pl-4">
+                    {quiz.options.map((option, i) => (
+                      <li key={i}>{option}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
