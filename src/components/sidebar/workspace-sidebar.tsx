@@ -57,8 +57,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
   const { setCurrentFolder } = useFolder();
+
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -77,12 +78,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const handleFolderSelect = (folder: Folder) => {
     setCurrentFolderId(folder.id);
     setCurrentFolder(folder);
-    router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
+    router.push(`/dashboard/${params.workspaceId}/folders/${folder.id}`);
   };
 
-  const handleFlashcardDeckSelect = (deck: any) => {
+  const handleFlashcardDeckSelect = (deck: { id: string }) => {
     setCurrentFlashcardDeckId(deck.id);
-    // Logic to handle flashcard deck selection
+    router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -136,10 +137,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       const data = workspaceSnap.data();
       const collaborators = data.collaborators || [];
 
-      // Fetch emails for each collaborator UID
       const collaboratorsWithEmails = await Promise.all(
         collaborators.map(async (uid: string) => {
-          const email = await fetchUserEmailById(uid); // Assuming this function fetches the email by UID
+          const email = await fetchUserEmailById(uid);
           return { uid, email };
         })
       );
@@ -170,7 +170,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       };
       console.log(response.message);
 
-      // Fetch updated emails for the updated collaborators
       const updatedCollaboratorsWithEmails = await Promise.all(
         response.updatedCollaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
@@ -222,11 +221,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
             />
-            <FlashcardsDropdown
+            <FlashcardsDropdown 
               workspaceId={params.workspaceId}
-              onFlashcardsUpdate={(decks) => {}}
-              onFlashcardDeckSelect={handleFlashcardDeckSelect}
               currentFlashcardDeckId={currentFlashcardDeckId}
+              onFlashcardsUpdate={(decks) => console.log(decks)}
+              onFlashcardDeckSelect={handleFlashcardDeckSelect}
             />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
