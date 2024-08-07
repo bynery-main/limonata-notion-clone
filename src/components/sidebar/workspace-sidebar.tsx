@@ -61,13 +61,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const { setCurrentFolder } = useFolder();
 
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
-    string | null
-  >(null);
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
   const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
-  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(
-    null
-  );
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(null);
 
   const [existingCollaborators, setExistingCollaborators] = useState<
     { uid: string; email: string }[]
@@ -156,9 +152,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const handleStudyGuideSelect = (studyGuide: { id: string }) => {
     setCurrentStudyGuideId(studyGuide.id);
-    router.push(
-      `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
-    );
+    router.push(`/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -315,6 +309,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   )}
                   currentUserUid={currentUserUid}
                   onAddCollaborator={handleAddCollaborator}
+                  onOpen={fetchExistingCollaborators} // Trigger refresh on open
                 >
                   <div
                     className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
