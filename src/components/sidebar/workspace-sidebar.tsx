@@ -23,7 +23,7 @@ import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { doc, getDoc, onSnapshot, getFirestore } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useFolder } from "@/contexts/FolderContext";
@@ -100,6 +100,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         fetchExistingCollaborators();
+        fetchEmoji();
       }
     });
 
@@ -122,6 +123,18 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       );
 
       setExistingCollaborators(collaboratorsWithEmails);
+    }
+  };
+
+  const fetchEmoji = async () => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    const workspaceSnap = await getDoc(workspaceRef);
+
+    if (workspaceSnap.exists()) {
+      const data = workspaceSnap.data();
+      if (data.emoji) {
+        setEmoji(data.emoji);
+      }
     }
   };
 
@@ -167,9 +180,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleEmojiSelect = (emoji: any) => {
+  const handleEmojiSelect = async (emoji: any) => {
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    await updateDoc(workspaceRef, { emoji: emoji.native });
   };
 
   const handleAddCollaborator = (user: { uid: string; email: string }) => {
@@ -232,8 +247,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
-
-  
 
   return (
     <>
