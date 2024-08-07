@@ -23,7 +23,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   onStudyGuideSelect,
 }) => {
   const [studyGuides, setStudyGuides] = useState<StudyGuide[]>([]);
-  const [openStudyGuideId, setOpenStudyGuideId] = useState<string | null>(null);
+  const [openAccordion, setOpenAccordion] = useState<boolean>(false);
 
   useEffect(() => {
     const studyGuidesRef = collection(db, "workspaces", workspaceId, "studyGuides");
@@ -44,33 +44,38 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
     <div>
       <Accordion.Root
         type="single"
-        value={openStudyGuideId || undefined}
-        onValueChange={(value) => setOpenStudyGuideId(value)}
+        value={openAccordion ? "studyGuides" : undefined}
+        onValueChange={(value) => setOpenAccordion(value === "studyGuides")}
         className="space-y-2"
       >
-        {studyGuides.map((studyGuide) => (
-          <Accordion.Item
-            key={studyGuide.id}
-            value={studyGuide.id}
-            className={`border rounded-lg shadow-lg ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
+        <Accordion.Item
+          value="studyGuides"
+          className="border rounded-lg shadow-lg"
+        >
+          <Accordion.Trigger
+            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
           >
-            <Accordion.Trigger
-              className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
-              onClick={() => {
-                onStudyGuideSelect(studyGuide);
-              }}
-            >
-              <span>{studyGuide.title}</span>
-              {studyGuide.id === openStudyGuideId ? (
-                <ChevronDownIcon className="h-4 w-4" />
-              ) : (
-                <ChevronRightIcon className="h-4 w-4" />
-              )}
-            </Accordion.Trigger>
-            <Accordion.Content>
-            </Accordion.Content>
-          </Accordion.Item>
-        ))}
+            <span>Study Guides</span>
+            {openAccordion ? (
+              <ChevronDownIcon className="h-4 w-4" />
+            ) : (
+              <ChevronRightIcon className="h-4 w-4" />
+            )}
+          </Accordion.Trigger>
+          <Accordion.Content>
+            <div className="pl-4">
+              {studyGuides.map((studyGuide) => (
+                <div
+                  key={studyGuide.id}
+                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
+                  onClick={() => onStudyGuideSelect(studyGuide)}
+                >
+                  <span>{studyGuide.title}</span>
+                </div>
+              ))}
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
       </Accordion.Root>
     </div>
   );

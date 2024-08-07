@@ -23,7 +23,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   onFlashcardDeckSelect,
 }) => {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
-  const [openDeckId, setOpenDeckId] = useState<string | null>(null);
+  const [openAccordion, setOpenAccordion] = useState<boolean>(false);
 
   useEffect(() => {
     const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
@@ -42,35 +42,40 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
 
   return (
     <div>
-      <Accordion.Root 
-        type="single" 
-        value={openDeckId || undefined} 
-        onValueChange={(value) => setOpenDeckId(value)}
+      <Accordion.Root
+        type="single"
+        value={openAccordion ? "flashcards" : undefined}
+        onValueChange={(value) => setOpenAccordion(value === "flashcards")}
         className="space-y-2"
       >
-        {decks.map((deck) => (
-          <Accordion.Item
-            key={deck.id}
-            value={deck.id}
-            className={`border rounded-lg shadow-lg ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
+        <Accordion.Item
+          value="flashcards"
+          className="border rounded-lg shadow-lg"
+        >
+          <Accordion.Trigger
+            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
           >
-            <Accordion.Trigger
-              className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
-              onClick={() => {
-                onFlashcardDeckSelect(deck);
-              }}
-            >
-              <span>{deck.name}</span>
-              {deck.id === openDeckId ? (
-                <ChevronDownIcon className="h-4 w-4" />
-              ) : (
-                <ChevronRightIcon className="h-4 w-4" />
-              )}
-            </Accordion.Trigger>
-            <Accordion.Content>
-            </Accordion.Content>
-          </Accordion.Item>
-        ))}
+            <span>Flashcards</span>
+            {openAccordion ? (
+              <ChevronDownIcon className="h-4 w-4" />
+            ) : (
+              <ChevronRightIcon className="h-4 w-4" />
+            )}
+          </Accordion.Trigger>
+          <Accordion.Content>
+            <div className="pl-4">
+              {decks.map((deck) => (
+                <div
+                  key={deck.id}
+                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
+                  onClick={() => onFlashcardDeckSelect(deck)}
+                >
+                  <span>{deck.name}</span>
+                </div>
+              ))}
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
       </Accordion.Root>
     </div>
   );

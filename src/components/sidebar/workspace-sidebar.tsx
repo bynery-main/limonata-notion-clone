@@ -23,7 +23,13 @@ import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { doc, getDoc, onSnapshot, getFirestore, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useFolder } from "@/contexts/FolderContext";
@@ -61,9 +67,13 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const { setCurrentFolder } = useFolder();
 
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
+    string | null
+  >(null);
   const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
-  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(null);
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(
+    null
+  );
 
   const [existingCollaborators, setExistingCollaborators] = useState<
     { uid: string; email: string }[]
@@ -152,7 +162,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const handleStudyGuideSelect = (studyGuide: { id: string }) => {
     setCurrentStudyGuideId(studyGuide.id);
-    router.push(`/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`);
+    router.push(
+      `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
+    );
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -269,12 +281,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-            <FoldersDropDown
-              workspaceId={params.workspaceId}
-              onFoldersUpdate={onFoldersUpdate}
-              currentFolderId={currentFolderId}
-              onFolderSelect={handleFolderSelect}
-            />
             <FlashcardsDropdown
               workspaceId={params.workspaceId}
               currentFlashcardDeckId={currentFlashcardDeckId}
@@ -289,6 +295,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               workspaceId={params.workspaceId}
               currentStudyGuideId={currentStudyGuideId}
               onStudyGuideSelect={handleStudyGuideSelect}
+            />
+            <FoldersDropDown
+              workspaceId={params.workspaceId}
+              onFoldersUpdate={onFoldersUpdate}
+              currentFolderId={currentFolderId}
+              onFolderSelect={handleFolderSelect}
             />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
