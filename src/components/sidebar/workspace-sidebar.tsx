@@ -211,8 +211,29 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     }
   };
 
+  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getWorkspaceDetails = async () => {
+      const workspaceRef = doc(db, "workspaces", params.workspaceId);
+      const workspaceSnap = await getDoc(workspaceRef);
+
+      try {
+        const workspaceData = workspaceSnap.data();
+        const workspaceName = workspaceData?.name;
+        setWorkspaceName(workspaceName);
+      } catch (error) {
+        console.error("Error getting workspace details:", error);
+      }
+    };
+
+    getWorkspaceDetails();
+  }, [params.workspaceId]);
+
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
+
+  
 
   return (
     <>
@@ -227,7 +248,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             className="flex items-center gap-2 font-semibold"
           >
             <span>{emoji}</span>
-            Biology
+            {workspaceName}
           </button>
           {showEmojiPicker && (
             <div className="absolute top-full left-0 mt-2 z-20">
