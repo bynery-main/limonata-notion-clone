@@ -10,12 +10,12 @@ const StudyGuidePage = () => {
   const router = useRouter();
   const params = useParams(); // Use useParams to get dynamic segments
 
-  if (!params) {
-    return <p>Invalid workspace or study guide.</p>;
-  }
+  // if (!params) {
+  //   return <p>Invalid workspace or study guide.</p>;
+  // }
 
-  const workspaceId = params.workspaceId as string;
-  const studyguideId = params.studyguideId as string;
+  const workspaceId = params?.workspaceId as string;
+  const studyguideId = params?.studyguideId as string;
 
   useEffect(() => {
     if (!workspaceId || !studyguideId) return;
