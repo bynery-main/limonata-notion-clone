@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Picker from "@emoji-mart/react";
 import { BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
@@ -13,6 +13,7 @@ import { FolderProvider, useFolder } from "@/contexts/FolderContext";
 import { ChatComponent } from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
 import Link from 'next/link';
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 interface FileData {
   id: string;
@@ -56,6 +57,24 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emoji, setEmoji] = useState<string>("🍋"); // Default emoji
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
+
+  const db = getFirestore();
+
+  useEffect(() => {
+    const fetchWorkspaceEmoji = async () => {
+      const workspaceRef = doc(db, "workspaces", params.workspaceId);
+      const workspaceSnap = await getDoc(workspaceRef);
+
+      if (workspaceSnap.exists()) {
+        const data = workspaceSnap.data();
+        if (data.emoji) {
+          setEmoji(data.emoji);
+        }
+      }
+    };
+
+    fetchWorkspaceEmoji();
+  }, [params.workspaceId, db]);
 
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);
