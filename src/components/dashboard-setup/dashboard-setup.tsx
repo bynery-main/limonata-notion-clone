@@ -143,6 +143,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
                 existingCollaborators={existingCollaborators.map(c => c.uid)} // This line assumes existingCollaborators is already of correct object structure.
                 currentUserUid={user!.uid}
                 onAddCollaborator={addCollaborator}
+                onOpen={() => {}} // Add this line to pass a default function or your specific logic
                 style={{ zIndex: 10010 }}
               >
                 <Button type="button" className="text-sm mt-4">
