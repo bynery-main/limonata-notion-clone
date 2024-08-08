@@ -14,6 +14,7 @@ import { ChatComponent } from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
 import Link from 'next/link';
 import { IconClipboardCopy, IconFileBroken, IconSignature, IconTableColumn } from "@tabler/icons-react";
+import { usePathname } from 'next/navigation';
 
 interface FileData {
   id: string;
@@ -37,43 +38,13 @@ interface LayoutProps {
 const Skeleton = () => (
   <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
 );
-const items = [
-  {
-    title: "The Dawn of Innovation",
-    description: "Explore the birth of groundbreaking ideas and inventions.",
-    header: <Skeleton />,
-    className: "md:col-span-2",
-    icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
-  },
-  {
-    title: "The Digital Revolution",
-    description: "Dive into the transformative power of technology.",
-    header: <Skeleton />,
-    className: "md:col-span-1",
-    icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
-  },
-  {
-    title: "The Art of Design",
-    description: "Discover the beauty of thoughtful and functional design.",
-    header: <Skeleton />,
-    className: "md:col-span-1",
-    icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
-  },
-  {
-    title: "The Power of Communication",
-    description:
-      "Understand the impact of effective communication in our lives.",
-    header: <Skeleton />,
-    className: "md:col-span-2",
-    icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
-  },
-];
+
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emoji, setEmoji] = useState<string>("🍋"); // Default emoji
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
-
+  const pathname = usePathname();
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
@@ -88,7 +59,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setFoldersData(newFoldersData);
   };
 
-  
+  const showBentoGrid = pathname === `/dashboard/${params.workspaceId}`;
+
 
   const getFilePreview = (file: FileData) => {
     if (!file || !file.name) {
@@ -201,25 +173,27 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </div>
           {children}
 
-          <BentoGrid className="max-w-7xl mx-auto p-4">
-            {foldersData.flatMap((folder, folderIndex) =>
-              folder.files.map((file, fileIndex) => (
-                <BentoGridItem
-                  key={file.id}
-                  title={file.name}
-                  description={`In folder: ${folder.name}`}
-                  header={getFilePreview(file)}
-                  href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
-                  className={
-                    (folderIndex * folder.files.length + fileIndex) % 7 === 3 || 
-                    (folderIndex * folder.files.length + fileIndex) % 7 === 6 
-                      ? "md:col-span-2" 
-                      : ""
-                  }
-                />
-              ))
-            )}
-          </BentoGrid>
+          {showBentoGrid && (
+            <BentoGrid className="max-w-7xl mx-auto p-4">
+              {foldersData.flatMap((folder, folderIndex) =>
+                folder.files.map((file, fileIndex) => (
+                  <BentoGridItem
+                    key={file.id}
+                    title={file.name}
+                    description={`In folder: ${folder.name}`}
+                    header={getFilePreview(file)}
+                    href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
+                    className={
+                      (folderIndex * folder.files.length + fileIndex) % 7 === 3 || 
+                      (folderIndex * folder.files.length + fileIndex) % 7 === 6 
+                        ? "md:col-span-2" 
+                        : ""
+                    }
+                  />
+                ))
+              )}
+            </BentoGrid>
+          )}
 
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
