@@ -16,8 +16,8 @@ interface CollaboratorSearchProps {
   children: React.ReactNode;
   existingCollaborators: string[];
   currentUserUid: string;
-  onAddCollaborator: (user: { uid: string; email: string }) => void; // New prop to handle adding
-  onOpen: () => void; // New prop to handle opening
+  onAddCollaborator: (user: { uid: string; email: string }) => void;
+  onOpen: () => void; // Prop to handle opening
   style?: React.CSSProperties;
 }
 
@@ -34,7 +34,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const addCollaboratorLocal = (user: { uid: string; email: string }) => {
-    onAddCollaborator(user); // Directly use the prop here instead of from 'props'
+    onAddCollaborator(user);
   };
 
   useEffect(() => {
