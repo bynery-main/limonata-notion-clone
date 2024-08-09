@@ -97,7 +97,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Create Flashcards</h2>
+          <h2 className="text-xl text-center font-semibold">Create Flashcards</h2>
           <button onClick={onClose} className="text-xl font-bold">
             &times;
           </button>
@@ -125,7 +125,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
         </div>
         <div className="mt-4 flex justify-center">
           <button
-            className="relative inline-flex h-12 overflow-hidden rounded-full p-[1.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+            className="relative inline-flex h-12 overflow-hidden rounded-full p-[2.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
             onClick={handleCreateFlashcards}
             disabled={loading}
           >
