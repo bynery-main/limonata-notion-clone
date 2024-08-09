@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig"; // Ensure you have your Firebase config imported
 import { useRouter } from "next/navigation";
+import ReactMarkdown from 'react-markdown';
 
 interface ChatComponentProps {
   onSendMessage: (workspaceId: string, query: string) => void;
@@ -28,7 +29,21 @@ export function ChatComponent({ onSendMessage }: ChatComponentProps) {
     const id = parts[2]; // Assuming the workspaceId is the third segment in the URL
     setWorkspaceId(id);
   }, []);
-
+  const markdownStyles = {
+    p: 'mb-2 font-light break-words',
+    ul: 'mb-2 list-disc pl-6',
+    ol: 'mb-2 list-decimal pl-6',
+    li: 'mb-1 font-light break-words',
+    h1: 'text-xl font-bold mt-3 mb-2 break-words',
+    h2: 'text-lg font-bold mt-3 mb-2 break-words',
+    h3: 'text-base font-bold mt-3 mb-2 break-words',
+    h4: 'text-sm font-bold mt-3 mb-2 break-words',
+    h5: 'text-xs font-bold mt-3 mb-2 break-words',
+    h6: 'text-xs font-bold mt-3 mb-2 break-words',
+    strong: 'font-bold',
+    code: 'bg-gray-100 rounded px-1 py-0.5 font-mono text-sm break-words',
+    pre: 'bg-gray-100 rounded p-2 whitespace-pre-wrap mb-2',
+  };
   const toggleChat = () => {
     setIsChatVisible(!isChatVisible);
   };
@@ -81,9 +96,27 @@ export function ChatComponent({ onSendMessage }: ChatComponentProps) {
                         <AvatarFallback>AC</AvatarFallback>
                       </Avatar>
                     )}
-                    <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
-                      <p>{message.content}</p>
-                    </div>
+<div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                    <ReactMarkdown
+                      components={{
+                        p: ({node, ...props}) => <p className={markdownStyles.p} {...props} />,
+                        ul: ({node, ...props}) => <ul className={markdownStyles.ul} {...props} />,
+                        ol: ({node, ...props}) => <ol className={markdownStyles.ol} {...props} />,
+                        li: ({node, ...props}) => <li className={markdownStyles.li} {...props} />,
+                        h1: ({node, ...props}) => <h1 className={markdownStyles.h1} {...props} />,
+                        h2: ({node, ...props}) => <h2 className={markdownStyles.h2} {...props} />,
+                        h3: ({node, ...props}) => <h3 className={markdownStyles.h3} {...props} />,
+                        h4: ({node, ...props}) => <h4 className={markdownStyles.h4} {...props} />,
+                        h5: ({node, ...props}) => <h5 className={markdownStyles.h5} {...props} />,
+                        h6: ({node, ...props}) => <h6 className={markdownStyles.h6} {...props} />,
+                        strong: ({node, ...props}) => <strong className={markdownStyles.strong} {...props} />,
+                        code: ({node, inline, ...props}) => 
+                          inline ? <code className={markdownStyles.code} {...props} /> : <pre className={markdownStyles.pre}><code {...props} /></pre>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                     {message.type === 'user' && (
                       <Avatar className="h-8 w-8 border">
                         <AvatarImage src="/placeholder-user.jpg" alt="Image" />
