@@ -59,6 +59,11 @@ export const MainSidebar = (): JSX.Element => {
     }
   };
 
+
+  function handleSettingsClick(event: React.MouseEvent<HTMLImageElement, MouseEvent>): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
       <div className=" mt-3 bg-[#010256] flex flex-col items-center">
