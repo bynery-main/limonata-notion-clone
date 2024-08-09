@@ -20,6 +20,9 @@ const LoginPage = () => { // Changed to const
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const provider = new GoogleAuthProvider();
 
   // Redirect if user is already logged in
@@ -59,7 +62,11 @@ const LoginPage = () => { // Changed to const
   const handleSignInWithGoogle = async () => {
     try {
       await setPersistence(auth, browserLocalPersistence);
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      setProfilePic(user.photoURL);
+      setUserName(user.displayName);
+      setUserEmail(user.email);
       router.push("/dashboard");
     } catch (e) {
       if (e instanceof Error) {
