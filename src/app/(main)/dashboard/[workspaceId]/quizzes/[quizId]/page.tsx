@@ -33,12 +33,12 @@ const QuizzesPage = () => {
   const router = useRouter();
   const params = useParams(); // Use useParams to get dynamic segments
 
-  // if (!params) {
-  //   return <p>Invalid workspace or quiz.</p>;
-  // }
+  if (!params) {
+    return <p>Invalid workspace or quiz.</p>;
+  }
 
-  const workspaceId = params?.workspaceId as string;
-  const quizId = params?.quizId as string;
+  const workspaceId = params.workspaceId as string;
+  const quizId = params.quizId as string;
 
   useEffect(() => {
     if (!workspaceId || !quizId) return;

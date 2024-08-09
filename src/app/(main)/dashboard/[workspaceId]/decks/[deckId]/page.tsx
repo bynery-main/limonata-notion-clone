@@ -39,9 +39,14 @@ const FlashcardsPage = () => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const router = useRouter();
-  const params = useParams();
-  const workspaceId = params?.workspaceId as string;
-  const deckId = params?.deckId as string;
+  const params = useParams(); // Use useParams to get dynamic segments
+
+  if (!params) {
+    return <p>Invalid workspace or flashcard deck.</p>;
+  }
+
+  const workspaceId = params.workspaceId as string;
+  const deckId = params.deckId as string;
 
   useEffect(() => {
     if (!workspaceId || !deckId) return;
@@ -71,10 +76,6 @@ const FlashcardsPage = () => {
 
     fetchData();
   }, [workspaceId, deckId]);
-
-  if (!params) {
-    return <p>Invalid workspace or flashcard deck.</p>;
-  }
 
   if (!workspaceId || !deckId) {
     return <p>Invalid workspace or flashcard deck.</p>;

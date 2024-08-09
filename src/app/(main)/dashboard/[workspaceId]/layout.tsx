@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Picker from "@emoji-mart/react";
 import { BentoGrid, BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
@@ -65,6 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   }, [params.workspaceId, db]);
 
   const pathname = usePathname();
+
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
