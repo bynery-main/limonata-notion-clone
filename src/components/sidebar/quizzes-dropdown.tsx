@@ -23,7 +23,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
   onQuizSetSelect,
 }) => {
   const [quizSets, setQuizSets] = useState<QuizSet[]>([]);
-  const [openAccordion, setOpenAccordion] = useState<boolean>(false);
+  const [openQuizSetId, setOpenQuizSetId] = useState<string | null>(null);
 
   useEffect(() => {
     const quizSetsRef = collection(db, "workspaces", workspaceId, "quizSets");
@@ -44,38 +44,33 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
     <div>
       <Accordion.Root
         type="single"
-        value={openAccordion ? "quizzes" : undefined}
-        onValueChange={(value) => setOpenAccordion(value === "quizzes")}
+        value={openQuizSetId || undefined}
+        onValueChange={(value) => setOpenQuizSetId(value)}
         className="space-y-2"
       >
-        <Accordion.Item
-          value="quizzes"
-          className="border rounded-lg shadow-lg"
-        >
-          <Accordion.Trigger
-            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+        {quizSets.map((quizSet) => (
+          <Accordion.Item
+            key={quizSet.id}
+            value={quizSet.id}
+            className={`border rounded-lg shadow-lg ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
           >
-            <span>Quizzes</span>
-            {openAccordion ? (
-              <ChevronDownIcon className="h-4 w-4" />
-            ) : (
-              <ChevronRightIcon className="h-4 w-4" />
-            )}
-          </Accordion.Trigger>
-          <Accordion.Content>
-            <div className="pl-4">
-              {quizSets.map((quizSet) => (
-                <div
-                  key={quizSet.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
-                  onClick={() => onQuizSetSelect(quizSet)}
-                >
-                  <span>{quizSet.name}</span>
-                </div>
-              ))}
-            </div>
-          </Accordion.Content>
-        </Accordion.Item>
+            <Accordion.Trigger
+              className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+              onClick={() => {
+                onQuizSetSelect(quizSet);
+              }}
+            >
+              <span>{quizSet.name}</span>
+              {quizSet.id === openQuizSetId ? (
+                <ChevronDownIcon className="h-4 w-4" />
+              ) : (
+                <ChevronRightIcon className="h-4 w-4" />
+              )}
+            </Accordion.Trigger>
+            <Accordion.Content>
+            </Accordion.Content>
+          </Accordion.Item>
+        ))}
       </Accordion.Root>
     </div>
   );
