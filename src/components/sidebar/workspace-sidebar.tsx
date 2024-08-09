@@ -275,7 +275,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <span className="sr-only">Limonata</span>
         </div>
 
-        <SyncWorkspaceButton workspaceId={params.workspaceId} />
+        <SyncWorkspaceButton className="mx-4 shadow-lg"
+        workspaceId={params.workspaceId} />
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
