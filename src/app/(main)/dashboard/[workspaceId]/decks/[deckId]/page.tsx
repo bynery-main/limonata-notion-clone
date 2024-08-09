@@ -3,21 +3,33 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchFlashcardDecks, FlashcardDeck } from "@/lib/utils";
-import Flashcards from "@/components/ai-tools/flashcards";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { useParams } from 'next/navigation';
+import { FlashCardArray } from "react-flashcards";
 
 interface Flashcard {
-  question: string;
-  answer: string;
-} 
+  id: string;
+  front: string;
+  back: string;
+}
+
+const flashcardStyles = {
+  card: {
+    front: {
+      padding: '20px',
+    },
+    back: {
+      padding: '20px',
+    },
+  },
+};
 
 const FlashcardsPage = () => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const router = useRouter();
-  const params = useParams(); // Use useParams to get dynamic segments
+  const params = useParams();
 
   if (!params) {
     return <p>Invalid workspace or flashcard deck.</p>;
@@ -33,13 +45,13 @@ const FlashcardsPage = () => {
       const fetchedDecks = await fetchFlashcardDecks(workspaceId);
       setDecks(fetchedDecks);
 
-      // Fetch flashcards for the specific deck
       const flashcardsCollectionRef = collection(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards");
       const flashcardsSnapshot = await getDocs(flashcardsCollectionRef);
 
       const fetchedFlashcards: Flashcard[] = flashcardsSnapshot.docs.map((doc) => ({
-        question: doc.data().question,
-        answer: doc.data().answer,
+        id: doc.id,
+        front: doc.data().question,
+        back: doc.data().answer,
       }));
 
       console.log("Fetched flashcards:", fetchedFlashcards);
@@ -57,7 +69,16 @@ const FlashcardsPage = () => {
     <div>
       <h1>Flashcards</h1>
       {flashcards.length > 0 ? (
-        <Flashcards flashcards={flashcards} />
+        <FlashCardArray
+          cards={flashcards}
+          width="600px"
+          height="400px"
+          direction="horizontal"
+          autoplay={false}
+          showCount={true}
+          showNextPrevButtons={true}
+          style={flashcardStyles}
+        />
       ) : (
         <p>No flashcards available.</p>
       )}
