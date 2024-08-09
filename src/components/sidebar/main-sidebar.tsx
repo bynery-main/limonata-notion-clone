@@ -16,6 +16,7 @@ export const MainSidebar = (): JSX.Element => {
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadWorkspaces = async () => {
@@ -33,12 +34,13 @@ export const MainSidebar = (): JSX.Element => {
 
     if (workspaceId === 'home') {
       setActiveIcon('home');
-      router.push("/dashboard")
-    }
-    else {
+      router.push("/dashboard");
+    } else {
+
       router.push(`/dashboard/${workspaceId}`);
     }
     setActiveIcon(workspaceId);
+    setCurrentWorkspaceId(workspaceId);
     console.log('Icon clicked:', workspaceId);
     return;
 
@@ -49,7 +51,7 @@ export const MainSidebar = (): JSX.Element => {
   };
 
   const handleSuccess = () => {
-    // Add your success handling logic here
+
     setShowDS(false);
   };
 
@@ -59,18 +61,21 @@ export const MainSidebar = (): JSX.Element => {
     }
   };
 
-
-  function handleSettingsClick(event: React.MouseEvent<HTMLImageElement, MouseEvent>): void {
-    throw new Error("Function not implemented.");
-  }
+  const handleSettingsClick = () => {
+    if (currentWorkspaceId) {
+      router.push(`/dashboard/${currentWorkspaceId}/settings`);
+    } else {
+      alert('Please select a workspace first');
+    }
+  };
 
   return (
     <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
       <div className=" mt-3 bg-[#010256] flex flex-col items-center">
-       
-        <button className="w-[34px] h-[34px] bg-[#020039] rounded-md " onClick={() =>  handleWorkspaceClick('home')}>
-          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden  bg-cover bg-[50%_50%] hover:border-2 hover:border-[#6FA2FF]">
-          <Home className=" w-5 h-5 text-[#6FA2FF]" />
+        <button className="w-[34px] h-[34px] bg-[#020039] rounded-md" onClick={() => handleWorkspaceClick('home')}>
+          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-[#6FA2FF]">
+            <Home className="w-5 h-5 text-[#6FA2FF]" />
+
           </div>
         </button>
         {workspaces.map((workspace, index) => (
@@ -132,8 +137,8 @@ interface WorkspaceIconProps {
 const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive }) => {
   return (
     <div 
-    className={`mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-[#6FA2FF] font-semibold text-md hover:border-2 hover:border-[#6FA2FF] ${isActive ? 'border-2 border-[#6FA2FF]' : ''}`}
-    onClick={onClick}
+      className={`mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-[#6FA2FF] font-semibold text-md hover:border-2 hover:border-[#6FA2FF] ${isActive ? 'border-2 border-[#6FA2FF]' : ''}`}
+      onClick={onClick}
     >
       {workspace.name.charAt(0).toUpperCase()}
     </div>
