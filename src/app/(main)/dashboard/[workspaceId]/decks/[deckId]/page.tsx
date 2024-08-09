@@ -1,10 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { fetchFlashcardDecks, FlashcardDeck } from "@/lib/utils";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
-import { useParams } from 'next/navigation';
 import { FlashCardArray } from "react-flashcards";
 import { CSSProperties } from 'react';
 
@@ -18,35 +17,18 @@ interface Flashcard {
   frontStyle?: CSSProperties;
   backStyle?: CSSProperties;
   currentIndex: number;
-  label?: string;
+  label: string;
   showTextToSpeech?: boolean;
 }
-
-const flashcardStyles = {
-  card: {
-    front: {
-      padding: '20px',
-      margin: '20px',
-    },
-    back: {
-      padding: '20px',
-      margin: '20px',
-    },
-  },
-};
 
 const FlashcardsPage = () => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const router = useRouter();
-  const params = useParams(); // Use useParams to get dynamic segments
+  const params = useParams();
 
-  if (!params) {
-    return <p>Invalid workspace or flashcard deck.</p>;
-  }
-
-  const workspaceId = params.workspaceId as string;
-  const deckId = params.deckId as string;
+  const workspaceId = params?.workspaceId as string;
+  const deckId = params?.deckId as string;
 
   useEffect(() => {
     if (!workspaceId || !deckId) return;
@@ -59,14 +41,14 @@ const FlashcardsPage = () => {
       const flashcardsSnapshot = await getDocs(flashcardsCollectionRef);
       const fetchedFlashcards: Flashcard[] = flashcardsSnapshot.docs.map((doc, index) => ({
         id: index + 1,
+        timerDuration: 10, // Default value, adjust as needed
         front: doc.data().question,
         back: doc.data().answer,
-        timerDuration: 10, // Set a default value or fetch from your data
-        label: `Card ${index + 1}`,
-        currentIndex: index,
         isMarkdown: false,
         frontStyle: {},
         backStyle: {},
+        currentIndex: index,
+        label: `Card ${index + 1}`,
         showTextToSpeech: false,
       }));
 
@@ -82,19 +64,23 @@ const FlashcardsPage = () => {
   }
 
   return (
-    <div>
+    <div className="flex flex-col items-center h-full w-full
+    ">
       <h1>Flashcards</h1>
       {flashcards.length > 0 ? (
-        <FlashCardArray
-          cards={flashcards}
-          width="600px"
-          height="400px"
-          direction="horizontal"
-          autoplay={false}
-          showCount={true}
-          showNextPrevButtons={true}
-          style={flashcardStyles}
-        />
+        <div style={{ width: '700px', height: '800px' }}>
+          <FlashCardArray
+            cards={flashcards}
+            label="Flashcards"
+            timerDuration={10}
+            showCount={true}
+            autoPlay={false}
+            cycle={true}
+            width="100%"
+            frontStyle={{ backgroundColor: '#f0f0f0', padding: '20px' }}
+            backStyle={{ backgroundColor: '#e0e0e0', padding: '20px' }}
+          />
+        </div>
       ) : (
         <p>No flashcards available.</p>
       )}

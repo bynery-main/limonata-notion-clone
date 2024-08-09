@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app } from "@/firebase/firebaseConfig"; // Ensure you have your Firebase config imported
+import { app } from "@/firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 
@@ -26,9 +26,10 @@ export function ChatComponent({ onSendMessage }: ChatComponentProps) {
   useEffect(() => {
     const pathname = window.location.pathname;
     const parts = pathname.split('/');
-    const id = parts[2]; // Assuming the workspaceId is the third segment in the URL
+    const id = parts[2];
     setWorkspaceId(id);
   }, []);
+
   const markdownStyles = {
     p: 'mb-2 font-light break-words',
     ul: 'mb-2 list-disc pl-6',
@@ -44,6 +45,32 @@ export function ChatComponent({ onSendMessage }: ChatComponentProps) {
     code: 'bg-gray-100 rounded px-1 py-0.5 font-mono text-sm break-words',
     pre: 'bg-gray-100 rounded p-2 whitespace-pre-wrap mb-2',
   };
+
+  const components: React.ComponentProps<typeof ReactMarkdown>['components'] = {
+    p: ({ children }) => <p className={markdownStyles.p}>{children}</p>,
+    ul: ({ children }) => <ul className={markdownStyles.ul}>{children}</ul>,
+    ol: ({ children }) => <ol className={markdownStyles.ol}>{children}</ol>,
+    li: ({ children }) => <li className={markdownStyles.li}>{children}</li>,
+    h1: ({ children }) => <h1 className={markdownStyles.h1}>{children}</h1>,
+    h2: ({ children }) => <h2 className={markdownStyles.h2}>{children}</h2>,
+    h3: ({ children }) => <h3 className={markdownStyles.h3}>{children}</h3>,
+    h4: ({ children }) => <h4 className={markdownStyles.h4}>{children}</h4>,
+    h5: ({ children }) => <h5 className={markdownStyles.h5}>{children}</h5>,
+    h6: ({ children }) => <h6 className={markdownStyles.h6}>{children}</h6>,
+    strong: ({ children }) => <strong className={markdownStyles.strong}>{children}</strong>,
+    code: (props) => {
+      const { inline, className, children } = props as { inline?: boolean; className?: string; children: React.ReactNode };
+      const match = /language-(\w+)/.exec(className || '');
+      return !inline ? (
+        <pre className={markdownStyles.pre}>
+          <code className={className}>{children}</code>
+        </pre>
+      ) : (
+        <code className={markdownStyles.code}>{children}</code>
+      );
+    },
+  };
+
   const toggleChat = () => {
     setIsChatVisible(!isChatVisible);
   };
@@ -96,24 +123,8 @@ export function ChatComponent({ onSendMessage }: ChatComponentProps) {
                         <AvatarFallback>AC</AvatarFallback>
                       </Avatar>
                     )}
-<div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
-                    <ReactMarkdown
-                      components={{
-                        p: ({node, ...props}) => <p className={markdownStyles.p} {...props} />,
-                        ul: ({node, ...props}) => <ul className={markdownStyles.ul} {...props} />,
-                        ol: ({node, ...props}) => <ol className={markdownStyles.ol} {...props} />,
-                        li: ({node, ...props}) => <li className={markdownStyles.li} {...props} />,
-                        h1: ({node, ...props}) => <h1 className={markdownStyles.h1} {...props} />,
-                        h2: ({node, ...props}) => <h2 className={markdownStyles.h2} {...props} />,
-                        h3: ({node, ...props}) => <h3 className={markdownStyles.h3} {...props} />,
-                        h4: ({node, ...props}) => <h4 className={markdownStyles.h4} {...props} />,
-                        h5: ({node, ...props}) => <h5 className={markdownStyles.h5} {...props} />,
-                        h6: ({node, ...props}) => <h6 className={markdownStyles.h6} {...props} />,
-                        strong: ({node, ...props}) => <strong className={markdownStyles.strong} {...props} />,
-                        code: ({node, inline, ...props}) => 
-                          inline ? <code className={markdownStyles.code} {...props} /> : <pre className={markdownStyles.pre}><code {...props} /></pre>,
-                      }}
-                    >
+                  <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                    <ReactMarkdown components={components}>
                       {message.content}
                     </ReactMarkdown>
                   </div>

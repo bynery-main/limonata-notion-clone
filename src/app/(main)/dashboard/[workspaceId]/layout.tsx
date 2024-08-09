@@ -17,6 +17,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { IconClipboardCopy, IconFileBroken, IconSignature, IconTableColumn } from "@tabler/icons-react";
 import { usePathname } from 'next/navigation';
 
+
 interface FileData {
   id: string;
   name: string;

@@ -51,29 +51,38 @@ const StudyGuidePage = () => {
     pre: 'bg-gray-100 rounded p-4 whitespace-pre-wrap',
   };
 
+  const components: React.ComponentProps<typeof ReactMarkdown>['components'] = {
+    p: ({ children }) => <p className={markdownStyles.p}>{children}</p>,
+    ul: ({ children }) => <ul className={markdownStyles.ul}>{children}</ul>,
+    ol: ({ children }) => <ol className={markdownStyles.ol}>{children}</ol>,
+    li: ({ children }) => <li className={markdownStyles.li}>{children}</li>,
+    h1: ({ children }) => <h1 className={markdownStyles.h1}>{children}</h1>,
+    h2: ({ children }) => <h2 className={markdownStyles.h2}>{children}</h2>,
+    h3: ({ children }) => <h3 className={markdownStyles.h3}>{children}</h3>,
+    h4: ({ children }) => <h4 className={markdownStyles.h4}>{children}</h4>,
+    h5: ({ children }) => <h5 className={markdownStyles.h5}>{children}</h5>,
+    h6: ({ children }) => <h6 className={markdownStyles.h6}>{children}</h6>,
+    strong: ({ children }) => <strong className={markdownStyles.strong}>{children}</strong>,
+    code: (props) => {
+      const { inline, className, children } = props as { inline?: boolean; className?: string; children: React.ReactNode };
+      const match = /language-(\w+)/.exec(className || '');
+      return !inline ? (
+        <pre className={markdownStyles.pre}>
+          <code className={className}>{children}</code>
+        </pre>
+      ) : (
+        <code className={markdownStyles.code}>{children}</code>
+      );
+    },
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 font-['Inter',sans-serif]">
       {studyGuide ? (
         <div className="max-w-full m-10">
           <h1 className="text-3xl font-bold mb-6">Study Guide</h1>
           <div className="prose dark:prose-invert max-w-none">
-            <ReactMarkdown
-              components={{
-                p: ({node, ...props}) => <p className={markdownStyles.p} {...props} />,
-                ul: ({node, ...props}) => <ul className={markdownStyles.ul} {...props} />,
-                ol: ({node, ...props}) => <ol className={markdownStyles.ol} {...props} />,
-                li: ({node, ...props}) => <li className={markdownStyles.li} {...props} />,
-                h1: ({node, ...props}) => <h1 className={markdownStyles.h1} {...props} />,
-                h2: ({node, ...props}) => <h2 className={markdownStyles.h2} {...props} />,
-                h3: ({node, ...props}) => <h3 className={markdownStyles.h3} {...props} />,
-                h4: ({node, ...props}) => <h4 className={markdownStyles.h4} {...props} />,
-                h5: ({node, ...props}) => <h5 className={markdownStyles.h5} {...props} />,
-                h6: ({node, ...props}) => <h6 className={markdownStyles.h6} {...props} />,
-                strong: ({node, ...props}) => <strong className={markdownStyles.strong} {...props} />,
-                code: ({node, inline, ...props}) => 
-                  inline ? <code className={markdownStyles.code} {...props} /> : <pre className={markdownStyles.pre}><code {...props} /></pre>,
-              }}
-            >
+            <ReactMarkdown components={components}>
               {studyGuide.content}
             </ReactMarkdown>
           </div>

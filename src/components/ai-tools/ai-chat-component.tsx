@@ -141,21 +141,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
                   Learn using AI
                 </h2>
               </div>
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2"></div>
-                <p className="text-center">Create a Study Guide</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2"></div>
-                <p className="text-center">AI Tutor</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <button
-                  onClick={openQuizModal}
-                  className="w-20 h-20 bg-gray-200 rounded-lg mb-2"
-                ></button>
-                <p className="text-center">Create Quizzes</p>
-              </div>
+            
 
               <Carousel 
                 items={cards.map((card, index) => (
@@ -164,7 +150,6 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
                     card={card} 
                     index={index} 
                     layout={true} 
-                    className="h-64 w-48 md:h-[30rem] md:w-80"
                   />
                 ))} 
               />
