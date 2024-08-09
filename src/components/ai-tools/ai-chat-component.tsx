@@ -49,14 +49,37 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
     {
       src: "/path-to-flashcard-image.jpg",
       title: "Create Flashcards",
-      category: "Study Tool",
-      content: <button onClick={openFlashcardModal}>Create Flashcards</button>,
+      category: "AI Study Tool",
+      content: 
+      <div>
+        <div className="mb-5">
+        Just select the notes you want to base the flashcards on and Gemini will automatically create them for you!
+        </div>
+        <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" onClick={openFlashcardModal}>
+          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+          <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+          Create Flashcards
+          </span>
+        </button>
+      </div>,
     },
     {
       src: "/path-to-study-guide-image.jpg",
       title: "Create a Study Guide",
-      category: "Study Tool",
-      content: <div>Study Guide Content</div>,
+      category: "AI Study Tool",
+      content: <div>
+        <div className="mb-5">
+        Just select the notes you want to base the Study Guide on and Gemini will automatically create it for you!
+        </div>
+        <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+          <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+          Create Study Guide
+          </span>
+        </button>
+
+
+      </div>,
     },
     {
       src: "/path-to-ai-tutor-image.jpg",
@@ -68,7 +91,18 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
       src: "/path-to-quiz-image.jpg",
       title: "Create Quizzes",
       category: "Assessment Tool",
-      content: <button onClick={openQuizModal}>Create Quizzes</button>,
+      content: 
+        <div>
+        <div className="mb-5">
+        Just select the notes you want to be quized on and Gemini will automatically create questions for you! When you're done answering them, the AI will evaluate your answers and even grade you based on them.
+        </div>
+        <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" onClick={openQuizModal}>
+          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+          <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+          Create Quizzes
+          </span>
+        </button>
+      </div>,
     },
   ];
 

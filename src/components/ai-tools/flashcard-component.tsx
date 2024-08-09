@@ -6,6 +6,8 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
+import { StarsIcon } from "lucide-react";
+import { Checkbox} from "@chakra-ui/checkbox"
 
 interface FlashcardComponentProps {
   onClose: () => void;
@@ -101,32 +103,45 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
           </button>
         </div>
         <p className="text-center">Which notes would you like to use?</p>
-        <ul className="mt-4">
+        <div className="grid grid-cols-3 gap-4 mt-4">
           {foldersNotes.map((folder) => (
-            <li key={folder.folderId}>
-              <h3 className="font-bold">{folder.folderName}</h3>
-              <ul className="pl-4">
+            <div key={folder.folderId} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="font-bold mb-2">{folder.folderName}</h3>
+              <ul className="space-y-2">
                 {folder.notes.map((note) => (
-                  <li key={note.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
+                  <li key={note.id}>
+                    <Checkbox
                       onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
-                    />
-                    {note.name}
+                      borderRadius="md"
+                      colorScheme="blue"
+                    >
+                      {note.name}
+                    </Checkbox>
                   </li>
                 ))}
               </ul>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
         <div className="mt-4 flex justify-center">
           <button
+            className="relative inline-flex h-12 overflow-hidden rounded-full p-[1.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
             onClick={handleCreateFlashcards}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             disabled={loading}
           >
-            {loading ? "Creating..." : "Create Flashcards"}
+            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+            <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+              {loading ? (
+                "Creating..."
+              ) : (
+                <>
+                  <div className="mr-1.5">
+                    <StarsIcon style={{ width: '15px', height: '15px' }} />
+                  </div>
+                  Create Flashcards
+                </>
+              )}
+            </span>
           </button>
         </div>
         {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
