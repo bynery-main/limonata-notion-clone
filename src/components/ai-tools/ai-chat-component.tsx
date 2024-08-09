@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { CatIcon, StarsIcon } from "lucide-react";
 import FlashcardComponent from "./flashcard-component";
 import QuizzesComponent from "./quizzes-component";
+import StudyGuideComponent from "./study-guide-component";
 import "./ai-chat-component.css";
 
 interface AIChatComponentProps {
@@ -14,6 +15,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [isStudyGuideModalOpen, setIsStudyGuideModalOpen] = useState(false); // State for study guide modal
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -35,6 +37,15 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
 
   const closeQuizModal = () => {
     setIsQuizModalOpen(false);
+  };
+
+  const openStudyGuideModal = () => {
+    setIsModalOpen(false);
+    setIsStudyGuideModalOpen(true);
+  };
+
+  const closeStudyGuideModal = () => {
+    setIsStudyGuideModalOpen(false);
   };
 
   return (
@@ -66,7 +77,10 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
                 <p className="text-center">Create Flashcards</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2"></div>
+                <button
+                  onClick={openStudyGuideModal}
+                  className="w-20 h-20 bg-gray-200 rounded-lg mb-2"
+                ></button>
                 <p className="text-center">Create a Study Guide</p>
               </div>
               <div className="flex flex-col items-center">
@@ -91,6 +105,10 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
 
       {isQuizModalOpen && (
         <QuizzesComponent onClose={closeQuizModal} workspaceId={workspaceId} />
+      )}
+
+      {isStudyGuideModalOpen && (
+        <StudyGuideComponent onClose={closeStudyGuideModal} workspaceId={workspaceId} />
       )}
     </>
   );
