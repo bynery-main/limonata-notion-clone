@@ -105,7 +105,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
       content: 
         <div>
         <div className="mb-5">
-        Just select the notes you want to be quized on and Gemini will automatically create questions for you! When you're done answering them, the AI will evaluate your answers and even grade you based on them.
+        Just select the notes you want to be quized on and Gemini will automatically create questions for you! When you&apos;re done answering them, the AI will evaluate your answers and even grade you based on them.
         </div>
         <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" onClick={openQuizModal}>
           <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
