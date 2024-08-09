@@ -11,7 +11,7 @@ import { useParams } from 'next/navigation';
 interface Flashcard {
   question: string;
   answer: string;
-}
+} 
 
 const FlashcardsPage = () => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
