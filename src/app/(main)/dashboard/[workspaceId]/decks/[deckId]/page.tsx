@@ -18,9 +18,11 @@ const flashcardStyles = {
   card: {
     front: {
       padding: '20px',
+      margin: '20px',
     },
     back: {
       padding: '20px',
+      margin: '20px',
     },
   },
 };
