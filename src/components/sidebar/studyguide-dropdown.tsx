@@ -6,35 +6,35 @@ import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 
-interface QuizSet {
+interface StudyGuide {
   id: string;
-  name: string;
+  title: string;
 }
 
-interface QuizzesDropdownProps {
+interface StudyGuideDropdownProps {
   workspaceId: string;
-  currentQuizSetId: string | null;
-  onQuizSetSelect: (quizSet: QuizSet) => void;
+  currentStudyGuideId: string | null;
+  onStudyGuideSelect: (studyGuide: StudyGuide) => void;
 }
 
-const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
+const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   workspaceId,
-  currentQuizSetId,
-  onQuizSetSelect,
+  currentStudyGuideId,
+  onStudyGuideSelect,
 }) => {
-  const [quizSets, setQuizSets] = useState<QuizSet[]>([]);
+  const [studyGuides, setStudyGuides] = useState<StudyGuide[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
 
   useEffect(() => {
-    const quizSetsRef = collection(db, "workspaces", workspaceId, "quizSets");
+    const studyGuidesRef = collection(db, "workspaces", workspaceId, "studyGuides");
 
-    const unsubscribe = onSnapshot(quizSetsRef, (snapshot) => {
-      const updatedQuizSets: QuizSet[] = snapshot.docs.map((doc) => ({
+    const unsubscribe = onSnapshot(studyGuidesRef, (snapshot) => {
+      const updatedStudyGuides: StudyGuide[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        name: doc.data().name || "Unnamed Quiz Set",
+        title: doc.data().title || "Unnamed Study Guide",
       }));
 
-      setQuizSets(updatedQuizSets);
+      setStudyGuides(updatedStudyGuides);
     });
 
     return () => unsubscribe();
@@ -44,18 +44,18 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
     <div>
       <Accordion.Root
         type="single"
-        value={openAccordion ? "quizzes" : undefined}
-        onValueChange={(value) => setOpenAccordion(value === "quizzes")}
+        value={openAccordion ? "studyGuides" : undefined}
+        onValueChange={(value) => setOpenAccordion(value === "studyGuides")}
         className="space-y-2"
       >
         <Accordion.Item
-          value="quizzes"
+          value="studyGuides"
           className="border rounded-lg shadow-lg"
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
           >
-            <span>Quizzes</span>
+            <span>Study Guides</span>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (
@@ -64,13 +64,13 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
           </Accordion.Trigger>
           <Accordion.Content>
             <div className="pl-4">
-              {quizSets.map((quizSet) => (
+              {studyGuides.map((studyGuide) => (
                 <div
-                  key={quizSet.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
-                  onClick={() => onQuizSetSelect(quizSet)}
+                  key={studyGuide.id}
+                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
+                  onClick={() => onStudyGuideSelect(studyGuide)}
                 >
-                  <span>{quizSet.name}</span>
+                  <span>{studyGuide.title}</span>
                 </div>
               ))}
             </div>
@@ -81,4 +81,4 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
   );
 };
 
-export default QuizzesDropdown;
+export default StudyGuideDropdown;
