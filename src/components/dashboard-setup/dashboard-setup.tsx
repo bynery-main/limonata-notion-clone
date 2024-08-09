@@ -54,6 +54,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
       const result = await initializeWorkspace({
         workspaceName,
         workspaceDescription,
+        emoji,
         userId: user!.uid,
         collaborators: selectedCollaborators.map(collab => collab.uid), // Only send UIDs as an array of strings
       });
@@ -81,8 +82,8 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onCancel}>
-    <div className="absolute inset-0 bg-black backdrop-blur-lg z-[9980]"></div>
-    <div className="relative bg-white rounded-[53px] shadow-[0_15px_60px_-15px_rgba(0,0,0,1)] p-10 w-[606px] z-[10000]" style={{ backgroundColor: 'white' }} onClick={handlePopupClick}>
+      <div className="absolute inset-0 bg-black backdrop-blur-lg z-[9980]"></div>
+      <div className="relative bg-white rounded-[53px] shadow-[0_15px_60px_-15px_rgba(0,0,0,1)] p-10 w-[606px] z-[10000]" style={{ backgroundColor: 'white' }} onClick={handlePopupClick}>
         <div className="text-center mb-8">
           <h2 className="font-medium text-black text-3xl mb-2">Create a Workspace</h2>
           <p className="font-light text-black text-[15px]">
@@ -138,28 +139,29 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             </label>
           </div>
           {workspaceType === 'shared' && (
-          <div className="mb-4 w-full">
-          <CollaboratorSearch
-            existingCollaborators={existingCollaborators.map(c => c.uid)} // This line assumes existingCollaborators is already of correct object structure.
-            currentUserUid={user!.uid}
-            onAddCollaborator={addCollaborator}
-            style={{ zIndex: 10010 }}
-          >
-              <Button type="button" className="text-sm mt-4">
-                <Plus />
-                Add Collaborators
-              </Button>
-            </CollaboratorSearch>
-            {selectedCollaborators.length > 0 && (
-              <div>
-                <h3>Selected Collaborators:</h3>
-                {selectedCollaborators.map(collab => (
-                  <p key={collab.uid}>{collab.email}</p>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+            <div className="mb-4 w-full">
+              <CollaboratorSearch
+                existingCollaborators={existingCollaborators.map(c => c.uid)} // This line assumes existingCollaborators is already of correct object structure.
+                currentUserUid={user!.uid}
+                onAddCollaborator={addCollaborator}
+                onOpen={() => {}} // Add this line to pass a default function or your specific logic
+                style={{ zIndex: 10010 }}
+              >
+                <Button type="button" className="text-sm mt-4">
+                  <Plus />
+                  Add Collaborators
+                </Button>
+              </CollaboratorSearch>
+              {selectedCollaborators.length > 0 && (
+                <div>
+                  <h3>Selected Collaborators:</h3>
+                  {selectedCollaborators.map(collab => (
+                    <p key={collab.uid}>{collab.email}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <div className="flex space-x-4">
             <button
               type="submit"
@@ -179,7 +181,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
         </form>
       </div>
     </div>
-  );  
+  );
 };
 
 export default DashboardSetup;

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Picker from "@emoji-mart/react";
@@ -17,15 +15,22 @@ import { twMerge } from "tailwind-merge";
 import NativeNavigation from "./native-navigation";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
-import QuizzesDropdown from "./quizzes-dropdown"; // Import QuizzesDropdown component
+import QuizzesDropdown from "./quizzes-dropdown";
+import StudyGuideDropdown from "./studyguide-dropdown";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
-import { useRouter } from 'next/navigation';
-import { useFolder } from '@/contexts/FolderContext';
+import { useRouter } from "next/navigation";
+import { useFolder } from "@/contexts/FolderContext";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 
@@ -49,7 +54,7 @@ export interface WorkspaceSidebarProps {
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   params,
   className,
-  onFoldersUpdate
+  onFoldersUpdate,
 }) => {
   const router = useRouter();
   const [width, setWidth] = useState(0);
@@ -60,8 +65,24 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const { setCurrentFolder } = useFolder();
 
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
-  const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null); // State for current quiz set
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
+    string | null
+  >(null);
+  const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(
+    null
+  );
+
+  const [existingCollaborators, setExistingCollaborators] = useState<
+    { uid: string; email: string }[]
+  >([]);
+  const [newCollaborators, setNewCollaborators] = useState<
+    { uid: string; email: string }[]
+  >([]);
+
+  const functions = getFunctions();
+  const db = getFirestore();
+  const manageCollaborators = httpsCallable(functions, "manageCollaborators");
 
   useEffect(() => {
     const updateWidth = () => {
@@ -77,6 +98,50 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+
+    const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        fetchExistingCollaborators();
+        fetchEmoji();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [params.workspaceId]);
+
+  const fetchExistingCollaborators = async () => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    const workspaceSnap = await getDoc(workspaceRef);
+
+    if (workspaceSnap.exists()) {
+      const data = workspaceSnap.data();
+      const collaborators = data.collaborators || [];
+
+      const collaboratorsWithEmails = await Promise.all(
+        collaborators.map(async (uid: string) => {
+          const email = await fetchUserEmailById(uid);
+          return { uid, email };
+        })
+      );
+
+      setExistingCollaborators(collaboratorsWithEmails);
+    }
+  };
+
+  const fetchEmoji = async () => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    const workspaceSnap = await getDoc(workspaceRef);
+
+    if (workspaceSnap.exists()) {
+      const data = workspaceSnap.data();
+      if (data.emoji) {
+        setEmoji(data.emoji);
+      }
+    }
+  };
+
   const handleFolderSelect = (folder: Folder) => {
     setCurrentFolderId(folder.id);
     setCurrentFolder(folder);
@@ -88,9 +153,16 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
   };
 
-  const handleQuizSetSelect = (quizSet: { id: string }) => { // Handle quiz set selection
+  const handleQuizSetSelect = (quizSet: { id: string }) => {
     setCurrentQuizSetId(quizSet.id);
     router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
+  };
+
+  const handleStudyGuideSelect = (studyGuide: { id: string }) => {
+    setCurrentStudyGuideId(studyGuide.id);
+    router.push(
+      `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
+    );
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -112,9 +184,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleEmojiSelect = (emoji: any) => {
+  const handleEmojiSelect = async (emoji: any) => {
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    await updateDoc(workspaceRef, { emoji: emoji.native });
   };
 
   const handleAddCollaborator = (user: { uid: string; email: string }) => {
@@ -125,39 +199,39 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
 
-  const [existingCollaborators, setExistingCollaborators] = useState<
-    { uid: string; email: string }[]
-  >([]);
-  const [newCollaborators, setNewCollaborators] = useState<
-    { uid: string; email: string }[]
-  >([]);
 
-  const functions = getFunctions();
-  const db = getFirestore();
-  const manageCollaborators = httpsCallable(functions, "manageCollaborators");
 
-  const fetchExistingCollaborators = async () => {
-    const workspaceRef = doc(db, "workspaces", params.workspaceId);
-    const workspaceSnap = await getDoc(workspaceRef);
 
-    if (workspaceSnap.exists()) {
-      const data = workspaceSnap.data();
-      const collaborators = data.collaborators || [];
 
-      const collaboratorsWithEmails = await Promise.all(
-        collaborators.map(async (uid: string) => {
-          const email = await fetchUserEmailById(uid);
-          return { uid, email };
-        })
-      );
 
-      setExistingCollaborators(collaboratorsWithEmails);
-    }
-  };
 
-  useEffect(() => {
-    fetchExistingCollaborators();
-  }, [params.workspaceId, db]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const handleSaveCollaborators = async () => {
     const allCollaborators = [
@@ -191,6 +265,25 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     }
   };
 
+  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getWorkspaceDetails = async () => {
+      const workspaceRef = doc(db, "workspaces", params.workspaceId);
+      const workspaceSnap = await getDoc(workspaceRef);
+
+      try {
+        const workspaceData = workspaceSnap.data();
+        const workspaceName = workspaceData?.name;
+        setWorkspaceName(workspaceName);
+      } catch (error) {
+        console.error("Error getting workspace details:", error);
+      }
+    };
+
+    getWorkspaceDetails();
+  }, [params.workspaceId]);
+
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
 
@@ -207,7 +300,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             className="flex items-center gap-2 font-semibold"
           >
             <span>{emoji}</span>
-            Biology
+            {workspaceName}
           </button>
           {showEmojiPicker && (
             <div className="absolute top-full left-0 mt-2 z-20">
@@ -222,21 +315,32 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-            <FoldersDropDown 
-              workspaceId={params.workspaceId} 
-              onFoldersUpdate={onFoldersUpdate}
-              currentFolderId={currentFolderId}
-              onFolderSelect={handleFolderSelect}
-            />
-            <FlashcardsDropdown 
+            <FlashcardsDropdown
+
+
+
+
+
+
               workspaceId={params.workspaceId}
               currentFlashcardDeckId={currentFlashcardDeckId}
               onFlashcardDeckSelect={handleFlashcardDeckSelect}
             />
-            <QuizzesDropdown // Add QuizzesDropdown component
+            <QuizzesDropdown
               workspaceId={params.workspaceId}
               currentQuizSetId={currentQuizSetId}
               onQuizSetSelect={handleQuizSetSelect}
+            />
+            <StudyGuideDropdown
+              workspaceId={params.workspaceId}
+              currentStudyGuideId={currentStudyGuideId}
+              onStudyGuideSelect={handleStudyGuideSelect}
+            />
+            <FoldersDropDown
+              workspaceId={params.workspaceId}
+              onFoldersUpdate={onFoldersUpdate}
+              currentFolderId={currentFolderId}
+              onFolderSelect={handleFolderSelect}
             />
             <div>
               <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
@@ -252,11 +356,15 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   People
                 </Link>
                 <CollaboratorSearch
-                  existingCollaborators={existingCollaborators.map(c => c.uid)}
+                  existingCollaborators={existingCollaborators.map(
+                    (c) => c.uid
+                  )}
                   currentUserUid={currentUserUid}
                   onAddCollaborator={handleAddCollaborator}
+                  onOpen={fetchExistingCollaborators} // Trigger refresh on open
                 >
-                  <div className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
+                  <div
+                    className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
                     onClick={() => setShowCollaborators(true)}
                   >
                     <UserPlusIcon className="h-4 w-4" />

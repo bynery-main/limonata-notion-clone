@@ -8,6 +8,8 @@ import "./ai-chat-component.css";
 import { Carousel, Card } from "../ui/apple-cards-carousel";
 import { BackgroundGradient } from "../ui/background-gradient";
 import flashcards from "../../images/flashcards.jpg";
+import StudyGuideComponent from "./study-guide-component";
+
 interface AIChatComponentProps {
   workspaceId: string;
 }
@@ -16,7 +18,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
-
+  const [isStudyGuideModalOpen, setIsStudyGuideModalOpen] = useState(false); // State for study guide modal
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -166,6 +168,11 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
 
       {isQuizModalOpen && (
         <QuizzesComponent onClose={closeQuizModal} workspaceId={workspaceId} />
+      )}
+
+
+      {isStudyGuideModalOpen && (
+        <StudyGuideComponent onClose={closeStudyGuideModal} workspaceId={workspaceId} />
       )}
     </>
   );
