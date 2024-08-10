@@ -12,7 +12,6 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
-import NativeNavigation from "./native-navigation";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
 import QuizzesDropdown from "./quizzes-dropdown";
@@ -378,10 +377,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         <div
           className="w-1 h-full absolute top-0 right-0 cursor-ew-resize"
           onMouseDown={handleMouseDown}
-        />
-        <NativeNavigation
-          params={params}
-          className={twMerge("my-2", className)}
         />
       </aside>
       {showCollaborators && (
