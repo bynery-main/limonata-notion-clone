@@ -244,7 +244,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       } catch (error) {
         console.error("Error getting workspace details:", error);
       }
-    };
+    }; 
 
     getWorkspaceDetails();
   }, [params.workspaceId]);
