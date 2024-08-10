@@ -29,13 +29,9 @@ const QuizzesPage = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   const [notes, setNotes] = useState<NoteReference[]>([]);
   const [loading, setLoading] = useState(false);
-  const [evaluations, setEvaluations] = useState<string[]>([]); // Add state for evaluations
+  const [evaluations, setEvaluations] = useState<string[]>([]);
   const router = useRouter();
-  const params = useParams(); // Use useParams to get dynamic segments
-
-  // if (!params) {
-  //   return <p>Invalid workspace or quiz.</p>;
-  // }
+  const params = useParams();
 
   const workspaceId = params?.workspaceId as string;
   const quizId = params?.quizId as string;
@@ -53,9 +49,8 @@ const QuizzesPage = () => {
 
       console.log("Fetched quizzes:", fetchedQuizzes);
       setQuizzes(fetchedQuizzes);
-      setAnswers(new Array(fetchedQuizzes.length).fill("")); // Initialize answers array with empty strings
+      setAnswers(new Array(fetchedQuizzes.length).fill(""));
 
-      // Fetch the notes associated with the quiz
       const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", quizId);
       const quizSetSnapshot = await getDoc(quizSetRef);
 
@@ -94,12 +89,11 @@ const QuizzesPage = () => {
       };
       console.log("Payload being passed to quizEvalAgent:", payload);
       const result = await quizEvalAgent(payload);
-      const evalResults = result.data.evaluations; // Assuming evaluations array is returned
+      const evalResults = result.data.evaluations;
       setEvaluations(evalResults);
 
-      // Upload evaluations to Firestore
       const evaluationsCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", quizId, "evaluations");
-      const evaluationDocRef = await addDoc(evaluationsCollectionRef, {}); // Create a new document for this set of evaluations
+      const evaluationDocRef = await addDoc(evaluationsCollectionRef, {});
 
       const evaluationSubCollectionRef = collection(evaluationDocRef, "evaluationDetails");
       for (const evaluation of evalResults) {

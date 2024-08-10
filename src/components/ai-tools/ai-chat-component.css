@@ -10,3 +10,39 @@
     background-clip: text; /* Standard property for compatibility */
     -webkit-text-fill-color: transparent; /* Correct property for WebKit browsers */
     }
+
+@keyframes gradient-animation {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+.animated-gradient-text,
+.animated-gradient-icon {
+  background: linear-gradient(
+    to right,
+    #00ccb1,
+    #7b61ff,
+    #ff4714,
+    #1ca0fb
+  );
+  background-size: 400% 400%;
+  animation: gradient-animation 10s linear infinite;
+}
+
+.animated-gradient-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.animated-gradient-icon {
+  fill: url(#icon-gradient);
+}
+
+.animated-gradient-icon path {
+  fill: currentColor;
+}

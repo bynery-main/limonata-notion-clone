@@ -5,6 +5,7 @@ import { fetchAllNotes, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import ReactMarkdown from 'react-markdown';
 
 interface StudyGuideComponentProps {
   onClose: () => void;

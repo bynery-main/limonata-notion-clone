@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Picker from "@emoji-mart/react";
-import { BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid";
+import { BentoGrid, BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
 import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
 import Image from "next/image";
@@ -14,6 +14,9 @@ import { ChatComponent } from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
 import Link from 'next/link';
 import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { IconClipboardCopy, IconFileBroken, IconSignature, IconTableColumn } from "@tabler/icons-react";
+import { usePathname } from 'next/navigation';
+
 
 interface FileData {
   id: string;
@@ -33,25 +36,11 @@ interface LayoutProps {
   params: any;
 }
 
-interface BentoGridItemProps {
-  title: string;
-  description: string;
-  header: React.ReactNode;
-  className?: string;
-}
-
-interface BentoGridProps {
-  className?: string;
-  children: React.ReactNode;
-}
-
-const BentoGrid: React.FC<BentoGridProps> = ({ className, children }) => (
-  <div className={className}>{children}</div>
-);
 
 const Skeleton = () => (
   <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
 );
+
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -76,6 +65,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     fetchWorkspaceEmoji();
   }, [params.workspaceId, db]);
 
+  const pathname = usePathname();
+
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
@@ -90,6 +81,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setFoldersData(newFoldersData);
   };
 
+  const showBentoGrid = pathname === `/dashboard/${params.workspaceId}`;
+
+
   const getFilePreview = (file: FileData) => {
     if (!file || !file.name) {
       return (
@@ -99,17 +93,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       );
     }
 
-    const BentoGridItem = React.forwardRef<HTMLDivElement, BentoGridItemProps>(
-      ({ title, description, header, className, ...props }, ref) => (
-        <div ref={ref} className={`${className} cursor-pointer`} {...props}>
-          {header}
-          <h3>{title}</h3>
-          <p>{description}</p>
-        </div>
-      )
-    );
+ 
     
-    BentoGridItem.displayName = 'BentoGridItem';
 
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
@@ -126,8 +111,26 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       );
     } else {
       return (
-        <div className="w-full h-48 flex items-center justify-center bg-gray-200">
-          <span className="text-4xl">📄</span>
+        <div className="w-full h-48 flex items-center justify-center">
+          <div style={{ position: 'relative', width: '100%', height: '200px', overflow: 'hidden' }}>
+            <Image
+              src="https://images.template.net/wp-content/uploads/2017/01/17002828/Word-Document-Resume-Template.jpg"
+              alt="Image Placeholder"
+              layout="fill"
+              objectFit="cover"
+              style={{ filter: 'blur(8px)' }}
+            />
+            <div style={{ 
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              transform: 'translate(-50%, -50%)', 
+              fontSize: '48px', 
+              color: 'white' 
+            }}>
+              📄
+            </div>
+          </div>
         </div>
       );
     }
@@ -192,24 +195,28 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </div>
           {children}
 
-          <BentoGrid className="max-w-4xl mx-auto">
-            {foldersData.flatMap((folder) =>
-              folder.files.map((file, i) => (
-                <Link 
-                  key={file.id} 
-                  href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
-                  passHref
-                >
+          {showBentoGrid && (
+            <BentoGrid className="max-w-7xl mx-auto p-4">
+              {foldersData.flatMap((folder, folderIndex) =>
+                folder.files.map((file, fileIndex) => (
                   <BentoGridItem
+                    key={file.id}
                     title={file.name}
                     description={`In folder: ${folder.name}`}
                     header={getFilePreview(file)}
-                    className={i === 3 || i === 6 ? "md:col-span-2" : ""}
+                    href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
+                    className={
+                      (folderIndex * folder.files.length + fileIndex) % 7 === 3 || 
+                      (folderIndex * folder.files.length + fileIndex) % 7 === 6 
+                        ? "md:col-span-2" 
+                        : ""
+                    }
                   />
-                </Link>
-              ))
-            )}
-          </BentoGrid>
+                ))
+              )}
+            </BentoGrid>
+          )}
+
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
           <AIChatComponent workspaceId={params.workspaceId} />
