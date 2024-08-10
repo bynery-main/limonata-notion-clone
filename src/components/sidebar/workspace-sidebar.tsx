@@ -29,7 +29,6 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useFolder } from "@/contexts/FolderContext";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 
@@ -62,7 +61,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  const { setCurrentFolder } = useFolder();
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
     string | null
@@ -143,8 +141,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const handleFolderSelect = (folder: Folder) => {
     setCurrentFolderId(folder.id);
-    setCurrentFolder(folder);
-    router.push(`/dashboard/${params.workspaceId}/folders/${folder.id}`);
+    router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
 
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
@@ -197,40 +194,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const handleRemoveCollaborator = (uid: string) => {
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const handleSaveCollaborators = async () => {
     const allCollaborators = [
@@ -315,12 +278,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
             <FlashcardsDropdown
-
-
-
-
-
-
               workspaceId={params.workspaceId}
               currentFlashcardDeckId={currentFlashcardDeckId}
               onFlashcardDeckSelect={handleFlashcardDeckSelect}

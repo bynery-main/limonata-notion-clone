@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import Picker from "@emoji-mart/react";
-import { BentoGrid, BentoGrid as BentoGridComponent, BentoGridItem } from "@/components/ui/bento-grid";
+import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
 import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
 import Image from "next/image";
@@ -66,6 +66,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   }, [params.workspaceId, db]);
 
   const pathname = usePathname();
+  const folderId = params.folderId || null;  // Extract the folderId from params
+
 
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);
@@ -81,8 +83,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setFoldersData(newFoldersData);
   };
 
-  const showBentoGrid = pathname === `/dashboard/${params.workspaceId}`;
-
+  // Update the logic to display BentoGrid on any path that includes both workspaceId and folderId
+  const showBentoGrid = pathname?.startsWith(`/dashboard/${params.workspaceId}`) ?? false;
 
   const getFilePreview = (file: FileData) => {
     if (!file || !file.name) {
@@ -92,9 +94,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
       );
     }
-
- 
-    
 
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
