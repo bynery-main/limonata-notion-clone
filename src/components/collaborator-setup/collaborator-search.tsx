@@ -8,6 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { fetchUsers } from "@/lib/db/users/get-users";
+
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,6 +36,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
 
   const addCollaboratorLocal = (user: { uid: string; email: string }) => {
     onAddCollaborator(user);
+
   };
 
   useEffect(() => {

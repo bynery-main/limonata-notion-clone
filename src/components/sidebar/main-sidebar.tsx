@@ -31,16 +31,19 @@ export const MainSidebar = (): JSX.Element => {
   }, [user]);
 
   const handleWorkspaceClick = (workspaceId: string) => {
+
     if (workspaceId === 'home') {
       setActiveIcon('home');
       router.push("/dashboard");
     } else {
+
       router.push(`/dashboard/${workspaceId}`);
     }
     setActiveIcon(workspaceId);
     setCurrentWorkspaceId(workspaceId);
     console.log('Icon clicked:', workspaceId);
     return;
+
   };
 
   const handleCancel = () => {
@@ -48,6 +51,7 @@ export const MainSidebar = (): JSX.Element => {
   };
 
   const handleSuccess = () => {
+
     setShowDS(false);
   };
 
@@ -71,6 +75,7 @@ export const MainSidebar = (): JSX.Element => {
         <button className="w-[34px] h-[34px] bg-[#020039] rounded-md" onClick={() => handleWorkspaceClick('home')}>
           <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-[#6FA2FF]">
             <Home className="w-5 h-5 text-[#6FA2FF]" />
+
           </div>
         </button>
         {workspaces.map((workspace, index) => (
@@ -90,11 +95,17 @@ export const MainSidebar = (): JSX.Element => {
         </div>
       </div>
       <div className="flex flex-col items-center pb-4">
-        <div className="w-6 h-6 bg-[#ff6d00] rounded-full overflow-hidden cursor-pointer mt-2" onClick={handleSettingsClick}>
-          <div className="w-[18px] h-3 mt-2 mx-auto font-bold text-[#4c2103] text-[10px] text-center leading-3">
-            MG
+          <div className="flex flex-col items-center pb-4">
+          {user && user.photoURL && (
+          <img
+            src={user.photoURL}
+            alt="Google Profile"
+            className="w-10 h-10 rounded-full mt-2 cursor-pointer"
+            onClick={handleSettingsClick}
+            //onClick={() => setShowSettings(!showSettings)}
+          />
+        )}
           </div>
-        </div>
         {showSettings && (
           <div className="absolute bottom-0 left-16 z-50" onClick={handleOverlayClick}>
             <div className="relative w-32 bg-white rounded-lg shadow-lg p-2 mb-2">
