@@ -242,7 +242,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     try {
       const result = await manageCollaborators({
         workspaceId: params.workspaceId,
-        userIds: allCollaborators,
+        userIds: allCollaborators, 
       });
 
       const response = result.data as {
