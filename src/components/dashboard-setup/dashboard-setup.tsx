@@ -7,6 +7,7 @@ import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import { Button } from "../ui/button";
 import Picker from '@emoji-mart/react';
 
+
 interface InitializeWorkspaceResponse {
   message: string;
   workspaceId: string;
