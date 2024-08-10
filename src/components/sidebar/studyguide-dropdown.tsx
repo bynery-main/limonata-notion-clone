@@ -54,6 +54,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+            onClick={() => setOpenAccordion(!openAccordion)}
           >
             <span>Study Guides</span>
             {openAccordion ? (
@@ -62,18 +63,18 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
               <ChevronRightIcon className="h-4 w-4" />
             )}
           </Accordion.Trigger>
-          <Accordion.Content>
-            <div className="pl-4">
-              {studyGuides.map((studyGuide) => (
-                <div
-                  key={studyGuide.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
-                  onClick={() => onStudyGuideSelect(studyGuide)}
-                >
-                  <span>{studyGuide.title}</span>
-                </div>
-              ))}
-            </div>
+          <Accordion.Content
+            className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
+          >
+            {studyGuides.map((studyGuide) => (
+              <div
+                key={studyGuide.id}
+                className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
+                onClick={() => onStudyGuideSelect(studyGuide)}
+              >
+                <span>{studyGuide.title}</span>
+              </div>
+            ))}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>

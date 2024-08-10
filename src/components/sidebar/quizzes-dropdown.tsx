@@ -54,6 +54,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+            onClick={() => setOpenAccordion(!openAccordion)}
           >
             <span>Quizzes</span>
             {openAccordion ? (
@@ -62,18 +63,18 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
               <ChevronRightIcon className="h-4 w-4" />
             )}
           </Accordion.Trigger>
-          <Accordion.Content>
-            <div className="pl-4">
-              {quizSets.map((quizSet) => (
-                <div
-                  key={quizSet.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
-                  onClick={() => onQuizSetSelect(quizSet)}
-                >
-                  <span>{quizSet.name}</span>
-                </div>
-              ))}
-            </div>
+          <Accordion.Content
+            className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
+          >
+            {quizSets.map((quizSet) => (
+              <div
+                key={quizSet.id}
+                className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
+                onClick={() => onQuizSetSelect(quizSet)}
+              >
+                <span>{quizSet.name}</span>
+              </div>
+            ))}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>

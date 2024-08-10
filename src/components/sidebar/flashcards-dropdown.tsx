@@ -54,6 +54,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+            onClick={() => setOpenAccordion(!openAccordion)}
           >
             <span>Flashcards</span>
             {openAccordion ? (
@@ -62,18 +63,18 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
               <ChevronRightIcon className="h-4 w-4" />
             )}
           </Accordion.Trigger>
-          <Accordion.Content>
-            <div className="pl-4">
-              {decks.map((deck) => (
-                <div
-                  key={deck.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
-                  onClick={() => onFlashcardDeckSelect(deck)}
-                >
-                  <span>{deck.name}</span>
-                </div>
-              ))}
-            </div>
+          <Accordion.Content
+            className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
+          >
+            {decks.map((deck) => (
+              <div
+                key={deck.id}
+                className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
+                onClick={() => onFlashcardDeckSelect(deck)}
+              >
+                <span>{deck.name}</span>
+              </div>
+            ))}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>
