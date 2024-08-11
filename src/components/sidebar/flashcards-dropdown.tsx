@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import React, { useEffect, useState, useRef } from "react";
+import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
 
 interface FlashcardDeck {
   id: string;
@@ -24,6 +24,9 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
 }) => {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
+  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
@@ -39,6 +42,50 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
 
     return () => unsubscribe();
   }, [workspaceId]);
+
+  const handleDropdownToggle = (event: React.MouseEvent, deck: FlashcardDeck) => {
+    event.stopPropagation(); // Prevent the click from bubbling up
+    setSelectedDeck(deck);
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  const handleRenameDeck = async () => {
+    const newName = prompt("Enter a new name for this flashcard deck:", selectedDeck?.name);
+    if (newName && selectedDeck) {
+      const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
+      await updateDoc(deckRef, { name: newName });
+    }
+    setDropdownVisible(false);
+  };
+
+  const handleDeleteDeck = async () => {
+    if (selectedDeck) {
+      const confirmDelete = confirm(`Are you sure you want to delete ${selectedDeck.name}?`);
+      if (confirmDelete) {
+        const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
+        await deleteDoc(deckRef);
+      }
+    }
+    setDropdownVisible(false);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setDropdownVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    if (dropdownVisible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownVisible]);
 
   return (
     <div>
@@ -73,6 +120,26 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                 onClick={() => onFlashcardDeckSelect(deck)}
               >
                 <span>{deck.name}</span>
+                <MoreHorizontalIcon
+                  className="h-4 w-4 cursor-pointer"
+                  onClick={(event) => handleDropdownToggle(event, deck)}
+                />
+                {dropdownVisible && selectedDeck?.id === deck.id && (
+                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                    <button
+                      onClick={handleRenameDeck}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      Rename
+                    </button>
+                    <button
+                      onClick={handleDeleteDeck}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </Accordion.Content>
