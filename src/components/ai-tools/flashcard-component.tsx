@@ -7,7 +7,7 @@ import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
 import { StarsIcon } from "lucide-react";
-import { Checkbox} from "@chakra-ui/checkbox"
+import { Checkbox } from "@chakra-ui/checkbox";
 
 interface FlashcardComponentProps {
   onClose: () => void;
@@ -19,8 +19,13 @@ interface Flashcard {
   answer: string;
 }
 
+interface NameGenerationResult {
+  success: boolean;
+  answer: string;
+}
+
 const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
-  console.log("Data received by parser:", rawData); // Log the raw data received by the parser
+  console.log("Data received by parser:", rawData);
   const flashcards: Flashcard[] = [];
   const flashcardRegex = /Flashcard \d+: Question: ([\s\S]+?) Answer: ([\s\S]+?)(?=\nFlashcard \d+:|$)/g;
   let match;
@@ -28,7 +33,7 @@ const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
     flashcards.push({ question: match[1].trim(), answer: match[2].trim() });
   }
 
-  console.log("Flashcards parsed:", flashcards); // Log the flashcards parsed from the raw data
+  console.log("Flashcards parsed:", flashcards);
   return flashcards;
 };
 
@@ -58,6 +63,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
   const handleCreateFlashcards = async () => {
     const functions = getFunctions(app);
     const createFlashcards = httpsCallable(functions, "flashcardAgent");
+    const generateName = httpsCallable(functions, "nameResource");
 
     setLoading(true);
     try {
@@ -67,21 +73,22 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
       });
       console.log("Flashcards created successfully:", result.data);
 
-      const data = result.data as { flashcards: { raw: string } }; // Type assertion
+      const data = result.data as { flashcards: { raw: string } };
       const raw = data.flashcards.raw || "";
 
-      // Log the raw data before parsing
       console.log("Raw data received from cloud function:", raw);
 
-      // Parse raw data into flashcards
       const parsedFlashcards = parseRawDataToFlashcards(raw);
       setFlashcards(parsedFlashcards);
 
-      // Create a new deck named "New Deck" and save it to Firestore
-      const deckRef = doc(collection(db, "workspaces", workspaceId, "flashcardsDecks"));
-      await setDoc(deckRef, { name: "New Deck" });
+      const nameGenerationResult = await generateName({ content: raw });
+      const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
 
-      // Save each flashcard to Firestore under the new deck
+      console.log("Generated name for flashcard deck:", generatedName);
+
+      const deckRef = doc(collection(db, "workspaces", workspaceId, "flashcardsDecks"));
+      await setDoc(deckRef, { name: generatedName });
+
       const flashcardsCollectionRef = collection(deckRef, "flashcards");
       for (const flashcard of parsedFlashcards) {
         await addDoc(flashcardsCollectionRef, { question: flashcard.question, answer: flashcard.answer });

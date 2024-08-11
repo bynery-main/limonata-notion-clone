@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchAllNotes, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app, db } from "@/firebase/firebaseConfig"; // Adjust this import based on your actual Firebase config file
+import { app, db } from "@/firebase/firebaseConfig"; 
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 
 interface QuizzesComponentProps {
@@ -20,6 +20,11 @@ interface NoteReference {
   noteId: string;
 }
 
+interface NameGenerationResult {
+  success: boolean;
+  answer: string;
+}
+
 const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
@@ -28,8 +33,12 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
 
   useEffect(() => {
     const fetchNotes = async () => {
-      const fetchedNotes = await fetchAllNotes(workspaceId);
-      setFoldersNotes(fetchedNotes);
+      try {
+        const fetchedNotes = await fetchAllNotes(workspaceId);
+        setFoldersNotes(fetchedNotes);
+      } catch (error) {
+        console.error("Error fetching notes:", error);
+      }
     };
 
     fetchNotes();
@@ -46,7 +55,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const handleCreateQuizzes = async () => {
     const functions = getFunctions(app);
     const createQuizzes = httpsCallable(functions, "quizGenAgent");
-
+    const generateName = httpsCallable(functions, "nameResource");
+  
     setLoading(true);
     try {
       const payload = {
@@ -56,21 +66,27 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       console.log("Payload being passed to quizGenAgent:", payload);
       const result = await createQuizzes(payload);
       console.log("Quizzes created successfully:", result.data);
-
-      const data = result.data as { answer: string }; // Adjusted type assertion
+  
+      const data = result.data as { answer: string };
       const raw = data.answer || "";
-
+  
       // Log the raw data before parsing
       console.log("Raw data received from cloud function:", raw);
-
-      // Parse raw data into quizzes (implement parsing logic as needed)
+  
+      // Parse raw data into quizzes
       const parsedQuizzes = parseRawDataToQuizzes(raw);
       setQuizzes(parsedQuizzes);
-
-      // Create a new quiz set named "New Quiz Set" and save it to Firestore
+  
+      // Generate a name for the quiz set using the nameResource function
+      const nameGenerationResult = await generateName({ content: raw });
+      const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
+  
+      console.log("Generated name for quiz set:", generatedName);
+  
+      // Create a new quiz set with the generated name and save it to Firestore
       const quizSetRef = doc(collection(db, "workspaces", workspaceId, "quizSets"));
-      await setDoc(quizSetRef, { name: "New Quiz Set", notes: selectedNotes });
-
+      await setDoc(quizSetRef, { name: generatedName, notes: selectedNotes });
+  
       // Save each quiz to Firestore under the new quiz set
       const quizzesCollectionRef = collection(quizSetRef, "quizzes");
       for (const quiz of parsedQuizzes) {
@@ -82,9 +98,10 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       setLoading(false);
     }
   };
-
+  
+  
   const parseRawDataToQuizzes = (rawData: string): Quiz[] => {
-    console.log("Data received by parser:", rawData); // Log the raw data received by the parser
+    console.log("Data received by parser:", rawData); 
     const quizzes: Quiz[] = [];
     const quizRegex = /Question \d+: ([\s\S]+?)(?=\nQuestion \d+:|$)/g;
     let match;
@@ -92,7 +109,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       quizzes.push({ question: match[1].trim() });
     }
 
-    console.log("Quizzes parsed:", quizzes); // Log the quizzes parsed from the raw data
+    console.log("Quizzes parsed:", quizzes); 
     return quizzes;
   };
 

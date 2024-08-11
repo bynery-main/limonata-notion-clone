@@ -17,6 +17,11 @@ interface StudyGuide {
   content: string;
 }
 
+interface NameGenerationResult {
+  success: boolean;
+  answer: string;
+}
+
 const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, workspaceId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
@@ -43,7 +48,8 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
   const handleCreateStudyGuides = async () => {
     const functions = getFunctions(app);
     const createStudyGuides = httpsCallable(functions, "studyGuideAgent");
-
+    const generateName = httpsCallable(functions, "nameResource");
+  
     setLoading(true);
     try {
       const result = await createStudyGuides({
@@ -51,24 +57,31 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
         notes: selectedNotes,
       });
       console.log("Study guides created successfully:", result.data);
-
-      const data = result.data as { answer: string }; // Type assertion
+  
+      const data = result.data as { answer: string };
       const raw = data.answer || "";
-
+  
       console.log("Raw data received from cloud function:", raw);
-
+  
       const parsedStudyGuides = parseRawDataToStudyGuides(raw);
       setStudyGuides(parsedStudyGuides);
-
+  
+      // Generate a name for the study guide using the nameResource function
+      const nameGenerationResult = await generateName({ content: raw });
+      const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
+  
+      console.log("Generated name for study guide:", generatedName);
+  
+      // Create a new study guide document with the generated name and save it to Firestore
       const studyGuidesCollectionRef = collection(db, "workspaces", workspaceId, "studyGuides");
       const guideDoc = doc(studyGuidesCollectionRef);
-      await setDoc(guideDoc, { content: raw, notes: selectedNotes });
+      await setDoc(guideDoc, { title: generatedName, content: raw, notes: selectedNotes });
     } catch (error) {
       console.error("Error creating study guides:", error);
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const parseRawDataToStudyGuides = (rawData: string): StudyGuide[] => {
     console.log("Data received by parser:", rawData); // Log the raw data received by the parser
