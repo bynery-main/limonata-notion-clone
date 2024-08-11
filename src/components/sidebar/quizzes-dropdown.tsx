@@ -1,10 +1,8 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import React, { useEffect, useState, useRef } from "react";
+import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
 
 interface QuizSet {
   id: string;
@@ -24,6 +22,9 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
 }) => {
   const [quizSets, setQuizSets] = useState<QuizSet[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
+  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const [selectedQuizSet, setSelectedQuizSet] = useState<QuizSet | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const quizSetsRef = collection(db, "workspaces", workspaceId, "quizSets");
@@ -39,6 +40,50 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
 
     return () => unsubscribe();
   }, [workspaceId]);
+
+  const handleDropdownToggle = (event: React.MouseEvent, quizSet: QuizSet) => {
+    event.stopPropagation(); // Prevent the click from bubbling up
+    setSelectedQuizSet(quizSet);
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  const handleRenameQuiz = async () => {
+    const newName = prompt("Enter a new name for this quiz set:", selectedQuizSet?.name);
+    if (newName && selectedQuizSet) {
+      const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", selectedQuizSet.id);
+      await updateDoc(quizSetRef, { name: newName });
+    }
+    setDropdownVisible(false);
+  };
+
+  const handleDeleteQuiz = async () => {
+    if (selectedQuizSet) {
+      const confirmDelete = confirm(`Are you sure you want to delete ${selectedQuizSet.name}?`);
+      if (confirmDelete) {
+        const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", selectedQuizSet.id);
+        await deleteDoc(quizSetRef);
+      }
+    }
+    setDropdownVisible(false);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setDropdownVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    if (dropdownVisible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownVisible]);
 
   return (
     <div>
@@ -73,6 +118,26 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                 onClick={() => onQuizSetSelect(quizSet)}
               >
                 <span>{quizSet.name}</span>
+                <MoreHorizontalIcon
+                  className="h-4 w-4 cursor-pointer"
+                  onClick={(event) => handleDropdownToggle(event, quizSet)}
+                />
+                {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
+                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                    <button
+                      onClick={handleRenameQuiz}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      Rename
+                    </button>
+                    <button
+                      onClick={handleDeleteQuiz}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </Accordion.Content>
