@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent, useRef, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { collection, getDocs, doc, getDoc, addDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
@@ -34,12 +34,19 @@ interface QuizEvalResult {
   evaluations: string[];
 }
 
+interface AutoResizingTextAreaProps {
+  value: string;
+  onChange: (index: number, value: string) => void;
+  placeholder: string;
+  index: number;
+}
+
 const QuizzesPage = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const [notes, setNotes] = useState<NoteReference[]>([]);
   const [loading, setLoading] = useState(false);
-  const [evaluationCollections, setEvaluationCollections] = useState<any[]>([]);
+  const [evaluationCollections, setEvaluationCollections] = useState<Evaluation[][]>([]);
   const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<number | null>(null);
   const router = useRouter();
   const params = useParams();
@@ -106,10 +113,9 @@ const QuizzesPage = () => {
       const evalResults = result.data.evaluations;
 
       const parsedEvaluations = evalResults.map(parseEvaluation);
-      setEvaluationCollections([parsedEvaluations, ...evaluationCollections]); // Add the new evaluation at the beginning
-      setSelectedCollectionIndex(0); // Set the new evaluation as the current collection
+      setEvaluationCollections([parsedEvaluations, ...evaluationCollections]);
+      setSelectedCollectionIndex(0);
 
-      // Create an evaluation collection document
       const evaluationCollectionRef = collection(
         db,
         "workspaces",
@@ -120,7 +126,6 @@ const QuizzesPage = () => {
       );
       const evaluationCollectionDocRef = await addDoc(evaluationCollectionRef, {});
 
-      // Store each evaluation as a separate document under the created evaluation collection
       const evaluationsCollectionRef = collection(evaluationCollectionDocRef, "evaluations");
       for (const evaluation of parsedEvaluations) {
         await addDoc(evaluationsCollectionRef, evaluation);
@@ -156,7 +161,7 @@ const QuizzesPage = () => {
       );
 
       setEvaluationCollections(collectionsData);
-      setSelectedCollectionIndex(0); // Start with the first collection
+      setSelectedCollectionIndex(0);
     } catch (error) {
       console.error("Error fetching evaluation history:", error);
     } finally {
@@ -182,38 +187,73 @@ const QuizzesPage = () => {
     };
   };
 
+  
+  const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = useCallback(({ value, onChange, placeholder, index }) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+    const adjustHeight = () => {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    };
+  
+    useEffect(() => {
+      adjustHeight();
+    }, [value]);
+  
+    const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+      onChange(index, e.target.value);
+      adjustHeight();
+    };
+  
+    return (
+<textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className="w-full mt-2 mb-4 p-3 border rounded font-light overflow-hidden shadow-inner focus:outline-2 focus:ring-2 focus:ring-black focus:border-black"
+        style={{
+          minHeight: '100px',
+          boxShadow: 'inset 0 2px 8px 0 rgba(0, 0, 0, 0.2)',
+                    resize: 'none',
+        }}
+      />
+    );
+  }, []);
+
   if (!workspaceId || !quizId) {
     return <p>Invalid workspace or quiz.</p>;
   }
 
   return (
-    <div>
-      <h1>Quizzes</h1>
+    <div className="m-10" style={{ fontFamily: 'Inter, sans-serif' }}>
       {quizzes.length > 0 ? (
         <div>
           {quizzes.map((quiz, index) => (
-            <div key={index}>
-              <h2>{quiz.question}</h2>
-              <textarea
+            <div key={index} className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{quiz.question}</h2>
+              <AutoResizingTextArea
                 value={answers[index]}
-                onChange={(e) => handleAnswerChange(index, e.target.value)}
-                rows={4}
-                className="w-full mt-2 mb-4 p-2 border rounded"
+                onChange={handleAnswerChange}
                 placeholder="Type your answer here"
+                index={index}
               />
             </div>
           ))}
           <div className="flex gap-4">
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
               disabled={loading}
             >
               {loading ? "Submitting..." : "Submit Answers"}
             </button>
             <button
               onClick={handleEvaluationHistoryClick}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
               disabled={loading}
             >
               {loading ? "Loading..." : "Evaluation History"}
