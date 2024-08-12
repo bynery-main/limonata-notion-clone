@@ -8,10 +8,12 @@ import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
 import { StarsIcon } from "lucide-react";
 import { Checkbox } from "@chakra-ui/checkbox";
+import { useToast } from "@chakra-ui/react";
 
 interface FlashcardComponentProps {
   onClose: () => void;
   workspaceId: string;
+  userId: string; // Add userId prop
 }
 
 interface Flashcard {
@@ -24,10 +26,17 @@ interface NameGenerationResult {
   answer: string;
 }
 
+interface CreditUsageResult {
+  success: boolean;
+  message: string;
+  remainingCredits: number;
+}
+
 const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
   console.log("Data received by parser:", rawData);
   const flashcards: Flashcard[] = [];
-  const flashcardRegex = /Flashcard \d+: Question: ([\s\S]+?) Answer: ([\s\S]+?)(?=\nFlashcard \d+:|$)/g;
+  const flashcardRegex =
+    /Flashcard \d+: Question: ([\s\S]+?) Answer: ([\s\S]+?)(?=\nFlashcard \d+:|$)/g;
   let match;
   while ((match = flashcardRegex.exec(rawData)) !== null) {
     flashcards.push({ question: match[1].trim(), answer: match[2].trim() });
@@ -37,11 +46,18 @@ const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
   return flashcards;
 };
 
-const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, workspaceId }) => {
+const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
+  onClose,
+  workspaceId,
+  userId,
+}) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
-  const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
+  const [selectedNotes, setSelectedNotes] = useState<
+    { folderId: string; noteId: string }[]
+  >([]);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -52,11 +68,19 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
     fetchNotes();
   }, [workspaceId]);
 
-  const handleCheckboxChange = (folderId: string, noteId: string, isChecked: boolean) => {
+  const handleCheckboxChange = (
+    folderId: string,
+    noteId: string,
+    isChecked: boolean
+  ) => {
     if (isChecked) {
       setSelectedNotes([...selectedNotes, { folderId, noteId }]);
     } else {
-      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId));
+      setSelectedNotes(
+        selectedNotes.filter(
+          (note) => note.noteId !== noteId || note.folderId !== folderId
+        )
+      );
     }
   };
 
@@ -64,37 +88,75 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
     const functions = getFunctions(app);
     const createFlashcards = httpsCallable(functions, "flashcardAgent");
     const generateName = httpsCallable(functions, "nameResource");
+    const useCredits = httpsCallable(functions, "useCredits");
 
     setLoading(true);
     try {
+      // First, attempt to use credits
+      const creditUsageResult = (await useCredits({
+        uid: userId,
+        cost: 20,
+      })) as { data: CreditUsageResult };
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        toast({
+          title: "Error",
+          description: creditUsageResult.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // If credit usage was successful, proceed with flashcard creation
       const result = await createFlashcards({
         workspaceId,
         notes: selectedNotes,
       });
-      console.log("Flashcards created successfully:", result.data);
 
       const data = result.data as { flashcards: { raw: string } };
       const raw = data.flashcards.raw || "";
-
-      console.log("Raw data received from cloud function:", raw);
 
       const parsedFlashcards = parseRawDataToFlashcards(raw);
       setFlashcards(parsedFlashcards);
 
       const nameGenerationResult = await generateName({ content: raw });
-      const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
+      const generatedName = (nameGenerationResult.data as NameGenerationResult)
+        .answer;
 
-      console.log("Generated name for flashcard deck:", generatedName);
-
-      const deckRef = doc(collection(db, "workspaces", workspaceId, "flashcardsDecks"));
+      const deckRef = doc(
+        collection(db, "workspaces", workspaceId, "flashcardsDecks")
+      );
       await setDoc(deckRef, { name: generatedName });
 
       const flashcardsCollectionRef = collection(deckRef, "flashcards");
       for (const flashcard of parsedFlashcards) {
-        await addDoc(flashcardsCollectionRef, { question: flashcard.question, answer: flashcard.answer });
+        await addDoc(flashcardsCollectionRef, {
+          question: flashcard.question,
+          answer: flashcard.answer,
+        });
       }
+
+      toast({
+        title: "Success",
+        description: "Flashcards created successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error("Error creating flashcards:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while creating flashcards",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -104,7 +166,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl text-center font-semibold">Create Flashcards</h2>
+          <h2 className="text-xl text-center font-semibold">
+            Create Flashcards
+          </h2>
           <button onClick={onClose} className="text-xl font-bold">
             &times;
           </button>
@@ -112,13 +176,22 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
         <p className="text-center">Which notes would you like to use?</p>
         <div className="grid grid-cols-3 gap-4 mt-4">
           {foldersNotes.map((folder) => (
-            <div key={folder.folderId} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div
+              key={folder.folderId}
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+            >
               <h3 className="font-bold mb-2">{folder.folderName}</h3>
               <ul className="space-y-2">
                 {folder.notes.map((note) => (
                   <li key={note.id}>
                     <Checkbox
-                      onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
+                      onChange={(e) =>
+                        handleCheckboxChange(
+                          folder.folderId,
+                          note.id,
+                          e.target.checked
+                        )
+                      }
                       borderRadius="md"
                       colorScheme="blue"
                     >
@@ -143,7 +216,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({ onClose, worksp
               ) : (
                 <>
                   <div className="mr-1.5">
-                    <StarsIcon style={{ width: '15px', height: '15px' }} />
+                    <StarsIcon style={{ width: "15px", height: "15px" }} />
                   </div>
                   Create Flashcards
                 </>

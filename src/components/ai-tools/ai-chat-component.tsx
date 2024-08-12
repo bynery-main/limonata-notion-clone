@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 
 interface AIChatComponentProps {
   workspaceId: string;
+  userId: string;
 }
 
-const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
+const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
@@ -169,7 +170,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
 
 
       {isFlashcardModalOpen && (
-        <FlashcardComponent onClose={closeFlashcardModal} workspaceId={workspaceId} />
+        <FlashcardComponent onClose={closeFlashcardModal} workspaceId={workspaceId} userId={userId} />
       )}
 
       {isQuizModalOpen && (
