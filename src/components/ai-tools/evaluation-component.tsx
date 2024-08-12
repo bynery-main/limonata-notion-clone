@@ -22,7 +22,7 @@ interface EvaluationComponentProps {
   hasNext: boolean;
   selectedCollectionIndex: number;
   totalCollections: number;
-  meanScores: number[]; // Add this prop to receive the mean scores
+  totalScores: number[]; // Change to totalScores instead of meanScores
 }
 
 const EvaluationComponent: FC<EvaluationComponentProps> = ({
@@ -34,30 +34,47 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
   hasNext,
   selectedCollectionIndex,
   totalCollections,
-  meanScores, // Use this prop
+  totalScores, // Use totalScores instead of meanScores
 }) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-extrabold text-gray-800">Quiz Evaluation</h1>
+        <h1 className="text-3xl font-extrabold text-gray-800">
+          Quiz Evaluation
+        </h1>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" disabled={!hasPrevious} onClick={onPrevious}>
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={!hasPrevious}
+            onClick={onPrevious}
+          >
             <ChevronLeftIcon className="w-5 h-5" />
           </Button>
           <div className="flex gap-1">
-            {[...Array(totalCollections)].map((_, index) => (
-              <button
-                key={index}
-                className={`px-2 py-1 rounded-full ${
-                  selectedCollectionIndex === index ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
-                }`}
-                onClick={() => onSelectCollection(index)}
-              >
-                {index + 1}
-              </button>
-            ))}
+            {[...Array(totalCollections)].map((_, index) => {
+              const reverseIndex = totalCollections - 1 - index; // Reverse the index
+              return (
+                <button
+                  key={reverseIndex}
+                  className={`px-2 py-1 rounded-full ${
+                    selectedCollectionIndex === reverseIndex
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-300 text-gray-700"
+                  }`}
+                  onClick={() => onSelectCollection(reverseIndex)}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
           </div>
-          <Button variant="ghost" size="icon" disabled={!hasNext} onClick={onNext}>
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={!hasNext}
+            onClick={onNext}
+          >
             <ChevronRightIcon className="w-5 h-5" />
           </Button>
         </div>
@@ -67,7 +84,9 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
           {evaluations.map((evaluation, index) => (
             <div key={index} className="grid gap-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">{evaluation.question}</h3>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {evaluation.question}
+                </h3>
                 <div className="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
                   {evaluation.score}
                 </div>
@@ -75,28 +94,38 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
               <div className="grid grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-lg shadow p-4">
                   <p className="text-sm text-gray-500">Your Answer:</p>
-                  <p className="text-lg font-medium text-gray-800">{evaluation.answer}</p>
+                  <p className="text-lg font-medium text-gray-800">
+                    {evaluation.answer}
+                  </p>
                 </div>
                 <div className="bg-gray-50 rounded-lg shadow p-4">
                   <p className="text-sm text-gray-500">Model Answer:</p>
-                  <p className="text-lg font-medium text-gray-800">{evaluation.modelAnswer}</p>
+                  <p className="text-lg font-medium text-gray-800">
+                    {evaluation.modelAnswer}
+                  </p>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg shadow p-4">
                 <p className="text-sm text-gray-500">Explanation:</p>
-                <p className="text-base text-gray-800">{evaluation.explanation}</p>
+                <p className="text-base text-gray-800">
+                  {evaluation.explanation}
+                </p>
               </div>
               <div className="bg-gray-50 rounded-lg shadow p-4">
                 <p className="text-sm text-gray-500">Missed Points:</p>
-                <p className="text-base text-gray-800">{evaluation.missedPoints}</p>
+                <p className="text-base text-gray-800">
+                  {evaluation.missedPoints}
+                </p>
               </div>
             </div>
           ))}
         </div>
         {/* Add the ScoreTimelineGraph below the evaluations */}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Score Timeline</h2>
-          <ScoreTimelineGraph scores={meanScores} />
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Score Timeline
+          </h2>
+          <ScoreTimelineGraph scores={totalScores} />
         </div>
       </div>
     </div>
