@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 interface FlashcardDeck {
   id: string;
@@ -130,13 +130,20 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                       onClick={handleRenameDeck}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
-                      Rename
+                      <div className="flex items-center">
+                      <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                      </div>
                     </button>
                     <button
                       onClick={handleDeleteDeck}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
+                      <div className="flex items-center">
+                      <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+
                       Delete
+
+                      </div>
                     </button>
                   </div>
                 )}
