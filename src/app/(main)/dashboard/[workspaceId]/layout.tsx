@@ -89,13 +89,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setFoldersData(newFoldersData);
   };
   const updatePageTitle = (breadcrumbItems: BreadcrumbItem[]) => {
-    console.log("Breadcrumb items received:", breadcrumbItems);
+    // console.log("Breadcrumb items received:", breadcrumbItems);
     if (breadcrumbItems.length > 0) {
       const newTitle = breadcrumbItems[breadcrumbItems.length - 1].label;
-      console.log("Setting new page title:", newTitle);
+      // console.log("Setting new page title:", newTitle);
       setPageTitle(newTitle);
     } else {
-      console.log("No breadcrumb items received");
+      // console.log("No breadcrumb items received");
     }
   };
 
@@ -190,7 +190,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   const onSendMessage = (workspaceId: string, query: string) => {
     // Your message sending logic here
-    console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
+    // console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
   };
 
   return (
