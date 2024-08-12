@@ -267,6 +267,8 @@ const QuizzesPage = () => {
     }
   };
 
+
+
   const parseEvaluation = (evaluationString: string): Evaluation => {
     const questionMatch = evaluationString.match(/Question: (.*?)\n/);
     const answerMatch = evaluationString.match(/Answer: (.*?)\n/);
@@ -288,6 +290,55 @@ const QuizzesPage = () => {
       modelAnswer: modelAnswerMatch ? modelAnswerMatch[1].trim() : "",
     };
   };
+
+  const calculateMeanScore = (evaluations: Evaluation[]): number => {
+    const totalScore = evaluations.reduce(
+      (sum, evaluation) => sum + parseFloat(evaluation.score),
+      0
+    );
+    return evaluations.length > 0 ? totalScore / evaluations.length : 0;
+  };
+
+  const meanScores = evaluationCollections.map(calculateMeanScore);
+
+  const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = useCallback(
+    ({ value, onChange, placeholder, index }) => {
+      const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+      const adjustHeight = () => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+          textarea.style.height = "auto";
+          textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+      };
+
+      useEffect(() => {
+        adjustHeight();
+      }, [value]);
+
+      const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        onChange(index, e.target.value);
+        adjustHeight();
+      };
+
+      return (
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={handleChange}
+          placeholder={placeholder}
+          className="w-full mt-2 mb-4 p-3 border rounded font-light overflow-hidden shadow-inner focus:outline-2 focus:ring-2 focus:ring-black focus:border-black"
+          style={{
+            minHeight: "100px",
+            boxShadow: "inset 0 2px 8px 0 rgba(0, 0, 0, 0.2)",
+            resize: "none",
+          }}
+        />
+      );
+    },
+    []
+  );
 
   if (!workspaceId || !quizId) {
     return <p>Invalid workspace or quiz.</p>;
@@ -371,6 +422,7 @@ const QuizzesPage = () => {
                 }
                 selectedCollectionIndex={selectedCollectionIndex}
                 totalCollections={evaluationCollections.length}
+                meanScores={meanScores}  // Pass meanScores to EvaluationComponent
               />
             )}
         </div>

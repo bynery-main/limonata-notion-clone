@@ -2,6 +2,7 @@
 
 import React, { FC } from "react";
 import { Button } from "@/components/ui/button";
+import ScoreTimelineGraph from "./score-timeline-graph";
 
 interface Evaluation {
   question: string;
@@ -21,6 +22,7 @@ interface EvaluationComponentProps {
   hasNext: boolean;
   selectedCollectionIndex: number;
   totalCollections: number;
+  meanScores: number[]; // Add this prop to receive the mean scores
 }
 
 const EvaluationComponent: FC<EvaluationComponentProps> = ({
@@ -32,6 +34,7 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
   hasNext,
   selectedCollectionIndex,
   totalCollections,
+  meanScores, // Use this prop
 }) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8">
@@ -89,6 +92,11 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
               </div>
             </div>
           ))}
+        </div>
+        {/* Add the ScoreTimelineGraph below the evaluations */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Score Timeline</h2>
+          <ScoreTimelineGraph scores={meanScores} />
         </div>
       </div>
     </div>
