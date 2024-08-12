@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { fetchAllNotes, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; 
-import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface QuizzesComponentProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ interface QuizzesComponentProps {
 }
 
 interface Quiz {
+  id: string;
   question: string;
 }
 
@@ -30,6 +32,10 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [newQuestion, setNewQuestion] = useState("");
+  const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -70,25 +76,20 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       const data = result.data as { answer: string };
       const raw = data.answer || "";
   
-      // Log the raw data before parsing
       console.log("Raw data received from cloud function:", raw);
   
-      // Parse raw data into quizzes
       const parsedQuizzes = parseRawDataToQuizzes(raw);
       setQuizzes(parsedQuizzes);
   
-      // Generate a name for the quiz set using the nameResource function
       const nameGenerationResult = await generateName({ content: raw });
       const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
   
       console.log("Generated name for quiz set:", generatedName);
   
-      // Create a new quiz set with the generated name and save it to Firestore
-      const quizSetRef = doc(collection(db, "workspaces", workspaceId, "quizSets"));
-      await setDoc(quizSetRef, { name: generatedName, notes: selectedNotes });
+      const quizSetsCollectionRef = collection(db, "workspaces", workspaceId, "quizSets");
+      const quizSetDocRef = await addDoc(quizSetsCollectionRef, { name: generatedName, notes: selectedNotes });
   
-      // Save each quiz to Firestore under the new quiz set
-      const quizzesCollectionRef = collection(quizSetRef, "quizzes");
+      const quizzesCollectionRef = collection(quizSetDocRef, "quizzes");
       for (const quiz of parsedQuizzes) {
         await addDoc(quizzesCollectionRef, { question: quiz.question });
       }
@@ -99,18 +100,71 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     }
   };
   
-  
   const parseRawDataToQuizzes = (rawData: string): Quiz[] => {
     console.log("Data received by parser:", rawData); 
     const quizzes: Quiz[] = [];
     const quizRegex = /Question \d+: ([\s\S]+?)(?=\nQuestion \d+:|$)/g;
     let match;
     while ((match = quizRegex.exec(rawData)) !== null) {
-      quizzes.push({ question: match[1].trim() });
+      quizzes.push({ id: '', question: match[1].trim() });
     }
 
     console.log("Quizzes parsed:", quizzes); 
     return quizzes;
+  };
+
+  const handleAddQuestion = () => {
+    setIsAddPopupOpen(true);
+  };
+
+  const handlePopupSubmit = async () => {
+    if (newQuestion) {
+      try {
+        const quizzesCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", "quizzes");
+        const quizDocRef = await addDoc(quizzesCollectionRef, { question: newQuestion });
+        
+        setQuizzes([...quizzes, { id: quizDocRef.id, question: newQuestion }]);
+        setNewQuestion("");
+        setIsAddPopupOpen(false);
+      } catch (error) {
+        console.error("Error adding question:", error);
+      }
+    }
+  };
+
+  const handleDeleteQuestion = async (quizId: string) => {
+    try {
+      const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", "quizzes", quizId);
+      await deleteDoc(quizDocRef);
+
+      setQuizzes(quizzes.filter(quiz => quiz.id !== quizId));
+    } catch (error) {
+      console.error("Error deleting question:", error);
+    }
+  };
+
+  const handleEditQuestion = (quizId: string, currentQuestion: string) => {
+    console.log(`Edit button clicked for quiz ID: ${quizId}, Current Question: ${currentQuestion}`);
+    setCurrentEditQuizId(quizId);
+    setNewQuestion(currentQuestion);
+    setIsEditPopupOpen(true);
+  };
+
+  const handleEditPopupSubmit = async () => {
+    console.log(`Submit button clicked for editing quiz ID: ${currentEditQuizId}, New Question: ${newQuestion}`);
+    if (currentEditQuizId && newQuestion) {
+      try {
+        const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", "quizzes", currentEditQuizId);
+        console.log(`Updating Firestore document for quiz ID: ${currentEditQuizId} with new question: ${newQuestion}`);
+        await updateDoc(quizDocRef, { question: newQuestion });
+
+        setQuizzes(quizzes.map(quiz => quiz.id === currentEditQuizId ? { ...quiz, question: newQuestion } : quiz));
+        setNewQuestion("");
+        setIsEditPopupOpen(false);
+      } catch (error) {
+        console.error("Error updating question:", error);
+      }
+    }
   };
 
   return (
@@ -156,14 +210,84 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
             <h3 className="text-xl font-semibold">Generated Quizzes</h3>
             <ul>
               {quizzes.map((quiz, index) => (
-                <li key={index}>
-                  <h4 className="font-bold">{quiz.question}</h4>
+                <li key={quiz.id} className="flex items-center">
+                  <h4 className="font-bold mr-2">{quiz.question}</h4>
+                  <button onClick={() => handleEditQuestion(quiz.id, quiz.question)} className="mr-2">
+                    {/* <Pencil className="w-5 h-5 text-gray-600" /> */}
+                    <hr>Button</hr>
+                  </button>
+                  <button onClick={() => handleDeleteQuestion(quiz.id)}>
+                    <Trash2 className="w-5 h-5 text-red-600" />
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         )}
+        <div className="mt-4 flex justify-center">
+          <button onClick={handleAddQuestion} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+            Add Question
+          </button>
+        </div>
       </div>
+
+      {/* Popup for adding new question */}
+      {isAddPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
+            <h2 className="text-xl font-semibold mb-4">New Question</h2>
+            <textarea
+              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Write your question..."
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <button
+                onClick={() => setIsAddPopupOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePopupSubmit}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup for editing existing question */}
+      {isEditPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
+            <h2 className="text-xl font-semibold mb-4">Edit Question</h2>
+            <textarea
+              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Edit your question..."
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <button
+                onClick={() => setIsEditPopupOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditPopupSubmit}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

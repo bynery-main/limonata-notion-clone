@@ -29,7 +29,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
       const pathSegments = pathname!.split("/").filter((segment) => segment);
       let items: BreadcrumbItem[] = [];
 
-      console.log("Path Segments:", pathSegments);
+      // console.log("Path Segments:", pathSegments);
 
       // Always start with Dashboard
       items.push({
@@ -44,7 +44,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
         const workspaceName = workspaceDoc.exists()
           ? workspaceDoc.data().name
           : "Workspace";
-        console.log("Workspace Name:", workspaceName);
+        // console.log("Workspace Name:", workspaceName);
 
         items.push({
           href: `/dashboard/${workspaceId}`,
@@ -61,7 +61,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
           const folderName = folderDoc.exists()
             ? folderDoc.data().name
             : "Folder";
-          console.log("Folder Name:", folderName);
+          // console.log("Folder Name:", folderName);
 
           items.push({
             href: `/dashboard/${workspaceId}/${folderId}`,
@@ -104,7 +104,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                 doc(db, `workspaces/${workspaceId}/${collection}`, itemId)
               );
               const itemName = itemDoc.exists() ? itemDoc.data().name : "Item";
-              console.log("Item Name:", itemName);
+              // console.log("Item Name:", itemName);
               
 
               items.push({
@@ -125,7 +125,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                 )
               );
               const noteName = noteDoc.exists() ? noteDoc.data().name : "Note";
-              console.log("Note Name:", noteName);
+              // console.log("Note Name:", noteName);
 
               items.push({
                 href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${noteId}`,
@@ -137,7 +137,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
         }
       }
 
-      console.log("Breadcrumb Items:", items);
+      // console.log("Breadcrumb Items:", items);
       setBreadcrumbItems(items);
       if (onBreadcrumbsUpdate) {
         onBreadcrumbsUpdate(items);

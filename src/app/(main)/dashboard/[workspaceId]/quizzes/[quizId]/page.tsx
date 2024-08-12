@@ -2,15 +2,16 @@
 
 import React, { useEffect, useState, ChangeEvent, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { collection, getDocs, doc, getDoc, addDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import EvaluationComponent from "@/components/ai-tools/evaluation-component";
-import { CalendarIcon, CheckIcon } from "lucide-react";
+import { CalendarIcon, CheckIcon, Trash2, Pencil, PlusCircle } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { Button } from "@/components/ui/button";
 
 interface Quiz {
+  id?: string;
   question: string;
 }
 
@@ -145,6 +146,7 @@ const QuizzesPage = () => {
       const quizzesSnapshot = await getDocs(quizzesCollectionRef);
 
       const fetchedQuizzes: Quiz[] = quizzesSnapshot.docs.map((doc) => ({
+        id: doc.id,
         question: doc.data().question,
       }));
 
@@ -172,6 +174,56 @@ const QuizzesPage = () => {
     setAnswers(newAnswers);
   };
 
+  const handleUpdateQuiz = async (index: number, newQuestion: string) => {
+    const updatedQuizzes = [...quizzes];
+    updatedQuizzes[index].question = newQuestion;
+    setQuizzes(updatedQuizzes);
+
+    if (updatedQuizzes[index].id) {
+      const quizDocRef = doc(
+        db,
+        "workspaces",
+        workspaceId,
+        "quizSets",
+        quizId,
+        "quizzes",
+        updatedQuizzes[index].id!
+      );
+      await updateDoc(quizDocRef, { question: newQuestion });
+    }
+  };
+
+  const handleDeleteQuiz = async (index: number) => {
+    const deletedQuiz = quizzes[index];
+
+    if (deletedQuiz.id) {
+      const quizDocRef = doc(
+        db,
+        "workspaces",
+        workspaceId,
+        "quizSets",
+        quizId,
+        "quizzes",
+        deletedQuiz.id
+      );
+      await deleteDoc(quizDocRef);
+    }
+
+    setQuizzes(quizzes.filter((_, i) => i !== index));
+  };
+
+  const handleAddQuiz = async () => {
+    const newQuiz: Quiz = { question: "" };
+    const docRef = await addDoc(
+      collection(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes"),
+      newQuiz
+    );
+    newQuiz.id = docRef.id;
+
+    setQuizzes([...quizzes, newQuiz]);
+    setAnswers([...answers, ""]);
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     const functions = getFunctions(app);
@@ -194,7 +246,6 @@ const QuizzesPage = () => {
       console.log("Payload being passed to quizEvalAgent:", payload);
       const result = await quizEvalAgent(payload);
 
-      // Log the exact raw data received from the evaluation
       console.log("Raw evaluation data received:", result.data);
 
       const evalResults = result.data.evaluations;
@@ -296,7 +347,6 @@ const QuizzesPage = () => {
   };
 
   const totalScores = evaluationCollections.map(calculateTotalScore);
-
   const reversedTotalScores = totalScores.reverse();
 
   if (!workspaceId || !quizId) {
@@ -316,7 +366,26 @@ const QuizzesPage = () => {
         <div>
           {quizzes.map((quiz, index) => (
             <div key={index} className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">{quiz.question}</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                {quiz.question}
+                <div className="flex items-center gap-2 ml-4">
+                  <button
+                    onClick={() => handleUpdateQuiz(index, quiz.question)}
+                    className="text-gray-600"
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteQuiz(index)}
+                    className="text-red-500"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button onClick={handleAddQuiz} className="text-blue-500">
+                    <PlusCircle className="w-5 h-5" />
+                  </button>
+                </div>
+              </h2>
               <AutoResizingTextArea
                 value={answers[index]}
                 onChange={handleAnswerChange}
@@ -381,7 +450,7 @@ const QuizzesPage = () => {
                 }
                 selectedCollectionIndex={selectedCollectionIndex}
                 totalCollections={evaluationCollections.length}
-                totalScores={reversedTotalScores} // Pass the reversed total scores here
+                totalScores={reversedTotalScores}
               />
             )}
         </div>
