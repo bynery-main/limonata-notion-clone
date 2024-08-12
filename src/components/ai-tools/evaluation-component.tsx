@@ -20,13 +20,7 @@ interface EvaluationComponentProps {
   hasNext: boolean;
 }
 
-const EvaluationComponent: FC<EvaluationComponentProps> = ({
-  evaluations,
-  onPrevious,
-  onNext,
-  hasPrevious,
-  hasNext,
-}) => {
+const EvaluationComponent: FC<EvaluationComponentProps> = ({ evaluations, onPrevious, onNext, hasPrevious, hasNext }) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
