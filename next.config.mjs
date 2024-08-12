@@ -11,7 +11,7 @@ const nextConfig = {
       return config;
     },
     images: {
-      domains: ['firebasestorage.googleapis.com', 'images.template.net', 'localhost', 'www.brainscape.com', 'images.unsplash.com','plus.unsplash.com'],
+      domains: ['firebasestorage.googleapis.com', 'images.template.net', 'localhost', 'www.brainscape.com', 'images.unsplash.com','plus.unsplash.com', 'www.kbc.co.ke'],
     },
   };
   
