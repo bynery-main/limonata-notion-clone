@@ -47,6 +47,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   openFolderId,
   setOpenFolderId
 }) => {
+  const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
   const router = useRouter();
   const [newSubFolderName, setNewSubFolderName] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -65,7 +66,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
   useEffect(() => {
     if (!isOpen) {
-      // Reset all temporary items when folder is closed
       setShowAddSubtopic(false);
       setShowUpload(false);
       setShowCreateNote(false);
@@ -101,7 +101,15 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     }
     onSelect();
   };
-
+  const handleFileClick = (file: FileData) => {
+    if (file.url?.startsWith('http')) {
+      // External URL, open in new tab
+      window.open(file.url, '_blank');
+    } else {
+      // Internal file, navigate using Next.js router
+      router.push(`/dashboard/${workspaceId}/${folder.id}/${file.id}`);
+    }
+  };
   const handleMenuItemClick = (action: () => void) => {
     setShowMenu(false);
     setOpenFolderId(folder.id);
@@ -122,6 +130,24 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     const folderRef = doc(db, "workspaces", workspaceId, "folders", folder.id);
     await setDoc(folderRef, { name: newName }, { merge: true });
     setShowRename(false);
+  };
+
+  const getFileEmoji = (fileName: string | undefined) => {
+    if (!fileName) return "📝"; // Default emoji for undefined or empty file names
+  
+    const fileExtension = fileName.split(".").pop()?.toLowerCase();
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+    const pdfExtensions = ["pdf"];
+    const docExtensions = ["doc", "docx"];
+    const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+    const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+  
+    if (imageExtensions.includes(fileExtension || "")) return "🖼️";
+    if (pdfExtensions.includes(fileExtension || "")) return "📕";
+    if (docExtensions.includes(fileExtension || "")) return "📘";
+    if (audioExtensions.includes(fileExtension || "")) return "🎵";
+    if (videoExtensions.includes(fileExtension || "")) return "🎥";
+    return "📝";
   };
 
   return (
@@ -234,7 +260,25 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                 />
               </div>
             </CSSTransition>
-            {/* Here you can add permanent items */}
+            
+            {/* File list */}
+            <div className="mt-4">
+              {folder.files && folder.files.map((file) => (
+                <div 
+                  key={file.id}
+                  className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${
+                    hoveredFileId === file.id ? 'bg-gray-100' : ''
+                  }`}
+                  onClick={() => handleFileClick(file)}
+                  onMouseEnter={() => setHoveredFileId(file.id)}
+                  onMouseLeave={() => setHoveredFileId(null)}
+                >
+                  <span className="mr-2">{getFileEmoji(file.name)}</span>
+                  <span className="text-sm">{file.name || "Unnamed File"}</span>
+                </div>
+              ))}
+            </div>
+
             {folder.contents.map((subfolder: Folder) => (
               <FolderComponent
                 key={subfolder.id}
