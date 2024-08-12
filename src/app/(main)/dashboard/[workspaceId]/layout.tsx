@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { IconClipboardCopy, IconFileBroken, IconSignature, IconTableColumn } from "@tabler/icons-react";
 import { usePathname } from 'next/navigation';
+import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 
 
 interface FileData {
@@ -189,7 +190,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               font-light
             "
             >
-              <CurrentFolderDetails />
+              <Breadcrumbs />
             </div>
           </div>
           {children}
@@ -226,20 +227,5 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   );
 };
 
-const CurrentFolderDetails = () => {
-  const { currentFolder } = useFolder();
-
-  return (
-    <div>
-      {currentFolder ? (
-        <div>
-          <h1>{currentFolder.name}</h1>
-        </div>
-      ) : (
-        <p>No folder selected</p>
-      )}
-    </div>
-  );
-};
 
 export default Layout;

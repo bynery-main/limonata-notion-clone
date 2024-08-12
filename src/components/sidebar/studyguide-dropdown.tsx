@@ -8,7 +8,7 @@ import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-re
 
 interface StudyGuide {
   id: string;
-  title: string;
+  name: string;
 }
 
 interface StudyGuideDropdownProps {
@@ -34,7 +34,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
     const unsubscribe = onSnapshot(studyGuidesRef, (snapshot) => {
       const updatedStudyGuides: StudyGuide[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        title: doc.data().title || "Unnamed Study Guide",
+        name: doc.data().name || "Unnamed Study Guide",
       }));
 
       setStudyGuides(updatedStudyGuides);
@@ -50,17 +50,17 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   };
 
   const handleRenameStudyGuide = async () => {
-    const newName = prompt("Enter a new name for this study guide:", selectedStudyGuide?.title);
+    const newName = prompt("Enter a new name for this study guide:", selectedStudyGuide?.name);
     if (newName && selectedStudyGuide) {
       const studyGuideRef = doc(db, "workspaces", workspaceId, "studyGuides", selectedStudyGuide.id);
-      await updateDoc(studyGuideRef, { title: newName });
+      await updateDoc(studyGuideRef, { name: newName });
     }
     setDropdownVisible(false);
   };
 
   const handleDeleteStudyGuide = async () => {
     if (selectedStudyGuide) {
-      const confirmDelete = confirm(`Are you sure you want to delete ${selectedStudyGuide.title}?`);
+      const confirmDelete = confirm(`Are you sure you want to delete ${selectedStudyGuide.name}?`);
       if (confirmDelete) {
         const studyGuideRef = doc(db, "workspaces", workspaceId, "studyGuides", selectedStudyGuide.id);
         await deleteDoc(studyGuideRef);
@@ -119,7 +119,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                 className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
                 onClick={() => onStudyGuideSelect(studyGuide)}
               >
-                <span>{studyGuide.title}</span>
+                <span>{studyGuide.name}</span>
                 <MoreHorizontalIcon
                   className="h-4 w-4 cursor-pointer"
                   onClick={(event) => handleDropdownToggle(event, studyGuide)}
