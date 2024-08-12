@@ -110,9 +110,14 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
       );
     }
-
+  
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+    const pdfExtensions = ["pdf"];
+    const docExtensions = ["doc", "docx"];
+    const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+    const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+  
     if (imageExtensions.includes(fileExtension || "")) {
       return (
         <div className="w-full h-48 relative">
@@ -125,6 +130,19 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
       );
     } else {
+      let emoji = "📝"; // Default document emoji
+      if (pdfExtensions.includes(fileExtension || "")) {
+        emoji = "📕"; // PDF emoji
+      } else if (docExtensions.includes(fileExtension || "")) {
+        emoji = "📘"; // Word document emoji
+      } else if (audioExtensions.includes(fileExtension || "")) {
+        emoji = "🎵"; // Audio file emoji
+      } else if (videoExtensions.includes(fileExtension || "")) {
+        emoji = "🎥"; // Video file emoji
+      } else if (!fileExtension) {
+        emoji = "📝"; // Document with pencil emoji for no extension
+      }
+  
       return (
         <div className="w-full h-48 flex items-center justify-center">
           <div style={{ position: 'relative', width: '100%', height: '200px', overflow: 'hidden' }}>
@@ -143,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               fontSize: '48px', 
               color: 'white' 
             }}>
-              📄
+              {emoji}
             </div>
           </div>
         </div>
