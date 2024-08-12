@@ -1,11 +1,6 @@
 "use client";
 
-import React, {
-  useEffect,
-  useState,
-  ChangeEvent,
-  useRef,
-} from "react";
+import React, { useEffect, useState, ChangeEvent, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { collection, getDocs, doc, getDoc, addDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
@@ -68,18 +63,23 @@ const AnimatedButton = styled(Button)`
   border: none;
   color: white;
   font-weight: bold;
-  
+
   &:hover {
     opacity: 0.9;
   }
-  
+
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
   }
 `;
 
-const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = ({ value, onChange, placeholder, index }) => {
+const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = ({
+  value,
+  onChange,
+  placeholder,
+  index,
+}) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -288,15 +288,16 @@ const QuizzesPage = () => {
     };
   };
 
-  const calculateMeanScore = (evaluations: Evaluation[]): number => {
-    const totalScore = evaluations.reduce(
+  const calculateTotalScore = (evaluations: Evaluation[]): number => {
+    return evaluations.reduce(
       (sum, evaluation) => sum + parseFloat(evaluation.score),
       0
     );
-    return evaluations.length > 0 ? totalScore / evaluations.length : 0;
   };
 
-  const meanScores = evaluationCollections.map(calculateMeanScore);
+  const totalScores = evaluationCollections.map(calculateTotalScore);
+
+  const reversedTotalScores = totalScores.reverse();
 
   if (!workspaceId || !quizId) {
     return <p>Invalid workspace or quiz.</p>;
@@ -380,7 +381,7 @@ const QuizzesPage = () => {
                 }
                 selectedCollectionIndex={selectedCollectionIndex}
                 totalCollections={evaluationCollections.length}
-                meanScores={meanScores}
+                totalScores={reversedTotalScores} // Pass the reversed total scores here
               />
             )}
         </div>
