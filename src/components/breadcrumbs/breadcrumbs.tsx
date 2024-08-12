@@ -10,10 +10,14 @@ interface BreadcrumbItem {
   label: string;
   icon: React.ReactNode;
 }
-
-const Breadcrumbs: React.FC = () => {
+interface BreadcrumbsProps {
+  onBreadcrumbsUpdate?: (items: BreadcrumbItem[]) => void;
+}
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
   const pathname = usePathname();
   const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>([]);
+
+
 
   useEffect(() => {
     const fetchBreadcrumbs = async () => {
@@ -22,6 +26,8 @@ const Breadcrumbs: React.FC = () => {
 
       console.log('Path Segments:', pathSegments);
 
+
+      
       // Always start with Dashboard
       items.push({
         href: '/dashboard',
@@ -111,14 +117,17 @@ const Breadcrumbs: React.FC = () => {
 
       console.log('Breadcrumb Items:', items);
       setBreadcrumbItems(items);
+      if (onBreadcrumbsUpdate) {
+        onBreadcrumbsUpdate(items);
+      }
     };
 
     fetchBreadcrumbs();
-  }, [pathname]);
+  }, [pathname, onBreadcrumbsUpdate]);
 
   return (
     <nav aria-label="breadcrumb" className="mb-4">
-      <ol className="flex items-center flex-wrap">
+      <ol className="flex items-center flex-wrap text-sm">
         {breadcrumbItems.map((item, index) => (
           <li key={item.href} className="flex items-center">
             {index !== 0 && (
@@ -132,7 +141,7 @@ const Breadcrumbs: React.FC = () => {
             ) : (
               <Link 
                 href={item.href} 
-                className="flex items-center text-blue-600 hover:text-blue-800 hover:underline"
+                className="flex items-center hover:text-[#FC608D] hover:underline"
               >
                 {item.icon}
                 {item.label}

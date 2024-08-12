@@ -37,6 +37,11 @@ interface LayoutProps {
   params: any;
 }
 
+interface BreadcrumbItem {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+}
 
 const Skeleton = () => (
   <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
@@ -47,7 +52,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emoji, setEmoji] = useState<string>("🍋"); // Default emoji
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
-
+  const [pageTitle, setPageTitle] = useState<string>("");
   const db = getFirestore();
 
   useEffect(() => {
@@ -82,6 +87,16 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   const updateFoldersData = (newFoldersData: Folder[]) => {
     setFoldersData(newFoldersData);
+  };
+  const updatePageTitle = (breadcrumbItems: BreadcrumbItem[]) => {
+    console.log("Breadcrumb items received:", breadcrumbItems);
+    if (breadcrumbItems.length > 0) {
+      const newTitle = breadcrumbItems[breadcrumbItems.length - 1].label;
+      console.log("Setting new page title:", newTitle);
+      setPageTitle(newTitle);
+    } else {
+      console.log("No breadcrumb items received");
+    }
   };
 
   // Update the logic to display BentoGrid on any path that includes both workspaceId and folderId
@@ -165,32 +180,27 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       <main className="flex w-full h-full z-10">
         <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          
-          <div className="flex h-40 shrink-0 items-center border-b px-6 relative text-xl">
-
-            <button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="flex mx-5 items-center gap-2 font-semibold"
-            >
-              <span>{emoji}</span>
-            </button>
-            {showEmojiPicker && (
-              <div className="absolute top-full left-0 mt-2 z-20 text-4xl">
-                <Picker onEmojiSelect={handleEmojiSelect} />
-              </div>
-            )}
-            <div
-              className="dark:boder-Neutrals-12/70
-              border-l-[1px]
-              w-full
-              relative
-              overflow-scroll
-              font-inter
-              text-4xl
-              font-light
-            "
-            >
-              <Breadcrumbs />
+          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
+            <div className="w-full mt-8 ">
+              <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+            </div>
+            <div className="flex items-center w-full mt-2">
+              <button
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="text-4xl mr-3 focus:outline-none"
+              >
+                <span>{emoji}</span>
+              </button>
+              {pageTitle && (
+                <h1 className="text-4xl font-bold">
+                  {pageTitle}
+                </h1>
+              )}
+              {showEmojiPicker && (
+                <div className="absolute top-full left-6 mt-2 z-20">
+                  <Picker onEmojiSelect={handleEmojiSelect} />
+                </div>
+              )}
             </div>
           </div>
           {children}
@@ -215,6 +225,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 ))
               )}
             </BentoGrid>
+            
           )}
 
         </div>
