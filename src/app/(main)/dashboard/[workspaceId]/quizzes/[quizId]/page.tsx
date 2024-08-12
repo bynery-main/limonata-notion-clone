@@ -119,12 +119,12 @@ const QuizzesPage = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   const [notes, setNotes] = useState<NoteReference[]>([]);
   const [loading, setLoading] = useState(false);
-  const [evaluationCollections, setEvaluationCollections] = useState<
-    Evaluation[][]
-  >([]);
-  const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<
-    number | null
-  >(null);
+  const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [newQuestion, setNewQuestion] = useState("");
+  const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
+  const [evaluationCollections, setEvaluationCollections] = useState<Evaluation[][]>([]);
+  const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<number | null>(null);
   const router = useRouter();
   const params = useParams();
 
@@ -174,54 +174,61 @@ const QuizzesPage = () => {
     setAnswers(newAnswers);
   };
 
-  const handleUpdateQuiz = async (index: number, newQuestion: string) => {
-    const updatedQuizzes = [...quizzes];
-    updatedQuizzes[index].question = newQuestion;
-    setQuizzes(updatedQuizzes);
+  const handleUpdateQuiz = async (index: number) => {
+    const currentQuestion = quizzes[index].question;
+    console.log(`Edit button clicked for quiz ID: ${quizzes[index].id}, Current Question: ${currentQuestion}`);
+    setCurrentEditQuizId(quizzes[index].id || null);
+    setNewQuestion(currentQuestion);
+    setIsEditPopupOpen(true);
+  };
 
-    if (updatedQuizzes[index].id) {
-      const quizDocRef = doc(
-        db,
-        "workspaces",
-        workspaceId,
-        "quizSets",
-        quizId,
-        "quizzes",
-        updatedQuizzes[index].id!
-      );
-      await updateDoc(quizDocRef, { question: newQuestion });
+  const handleEditPopupSubmit = async () => {
+    console.log(`Submit button clicked for editing quiz ID: ${currentEditQuizId}, New Question: ${newQuestion}`);
+    if (currentEditQuizId && newQuestion) {
+      try {
+        const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes", currentEditQuizId);
+        console.log(`Updating Firestore document for quiz ID: ${currentEditQuizId} with new question: ${newQuestion}`);
+        await updateDoc(quizDocRef, { question: newQuestion });
+
+        setQuizzes(quizzes.map(quiz => quiz.id === currentEditQuizId ? { ...quiz, question: newQuestion } : quiz));
+        setNewQuestion("");
+        setIsEditPopupOpen(false);
+      } catch (error) {
+        console.error("Error updating question:", error);
+      }
     }
   };
 
   const handleDeleteQuiz = async (index: number) => {
     const deletedQuiz = quizzes[index];
+    console.log(`Delete button clicked for quiz ID: ${deletedQuiz.id}`);
 
     if (deletedQuiz.id) {
-      const quizDocRef = doc(
-        db,
-        "workspaces",
-        workspaceId,
-        "quizSets",
-        quizId,
-        "quizzes",
-        deletedQuiz.id
-      );
+      const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes", deletedQuiz.id);
       await deleteDoc(quizDocRef);
     }
 
     setQuizzes(quizzes.filter((_, i) => i !== index));
   };
 
-  const handleAddQuiz = async () => {
-    const newQuiz: Quiz = { question: "" };
-    const docRef = await addDoc(
-      collection(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes"),
-      newQuiz
-    );
-    newQuiz.id = docRef.id;
+  const handleAddQuiz = () => {
+    console.log("Add button clicked");
+    setIsAddPopupOpen(true);
+  };
 
-    setQuizzes([...quizzes, newQuiz]);
-    setAnswers([...answers, ""]);
+  const handlePopupSubmit = async () => {
+    if (newQuestion) {
+      try {
+        const quizzesCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes");
+        const quizDocRef = await addDoc(quizzesCollectionRef, { question: newQuestion });
+        
+        setQuizzes([...quizzes, { id: quizDocRef.id, question: newQuestion }]);
+        setNewQuestion("");
+        setIsAddPopupOpen(false);
+      } catch (error) {
+        console.error("Error adding question:", error);
+      }
+    }
   };
 
   const handleSubmit = async () => {
@@ -370,7 +377,7 @@ const QuizzesPage = () => {
                 {quiz.question}
                 <div className="flex items-center gap-2 ml-4">
                   <button
-                    onClick={() => handleUpdateQuiz(index, quiz.question)}
+                    onClick={() => handleUpdateQuiz(index)}
                     className="text-gray-600"
                   >
                     <Pencil className="w-5 h-5" />
@@ -456,6 +463,64 @@ const QuizzesPage = () => {
         </div>
       ) : (
         <p>No quizzes available.</p>
+      )}
+
+      {/* Popup for adding new question */}
+      {isAddPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
+            <h2 className="text-xl font-semibold mb-4">New Question</h2>
+            <textarea
+              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Write your question..."
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <button
+                onClick={() => setIsAddPopupOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePopupSubmit}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup for editing existing question */}
+      {isEditPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
+            <h2 className="text-xl font-semibold mb-4">Edit Question</h2>
+            <textarea
+              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Edit your question..."
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <button
+                onClick={() => setIsEditPopupOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditPopupSubmit}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
