@@ -39,8 +39,6 @@ const QuizzesPage = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   const [notes, setNotes] = useState<NoteReference[]>([]);
   const [loading, setLoading] = useState(false);
-  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
-  const [showEvaluationHistory, setShowEvaluationHistory] = useState(false);
   const [evaluationCollections, setEvaluationCollections] = useState<any[]>([]);
   const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<number | null>(null);
   const router = useRouter();
@@ -108,7 +106,8 @@ const QuizzesPage = () => {
       const evalResults = result.data.evaluations;
 
       const parsedEvaluations = evalResults.map(parseEvaluation);
-      setEvaluations(parsedEvaluations);
+      setEvaluationCollections([parsedEvaluations, ...evaluationCollections]); // Add the new evaluation at the beginning
+      setSelectedCollectionIndex(0); // Set the new evaluation as the current collection
 
       // Create an evaluation collection document
       const evaluationCollectionRef = collection(
@@ -157,7 +156,6 @@ const QuizzesPage = () => {
       );
 
       setEvaluationCollections(collectionsData);
-      setShowEvaluationHistory(true);
       setSelectedCollectionIndex(0); // Start with the first collection
     } catch (error) {
       console.error("Error fetching evaluation history:", error);
@@ -221,7 +219,7 @@ const QuizzesPage = () => {
               {loading ? "Loading..." : "Evaluation History"}
             </button>
           </div>
-          {showEvaluationHistory && selectedCollectionIndex !== null && (
+          {evaluationCollections.length > 0 && selectedCollectionIndex !== null && (
             <EvaluationComponent
               evaluations={evaluationCollections[selectedCollectionIndex]}
               onPrevious={() => setSelectedCollectionIndex(Math.max(0, selectedCollectionIndex - 1))}
