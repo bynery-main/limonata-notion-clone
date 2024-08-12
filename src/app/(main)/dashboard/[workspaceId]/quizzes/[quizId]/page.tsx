@@ -81,13 +81,13 @@ const AnimatedButton = styled(Button)`
 `;
 
 const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = ({ value, onChange, placeholder, index }) => {
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const adjustHeight = () => {
       const textarea = textareaRef.current;
       if (textarea) {
-        textarea.style.height = 'auto';
+        textarea.style.height = "auto";
         textarea.style.height = `${textarea.scrollHeight}px`;
       }
     };
@@ -106,9 +106,9 @@ const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = ({ value, onCh
       placeholder={placeholder}
       className="w-full mt-2 mb-4 p-3 border rounded font-light overflow-hidden shadow-inner focus:outline-2 focus:ring-2 focus:ring-black focus:border-black"
       style={{
-        minHeight: '100px',
-        boxShadow: 'inset 0 2px 8px 0 rgba(0, 0, 0, 0.2)',
-        resize: 'none',
+        minHeight: "100px",
+        boxShadow: "inset 0 2px 8px 0 rgba(0, 0, 0, 0.2)",
+        resize: "none",
       }}
     />
   );
@@ -267,23 +267,6 @@ const QuizzesPage = () => {
     }
   };
 
-  const AnimatedButton = styled(Button)`
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: ${gradientAnimation} 15s ease infinite;
-    border: none;
-    color: white;
-    font-weight: bold;
-
-    &:hover {
-      opacity: 0.9;
-    }
-
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-  `;
   const parseEvaluation = (evaluationString: string): Evaluation => {
     const questionMatch = evaluationString.match(/Question: (.*?)\n/);
     const answerMatch = evaluationString.match(/Answer: (.*?)\n/);
@@ -305,45 +288,6 @@ const QuizzesPage = () => {
       modelAnswer: modelAnswerMatch ? modelAnswerMatch[1].trim() : "",
     };
   };
-
-  const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = useCallback(
-    ({ value, onChange, placeholder, index }) => {
-      const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-      const adjustHeight = () => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-          textarea.style.height = "auto";
-          textarea.style.height = `${textarea.scrollHeight}px`;
-        }
-      };
-
-      useEffect(() => {
-        adjustHeight();
-      }, [value]);
-
-      const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        onChange(index, e.target.value);
-        adjustHeight();
-      };
-
-      return (
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          className="w-full mt-2 mb-4 p-3 border rounded font-light overflow-hidden shadow-inner focus:outline-2 focus:ring-2 focus:ring-black focus:border-black"
-          style={{
-            minHeight: "100px",
-            boxShadow: "inset 0 2px 8px 0 rgba(0, 0, 0, 0.2)",
-            resize: "none",
-          }}
-        />
-      );
-    },
-    []
-  );
 
   if (!workspaceId || !quizId) {
     return <p>Invalid workspace or quiz.</p>;
@@ -377,28 +321,28 @@ const QuizzesPage = () => {
               className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200"
               disabled={loading}
             >
-              {loading
-                ? "Submitting..."
-                : [
-                    <div className="flex items-center">
-                      <CheckIcon className="mr-2" />
-                      Submit Answers
-                    </div>,
-                  ]}
+              {loading ? (
+                "Submitting..."
+              ) : (
+                <div className="flex items-center">
+                  <CheckIcon className="mr-2" />
+                  Submit Answers
+                </div>
+              )}
             </AnimatedButton>
             <button
               onClick={handleEvaluationHistoryClick}
               className="px-4 py-2 bg-transparent text-sm text-gray outline rounded-xl hover:bg-gray-400 hover:text-white transition-colors duration-200"
               disabled={loading}
             >
-              {loading
-                ? "Loading..."
-                : [
-                    <div className="flex items-center">
-                      <CalendarIcon className="mr-2" />
-                      Evaluation History
-                    </div>,
-                  ]}
+              {loading ? (
+                "Loading..."
+              ) : (
+                <div className="flex items-center">
+                  <CalendarIcon className="mr-2" />
+                  Evaluation History
+                </div>
+              )}
             </button>
           </div>
           {evaluationCollections.length > 0 &&
