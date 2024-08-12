@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 
 export const BentoGrid = ({
   className,
@@ -28,6 +29,8 @@ export const BentoGridItem = ({
   header,
   icon,
   href,
+  onRename,
+  onDelete,
 }: {
   className?: string;
   title: string;
@@ -35,12 +38,53 @@ export const BentoGridItem = ({
   header: React.ReactNode;
   icon?: React.ReactNode;
   href: string;
+  onRename?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) => {
   const router = useRouter();
+  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleClick = () => {
-    router.push(href);
+  const handleClick = (e: React.MouseEvent) => {
+    if (!(e.target as HTMLElement).closest('.bento-menu')) {
+      router.push(href);
+    }
   };
+
+  const handleDropdownToggle = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  const handleRename = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onRename && onRename(href);
+    setDropdownVisible(false);
+  };
+
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onDelete && onDelete(href);
+    setDropdownVisible(false);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setDropdownVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    if (dropdownVisible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownVisible]);
 
   return (
     <div
@@ -58,11 +102,37 @@ export const BentoGridItem = ({
           <div className="font-sans font-bold text-neutral-600 dark:text-neutral-200 mb-2 mt-2">
             {title}
           </div>
-          {icon && (
-            <div className="opacity-70 group-hover/bento:opacity-100 transition duration-200">
-              {icon}
-            </div>
-          )}
+          <div className="flex items-center space-x-2 relative">
+            {icon && (
+              <div className="opacity-70 group-hover/bento:opacity-100 transition duration-200">
+                {icon}
+              </div>
+            )}
+            <MoreHorizontal
+              className="h-5 w-5 text-neutral-500 cursor-pointer bento-menu"
+              onClick={handleDropdownToggle}
+            />
+            {dropdownVisible && (
+              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+                <button
+                  onClick={handleRename}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                >
+                  <div className="flex items-center">
+                    <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename
+                  </div>
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                >
+                  <div className="flex items-center">
+                    <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="font-sans font-normal text-neutral-600 text-sm dark:text-neutral-300">
           {description}
