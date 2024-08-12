@@ -160,9 +160,8 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
             </div>
 
           </BackgroundGradient>
-          <div className="flex items-center justify-center mt-2 bg-white px-3 py-1 rounded-full text-xs text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Powered by <img src="https://www.kbc.co.ke/wp-content/uploads/2024/02/gemini_hero_rgb.png" alt="Gemini" className="h-4 ml-1" />
-            </div>
+          <div className="flex items-center justify-center mt-2 bg-white px-3 py-3 px-5 rounded-full text-s text-gray-600 z-10 font-light" style={{ fontFamily: 'Inter, sans-serif', marginTop: '-20px' }}>
+          Powered by <img src="https://www.kbc.co.ke/wp-content/uploads/2024/02/gemini_hero_rgb.png" alt="Gemini" className="h-5 ml-1" style={{ marginTop: '-6px' }} />            </div>
         </div>
         </div>
       )}
