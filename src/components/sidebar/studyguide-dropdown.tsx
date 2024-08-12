@@ -97,7 +97,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
       >
         <Accordion.Item
           value="studyGuides"
-          className="border rounded-lg shadow-lg"
+          className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"

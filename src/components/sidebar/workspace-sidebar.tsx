@@ -277,30 +277,40 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-            <FlashcardsDropdown
-              workspaceId={params.workspaceId}
-              currentFlashcardDeckId={currentFlashcardDeckId}
-              onFlashcardDeckSelect={handleFlashcardDeckSelect}
-            />
-            <QuizzesDropdown
-              workspaceId={params.workspaceId}
-              currentQuizSetId={currentQuizSetId}
-              onQuizSetSelect={handleQuizSetSelect}
-            />
-            <StudyGuideDropdown
-              workspaceId={params.workspaceId}
-              currentStudyGuideId={currentStudyGuideId}
-              onStudyGuideSelect={handleStudyGuideSelect}
-            />
-            <FoldersDropDown
+          <FoldersDropDown
               workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
             />
             <div>
-              <h3 className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
-                Settings and People
+
+              <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
+                AI Study Resources
+              </h3>
+              <div className="grid gap-4">
+                <FlashcardsDropdown
+                  workspaceId={params.workspaceId}
+                  currentFlashcardDeckId={currentFlashcardDeckId}
+                  onFlashcardDeckSelect={handleFlashcardDeckSelect}
+                />
+                <QuizzesDropdown
+                  workspaceId={params.workspaceId}
+                  currentQuizSetId={currentQuizSetId}
+                  onQuizSetSelect={handleQuizSetSelect}
+                />
+                <StudyGuideDropdown
+                  workspaceId={params.workspaceId}
+                  currentStudyGuideId={currentStudyGuideId}
+                  onStudyGuideSelect={handleStudyGuideSelect}
+                />
+            </div>
+            </div>
+
+
+            <div>
+              <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
+                People
               </h3>
               <div className="grid gap-1">
                 <Link
