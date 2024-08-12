@@ -6,6 +6,9 @@ import { collection, getDocs, doc, getDoc, addDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import EvaluationComponent from "@/components/ai-tools/evaluation-component";
+import { CalendarIcon, CheckIcon, PaperclipIcon } from "lucide-react";
+import styled, { keyframes } from 'styled-components';
+import { Button } from "@/components/ui/button";
 
 interface Quiz {
   question: string;
@@ -168,7 +171,35 @@ const QuizzesPage = () => {
       setLoading(false);
     }
   };
+  const gradientAnimation = keyframes`
+  0% {
+      background-position: 0% 50%;
+  }
+  50% {
+      background-position: 100% 50%;
+  }
+  100% {
+      background-position: 0% 50%;
+  }
+`;
 
+const AnimatedButton = styled(Button)`
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: ${gradientAnimation} 15s ease infinite;
+  border: none;
+  color: white;
+  font-weight: bold;
+  
+  &:hover {
+      opacity: 0.9;
+  }
+  
+  &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+  }
+`;
   const parseEvaluation = (evaluationString: string): Evaluation => {
     const questionMatch = evaluationString.match(/Question: (.*?)\n/);
     const answerMatch = evaluationString.match(/Answer: (.*?)\n/);
@@ -229,7 +260,7 @@ const QuizzesPage = () => {
   }
 
   return (
-    <div className="m-10" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="m-10" style={{ fontFamily: 'Inter, sans-serif', display: 'flex', justifyContent: 'center' }}>
       {quizzes.length > 0 ? (
         <div>
           {quizzes.map((quiz, index) => (
@@ -243,20 +274,20 @@ const QuizzesPage = () => {
               />
             </div>
           ))}
-          <div className="flex gap-4">
-            <button
+          <div className="flex gap-4 items-center justify-center font-bold">
+            <AnimatedButton
               onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200"
               disabled={loading}
             >
-              {loading ? "Submitting..." : "Submit Answers"}
-            </button>
+              {loading ? "Submitting..." : [<div className="flex items-center"><CheckIcon className="mr-2"/>Submit Answers</div>]}
+            </AnimatedButton>
             <button
               onClick={handleEvaluationHistoryClick}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+              className="px-4 py-2 bg-transparent text-sm text-gray outline rounded-xl hover:bg-gray-400 hover:text-white transition-colors duration-200"
               disabled={loading}
             >
-              {loading ? "Loading..." : "Evaluation History"}
+              {loading ? "Loading..." : [<div className="flex items-center"><CalendarIcon className="mr-2"/>Evaluation History</div>]}
             </button>
           </div>
           {evaluationCollections.length > 0 && selectedCollectionIndex !== null && (

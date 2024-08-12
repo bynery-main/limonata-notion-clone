@@ -9,6 +9,7 @@ import { Carousel, Card } from "../ui/apple-cards-carousel";
 import { BackgroundGradient } from "../ui/background-gradient";
 import flashcards from "../../images/flashcards.jpg";
 import StudyGuideComponent from "./study-guide-component";
+import { Button } from "@/components/ui/button";
 
 interface AIChatComponentProps {
   workspaceId: string;
