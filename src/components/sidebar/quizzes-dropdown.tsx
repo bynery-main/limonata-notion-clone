@@ -42,7 +42,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
   }, [workspaceId]);
 
   const handleDropdownToggle = (event: React.MouseEvent, quizSet: QuizSet) => {
-    event.stopPropagation(); // Prevent the click from bubbling up
+    event.stopPropagation();
     setSelectedQuizSet(quizSet);
     setDropdownVisible(!dropdownVisible);
   };
@@ -95,7 +95,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
       >
         <Accordion.Item
           value="quizzes"
-          className="border rounded-lg shadow-lg"
+          className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
@@ -138,9 +138,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                     >
                       <div className="flex items-center">
                       <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-
                       Delete
-
                       </div>
                     </button>
                   </div>
