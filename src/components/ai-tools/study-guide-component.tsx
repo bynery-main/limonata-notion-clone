@@ -13,7 +13,7 @@ interface StudyGuideComponentProps {
 }
 
 interface StudyGuide {
-  title: string;
+  name: string;
   content: string;
 }
 
@@ -75,7 +75,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
       // Create a new study guide document with the generated name and save it to Firestore
       const studyGuidesCollectionRef = collection(db, "workspaces", workspaceId, "studyGuides");
       const guideDoc = doc(studyGuidesCollectionRef);
-      await setDoc(guideDoc, { title: generatedName, content: raw, notes: selectedNotes });
+      await setDoc(guideDoc, { name: generatedName, content: raw, notes: selectedNotes });
     } catch (error) {
       console.error("Error creating study guides:", error);
     } finally {
@@ -89,7 +89,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
     const guideRegex = /Study Guide \d+: Title: ([\s\S]+?) Content: ([\s\S]+?)(?=\nStudy Guide \d+:|$)/g;
     let match;
     while ((match = guideRegex.exec(rawData)) !== null) {
-      studyGuides.push({ title: match[1].trim(), content: match[2].trim() });
+      studyGuides.push({ name: match[1].trim(), content: match[2].trim() });
     }
 
     console.log("Study Guides parsed:", studyGuides); // Log the study guides parsed from the raw data
@@ -114,6 +114,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
                 {folder.notes.map((note) => (
                   <li key={note.id} className="flex items-center">
                     <input
+                      aria-label="View Note"
                       type="checkbox"
                       className="mr-2"
                       onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
@@ -140,7 +141,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
             <ul>
               {studyGuides.map((guide, index) => (
                 <li key={index}>
-                  <h4 className="font-bold">{guide.title}</h4>
+                  <h4 className="font-bold">{guide.name}</h4>
                   <p>{guide.content}</p>
                 </li>
               ))}
