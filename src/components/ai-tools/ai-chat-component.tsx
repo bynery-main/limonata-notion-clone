@@ -132,6 +132,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
       
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-md bg-black/50">
+          <div className="flex flex-col items-center">
           <BackgroundGradient className="w-full max-w-6xl h-[60vh] rounded-xl p-[1px]">
             <div className="w-full h-full bg-white/80 dark:bg-black/80 rounded-xl p-8 overflow-auto relative z-10">
               <button onClick={toggleModal} className="absolute top-4 right-4 text-2xl font-bold">
@@ -155,10 +156,15 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
                   />
                 ))} 
               />
-            </div>
-          </BackgroundGradient>
-        </div>
 
+            </div>
+
+          </BackgroundGradient>
+          <div className="flex items-center justify-center mt-2 bg-white px-3 py-1 rounded-full text-xs text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Powered by <img src="https://www.kbc.co.ke/wp-content/uploads/2024/02/gemini_hero_rgb.png" alt="Gemini" className="h-4 ml-1" />
+            </div>
+        </div>
+        </div>
       )}
 
 
