@@ -70,11 +70,11 @@ export const MainSidebar = (): JSX.Element => {
   };
 
   return (
-    <div className="relative w-14 h-screen bg-[#010256] flex flex-col justify-between">
-      <div className=" mt-3 bg-[#010256] flex flex-col items-center">
+    <div className="relative w-14 h-screen bg-[#272727] flex flex-col justify-between">
+      <div className=" mt-3 bg-[#272727] flex flex-col items-center">
         <button className="w-[34px] h-[34px] bg-[#020039] rounded-md" onClick={() => handleWorkspaceClick('home')}>
-          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-[#6FA2FF]">
-            <Home className="w-5 h-5 text-[#6FA2FF]" />
+          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-md overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-white">
+            <Home className="w-5 h-5 text-white" />
 
           </div>
         </button>
@@ -88,7 +88,7 @@ export const MainSidebar = (): JSX.Element => {
           />
         ))}
         <div 
-          className="mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white text-md hover:text-[#FF5924] hover:border-2 hover:border-[#FF5924]"
+          className="mt-4 w-10 h-10 bg-[#666666] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white text-md hover:bg-[#FC608D] hover:border-2 hover:border-white"
           onClick={() => setShowDS(true)}
         >
           <FaPlus className="" /> {/* Light blue color */}
@@ -137,7 +137,7 @@ interface WorkspaceIconProps {
 const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive }) => {
   return (
     <div 
-      className={`mt-4 w-10 h-10 bg-[#020039] rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-[#6FA2FF] font-semibold text-md hover:border-2 hover:border-[#6FA2FF] ${isActive ? 'border-2 border-[#6FA2FF]' : ''}`}
+      className={`mt-4 w-10 h-10 bg-black rounded-md overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md hover:border-2 hover:border-white hover:text-white ${isActive ? 'border-2 border-[#FC608D] text-[#FC608D]' : ''}`}
       onClick={onClick}
     >
       {workspace.name.charAt(0).toUpperCase()}
