@@ -132,7 +132,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
       
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-md bg-black/50">
-          <BackgroundGradient className="w-full max-w-6xl h-[80vh] rounded-xl p-[1px]">
+          <BackgroundGradient className="w-full max-w-6xl h-[60vh] rounded-xl p-[1px]">
             <div className="w-full h-full bg-white/80 dark:bg-black/80 rounded-xl p-8 overflow-auto relative z-10">
               <button onClick={toggleModal} className="absolute top-4 right-4 text-2xl font-bold">
                 &times;
