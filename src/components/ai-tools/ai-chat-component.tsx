@@ -9,6 +9,7 @@ import { Carousel, Card } from "../ui/apple-cards-carousel";
 import { BackgroundGradient } from "../ui/background-gradient";
 import flashcards from "../../images/flashcards.jpg";
 import StudyGuideComponent from "./study-guide-component";
+import { Button } from "@/components/ui/button";
 
 interface AIChatComponentProps {
   workspaceId: string;
@@ -132,7 +133,8 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
       
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-md bg-black/50">
-          <BackgroundGradient className="w-full max-w-6xl h-[80vh] rounded-xl p-[1px]">
+          <div className="flex flex-col items-center">
+          <BackgroundGradient className="w-full max-w-6xl h-[60vh] rounded-xl p-[1px]">
             <div className="w-full h-full bg-white/80 dark:bg-black/80 rounded-xl p-8 overflow-auto relative z-10">
               <button onClick={toggleModal} className="absolute top-4 right-4 text-2xl font-bold">
                 &times;
@@ -155,10 +157,14 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId }) => {
                   />
                 ))} 
               />
-            </div>
-          </BackgroundGradient>
-        </div>
 
+            </div>
+
+          </BackgroundGradient>
+          <div className="flex items-center justify-center mt-2 bg-white px-3 py-3 px-5 rounded-full text-s text-gray-600 z-10 font-light" style={{ fontFamily: 'Inter, sans-serif', marginTop: '-20px' }}>
+          Powered by <img src="https://www.kbc.co.ke/wp-content/uploads/2024/02/gemini_hero_rgb.png" alt="Gemini" className="h-5 ml-1" style={{ marginTop: '-6px' }} />            </div>
+        </div>
+        </div>
       )}
 
 

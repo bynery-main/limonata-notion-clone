@@ -114,7 +114,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   return (
     <Accordion.Item
       value={folder.id}
-      className={`border rounded-lg relative group shadow-lg ${isActive ? 'bg-gray-100' : ''}`}
+      className={`border rounded-lg relative group hover:shadow-lg ${isActive ? 'bg-gray-100 shadow-xl' : ''}`}
     >
       <Accordion.Trigger
         id="folder"
