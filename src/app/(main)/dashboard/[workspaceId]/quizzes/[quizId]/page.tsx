@@ -202,6 +202,7 @@ const QuizzesPage = () => {
       setLoading(false);
     }
   };
+
   const gradientAnimation = keyframes`
   0% {
       background-position: 0% 50%;
@@ -231,6 +232,7 @@ const QuizzesPage = () => {
       cursor: not-allowed;
     }
   `;
+
   const parseEvaluation = (evaluationString: string): Evaluation => {
     const questionMatch = evaluationString.match(/Question: (.*?)\n/);
     const answerMatch = evaluationString.match(/Answer: (.*?)\n/);
@@ -252,6 +254,16 @@ const QuizzesPage = () => {
       modelAnswer: modelAnswerMatch ? modelAnswerMatch[1].trim() : "",
     };
   };
+
+  const calculateMeanScore = (evaluations: Evaluation[]): number => {
+    const totalScore = evaluations.reduce(
+      (sum, evaluation) => sum + parseFloat(evaluation.score),
+      0
+    );
+    return evaluations.length > 0 ? totalScore / evaluations.length : 0;
+  };
+
+  const meanScores = evaluationCollections.map(calculateMeanScore);
 
   const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = useCallback(
     ({ value, onChange, placeholder, index }) => {
@@ -374,6 +386,7 @@ const QuizzesPage = () => {
                 }
                 selectedCollectionIndex={selectedCollectionIndex}
                 totalCollections={evaluationCollections.length}
+                meanScores={meanScores}  // Pass meanScores to EvaluationComponent
               />
             )}
         </div>
