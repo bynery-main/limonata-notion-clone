@@ -16,11 +16,23 @@ interface EvaluationComponentProps {
   evaluations: Evaluation[];
   onPrevious: () => void;
   onNext: () => void;
+  onSelectCollection: (index: number) => void;
   hasPrevious: boolean;
   hasNext: boolean;
+  selectedCollectionIndex: number;
+  totalCollections: number;
 }
 
-const EvaluationComponent: FC<EvaluationComponentProps> = ({ evaluations, onPrevious, onNext, hasPrevious, hasNext }) => {
+const EvaluationComponent: FC<EvaluationComponentProps> = ({
+  evaluations,
+  onPrevious,
+  onNext,
+  onSelectCollection,
+  hasPrevious,
+  hasNext,
+  selectedCollectionIndex,
+  totalCollections,
+}) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
@@ -29,6 +41,17 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({ evaluations, onPrev
           <Button variant="ghost" size="icon" disabled={!hasPrevious} onClick={onPrevious}>
             <ChevronLeftIcon className="w-5 h-5" />
           </Button>
+          <div className="flex gap-1">
+            {[...Array(totalCollections)].map((_, index) => (
+              <button
+                key={index}
+                className={`px-2 py-1 rounded-full ${selectedCollectionIndex === index ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+                onClick={() => onSelectCollection(index)}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
           <Button variant="ghost" size="icon" disabled={!hasNext} onClick={onNext}>
             <ChevronRightIcon className="w-5 h-5" />
           </Button>

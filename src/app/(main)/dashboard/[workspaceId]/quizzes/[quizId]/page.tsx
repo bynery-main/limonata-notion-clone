@@ -226,6 +226,9 @@ const QuizzesPage = () => {
               onNext={() => setSelectedCollectionIndex(Math.min(evaluationCollections.length - 1, selectedCollectionIndex + 1))}
               hasPrevious={selectedCollectionIndex > 0}
               hasNext={selectedCollectionIndex < evaluationCollections.length - 1}
+              onSelectCollection={(index: number) => setSelectedCollectionIndex(index)}
+              selectedCollectionIndex={selectedCollectionIndex}
+              totalCollections={evaluationCollections.length}
             />
           )}
         </div>
