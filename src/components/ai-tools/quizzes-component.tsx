@@ -6,10 +6,12 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; 
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Pencil, Trash2 } from "lucide-react";
+import { useToast } from "@chakra-ui/react";
 
 interface QuizzesComponentProps {
   onClose: () => void;
   workspaceId: string;
+  userId: string; // Add userId prop
 }
 
 interface Quiz {
@@ -27,7 +29,13 @@ interface NameGenerationResult {
   answer: string;
 }
 
-const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId }) => {
+interface CreditUsageResult {
+  success: boolean;
+  message: string;
+  remainingCredits: number;
+}
+
+const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId, userId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -36,6 +44,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
   const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -62,9 +71,31 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     const functions = getFunctions(app);
     const createQuizzes = httpsCallable(functions, "quizGenAgent");
     const generateName = httpsCallable(functions, "nameResource");
+    const useCredits = httpsCallable(functions, "useCredits");
   
     setLoading(true);
     try {
+      // First, attempt to use credits
+      const creditUsageResult = (await useCredits({
+        uid: userId,
+        cost: 10,
+      })) as { data: CreditUsageResult };
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        toast({
+          title: "Error",
+          description: creditUsageResult.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // If credit usage was successful, proceed with quiz creation
       const payload = {
         workspaceId,
         notes: selectedNotes,
@@ -93,8 +124,23 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       for (const quiz of parsedQuizzes) {
         await addDoc(quizzesCollectionRef, { question: quiz.question });
       }
+
+      toast({
+        title: "Success",
+        description: "Quizzes created successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error("Error creating quizzes:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while creating quizzes",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }

@@ -174,7 +174,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
       )}
 
       {isQuizModalOpen && (
-        <QuizzesComponent onClose={closeQuizModal} workspaceId={workspaceId} />
+        <QuizzesComponent onClose={closeQuizModal} workspaceId={workspaceId} userId={userId} />
       )}
 
 
