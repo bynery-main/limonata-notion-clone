@@ -5,7 +5,7 @@ import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc } from "firebase
 import { db } from "@/firebase/firebaseConfig";
 import { FlashCardArray } from "react-flashcards";
 import { CSSProperties } from 'react';
-import { Pencil, Trash2, PlusCircle } from "lucide-react";
+import { Pencil, Trash2, PlusCircle, ArrowRight, ArrowLeft } from "lucide-react";
 
 interface Flashcard {
   firestoreId: string; // Firestore ID as a string
@@ -151,6 +151,26 @@ const FlashcardsPage = () => {
     }
   };
 
+  const handleNextFlashcard = () => {
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex + 1;
+      if (newIndex < flashcards.length) {
+        return newIndex;
+      }
+      return prevIndex;
+    });
+  };
+
+  const handlePreviousFlashcard = () => {
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex - 1;
+      if (newIndex >= 0) {
+        return newIndex;
+      }
+      return prevIndex;
+    });
+  };
+
   if (!workspaceId || !deckId) {
     return <p>Invalid workspace or flashcard deck.</p>;
   }
@@ -172,6 +192,9 @@ const FlashcardsPage = () => {
             backStyle={{ backgroundColor: '#e0e0e0', padding: '20px' }}
           />
           <div className="mt-4 flex items-center justify-center gap-4">
+            <button onClick={handlePreviousFlashcard} className="text-gray-600">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <button onClick={handleEditFlashcard} className="text-gray-600">
               <Pencil className="w-5 h-5" />
             </button>
@@ -180,6 +203,9 @@ const FlashcardsPage = () => {
             </button>
             <button onClick={handleAddFlashcard} className="text-blue-500">
               <PlusCircle className="w-5 h-5" />
+            </button>
+            <button onClick={handleNextFlashcard} className="text-gray-600">
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
