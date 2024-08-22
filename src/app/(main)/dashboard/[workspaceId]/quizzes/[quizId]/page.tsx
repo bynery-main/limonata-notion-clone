@@ -5,10 +5,13 @@ import { useRouter, useParams } from "next/navigation";
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import EvaluationComponent from "@/components/ai-tools/evaluation-component";
 import { CalendarIcon, CheckIcon, Trash2, Pencil, PlusCircle } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { Button } from "@/components/ui/button";
+import { Toast, useToast } from "@chakra-ui/react";
+import { useAuth } from "@/components/auth-provider/AuthProvider";
 
 interface Quiz {
   id?: string;
@@ -43,6 +46,12 @@ interface AutoResizingTextAreaProps {
   onChange: (index: number, value: string) => void;
   placeholder: string;
   index: number;
+}
+
+interface CreditUsageResult {
+  success: boolean;
+  message: string;
+  remainingCredits: number;
 }
 
 const gradientAnimation = keyframes`
@@ -127,12 +136,17 @@ const QuizzesPage = () => {
   const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<number | null>(null);
   const router = useRouter();
   const params = useParams();
+  const { user } = useAuth();
 
   const workspaceId = params?.workspaceId as string;
   const quizId = params?.quizId as string;
 
   useEffect(() => {
     if (!workspaceId || !quizId) return;
+
+    
+
+    
 
     const fetchQuizzesAndNotes = async () => {
       const quizzesCollectionRef = collection(
@@ -232,12 +246,27 @@ const QuizzesPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      Toast({
+        title: "Error",
+        description: "You must be logged in to submit answers",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     setLoading(true);
     const functions = getFunctions(app);
     const quizEvalAgent = httpsCallable<
       { workspaceId: string; notes: NoteReference[]; qa: QA[] },
       QuizEvalResult
     >(functions, "quizEvalAgent");
+    const useCredits = httpsCallable<
+      { uid: string; cost: number },
+      CreditUsageResult
+    >(functions, "useCredits");
 
     const qa: QA[] = quizzes.map((quiz, index) => ({
       question: quiz.question,
@@ -245,6 +274,27 @@ const QuizzesPage = () => {
     }));
 
     try {
+      // First, attempt to use credits
+      const creditUsageResult = await useCredits({
+        uid: user.uid,
+        cost: 20,
+      });
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        Toast({
+          title: "Error",
+          description: creditUsageResult.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // If credit usage was successful, proceed with quiz evaluation
       const payload = {
         workspaceId,
         notes,
@@ -283,13 +333,27 @@ const QuizzesPage = () => {
       }
 
       console.log("Quiz evaluation response:", result.data);
+
+      Toast({
+        title: "Success",
+        description: "Quiz evaluation completed successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error("Error during quiz evaluation:", error);
+      Toast({
+        title: "Error",
+        description: "An error occurred during quiz evaluation",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
   };
-
   const handleEvaluationHistoryClick = async () => {
     setLoading(true);
     try {
