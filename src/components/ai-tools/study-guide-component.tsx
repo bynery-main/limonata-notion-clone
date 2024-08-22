@@ -58,12 +58,12 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
     const functions = getFunctions(app);
     const createStudyGuides = httpsCallable(functions, "studyGuideAgent");
     const generateName = httpsCallable(functions, "nameResource");
-    const useCredits = httpsCallable(functions, "useCredits");
+    const creditValidation = httpsCallable(functions, "useCredits");
   
     setLoading(true);
     try {
       // First, attempt to use credits
-      const creditUsageResult = (await useCredits({
+      const creditUsageResult = (await creditValidation({
         uid: userId,
         cost: 20,
       })) as { data: CreditUsageResult };
