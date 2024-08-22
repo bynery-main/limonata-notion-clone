@@ -9,4 +9,4 @@ You can access Limonata by visiting [this link](https://ratty-charmaine-bynery-0
 - Collaborative study environment
 - Diverse AI resource integration
 
-Visit the link above to start using Limonata today!
+Visit the link above to start using Limonata today! 
