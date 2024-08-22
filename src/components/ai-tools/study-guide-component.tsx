@@ -6,10 +6,12 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import ReactMarkdown from 'react-markdown';
+import { useToast } from "@chakra-ui/react";
 
 interface StudyGuideComponentProps {
   onClose: () => void;
   workspaceId: string;
+  userId: string; // Add userId prop
 }
 
 interface StudyGuide {
@@ -22,11 +24,18 @@ interface NameGenerationResult {
   answer: string;
 }
 
-const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, workspaceId }) => {
+interface CreditUsageResult {
+  success: boolean;
+  message: string;
+  remainingCredits: number;
+}
+
+const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, workspaceId, userId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<{ folderId: string; noteId: string }[]>([]);
   const [studyGuides, setStudyGuides] = useState<StudyGuide[]>([]);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -49,9 +58,31 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
     const functions = getFunctions(app);
     const createStudyGuides = httpsCallable(functions, "studyGuideAgent");
     const generateName = httpsCallable(functions, "nameResource");
+    const useCredits = httpsCallable(functions, "useCredits");
   
     setLoading(true);
     try {
+      // First, attempt to use credits
+      const creditUsageResult = (await useCredits({
+        uid: userId,
+        cost: 20,
+      })) as { data: CreditUsageResult };
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        toast({
+          title: "Error",
+          description: creditUsageResult.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // If credit usage was successful, proceed with study guide creation
       const result = await createStudyGuides({
         workspaceId,
         notes: selectedNotes,
@@ -76,15 +107,30 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
       const studyGuidesCollectionRef = collection(db, "workspaces", workspaceId, "studyGuides");
       const guideDoc = doc(studyGuidesCollectionRef);
       await setDoc(guideDoc, { name: generatedName, content: raw, notes: selectedNotes });
+
+      toast({
+        title: "Success",
+        description: "Study guides created successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error("Error creating study guides:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while creating study guides",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
   };  
 
   const parseRawDataToStudyGuides = (rawData: string): StudyGuide[] => {
-    console.log("Data received by parser:", rawData); // Log the raw data received by the parser
+    console.log("Data received by parser:", rawData);
     const studyGuides: StudyGuide[] = [];
     const guideRegex = /Study Guide \d+: Title: ([\s\S]+?) Content: ([\s\S]+?)(?=\nStudy Guide \d+:|$)/g;
     let match;
@@ -92,7 +138,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
       studyGuides.push({ name: match[1].trim(), content: match[2].trim() });
     }
 
-    console.log("Study Guides parsed:", studyGuides); // Log the study guides parsed from the raw data
+    console.log("Study Guides parsed:", studyGuides);
     return studyGuides;
   };
 
@@ -142,7 +188,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({ onClose, work
               {studyGuides.map((guide, index) => (
                 <li key={index}>
                   <h4 className="font-bold">{guide.name}</h4>
-                  <p>{guide.content}</p>
+                  <ReactMarkdown>{guide.content}</ReactMarkdown>
                 </li>
               ))}
             </ul>

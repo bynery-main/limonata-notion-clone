@@ -179,7 +179,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
 
 
       {isStudyGuideModalOpen && (
-        <StudyGuideComponent onClose={closeStudyGuideModal} workspaceId={workspaceId} />
+        <StudyGuideComponent onClose={closeStudyGuideModal} workspaceId={workspaceId} userId={userId} />
       )}
     </>
   );
