@@ -8,7 +8,8 @@ import { CSSProperties } from 'react';
 import { Pencil, Trash2, PlusCircle } from "lucide-react";
 
 interface Flashcard {
-  id: number; // Ensure id is a number
+  firestoreId: string; // Firestore ID as a string
+  id: number; // Keep the ID as a number for FlashCardArray compatibility
   timerDuration: number;
   front: string;
   back: string;
@@ -26,8 +27,8 @@ const FlashcardsPage = () => {
   const [newAnswer, setNewAnswer] = useState("");
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
-  const [currentEditFlashcardId, setCurrentEditFlashcardId] = useState<number | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0); // Track the current index of the displayed flashcard
+  const [currentEditFlashcardId, setCurrentEditFlashcardId] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
   const params = useParams();
 
@@ -41,7 +42,8 @@ const FlashcardsPage = () => {
       const flashcardsCollectionRef = collection(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards");
       const flashcardsSnapshot = await getDocs(flashcardsCollectionRef);
       const fetchedFlashcards: Flashcard[] = flashcardsSnapshot.docs.map((doc, index) => ({
-        id: index + 1, // Ensure the id is a number
+        firestoreId: doc.id, // Firestore document ID as string
+        id: index + 1, // Use index as number ID for FlashCardArray
         timerDuration: 10, // Default value, adjust as needed
         front: doc.data().question as string, // Ensure front is a string
         back: doc.data().answer as string, // Ensure back is a string
@@ -64,7 +66,8 @@ const FlashcardsPage = () => {
     const flashcardsCollectionRef = collection(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards");
     const flashcardsSnapshot = await getDocs(flashcardsCollectionRef);
     const fetchedFlashcards: Flashcard[] = flashcardsSnapshot.docs.map((doc, index) => ({
-      id: index + 1,
+      firestoreId: doc.id, // Firestore document ID as string
+      id: index + 1, // Use index as number ID for FlashCardArray
       timerDuration: 10,
       front: doc.data().question as string,
       back: doc.data().answer as string,
@@ -103,11 +106,11 @@ const FlashcardsPage = () => {
   };
 
   const handleDeleteFlashcard = async () => {
-    const flashcardId = flashcards[currentIndex].id;
-    console.log(`Delete button clicked for flashcard ID: ${flashcardId}`);
+    const firestoreId = flashcards[currentIndex].firestoreId;
+    console.log(`Delete button clicked for flashcard ID: ${firestoreId}`);
 
     try {
-      const flashcardDocRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards", flashcardId.toString());
+      const flashcardDocRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards", firestoreId);
       await deleteDoc(flashcardDocRef);
 
       setFlashcards(flashcards.filter((_, index) => index !== currentIndex));
@@ -118,9 +121,9 @@ const FlashcardsPage = () => {
   };
 
   const handleEditFlashcard = () => {
-    const flashcardId = flashcards[currentIndex].id;
-    console.log(`Edit button clicked for flashcard ID: ${flashcardId}`);
-    setCurrentEditFlashcardId(flashcardId);
+    const firestoreId = flashcards[currentIndex].firestoreId;
+    console.log(`Edit button clicked for flashcard ID: ${firestoreId}`);
+    setCurrentEditFlashcardId(firestoreId);
     setNewQuestion(flashcards[currentIndex].front);
     setNewAnswer(flashcards[currentIndex].back);
     setIsEditPopupOpen(true);
@@ -130,11 +133,11 @@ const FlashcardsPage = () => {
     console.log(`Submit button clicked for editing flashcard ID: ${currentEditFlashcardId}`);
     if (currentEditFlashcardId && newQuestion && newAnswer) {
       try {
-        const flashcardDocRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards", currentEditFlashcardId.toString());
+        const flashcardDocRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", deckId, "flashcards", currentEditFlashcardId);
         await updateDoc(flashcardDocRef, { question: newQuestion, answer: newAnswer });
 
         setFlashcards(flashcards.map(flashcard => 
-          flashcard.id === currentEditFlashcardId 
+          flashcard.firestoreId === currentEditFlashcardId 
             ? { ...flashcard, front: newQuestion, back: newAnswer } 
             : flashcard
         ));
