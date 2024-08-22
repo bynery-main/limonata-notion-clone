@@ -35,3 +35,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# BFG Repo-Cleaner (https://rtyley.github.io/bfg-repo-cleaner/)
+bfg-1.14.0.jar
