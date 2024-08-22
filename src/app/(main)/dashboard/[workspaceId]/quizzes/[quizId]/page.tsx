@@ -263,7 +263,7 @@ const QuizzesPage = () => {
       { workspaceId: string; notes: NoteReference[]; qa: QA[] },
       QuizEvalResult
     >(functions, "quizEvalAgent");
-    const useCredits = httpsCallable<
+    const creditValidation = httpsCallable<
       { uid: string; cost: number },
       CreditUsageResult
     >(functions, "useCredits");
@@ -275,7 +275,7 @@ const QuizzesPage = () => {
 
     try {
       // First, attempt to use credits
-      const creditUsageResult = await useCredits({
+      const creditUsageResult = await creditValidation({
         uid: user.uid,
         cost: 20,
       });
