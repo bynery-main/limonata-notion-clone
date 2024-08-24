@@ -7,21 +7,31 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
+import { useRangeSlider, useToast } from "@chakra-ui/react";
+import { getAuth } from "firebase/auth";
 
 interface ChatComponentProps {
   onSendMessage: (workspaceId: string, query: string) => void;
+  userId: string;
 }
 
 interface ChatResponse {
   answer: string;
 }
 
-export function ChatComponent({ onSendMessage }: ChatComponentProps) {
+interface CreditUsageResult {
+  success: boolean;
+  message: string;
+  remainingCredits: number;
+}
+
+export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
   const [isChatVisible, setIsChatVisible] = useState(false);
   const [messages, setMessages] = useState<{ type: string, content: string }[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     const pathname = window.location.pathname;
@@ -77,20 +87,65 @@ export function ChatComponent({ onSendMessage }: ChatComponentProps) {
 
   const handleSend = async () => {
     if (inputMessage.trim() && workspaceId) {
+
+      if (!userId) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to send messages",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+
       const newMessage = inputMessage.trim();
       setMessages([...messages, { type: 'user', content: newMessage }]);
       setInputMessage("");
 
       const functions = getFunctions(app);
       const chatWithWorkspace = httpsCallable<{ workspaceId: string, query: string }, ChatResponse>(functions, 'chatWithWorkspace');
+      const useCredits = httpsCallable<{ uid: string, cost: number }, CreditUsageResult>(functions, 'useCredits');
 
       try {
+        // First, attempt to use credits
+        const creditUsageResult = await useCredits({ uid: userId, cost: 10 });
+
+        console.log("Credit usage result:", creditUsageResult.data);
+
+        if (!creditUsageResult.data.success) {
+          toast({
+            title: "Error",
+            description: creditUsageResult.data.message,
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
+
+        // If credit usage was successful, proceed with sending the message
         console.log("Sending query to chatWithWorkspace:", { workspaceId, query: newMessage });
         const result = await chatWithWorkspace({ workspaceId, query: newMessage });
         const answer = result.data.answer;
         setMessages(prevMessages => [...prevMessages, { type: 'assistant', content: answer }]);
+
+        toast({
+          title: "Success",
+          description: "Message sent successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       } catch (error) {
         console.error("Error during chatWithWorkspace:", error);
+        toast({
+          title: "Error",
+          description: "An error occurred while sending your message",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     }
   };

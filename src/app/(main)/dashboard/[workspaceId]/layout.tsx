@@ -267,7 +267,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             workspaceId={params.workspaceId}
             userId={currentUserId}
           />
-          <ChatComponent onSendMessage={onSendMessage} />
+          <ChatComponent onSendMessage={onSendMessage} userId={currentUserId} />
         </div>
       </main>
     </FolderProvider>
