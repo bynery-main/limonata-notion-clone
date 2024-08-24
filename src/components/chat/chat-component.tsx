@@ -105,11 +105,11 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
 
       const functions = getFunctions(app);
       const chatWithWorkspace = httpsCallable<{ workspaceId: string, query: string }, ChatResponse>(functions, 'chatWithWorkspace');
-      const useCredits = httpsCallable<{ uid: string, cost: number }, CreditUsageResult>(functions, 'useCredits');
+      const creditValidation = httpsCallable<{ uid: string, cost: number }, CreditUsageResult>(functions, 'useCredits');
 
       try {
         // First, attempt to use credits
-        const creditUsageResult = await useCredits({ uid: userId, cost: 10 });
+        const creditUsageResult = await creditValidation({ uid: userId, cost: 10 });
 
         console.log("Credit usage result:", creditUsageResult.data);
 
