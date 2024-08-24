@@ -109,7 +109,7 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
 
       try {
         // First, attempt to use credits
-        const creditUsageResult = await creditValidation({ uid: userId, cost: 10 });
+        const creditUsageResult = await creditValidation({ uid: userId, cost: 5 });
 
         console.log("Credit usage result:", creditUsageResult.data);
 
