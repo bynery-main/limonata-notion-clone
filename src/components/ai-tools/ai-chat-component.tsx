@@ -52,12 +52,6 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
     setIsStudyGuideModalOpen(false);
   };
 
-  const FilledStarIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-10 h-10">
-      <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
-  );
-
   const cards = [
     {
       src: 'https://images.unsplash.com/photo-1669968910904-c4738ba5be6e?q=80&w=2358&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -133,9 +127,9 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
 
       
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-md bg-black/50">
+        <div className="flex fixed inset-0 items-center justify-center z-50 backdrop-blur-sm bg-black/50">
           <div className="flex flex-col items-center">
-          <BackgroundGradient className="w-full max-w-6xl h-[60vh] rounded-xl p-[1px]">
+          <BackgroundGradient className="w-full max-w-6xl h-[80vh] rounded-xl p-[1px]">
             <div className="w-full h-full bg-white/80 dark:bg-black/80 rounded-xl p-8 overflow-auto relative z-10">
               <button onClick={toggleModal} className="absolute top-4 right-4 text-2xl font-bold">
                 &times;
