@@ -8,6 +8,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
+import { useAuth } from '@/components/auth-provider/AuthProvider';
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -15,6 +16,8 @@ const SettingsPage = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const { user } = useAuth();
+  console.log('User:', user);
 
   useEffect(() => {
     if (pathname) {
@@ -27,7 +30,6 @@ const SettingsPage = () => {
   }, [pathname]);
 
   const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
     if (!user) {
       toast.error('No user is currently signed in.');
       return;
@@ -180,7 +182,7 @@ const SettingsPage = () => {
 
       {/* Unsubscribe Button */}
       <div className="mt-10">
-        <UnsubscribeButton />
+        <UnsubscribeButton userId={user!.uid} />
       </div>
     </div>
   );

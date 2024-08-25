@@ -44,11 +44,29 @@ export async function POST(req: Request) {
     });
 
     if (subscriptions.data.length > 0) {
-      // Customer already has an active subscription
-      return NextResponse.json({ error: "Customer already has an active subscription" }, { status: 400 });
+      // Customer has an active subscription
+      const subscription = subscriptions.data[0];
+      
+      if (subscription.cancel_at_period_end) {
+        // If the subscription was set to cancel at period end, reactivate it
+        await stripe.subscriptions.update(subscription.id, {
+          cancel_at_period_end: false,
+        });
+
+        // Update Firestore to reflect the change
+        await updateDoc(userRef, {
+          subscriptionStatus: 'active',
+          subscriptionCancelAtPeriodEnd: false,
+        });
+
+        return NextResponse.json({ message: "Subscription reactivated successfully" });
+      } else {
+        // Subscription is already active and not set to cancel
+        return NextResponse.json({ error: "Customer already has an active subscription" }, { status: 400 });
+      }
     }
 
-    // Create a Stripe checkout session
+    // Create a Stripe checkout session for new subscriptions
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -61,7 +79,6 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/canceled`,
       customer: customerId,
       client_reference_id: userId,
-      // customer_email: userEmail,
       metadata: {
         userId,
         userName,
