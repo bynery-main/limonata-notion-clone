@@ -7,6 +7,7 @@ import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@chakra-ui/react";
+import NoCreditsModal from "../subscribe/no-credits-modal";
 
 interface QuizzesComponentProps {
   onClose: () => void;
@@ -44,6 +45,9 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
   const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
+  const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
+  const [creditCost] = useState(10); // Assuming credit cost is 10
+  const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
   const toast = useToast();
 
   useEffect(() => {
@@ -78,19 +82,14 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       // First, attempt to use credits
       const creditUsageResult = (await creditValidation({
         uid: userId,
-        cost: 10,
+        cost: creditCost,
       })) as { data: CreditUsageResult };
 
       console.log("Credit usage result:", creditUsageResult.data);
 
       if (!creditUsageResult.data.success) {
-        toast({
-          title: "Error",
-          description: creditUsageResult.data.message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        setRemainingCredits(creditUsageResult.data.remainingCredits);
+        setShowCreditModal(true);
         setLoading(false);
         return;
       }
@@ -214,66 +213,62 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-      <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl ">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Create Quizzes</h2>
-          <button onClick={onClose} className="text-xl font-bold">
-            &times;
-          </button>
-        </div>
-        <p className="text-center">Which notes would you like to use?</p>
-        <ul className="mt-4">
-          {foldersNotes.map((folder) => (
-            <li key={folder.folderId}>
-              <h3 className="font-bold">{folder.folderName}</h3>
-              <ul className="pl-4">
-                {folder.notes.map((note) => (
-                  <li key={note.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
-                    />
-                    {note.name}
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl ">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Create Quizzes</h2>
+            <button onClick={onClose} className="text-xl font-bold">
+              &times;
+            </button>
+          </div>
+          <p className="text-center">Which notes would you like to use?</p>
+          <ul className="mt-4">
+            {foldersNotes.map((folder) => (
+              <li key={folder.folderId}>
+                <h3 className="font-bold">{folder.folderName}</h3>
+                <ul className="pl-4">
+                  {folder.notes.map((note) => (
+                    <li key={note.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
+                      />
+                      {note.name}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={handleCreateQuizzes}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              disabled={loading}
+            >
+              {loading ? "Creating..." : "Create Quizzes"}
+            </button>
+          </div>
+          {quizzes.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-xl font-semibold">Generated Quizzes</h3>
+              <ul>
+                {quizzes.map((quiz, index) => (
+                  <li key={quiz.id} className="flex items-center">
+                    <h4 className="font-bold mr-2">{quiz.question}</h4>
+                    <button onClick={() => handleEditQuestion(quiz.id, quiz.question)} className="mr-2">
+                      <Pencil className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <button onClick={() => handleDeleteQuestion(quiz.id)}>
+                      <Trash2 className="w-5 h-5 text-red-600" />
+                    </button>
                   </li>
                 ))}
               </ul>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-4 flex justify-center">
-          <button
-            onClick={handleCreateQuizzes}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            disabled={loading}
-          >
-            {loading ? "Creating..." : "Create Quizzes"}
-          </button>
-        </div>
-        {quizzes.length > 0 && (
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold">Generated Quizzes</h3>
-            <ul>
-              {quizzes.map((quiz, index) => (
-                <li key={quiz.id} className="flex items-center">
-                  <h4 className="font-bold mr-2">{quiz.question}</h4>
-                  <button onClick={() => handleEditQuestion(quiz.id, quiz.question)} className="mr-2">
-                    {/* <Pencil className="w-5 h-5 text-gray-600" /> */}
-                    <hr>Button</hr>
-                  </button>
-                  <button onClick={() => handleDeleteQuestion(quiz.id)}>
-                    <Trash2 className="w-5 h-5 text-red-600" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <div className="mt-4 flex justify-center">
-          <button onClick={handleAddQuestion} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-            Add Question
-          </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -334,7 +329,16 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
           </div>
         </div>
       )}
-    </div>
+
+      {/* Use NoCreditsModal for insufficient credits */}
+      {showCreditModal && (
+        <NoCreditsModal
+          remainingCredits={remainingCredits}
+          creditCost={creditCost}
+          onClose={() => setShowCreditModal(false)}
+        />
+      )}
+    </>
   );
 };
 
