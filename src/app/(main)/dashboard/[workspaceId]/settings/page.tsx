@@ -18,6 +18,7 @@ const SettingsPage = () => {
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [tier, setTier] = useState<string | null>(null);
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
@@ -40,7 +41,8 @@ const SettingsPage = () => {
     const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        setSubscriptionStatus(userData?.tier || "free"); // Update the state with the tier
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free");
       }
     });
 
@@ -61,7 +63,6 @@ const SettingsPage = () => {
     } catch (error: any) {
       if (error.code === 'auth/requires-recent-login') {
         toast.error('Please re-login and try again.');
-        // Redirect to login page or re-authenticate the user here
         router.push('/login');
       } else {
         console.error('Error deleting account:', error);
@@ -199,9 +200,12 @@ const SettingsPage = () => {
       )}
 
       {/* Unsubscribe Button - only render if user has 'pro' tier */}
-      {subscriptionStatus === 'pro' && (
+      {tier === 'pro' && subscriptionStatus && (
         <div className="mt-10">
-          <UnsubscribeButton userId={user!.uid}/>
+          <UnsubscribeButton
+            userId={currentUserUid}
+            subscriptionStatus={subscriptionStatus || "inactive"} // Provide a default value
+          />
         </div>
       )}
     </div>

@@ -7,9 +7,15 @@ interface SubscribeButtonProps {
   className?: string;
   userId: string;
   userEmail: string;
+  subscriptionStatus?: string | null; // Add subscriptionStatus as a prop
 }
 
-export const GoProButton: React.FC<SubscribeButtonProps> = ({ className, userId, userEmail }) => {
+export const GoProButton: React.FC<SubscribeButtonProps> = ({
+  className,
+  userId,
+  userEmail,
+  subscriptionStatus,
+}) => {
 
   const handleGoProClick = async () => {
     if (!userId) {
@@ -50,7 +56,7 @@ export const GoProButton: React.FC<SubscribeButtonProps> = ({ className, userId,
 
   return (
     <Button onClick={handleGoProClick} className={className}>
-      Go Pro Now
+      {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro Now"}
     </Button>
   );
 };

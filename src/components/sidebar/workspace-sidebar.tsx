@@ -63,6 +63,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null); // State for subscription status
+  const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
@@ -277,21 +278,22 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const currentUserUid = user?.uid || "";
   const currentUserEmail = user?.email || "";
 
-    // New useEffect for listening to changes in subscription status
-    useEffect(() => {
-      if (!currentUserUid) return;
-  
-      const userDocRef = doc(db, "users", currentUserUid);
-  
-      const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const userData = docSnapshot.data();
-          setSubscriptionStatus(userData?.tier || "free"); // Update the state with the tier
-        }
-      });
-  
-      return () => unsubscribe();
-    }, [currentUserUid]);
+  // New useEffect for listening to changes in subscription status and tier
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free"); // Update the state with the tier
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
 
   return (
     <>
@@ -316,28 +318,26 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <span className="sr-only">Limonata</span>
         </div>
 
-        <SyncWorkspaceButton className="mx-4 shadow-lg"
-        workspaceId={params.workspaceId} />
+        <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
 
-        {subscriptionStatus === "free" && (
+        {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
           <Button 
             onClick={() => setShowGoProModal(true)} 
             className="mx-4 mt-4 shadow-lg"
           >
-            Go Pro
+            {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
           </Button>
         )}
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-          <FoldersDropDown
+            <FoldersDropDown
               workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
             />
             <div>
-
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
                 AI Study Resources
               </h3>
@@ -357,9 +357,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   currentStudyGuideId={currentStudyGuideId}
                   onStudyGuideSelect={handleStudyGuideSelect}
                 />
+              </div>
             </div>
-            </div>
-
 
             <div>
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
@@ -439,7 +438,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               <li>Advanced analytics and insights</li>
               {/* Add more benefits as needed */}
             </ul>
-            <GoProButton className="w-full" userEmail={currentUserEmail!} userId={currentUserUid!}/> {/* Use GoProButton component */}
+            <GoProButton
+              className="w-full"
+              userEmail={currentUserEmail!}
+              userId={currentUserUid!}
+              subscriptionStatus={subscriptionStatus} // Pass subscriptionStatus to GoProButton
+            />
             <Button
               onClick={() => setShowGoProModal(false)}
               variant="outline"

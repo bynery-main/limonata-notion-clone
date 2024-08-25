@@ -3,13 +3,12 @@ import { Button } from '@/components/ui/button';
 
 interface UnsubscribeButtonProps {
   userId: string;
+  subscriptionStatus: string; // Add subscriptionStatus prop
 }
 
-// ...
-
-export const UnsubscribeButton: React.FC<UnsubscribeButtonProps> = ({ userId }) => {
+export const UnsubscribeButton: React.FC<UnsubscribeButtonProps> = ({ userId, subscriptionStatus }) => {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleUnsubscribeClick = async () => {
     if (!userId) {
       alert("Please log in to manage your subscription.");
@@ -32,8 +31,6 @@ export const UnsubscribeButton: React.FC<UnsubscribeButtonProps> = ({ userId }) 
 
       if (response.ok) {
         alert("Your subscription has been cancelled successfully.");
-        
-        // You might want to update the user's UI or redirect them
       } else {
         throw new Error(data.error || 'Failed to cancel subscription');
       }
@@ -51,7 +48,11 @@ export const UnsubscribeButton: React.FC<UnsubscribeButtonProps> = ({ userId }) 
       disabled={isLoading}
       className="bg-blue-500 text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md hover:bg-blue-600 transition-colors"
     >
-      {isLoading ? 'Processing...' : 'Stop Subscription'}
+      {isLoading
+        ? 'Processing...'
+        : subscriptionStatus === 'active_pending_cancellation'
+        ? 'Resubscribe'
+        : 'Stop Subscription'}
     </Button>
   );
 };
