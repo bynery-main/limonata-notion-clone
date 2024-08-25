@@ -9,14 +9,16 @@ interface ScoreTimelineGraphProps {
 }
 
 const ScoreTimelineGraph: React.FC<ScoreTimelineGraphProps> = ({ scores }) => {
-  const labels = scores.map((_, index) => `Evaluation ${index + 1}`);
+  const meanScores = scores.map(score => score / 10); // Convert total scores to mean scores out of 10
+
+  const labels = meanScores.map((_, index) => `Evaluation ${index + 1}`);
 
   const data = {
     labels,
     datasets: [
       {
         label: "Mean Score",
-        data: scores,
+        data: meanScores,
         fill: false,
         backgroundColor: "rgba(75,192,192,0.4)",
         borderColor: "rgba(75,192,192,1)",
@@ -39,7 +41,7 @@ const ScoreTimelineGraph: React.FC<ScoreTimelineGraphProps> = ({ scores }) => {
     scales: {
       y: {
         beginAtZero: true,
-        max: 100,
+        max: 10, // Adjust the y-axis to display scores out of 10
       },
     },
   };
