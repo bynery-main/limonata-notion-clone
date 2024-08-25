@@ -7,6 +7,7 @@ import { deleteUser } from 'firebase/auth';
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
+import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -176,6 +177,11 @@ const SettingsPage = () => {
           </div>
         </div>
       )}
+
+      {/* Unsubscribe Button */}
+      <div className="mt-10">
+        <UnsubscribeButton />
+      </div>
     </div>
   );
 };
