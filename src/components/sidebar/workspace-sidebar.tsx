@@ -31,7 +31,7 @@ import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
-import SubscribeButton from "./subscribe-button";
+import { GoProButton } from "../subscribe/subscribe-button"; // Import the GoProButton component
 
 interface Folder {
   id: string;
@@ -61,6 +61,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [emoji, setEmoji] = useState<string>("🏔️");
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
+  const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
@@ -301,7 +302,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         workspaceId={params.workspaceId} />
 
         {/* Add the Go Pro Button */}
-        <SubscribeButton className="mx-4 mt-4 shadow-lg" />
+        <Button 
+          onClick={() => setShowGoProModal(true)} 
+          className="mx-4 mt-4 shadow-lg"
+        >
+          Go Pro
+        </Button>
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
@@ -374,6 +380,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           onMouseDown={handleMouseDown}
         />
       </aside>
+
+      {/* Modal for managing collaborators */}
       {showCollaborators && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96">
@@ -390,6 +398,31 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             </Button>
             <Button
               onClick={() => setShowCollaborators(false)}
+              variant="outline"
+              className="mt-2 ml-2"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Go Pro */}
+      {showGoProModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Go Pro</h2>
+            <ul className="list-disc list-inside mb-6">
+              <li>Access to premium features</li>
+              <li>Priority support</li>
+              <li>More storage for your workspaces</li>
+              <li>Collaborate with more team members</li>
+              <li>Advanced analytics and insights</li>
+              {/* Add more benefits as needed */}
+            </ul>
+            <GoProButton className="w-full" /> {/* Use GoProButton component */}
+            <Button
+              onClick={() => setShowGoProModal(false)}
               variant="outline"
               className="mt-2 ml-2"
             >
