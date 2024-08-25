@@ -8,6 +8,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
+import GoProButton from '@/components/subscribe/subscribe-button';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 
@@ -199,13 +200,21 @@ const SettingsPage = () => {
         </div>
       )}
 
-      {/* Unsubscribe Button - only render if user has 'pro' tier */}
-      {tier === 'pro' && subscriptionStatus && (
+      {/* Subscription Button - render either Unsubscribe or GoPro depending on status */}
+      {tier === 'pro' && (
         <div className="mt-10">
-          <UnsubscribeButton
-            userId={currentUserUid}
-            subscriptionStatus={subscriptionStatus || "inactive"} // Provide a default value
-          />
+          {subscriptionStatus === 'active_pending_cancellation' ? (
+            <GoProButton
+              userId={currentUserUid}
+              userEmail={user?.email || ''}
+              subscriptionStatus={subscriptionStatus}
+            />
+          ) : (
+            <UnsubscribeButton
+              userId={currentUserUid}
+              subscriptionStatus={subscriptionStatus || "inactive"}
+            />
+          )}
         </div>
       )}
     </div>
