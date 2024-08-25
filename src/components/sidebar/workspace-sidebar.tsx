@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button"; // Import the GoProButton component
+import { set } from "zod";
 
 interface Folder {
   id: string;
@@ -274,6 +275,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
+  const currentUserEmail = user?.email || "";
+
+
 
   return (
     <>
@@ -359,7 +363,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   existingCollaborators={existingCollaborators.map(
                     (c) => c.uid
                   )}
-                  currentUserUid={currentUserUid}
+                  currentUserUid={currentUserUid!}
                   onAddCollaborator={handleAddCollaborator}
                   onOpen={fetchExistingCollaborators} // Trigger refresh on open
                 >
@@ -420,7 +424,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               <li>Advanced analytics and insights</li>
               {/* Add more benefits as needed */}
             </ul>
-            <GoProButton className="w-full" /> {/* Use GoProButton component */}
+            <GoProButton className="w-full" userEmail={currentUserEmail!} userId={currentUserUid!}/> {/* Use GoProButton component */}
             <Button
               onClick={() => setShowGoProModal(false)}
               variant="outline"
