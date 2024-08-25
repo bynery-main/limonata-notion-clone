@@ -1,8 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { collection, doc, setDoc, deleteDoc, getDocs, updateDoc, collectionGroup, query, where } from "firebase/firestore";
+import { collection, doc, setDoc, deleteDoc, getDocs, updateDoc, collectionGroup, query, where, getDoc } from "firebase/firestore";
 import { ref, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
+import { auth } from "@/firebase/firebaseConfig";
 
 export interface FileData {
   id: string;
@@ -177,4 +178,30 @@ export const fetchFlashcardDecks = async (workspaceId: string): Promise<Flashcar
   });
 
   return decks;
+};
+
+export const getSubscriptionStatus = async (uid: string): Promise<string | null> => {
+  try {
+    if (!uid) {
+      console.error("No user ID provided.");
+      return null;
+    }
+
+    const userDocRef = doc(db, "users", uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      console.error("User document not found.");
+      return null;
+    }
+    
+    const userData = userDoc.data();
+    console.log("User document found:", userData);
+    
+    // Return the tier (subscription level) or default to 'free'
+    return userData.tier || "free";
+  } catch (error) {
+    console.error("Error fetching subscription status:", error);
+    return null;
+  }
 };

@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { auth } from "@/firebase/firebaseConfig";
+import { auth, db } from "@/firebase/firebaseConfig";
 import { deleteUser } from 'firebase/auth';
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 
 const SettingsPage = () => {
@@ -16,8 +17,10 @@ const SettingsPage = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+
   const { user } = useAuth();
-  console.log('User:', user);
+  const currentUserUid = user?.uid || "";
 
   useEffect(() => {
     if (pathname) {
@@ -28,6 +31,21 @@ const SettingsPage = () => {
       }
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setSubscriptionStatus(userData?.tier || "free"); // Update the state with the tier
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
 
   const handleDeleteAccount = async () => {
     if (!user) {
@@ -180,10 +198,12 @@ const SettingsPage = () => {
         </div>
       )}
 
-      {/* Unsubscribe Button */}
-      <div className="mt-10">
-        <UnsubscribeButton userId={user!.uid} />
-      </div>
+      {/* Unsubscribe Button - only render if user has 'pro' tier */}
+      {subscriptionStatus === 'pro' && (
+        <div className="mt-10">
+          <UnsubscribeButton userId={user!.uid}/>
+        </div>
+      )}
     </div>
   );
 };

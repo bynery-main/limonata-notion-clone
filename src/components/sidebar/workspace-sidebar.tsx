@@ -31,8 +31,7 @@ import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
-import { GoProButton } from "../subscribe/subscribe-button"; // Import the GoProButton component
-import { set } from "zod";
+import { GoProButton } from "../subscribe/subscribe-button";
 
 interface Folder {
   id: string;
@@ -63,6 +62,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null); // State for subscription status
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
@@ -277,7 +277,21 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const currentUserUid = user?.uid || "";
   const currentUserEmail = user?.email || "";
 
-
+    // New useEffect for listening to changes in subscription status
+    useEffect(() => {
+      if (!currentUserUid) return;
+  
+      const userDocRef = doc(db, "users", currentUserUid);
+  
+      const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const userData = docSnapshot.data();
+          setSubscriptionStatus(userData?.tier || "free"); // Update the state with the tier
+        }
+      });
+  
+      return () => unsubscribe();
+    }, [currentUserUid]);
 
   return (
     <>
@@ -305,13 +319,14 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         <SyncWorkspaceButton className="mx-4 shadow-lg"
         workspaceId={params.workspaceId} />
 
-        {/* Add the Go Pro Button */}
-        <Button 
-          onClick={() => setShowGoProModal(true)} 
-          className="mx-4 mt-4 shadow-lg"
-        >
-          Go Pro
-        </Button>
+        {subscriptionStatus === "free" && (
+          <Button 
+            onClick={() => setShowGoProModal(true)} 
+            className="mx-4 mt-4 shadow-lg"
+          >
+            Go Pro
+          </Button>
+        )}
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
