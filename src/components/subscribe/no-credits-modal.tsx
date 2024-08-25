@@ -6,12 +6,16 @@ interface NoCreditsModalProps {
   remainingCredits: number;
   creditCost: number;
   onClose: () => void;
+  userId?: string;  // Made optional
+  userEmail?: string;  // Made optional
 }
 
 const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
   remainingCredits,
   creditCost,
   onClose,
+  userId,
+  userEmail,
 }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -28,7 +32,14 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
           <li>Collaborate with more team members</li>
           <li>Advanced analytics and insights</li>
         </ul>
-        <GoProButton className="w-full" />
+        {/* Conditionally render the GoProButton only if userId and userEmail are provided */}
+        {userId && userEmail ? (
+          <GoProButton className="w-full" userId={userId} userEmail={userEmail} />
+        ) : (
+          <Button className="w-full" isDisabled>
+            Go Pro Now (Login Required)
+          </Button>
+        )}
         <Button
           onClick={onClose}
           variant="outline"
