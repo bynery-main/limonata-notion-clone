@@ -85,6 +85,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     const updateWidth = () => {
       const screenWidth = window.innerWidth;
       setWidth(screenWidth * 0.25);
+      console.log("Window resized, width set to:", screenWidth * 0.25);
     };
 
     updateWidth();
@@ -96,19 +97,25 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   }, []);
 
   useEffect(() => {
+    console.log("Setting up Firestore snapshot listener for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
 
     const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
+      console.log("Firestore snapshot triggered for workspace:", params.workspaceId);
       if (docSnapshot.exists()) {
         fetchExistingCollaborators();
         fetchEmoji();
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log("Cleaning up Firestore snapshot listener for workspace:", params.workspaceId);
+      unsubscribe();
+    };
   }, [params.workspaceId]);
 
   const fetchExistingCollaborators = async () => {
+    console.log("Fetching existing collaborators for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
 
@@ -119,6 +126,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       const collaboratorsWithEmails = await Promise.all(
         collaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
+          console.log("Fetched email for collaborator:", uid, email);
           return { uid, email };
         })
       );
@@ -128,33 +136,39 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const fetchEmoji = async () => {
+    console.log("Fetching emoji for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
 
     if (workspaceSnap.exists()) {
       const data = workspaceSnap.data();
       if (data.emoji) {
+        console.log("Emoji found:", data.emoji);
         setEmoji(data.emoji);
       }
     }
   };
 
   const handleFolderSelect = (folder: Folder) => {
+    console.log("Folder selected:", folder.id);
     setCurrentFolderId(folder.id);
     router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
 
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
+    console.log("Flashcard deck selected:", deck.id);
     setCurrentFlashcardDeckId(deck.id);
     router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
   };
 
   const handleQuizSetSelect = (quizSet: { id: string }) => {
+    console.log("Quiz set selected:", quizSet.id);
     setCurrentQuizSetId(quizSet.id);
     router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
   };
 
   const handleStudyGuideSelect = (studyGuide: { id: string }) => {
+    console.log("Study guide selected:", studyGuide.id);
     setCurrentStudyGuideId(studyGuide.id);
     router.push(
       `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
@@ -166,6 +180,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       const newWidth = e.clientX;
       if (newWidth >= 200 && newWidth <= 500) {
         setWidth(newWidth);
+        console.log("Sidebar width adjusted to:", newWidth);
       }
     }
   };
@@ -181,6 +196,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const handleEmojiSelect = async (emoji: any) => {
+    console.log("Emoji selected:", emoji.native);
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
@@ -188,10 +204,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const handleAddCollaborator = (user: { uid: string; email: string }) => {
+    console.log("Collaborator added:", user);
     setNewCollaborators((prev) => [...prev, user]);
   };
 
   const handleRemoveCollaborator = (uid: string) => {
+    console.log("Collaborator removed:", uid);
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
 
@@ -200,6 +218,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       ...existingCollaborators.map((user) => user.uid),
       ...newCollaborators.map((user) => user.uid),
     ];
+    console.log("Saving collaborators:", allCollaborators);
 
     try {
       const result = await manageCollaborators({
@@ -211,16 +230,19 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         message: string;
         updatedCollaborators: string[];
       };
+      console.log(response.message);
 
       const updatedCollaboratorsWithEmails = await Promise.all(
         response.updatedCollaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
+          console.log("Updated collaborator email fetched:", uid, email);
           return { uid, email };
         })
       );
 
       setExistingCollaborators(updatedCollaboratorsWithEmails);
       setNewCollaborators([]);
+      console.log("Collaborators updated successfully");
 
     } catch (error) {
       console.error("Error updating collaborators:", error);
@@ -231,6 +253,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   useEffect(() => {
     const getWorkspaceDetails = async () => {
+      console.log("Fetching workspace details for:", params.workspaceId);
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
       const workspaceSnap = await getDoc(workspaceRef);
 
@@ -238,6 +261,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         const workspaceData = workspaceSnap.data();
         const workspaceName = workspaceData?.name;
         setWorkspaceName(workspaceName);
+        console.log("Workspace name fetched:", workspaceName);
       } catch (error) {
         console.error("Error getting workspace details:", error);
       }

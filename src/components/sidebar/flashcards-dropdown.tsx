@@ -29,6 +29,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log("Subscribing to flashcards decks updates for workspace:", workspaceId);
     const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
 
     const unsubscribe = onSnapshot(decksRef, (snapshot) => {
@@ -37,14 +38,19 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
         name: doc.data().name || "Unnamed Deck",
       }));
 
+      console.log("Received decks from Firestore:", updatedDecks);
       setDecks(updatedDecks);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log("Unsubscribing from flashcards decks updates for workspace:", workspaceId);
+      unsubscribe();
+    };
   }, [workspaceId]);
 
   const handleDropdownToggle = (event: React.MouseEvent, deck: FlashcardDeck) => {
     event.stopPropagation(); // Prevent the click from bubbling up
+    console.log("Dropdown toggle clicked for deck:", deck);
     setSelectedDeck(deck);
     setDropdownVisible(!dropdownVisible);
   };
@@ -52,6 +58,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   const handleRenameDeck = async () => {
     const newName = prompt("Enter a new name for this flashcard deck:", selectedDeck?.name);
     if (newName && selectedDeck) {
+      console.log("Renaming deck:", selectedDeck.id, "to new name:", newName);
       const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
       await updateDoc(deckRef, { name: newName });
     }
@@ -62,6 +69,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
     if (selectedDeck) {
       const confirmDelete = confirm(`Are you sure you want to delete ${selectedDeck.name}?`);
       if (confirmDelete) {
+        console.log("Deleting deck:", selectedDeck.id);
         const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
         await deleteDoc(deckRef);
       }
@@ -101,7 +109,10 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
-            onClick={() => setOpenAccordion(!openAccordion)}
+            onClick={() => {
+              console.log("Accordion trigger clicked, toggling accordion state.");
+              setOpenAccordion(!openAccordion);
+            }}
           >
             <span>Flashcards</span>
             {openAccordion ? (
@@ -117,7 +128,10 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
               <div
                 key={deck.id}
                 className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
-                onClick={() => onFlashcardDeckSelect(deck)}
+                onClick={() => {
+                  console.log("Selected deck:", deck);
+                  onFlashcardDeckSelect(deck);
+                }}
               >
                 <span>{deck.name}</span>
                 <MoreHorizontalIcon
@@ -131,7 +145,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <div className="flex items-center">
-                      <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
                       </div>
                     </button>
                     <button
@@ -139,10 +153,8 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <div className="flex items-center">
-                      <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-
-                      Delete
-
+                        <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+                        Delete
                       </div>
                     </button>
                   </div>
