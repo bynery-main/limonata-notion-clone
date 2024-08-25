@@ -57,6 +57,7 @@ export async function POST(req: Request) {
         await updateDoc(userRef, {
           subscriptionStatus: 'active',
           subscriptionCancelAtPeriodEnd: false,
+          credits: 1000,
         });
 
         return NextResponse.json({ message: "Subscription reactivated successfully" });
