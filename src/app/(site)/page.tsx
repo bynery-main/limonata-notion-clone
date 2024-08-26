@@ -7,36 +7,27 @@ import { signOut } from "firebase/auth";
 import LandingPageComponent from "@/components/landing-page/landing-page-component";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import Navbar from "@/components/landing-page/navbar";
+import {TabsDemo} from "@/components/landing-page/landing-page-tabs";
+import Image from "next/image";
+
+
 
 export default function Home() {
-  // const { user, loading } = useAuth();
   const router = useRouter();
-
-  // console.log(user)
-
-  // useEffect(() => {
-  //   if (!loading && !user) {
-  //     router.push('/login');
-  //   }
-  // }, [user, loading, router]);
 
   const handleSignOut = () => {
     signOut(auth);
     router.push('/login');
   };
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (!user) {
-  //   return null; // The useEffect will handle redirection
-  // }
-
   return (
     <>
       <Navbar />
-      <LandingPageComponent />
+      <LandingPageComponent/>
+      <div className="flex mx-20">
+
+      <TabsDemo/>
+      </div>
     </>
   );
 }
