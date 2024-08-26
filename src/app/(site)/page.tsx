@@ -30,9 +30,7 @@ export default function Home() {
       </FollowerPointerCard>
       <Intro/>
 
-      <div className="flex mx-20">
       <TabsDemo/>
-      </div>
     </>
   );
 }
