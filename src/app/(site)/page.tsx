@@ -4,11 +4,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
-import LandingPageComponent from "@/components/landing-page/landing-page-component";
+import HeroComponent from "@/components/landing-page/Hero-component";
+import Intro from "@/components/landing-page/introduction-component";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import Navbar from "@/components/landing-page/navbar";
 import {TabsDemo} from "@/components/landing-page/landing-page-tabs";
 import Image from "next/image";
+import { FollowerPointerCard } from "@/components/ui/following-pointer";
 
 
 
@@ -22,10 +24,13 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-      <LandingPageComponent/>
-      <div className="flex mx-20">
+      <Navbar/>
+      <FollowerPointerCard>
+      <HeroComponent/>
+      </FollowerPointerCard>
+      <Intro/>
 
+      <div className="flex mx-20">
       <TabsDemo/>
       </div>
     </>
