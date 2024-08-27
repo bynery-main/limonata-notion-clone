@@ -117,11 +117,7 @@ export const MainSidebar = (): JSX.Element => {
   };
 
   const handleSettingsClick = () => {
-    if (currentWorkspaceId) {
-      router.push(`/dashboard/${currentWorkspaceId}/settings`);
-    } else {
-      alert("Please select a workspace first");
-    }
+      router.push(`/settings`);
   };
 
   return (
