@@ -2,11 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { auth } from "@/firebase/firebaseConfig";
+import { auth, db } from "@/firebase/firebaseConfig";
 import { deleteUser } from 'firebase/auth';
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
+import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
+import GoProButton from '@/components/subscribe/subscribe-button';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { useAuth } from '@/components/auth-provider/AuthProvider';
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -14,6 +18,11 @@ const SettingsPage = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [tier, setTier] = useState<string | null>(null);
+
+  const { user } = useAuth();
+  const currentUserUid = user?.uid || "";
 
   useEffect(() => {
     if (pathname) {
@@ -25,8 +34,23 @@ const SettingsPage = () => {
     }
   }, [pathname]);
 
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
+
   const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
     if (!user) {
       toast.error('No user is currently signed in.');
       return;
@@ -40,7 +64,6 @@ const SettingsPage = () => {
     } catch (error: any) {
       if (error.code === 'auth/requires-recent-login') {
         toast.error('Please re-login and try again.');
-        // Redirect to login page or re-authenticate the user here
         router.push('/login');
       } else {
         console.error('Error deleting account:', error);
@@ -174,6 +197,24 @@ const SettingsPage = () => {
               </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Subscription Button - render either Unsubscribe or GoPro depending on status */}
+      {tier === 'pro' && (
+        <div className="mt-10">
+          {subscriptionStatus === 'active_pending_cancellation' ? (
+            <GoProButton
+              userId={currentUserUid}
+              userEmail={user?.email || ''}
+              subscriptionStatus={subscriptionStatus}
+            />
+          ) : (
+            <UnsubscribeButton
+              userId={currentUserUid}
+              subscriptionStatus={subscriptionStatus || "inactive"}
+            />
+          )}
         </div>
       )}
     </div>

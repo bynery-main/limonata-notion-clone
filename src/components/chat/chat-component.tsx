@@ -7,8 +7,8 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
-import { useRangeSlider, useToast } from "@chakra-ui/react";
-import { getAuth } from "firebase/auth";
+import { useToast } from "@chakra-ui/react";
+import NoCreditsModal from "../subscribe/no-credits-modal";
 
 interface ChatComponentProps {
   onSendMessage: (workspaceId: string, query: string) => void;
@@ -30,6 +30,9 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
   const [messages, setMessages] = useState<{ type: string, content: string }[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
+  const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
+  const [creditCost] = useState(5); // Assuming credit cost is 5
   const router = useRouter();
   const toast = useToast();
 
@@ -109,18 +112,13 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
 
       try {
         // First, attempt to use credits
-        const creditUsageResult = await creditValidation({ uid: userId, cost: 5 });
+        const creditUsageResult = await creditValidation({ uid: userId, cost: creditCost });
 
         console.log("Credit usage result:", creditUsageResult.data);
 
         if (!creditUsageResult.data.success) {
-          toast({
-            title: "Error",
-            description: creditUsageResult.data.message,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
+          setRemainingCredits(creditUsageResult.data.remainingCredits);
+          setShowCreditModal(true);
           return;
         }
 
@@ -231,6 +229,15 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
             <span className="sr-only">Open Chat</span>
           </Button>
         </div>
+      )}
+
+      {/* Use NoCreditsModal for insufficient credits */}
+      {showCreditModal && (
+        <NoCreditsModal
+          remainingCredits={remainingCredits}
+          creditCost={creditCost}
+          onClose={() => setShowCreditModal(false)}
+        />
       )}
     </>
   );

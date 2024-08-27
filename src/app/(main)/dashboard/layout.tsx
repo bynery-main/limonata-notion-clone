@@ -2,7 +2,8 @@
 
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
 import React, { useEffect, useState } from "react";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from "@/components/auth-provider/AuthProvider";
 
 const AnimatedChildren: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -30,6 +31,19 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
+  const router = useRouter();
+  const user = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login'); // Redirect to login if no user
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return null; // Return null while redirecting
+  }
+
   return (
     <main className="flex overflow-hidden h-screen">
       <MainSidebar />

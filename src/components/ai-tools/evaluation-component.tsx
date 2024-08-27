@@ -22,7 +22,7 @@ interface EvaluationComponentProps {
   hasNext: boolean;
   selectedCollectionIndex: number;
   totalCollections: number;
-  totalScores: number[]; // Change to totalScores instead of meanScores
+  totalScores: number[];
 }
 
 const EvaluationComponent: FC<EvaluationComponentProps> = ({
@@ -34,7 +34,7 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
   hasNext,
   selectedCollectionIndex,
   totalCollections,
-  totalScores, // Use totalScores instead of meanScores
+  totalScores,
 }) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8">
@@ -53,7 +53,7 @@ const EvaluationComponent: FC<EvaluationComponentProps> = ({
           </Button>
           <div className="flex gap-1">
             {[...Array(totalCollections)].map((_, index) => {
-              const reverseIndex = totalCollections - 1 - index; // Reverse the index
+              const reverseIndex = totalCollections - 1 - index;
               return (
                 <button
                   key={reverseIndex}

@@ -31,6 +31,7 @@ import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
+import { GoProButton } from "../subscribe/subscribe-button";
 
 interface Folder {
   id: string;
@@ -60,6 +61,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [emoji, setEmoji] = useState<string>("🏔️");
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
+  const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null); // State for subscription status
+  const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
@@ -85,6 +89,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     const updateWidth = () => {
       const screenWidth = window.innerWidth;
       setWidth(screenWidth * 0.25);
+      console.log("Window resized, width set to:", screenWidth * 0.25);
     };
 
     updateWidth();
@@ -96,19 +101,25 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   }, []);
 
   useEffect(() => {
+    console.log("Setting up Firestore snapshot listener for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
 
     const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
+      console.log("Firestore snapshot triggered for workspace:", params.workspaceId);
       if (docSnapshot.exists()) {
         fetchExistingCollaborators();
         fetchEmoji();
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log("Cleaning up Firestore snapshot listener for workspace:", params.workspaceId);
+      unsubscribe();
+    };
   }, [params.workspaceId]);
 
   const fetchExistingCollaborators = async () => {
+    console.log("Fetching existing collaborators for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
 
@@ -119,6 +130,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       const collaboratorsWithEmails = await Promise.all(
         collaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
+          console.log("Fetched email for collaborator:", uid, email);
           return { uid, email };
         })
       );
@@ -128,33 +140,39 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const fetchEmoji = async () => {
+    console.log("Fetching emoji for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
 
     if (workspaceSnap.exists()) {
       const data = workspaceSnap.data();
       if (data.emoji) {
+        console.log("Emoji found:", data.emoji);
         setEmoji(data.emoji);
       }
     }
   };
 
   const handleFolderSelect = (folder: Folder) => {
+    console.log("Folder selected:", folder.id);
     setCurrentFolderId(folder.id);
     router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
 
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
+    console.log("Flashcard deck selected:", deck.id);
     setCurrentFlashcardDeckId(deck.id);
     router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
   };
 
   const handleQuizSetSelect = (quizSet: { id: string }) => {
+    console.log("Quiz set selected:", quizSet.id);
     setCurrentQuizSetId(quizSet.id);
     router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
   };
 
   const handleStudyGuideSelect = (studyGuide: { id: string }) => {
+    console.log("Study guide selected:", studyGuide.id);
     setCurrentStudyGuideId(studyGuide.id);
     router.push(
       `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
@@ -166,6 +184,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       const newWidth = e.clientX;
       if (newWidth >= 200 && newWidth <= 500) {
         setWidth(newWidth);
+        console.log("Sidebar width adjusted to:", newWidth);
       }
     }
   };
@@ -181,6 +200,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const handleEmojiSelect = async (emoji: any) => {
+    console.log("Emoji selected:", emoji.native);
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
@@ -188,10 +208,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const handleAddCollaborator = (user: { uid: string; email: string }) => {
+    console.log("Collaborator added:", user);
     setNewCollaborators((prev) => [...prev, user]);
   };
 
   const handleRemoveCollaborator = (uid: string) => {
+    console.log("Collaborator removed:", uid);
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
 
@@ -200,6 +222,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       ...existingCollaborators.map((user) => user.uid),
       ...newCollaborators.map((user) => user.uid),
     ];
+    console.log("Saving collaborators:", allCollaborators);
 
     try {
       const result = await manageCollaborators({
@@ -211,16 +234,19 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         message: string;
         updatedCollaborators: string[];
       };
+      console.log(response.message);
 
       const updatedCollaboratorsWithEmails = await Promise.all(
         response.updatedCollaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
+          console.log("Updated collaborator email fetched:", uid, email);
           return { uid, email };
         })
       );
 
       setExistingCollaborators(updatedCollaboratorsWithEmails);
       setNewCollaborators([]);
+      console.log("Collaborators updated successfully");
 
     } catch (error) {
       console.error("Error updating collaborators:", error);
@@ -231,6 +257,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   useEffect(() => {
     const getWorkspaceDetails = async () => {
+      console.log("Fetching workspace details for:", params.workspaceId);
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
       const workspaceSnap = await getDoc(workspaceRef);
 
@@ -238,6 +265,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         const workspaceData = workspaceSnap.data();
         const workspaceName = workspaceData?.name;
         setWorkspaceName(workspaceName);
+        console.log("Workspace name fetched:", workspaceName);
       } catch (error) {
         console.error("Error getting workspace details:", error);
       }
@@ -248,6 +276,24 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
+  const currentUserEmail = user?.email || "";
+
+  // New useEffect for listening to changes in subscription status and tier
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free"); // Update the state with the tier
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
 
   return (
     <>
@@ -272,19 +318,26 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <span className="sr-only">Limonata</span>
         </div>
 
-        <SyncWorkspaceButton className="mx-4 shadow-lg"
-        workspaceId={params.workspaceId} />
+        <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
+
+        {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
+          <Button 
+            onClick={() => setShowGoProModal(true)} 
+            className="mx-4 mt-4 shadow-lg"
+          >
+            {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
+          </Button>
+        )}
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-          <FoldersDropDown
+            <FoldersDropDown
               workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
             />
             <div>
-
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
                 AI Study Resources
               </h3>
@@ -304,9 +357,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   currentStudyGuideId={currentStudyGuideId}
                   onStudyGuideSelect={handleStudyGuideSelect}
                 />
+              </div>
             </div>
-            </div>
-
 
             <div>
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
@@ -325,7 +377,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   existingCollaborators={existingCollaborators.map(
                     (c) => c.uid
                   )}
-                  currentUserUid={currentUserUid}
+                  currentUserUid={currentUserUid!}
                   onAddCollaborator={handleAddCollaborator}
                   onOpen={fetchExistingCollaborators} // Trigger refresh on open
                 >
@@ -346,6 +398,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           onMouseDown={handleMouseDown}
         />
       </aside>
+
+      {/* Modal for managing collaborators */}
       {showCollaborators && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96">
@@ -362,6 +416,36 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             </Button>
             <Button
               onClick={() => setShowCollaborators(false)}
+              variant="outline"
+              className="mt-2 ml-2"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Go Pro */}
+      {showGoProModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Go Pro</h2>
+            <ul className="list-disc list-inside mb-6">
+              <li>Access to premium features</li>
+              <li>Priority support</li>
+              <li>More storage for your workspaces</li>
+              <li>Collaborate with more team members</li>
+              <li>Advanced analytics and insights</li>
+              {/* Add more benefits as needed */}
+            </ul>
+            <GoProButton
+              className="w-full"
+              userEmail={currentUserEmail!}
+              userId={currentUserUid!}
+              subscriptionStatus={subscriptionStatus} // Pass subscriptionStatus to GoProButton
+            />
+            <Button
+              onClick={() => setShowGoProModal(false)}
               variant="outline"
               className="mt-2 ml-2"
             >

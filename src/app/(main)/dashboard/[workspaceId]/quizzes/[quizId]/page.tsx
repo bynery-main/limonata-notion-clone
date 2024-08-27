@@ -5,13 +5,13 @@ import { useRouter, useParams } from "next/navigation";
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import EvaluationComponent from "@/components/ai-tools/evaluation-component";
 import { CalendarIcon, CheckIcon, Trash2, Pencil, PlusCircle } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { Button } from "@/components/ui/button";
 import { Toast, useToast } from "@chakra-ui/react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
+import NoCreditsModal from "@/components/subscribe/no-credits-modal";
 
 interface Quiz {
   id?: string;
@@ -134,6 +134,9 @@ const QuizzesPage = () => {
   const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
   const [evaluationCollections, setEvaluationCollections] = useState<Evaluation[][]>([]);
   const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<number | null>(null);
+  const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
+  const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
+  const [creditCost] = useState(20); // Assuming credit cost is 20
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
@@ -143,10 +146,6 @@ const QuizzesPage = () => {
 
   useEffect(() => {
     if (!workspaceId || !quizId) return;
-
-    
-
-    
 
     const fetchQuizzesAndNotes = async () => {
       const quizzesCollectionRef = collection(
@@ -283,13 +282,8 @@ const QuizzesPage = () => {
       console.log("Credit usage result:", creditUsageResult.data);
 
       if (!creditUsageResult.data.success) {
-        Toast({
-          title: "Error",
-          description: creditUsageResult.data.message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        setRemainingCredits(creditUsageResult.data.remainingCredits);
+        setShowCreditModal(true); // Show the credit modal if not enough credits
         setLoading(false);
         return;
       }
@@ -354,6 +348,7 @@ const QuizzesPage = () => {
       setLoading(false);
     }
   };
+
   const handleEvaluationHistoryClick = async () => {
     setLoading(true);
     try {
@@ -585,6 +580,15 @@ const QuizzesPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal for insufficient credits */}
+      {showCreditModal && (
+        <NoCreditsModal
+          remainingCredits={remainingCredits}
+          creditCost={creditCost}
+          onClose={() => setShowCreditModal(false)}
+        />
       )}
     </div>
   );
