@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
-import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
+import { Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
 import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
 import { Home } from "lucide-react";
+import { onSnapshot, collection, query, where, QuerySnapshot, DocumentData, DocumentChange } from "firebase/firestore";
+import { db } from "@/firebase/firebaseConfig";
 
 export const MainSidebar = (): JSX.Element => {
   const { user } = useAuth();
@@ -19,15 +21,68 @@ export const MainSidebar = (): JSX.Element => {
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadWorkspaces = async () => {
+    let unsubscribeOwned: () => void;
+    let unsubscribeCollaborated: () => void;
+
+    const loadWorkspaces = () => {
       if (user) {
-        const owned = await fetchWorkspaces("owners", user.uid);
-        const collaborated = await fetchWorkspaces("collaborators", user.uid);
-        setWorkspaces([...owned, ...collaborated]);
+        const ownedQuery = query(
+          collection(db, "workspaces"),
+          where("owners", "array-contains", user.uid)
+        );
+        const collaboratedQuery = query(
+          collection(db, "workspaces"),
+          where("collaborators", "array-contains", user.uid)
+        );
+
+        // Listen for real-time updates for owned workspaces
+        unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
+          handleWorkspaceSnapshot(snapshot);
+        });
+
+        // Listen for real-time updates for collaborated workspaces
+        unsubscribeCollaborated = onSnapshot(collaboratedQuery, (snapshot) => {
+          handleWorkspaceSnapshot(snapshot);
+        });
       }
     };
 
+    const handleWorkspaceSnapshot = (snapshot: QuerySnapshot<DocumentData>) => {
+      setWorkspaces((prevWorkspaces) => {
+        let updatedWorkspaces = [...prevWorkspaces];
+
+        snapshot.docChanges().forEach((change: DocumentChange<DocumentData>) => {
+          const workspaceData = { id: change.doc.id, ...change.doc.data() } as Workspace;
+
+          if (change.type === "added") {
+            if (!updatedWorkspaces.some(ws => ws.id === workspaceData.id)) {
+              updatedWorkspaces.push(workspaceData);
+            }
+          }
+
+          if (change.type === "modified") {
+            const index = updatedWorkspaces.findIndex(ws => ws.id === workspaceData.id);
+            if (index > -1) {
+              updatedWorkspaces[index] = workspaceData;
+            }
+          }
+
+          if (change.type === "removed") {
+            updatedWorkspaces = updatedWorkspaces.filter(ws => ws.id !== workspaceData.id);
+          }
+        });
+
+        return updatedWorkspaces;
+      });
+    };
+
     loadWorkspaces();
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      if (unsubscribeOwned) unsubscribeOwned();
+      if (unsubscribeCollaborated) unsubscribeCollaborated();
+    };
   }, [user]);
 
   const handleWorkspaceClick = (workspaceId: string) => {
