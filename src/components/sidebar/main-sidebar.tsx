@@ -13,7 +13,8 @@ import { db } from "@/firebase/firebaseConfig";
 
 export const MainSidebar = (): JSX.Element => {
   const { user } = useAuth();
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
+  const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<Workspace[]>([]);
   const router = useRouter();
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -37,38 +38,41 @@ export const MainSidebar = (): JSX.Element => {
 
         // Listen for real-time updates for owned workspaces
         unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
-          handleWorkspaceSnapshot(snapshot);
+          handleWorkspaceSnapshot(snapshot, setOwnedWorkspaces);
         });
 
         // Listen for real-time updates for collaborated workspaces
         unsubscribeCollaborated = onSnapshot(collaboratedQuery, (snapshot) => {
-          handleWorkspaceSnapshot(snapshot);
+          handleWorkspaceSnapshot(snapshot, setCollaborativeWorkspaces);
         });
       }
     };
 
-    const handleWorkspaceSnapshot = (snapshot: QuerySnapshot<DocumentData>) => {
-      setWorkspaces((prevWorkspaces) => {
+    const handleWorkspaceSnapshot = (
+      snapshot: QuerySnapshot<DocumentData>,
+      setWorkspaceState: React.Dispatch<React.SetStateAction<Workspace[]>>
+    ) => {
+      setWorkspaceState((prevWorkspaces) => {
         let updatedWorkspaces = [...prevWorkspaces];
 
         snapshot.docChanges().forEach((change: DocumentChange<DocumentData>) => {
           const workspaceData = { id: change.doc.id, ...change.doc.data() } as Workspace;
 
           if (change.type === "added") {
-            if (!updatedWorkspaces.some(ws => ws.id === workspaceData.id)) {
+            if (!updatedWorkspaces.some((ws) => ws.id === workspaceData.id)) {
               updatedWorkspaces.push(workspaceData);
             }
           }
 
           if (change.type === "modified") {
-            const index = updatedWorkspaces.findIndex(ws => ws.id === workspaceData.id);
+            const index = updatedWorkspaces.findIndex((ws) => ws.id === workspaceData.id);
             if (index > -1) {
               updatedWorkspaces[index] = workspaceData;
             }
           }
 
           if (change.type === "removed") {
-            updatedWorkspaces = updatedWorkspaces.filter(ws => ws.id !== workspaceData.id);
+            updatedWorkspaces = updatedWorkspaces.filter((ws) => ws.id !== workspaceData.id);
           }
         });
 
@@ -128,7 +132,17 @@ export const MainSidebar = (): JSX.Element => {
             <Home className="w-5 h-5 text-white" />
           </div>
         </button>
-        {workspaces.map((workspace, index) => (
+        {ownedWorkspaces.map((workspace, index) => (
+          <WorkspaceIcon
+            key={workspace.id}
+            isActive={activeIcon === workspace.id}
+            workspace={workspace}
+            index={index}
+            onClick={() => handleWorkspaceClick(workspace.id)}
+          />
+        ))}
+        <div className="w-full h-px bg-gray-400 my-2"></div> {/* Separator bar */}
+        {collaborativeWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
             key={workspace.id}
             isActive={activeIcon === workspace.id}
