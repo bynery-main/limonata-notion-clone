@@ -10,12 +10,15 @@ import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
 import GoProButton from '@/components/subscribe/subscribe-button';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
+import { Timestamp } from 'firebase/firestore';
 
 const SettingsPage = () => {
   const router = useRouter();
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
-  const [tier, setTier] = useState<string | null>(null);
+  const [tier, setTier] = useState<string | null>('free'); // Defaulting to 'free'
+  const [credits, setCredits] = useState<number | null>(null);
+  const [subscriptionCurrentPeriodEnd, setSubscriptionCurrentPeriodEnd] = useState<string | null>(null);
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
@@ -28,8 +31,24 @@ const SettingsPage = () => {
     const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setCredits(userData?.credits || 0);
         setTier(userData?.tier || "free");
+
+        if (userData?.tier === "pro") {
+          setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+
+          // Convert Firestore Timestamp to a human-readable date string
+          const subscriptionEnd = userData?.subscriptionCurrentPeriodEnd;
+          if (subscriptionEnd instanceof Timestamp) {
+            setSubscriptionCurrentPeriodEnd(subscriptionEnd.toDate().toLocaleDateString());
+          } else {
+            setSubscriptionCurrentPeriodEnd(null);
+          }
+        } else {
+          // If the user is on the free tier, these fields might not exist
+          setSubscriptionStatus(null);
+          setSubscriptionCurrentPeriodEnd(null);
+        }
       }
     });
 
@@ -72,6 +91,17 @@ const SettingsPage = () => {
     <div>
       <Toaster />
       <h1>Settings</h1>
+
+      <div className="mb-6">
+        <p><strong>Remaining credits: </strong> {credits}</p>
+        <p>
+          <strong>Subscription status: </strong>
+          {subscriptionStatus === 'active_pending_cancellation' ? 'active, pending cancellation' : (subscriptionStatus || "No active subscription")}
+        </p>
+        {tier === 'pro' && (
+          <p><strong>{subscriptionStatus === 'active_pending_cancellation' ? 'Your subscription will end on: ' : 'You will be billed again on: '}</strong> {subscriptionCurrentPeriodEnd || "N/A"}</p>
+        )}
+      </div>
 
       <Button
         onClick={() => setShowAccountModal(true)}
