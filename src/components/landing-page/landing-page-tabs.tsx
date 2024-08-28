@@ -3,6 +3,11 @@
 import Image from "next/image";
 import { Tabs } from "../ui/tabs";
 import gradient from "./images/Gradient.png";
+import studyguideimage from "./images/StudyGuide.png";
+import flashcardimage from "./images/Flashcards.png";
+import tutorimage from "./images/Chat.png";
+import quizimage from "./images/Quiz.png";
+
 export function TabsDemo() {
   const tabs = [
     {
@@ -16,6 +21,8 @@ export function TabsDemo() {
             using all your study resources.
             You will also be corrected and given a grade and explanations
             for each question.
+            <img src={quizimage.src} alt="Gradient" className="object-contain" />
+
           </p>
         </div>
       ),
@@ -29,6 +36,7 @@ export function TabsDemo() {
           <p className="text-sm font-light mt-4">
             Get AI-generated study guides for all your study resources.
             You can also customize the study guides to your liking.
+            <img src={studyguideimage.src} alt="Gradient" className="object-contain" />
           </p>
         </div>
       ),
@@ -41,6 +49,8 @@ export function TabsDemo() {
           <p>AI Flashcards</p>
           <p className="text-sm font-light mt-4">
             Improve your retention using AI-generated flashcards based on your study resources.
+            <img src={flashcardimage.src} alt="Gradient" className="object-contain" />
+
           </p>
         </div>
       ),
@@ -54,6 +64,8 @@ export function TabsDemo() {
           <p className="text-sm font-light mt-4 ">
             Get a personal tutor that will help you understand your study resources better.
             Ask questions and get answers instantly based on your study resources.
+            <img src={tutorimage.src} alt="Gradient" className="object-contain" />
+
           </p>
         </div>
       ),

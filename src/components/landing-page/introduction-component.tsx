@@ -1,4 +1,5 @@
 import inputTypesImage from './Images/Input-Types-Images.png';
+import FancyText from '@carefully-coded/react-text-gradient';
 
 export default function IntroductionComponent() {
   return (
@@ -9,9 +10,16 @@ export default function IntroductionComponent() {
         style={{ float: "left", width: "50%", height: "auto", objectFit: "contain" }}
       />
       <div className="flex flex-col justify-center space-y-4">
-        <h2 className="text-5xl font-black text-left">
-          Don&apos;t only take notes. Learn.
-        </h2>
+      <p className="leading-tight text-5xl">
+        Don&apos;t only take notes.{' '}
+        <FancyText 
+          gradient={{ from: '#FE7EF4', to: '#F6B144' }}
+          className="font-extrabold"
+        >
+          Learn.
+        </FancyText>
+        {' '}
+      </p>
         <p className="text-left">
           You can add study notes as images, links, notes, videos, quotes,
           PDFs, articles, any study resource from the web, or your computer.
