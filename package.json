@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@carefully-coded/react-text-gradient": "^1.0.6",
     "@chakra-ui/checkbox": "^2.3.2",
     "@chakra-ui/react": "^2.8.2",
     "@emoji-mart/react": "^1.1.1",

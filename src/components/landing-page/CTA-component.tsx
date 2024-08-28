@@ -1,5 +1,5 @@
 import inputTypesImage from './Images/Input-Types-Images.png';
-
+import FancyText from '@carefully-coded/react-text-gradient';
 import { Button } from "@/components/ui/button";
 import styled, { keyframes } from 'styled-components';
 
@@ -37,8 +37,10 @@ const AnimatedButton = styled(Button)`
 
 export default function CTAcomponent() {
   return (
-<div className="flex flex-col items-center space-y-40 justify-center text-5xl text-black mx-40 mt-40">
+<div className="flex flex-col items-center justify-center text-5xl text-black mx-40 mt-40">
+    <FancyText gradient={{ from: '#818CF8', to: '#5B21B6' }}>
     Make AI be at the service of your learning. 
+    </FancyText>
     <AnimatedButton className="text-2xl my-20 rounded-full" style={{ width: '200px', height: '50px'}} onClick={() => console.log("Clicked!")}>
         Get Started
     </AnimatedButton>
