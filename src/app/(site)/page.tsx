@@ -30,9 +30,9 @@ export default function Home() {
       </FollowerPointerCard>
       <Intro/>
       <AIIntro/>
+      <TabsDemo/>
       <CTA/>
 
-      <TabsDemo/>
     </>
   );
 }

@@ -39,7 +39,7 @@ export default function CTAcomponent() {
   return (
 <div className="flex flex-col items-center space-y-40 justify-center text-5xl text-black mx-40 mt-40">
     Make AI be at the service of your learning. 
-    <AnimatedButton className="text-2xl my-20" style={{ width: '200px' }} onClick={() => console.log("Clicked!")}>
+    <AnimatedButton className="text-2xl my-20 rounded-full" style={{ width: '200px', height: '50px'}} onClick={() => console.log("Clicked!")}>
         Get Started
     </AnimatedButton>
 </div>

@@ -67,8 +67,7 @@ export function TabsDemo() {
       <div className="absolute top-0 left-0 w-full h-full px-20 md:px-40">
         <Tabs tabs={tabs} />
       </div>
-      <img src={gradient.src} alt="Gradient" className="w-screen object-contain -my-55" />
-    </div>
+{/* <img src={gradient.src} alt="Gradient" className="w-screen object-contain -my-55" /> */}    </div>
   </div>
   );
 }
