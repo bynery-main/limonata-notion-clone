@@ -1,16 +1,13 @@
-import inputTypesImage from './Images/Input-Types-Images.png';
+import Image from 'next/image';
+import AIImage from './Images/AI.png';
+
 
 export default function IntroductionComponent() {
   return (
     <div className="flex space-x-10 mx-40 mt-40">
-      <img
-        src={inputTypesImage.src}
-        alt="Input Types Images"
-        style={{ float: "left", width: "50%", height: "auto", objectFit: "contain" }}
-      />
       <div className="flex flex-col justify-center space-y-4">
         <h2 className="text-5xl font-black text-left">
-          Don&apos;t only take notes. Learn.
+        Introducing the power of AI to your learning 
         </h2>
         <p className="text-left">
           You can add study notes as images, links, notes, videos, quotes,
@@ -23,6 +20,7 @@ export default function IntroductionComponent() {
           </a>
         </p>
       </div>
+      <Image src={AIImage} alt="AI Image" width={800} style={{ objectFit: "contain" }} className='-my-40'/>
     </div>
   );
 }
