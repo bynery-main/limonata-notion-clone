@@ -11,13 +11,10 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 export const dynamic = 'force-dynamic';
 
 const File = async ({ params }: { params: { workspaceId: string, folderId: string, fileId: string } }) => {
-  // Function to fetch file details from either files or notes collection
   const fetchFileDetails = async () => {
-    // Check in the 'files' collection
     let fileRef = doc(db, 'workspaces', params.workspaceId, 'folders', params.folderId, 'files', params.fileId);
     let fileSnap = await getDoc(fileRef);
 
-    // If not found in 'files', check in 'notes'
     if (!fileSnap.exists()) {
       fileRef = doc(db, 'workspaces', params.workspaceId, 'folders', params.folderId, 'notes', params.fileId);
       fileSnap = await getDoc(fileRef);
@@ -38,7 +35,7 @@ const File = async ({ params }: { params: { workspaceId: string, folderId: strin
   const fileUrl = data.url;
 
   if (fileUrl) {
-    // If the file has a URL, display the file based on its type
+    console.log('File URL:', fileUrl);
     return (
       <div className="relative">
         <h1 className="text-xl mb-4">{fileName}</h1>
@@ -56,7 +53,6 @@ const File = async ({ params }: { params: { workspaceId: string, folderId: strin
       </div>
     );
   } else {
-    // If no URL, fall back to Quill editor
     return (
       <div className="relative">
         <QuillEditor
