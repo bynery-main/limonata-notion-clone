@@ -16,24 +16,23 @@ interface TabContentProps {
 
 function TabContent({ title, description, image, textColor }: TabContentProps) {
   return (
-    <div className="w-full h-full overflow-hidden relative  shadow-xl rounded-xl overflow-hidden">
-      <div className="absolute inset-0 z-0
-      ">
-        <img src={Gradient.src} alt="Gradient" className="object-cover w-full h-full opacity-50"
-         />
+    <div className="w-full h-[40rem] overflow-hidden relative shadow-xl rounded-xl">
+      <div className="absolute inset-0 z-0">
+        <img src={Gradient.src} alt="Gradient" className="object-cover w-full h-full opacity-50" />
       </div>
       <div className="relative z-10 bg-white bg-opacity-70 backdrop-blur p-8 rounded-xl h-full flex flex-col justify-between">
-        <div>
-          <p className={`text-2xl md:text-4xl font-bold ${textColor}`}>{title}</p>
-          <p className="text-base md:text-lg font-light mt-6 text-gray-700">{description}</p>
+        <div className="flex flex-col items-center  flex-grow">
+          <p className={`text-2xl md:text-4xl font-bold ${textColor} text-center mb-6`}>{title}</p>
+          <p className="text-base md:text-lg font-light text-gray-700 text-center max-w-2xl">{description}</p>
         </div>
-        <div className="mt-8 flex justify-center items-end h-3/5">
+        <div className="mt-8 flex justify-center items-end h-2/5">
           <Image src={image} alt={title} className="object-contain max-h-full w-auto" />
         </div>
       </div>
     </div>
   );
 }
+
 
 export function TabsDemo() {
   const tabs = [
