@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import Logo from '../../../public/cypresslogo.svg'; 
 import { auth } from '@/firebase/firebaseConfig';
 import { Grid, Navigation } from 'lucide-react';
-
 import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import {
     NavigationMenu,

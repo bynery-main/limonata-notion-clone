@@ -16,7 +16,7 @@ const gradientAnimation = keyframes`
 `;
 
 const AnimatedButton = styled(Button)`
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background: linear-gradient(-45deg, #FE7EF4, #F6B144);
     background-size: 400% 400%;
     animation: ${gradientAnimation} 15s ease infinite;
     border: none;
@@ -35,7 +35,7 @@ const AnimatedButton = styled(Button)`
 
 export default function CTAcomponent() {
   return (
-    <div className="flex flex-col items-center justify-center text-5xl text-black mx-auto mt-40 text-center max-w-3xl">
+    <div className="flex flex-col items-center justify-center text-5xl text-black mx-auto my-40 text-center max-w-3xl">
       <p className="leading-tight">
         Make{' '}
         <FancyText 
@@ -45,10 +45,10 @@ export default function CTAcomponent() {
           AI
         </FancyText>
         {' '}be at the service of your learning.
-      </p>
+      </p> 
       <AnimatedButton 
-        className="text-2xl my-20 rounded-full" 
-        style={{ width: '200px', height: '50px'}} 
+        className="text-2xl font-light my-10 rounded-full text-sm" 
+        style={{ width: '125px', height: '40px'}} 
         onClick={() => console.log("Clicked!")}
       >
         Get Started

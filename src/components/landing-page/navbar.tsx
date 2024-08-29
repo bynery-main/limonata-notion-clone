@@ -5,6 +5,38 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig'; // Adjust this import based on your firebase setup
+import logo from './Images/Black_Logo@4x.png';
+import styled, { keyframes } from 'styled-components';
+
+const gradientAnimation = keyframes`
+0% {
+    background-position: 0% 50%;
+}
+50% {
+    background-position: 100% 50%;
+}
+100% {
+    background-position: 0% 50%;
+}
+`;
+
+const AnimatedButton = styled(Button)`
+    background: linear-gradient(-45deg, #FE7EF4, #F6B144);
+background-size: 400% 400%;
+animation: ${gradientAnimation} 15s ease infinite;
+border: none;
+color: white;
+font-weight: bold;
+
+&:hover {
+    opacity: 0.9;
+}
+
+&:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+`;
 
 const Navbar = () => {
     const router = useRouter();
@@ -24,27 +56,26 @@ const Navbar = () => {
     };
 
     return (
-        <header className="flex items-center justify-between p-6 relative z-20">
+        <header className="flex items-center justify-between p-10 relative z-20">
             <div className="flex items-center space-x-2">
-                <LogInIcon className="h-6 w-6" />
                 <span className="text-lg font-bold">
-                    Limonata <span className="font-light">Project</span>
+                    <img src={logo.src} alt="Limonata" style={{ width: '15vw' }} />
                 </span>
             </div>
             <div className="space-x-4">
                 {!loading && (
                     user ? (
-                        <Button variant="default" onClick={handleSignOut}>
+                        <AnimatedButton variant="default" onClick={handleSignOut}>
                             SIGN OUT
-                        </Button>
+                        </AnimatedButton>
                     ) : (
                         <>
-                            <Button variant="ghost" onClick={handleLogin}>
+                            <AnimatedButton variant="ghost" onClick={handleLogin}>
                                 LOG IN
-                            </Button>
-                            <Button variant="default" onClick={handleSignUp}>
+                            </AnimatedButton>
+                            <AnimatedButton variant="default" onClick={handleSignUp}>
                                 SIGN UP
-                            </Button>
+                            </AnimatedButton>
                         </>
                     )
                 )}
