@@ -7,6 +7,7 @@ import * as Accordion from "@radix-ui/react-accordion";
 import { CirclePlusIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
 import { fetchFiles, addFolder, deleteFolder, deleteFile } from "@/lib/utils"; 
+import { useRouter } from "next/navigation";
 
 interface FileData {
   id: string;
@@ -32,10 +33,13 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   workspaceId,
   onFoldersUpdate,
   currentFolderId,
-  onFolderSelect, }) => {
-    const [folders, setFolders] = useState<Folder[]>([]);
-    const [newFolderName, setNewFolderName] = useState("");
-    const [openFolderId, setOpenFolderId] = useState<string | null>(null);
+  onFolderSelect,
+}) => {
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [openFolderId, setOpenFolderId] = useState<string | null>(null);
+  const router = useRouter();
+
   useEffect(() => {
     const foldersRef = collection(db, 'workspaces', workspaceId, 'folders');
   
@@ -57,7 +61,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
         );
   
         setFolders(updatedFolders);
-        onFoldersUpdate(updatedFolders);  // Call the callback whenever folders are updated
+        onFoldersUpdate(updatedFolders);
       };
   
       fetchFolders();
@@ -66,10 +70,14 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
     return () => unsubscribe();
   }, [workspaceId, onFoldersUpdate]);
 
-
   const handleAddFolder = async () => {
     await addFolder(workspaceId, newFolderName);
     setNewFolderName("");
+  };
+
+  const handleFileClick = (file: FileData) => {
+    // Redirect to the file viewing page
+    router.push(`/dashboard/${workspaceId}/upload/${file.id}`);
   };
 
   return (
