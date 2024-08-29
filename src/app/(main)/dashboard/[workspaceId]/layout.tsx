@@ -217,10 +217,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     // your items here
   ];
 
-  const setItems = (arg0: (prevItems: any) => any[]) => {
-    throw new Error("Function not implemented.");
-  };
-
 
   const onSendMessage = (workspaceId: string, query: string) => {
     // Your message sending logic here
