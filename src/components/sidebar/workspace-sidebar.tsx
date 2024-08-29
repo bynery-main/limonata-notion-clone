@@ -295,6 +295,14 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     return () => unsubscribe();
   }, [currentUserUid]);
 
+  const handleSettingsClick = () => {
+    if (params.workspaceId) {
+      router.push(`/dashboard/${params.workspaceId}/settings`);
+    } else {
+      alert("Please select a workspace first");
+    }
+  };
+
   return (
     <>
       <aside
@@ -389,6 +397,13 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                     Add People
                   </div>
                 </CollaboratorSearch>
+                <div
+                  className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
+                  onClick={handleSettingsClick}
+                >
+                  <SettingsIcon className="h-4 w-4" />
+                  Settings
+                </div>
               </div>
             </div>
           </nav>
