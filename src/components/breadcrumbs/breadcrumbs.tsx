@@ -96,11 +96,13 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                 itemType = "folders";
             }
 
-            items.push({
-              href: `/dashboard/${workspaceId}/${itemType}`,
-              label: itemType.charAt(0).toUpperCase() + itemType.slice(1),
-              icon,
-            });
+            if (itemType !== "folders") {
+              items.push({
+                href: `/dashboard/${workspaceId}/${itemType}`,
+                label: itemType.charAt(0).toUpperCase() + itemType.slice(1),
+                icon,
+              });
+            }
 
             if (pathSegments.length > 3) {
               if (itemType !== "folders") {
@@ -108,7 +110,9 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                 const itemDoc = await getDoc(
                   doc(db, `workspaces/${workspaceId}/${collection}`, itemId)
                 );
-                const itemName = itemDoc.exists() ? itemDoc.data()?.name : "Item";
+                const itemName = itemDoc.exists()
+                  ? itemDoc.data()?.name
+                  : "Item";
                 console.log("Item Name:", itemName);
 
                 items.push({
@@ -128,8 +132,24 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                     noteId
                   )
                 );
-                const noteName = noteDoc.exists() ? noteDoc.data()?.name : "Note";
+                const noteName = noteDoc.exists()
+                  ? noteDoc.data()?.name
+                  : "Note";
                 console.log("Note Name:", noteName);
+
+                const folderDoc = await getDoc(
+                  doc(db, `workspaces/${workspaceId}/folders`, folderId)
+                );
+                const folderName = folderDoc.exists()
+                  ? folderDoc.data()?.name
+                  : "Folder";
+                console.log("Folder Name:", folderName);
+
+                items.push({
+                  href: `/dashboard/${workspaceId}/${folderId}`,
+                  label: folderName,
+                  icon: <Folder className="w-4 h-4 mr-1" />,
+                });
 
                 items.push({
                   href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${noteId}`,
