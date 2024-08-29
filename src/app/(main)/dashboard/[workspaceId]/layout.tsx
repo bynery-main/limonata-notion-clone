@@ -1,27 +1,16 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import Picker from "@emoji-mart/react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
-import { ButtonsCard } from "@/components/ui/tailwindcss-buttons";
-import { Icon, Settings, Share2Icon, ShareIcon } from "lucide-react";
 import Image from "next/image";
-import FoldersDropDown from "@/components/sidebar/folders-dropdown";
+
 import WorkspaceSidebar, {
   WorkspaceSidebarProps,
 } from "@/components/sidebar/workspace-sidebar";
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
 import { ChatComponent } from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
-import Link from "next/link";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import {
-  IconClipboardCopy,
-  IconFileBroken,
-  IconSignature,
-  IconTableColumn,
-} from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
@@ -59,12 +48,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [emoji, setEmoji] = useState<string>("🍋"); // Default emoji
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
   const [pageTitle, setPageTitle] = useState<string>("");
+  const [fullBentoGrid, setFullBentoGrid] = useState(false);
   const db = getFirestore();
 
   const { user } = useAuth();
   const currentUserId = user?.uid ?? "";
   // console.log("Current user ID:", currentUserId);
-
 
   useEffect(() => {
     const fetchWorkspaceEmoji = async () => {
@@ -83,16 +72,55 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   }, [params.workspaceId, db]);
 
   const pathname = usePathname();
-  const folderId = params.folderId || null; // Extract the folderId from params
+
+  const getFolderId = (path: string): string | null => {
+    const segments = path.split("/").filter(Boolean);
+
+    if (segments.length === 3) {
+      return segments[2];
+    } else if (segments.length > 3) {
+      const thirdSegment = segments[2];
+      if (
+        !["quizzes", "decks", "studyguides", "settings"].includes(thirdSegment)
+      ) {
+        return thirdSegment;
+      }
+    }
+
+    return null;
+  }; // Extract the folderId from params
+
+  const isFullBentoGrid = (path: string): boolean => {
+    const segments = path.split("/").filter(Boolean);
+    if (segments.length === 3) {
+      return false;
+    } else if (segments.length > 3) {
+      const thirdSegment = segments[2];
+      if (
+        !["quizzes", "decks", "studyguides", "settings"].includes(thirdSegment)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+
+
+
+  useEffect(() => { 
+    const fullestBentoGrid = isFullBentoGrid(pathname || "");
+    setFullBentoGrid(fullestBentoGrid);
+    console.log("Full Bento Grid:", fullestBentoGrid);
+    console.log("fullBenotGrid", fullBentoGrid);
+  }, [pathname]);
+
+
+  const folderId = getFolderId(pathname || "");
 
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
-  };
-
-  const toggleEmojiPicker = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent form submission
-    setShowEmojiPicker(!showEmojiPicker);
   };
 
   const updateFoldersData = (newFoldersData: Folder[]) => {
@@ -197,16 +225,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     throw new Error("Function not implemented.");
   };
 
-  const handleFileUpload = (file: FileData) => {
-    setItems((prevItems: any) => [
-      ...prevItems,
-      {
-        title: file.name,
-        description: "Uploaded file",
-        header: <Skeleton />,
-      },
-    ]);
-  };
 
   const onSendMessage = (workspaceId: string, query: string) => {
     // Your message sending logic here
@@ -242,22 +260,27 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           {showBentoGrid && (
             <BentoGrid className="max-w-7xl mx-auto p-4">
               {foldersData.flatMap((folder, folderIndex) =>
-                folder.files.map((file, fileIndex) => (
-                  <BentoGridItem
-                    key={file.id}
-                    title={file.name}
-                    description={`In folder: ${folder.name}`}
-                    header={getFilePreview(file)}
-                    href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
-                    className={
-                      (folderIndex * folder.files.length + fileIndex) % 7 ===
-                        3 ||
-                      (folderIndex * folder.files.length + fileIndex) % 7 === 6
-                        ? "md:col-span-2"
-                        : ""
-                    }
-                  />
-                ))
+                fullBentoGrid || folder.id === folderId
+                  ? folder.files.map((file, fileIndex) => (
+                      <BentoGridItem
+                        key={file.id}
+                        title={file.name}
+                        description={`In folder: ${folder.name}`}
+                        header={getFilePreview(file)}
+                        href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
+                        className={
+                          (folderIndex * folder.files.length + fileIndex) %
+                            7 ===
+                            3 ||
+                          (folderIndex * folder.files.length + fileIndex) %
+                            7 ===
+                            6
+                            ? "md:col-span-2"
+                            : ""
+                        }
+                      />
+                    ))
+                  : []
               )}
             </BentoGrid>
           )}
