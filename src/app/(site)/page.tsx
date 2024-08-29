@@ -25,10 +25,10 @@ export default function Home() {
   return (
     <>
       <Navbar/>
-      <FollowerPointerCard>
       <HeroComponent/>
+      <FollowerPointerCard>
+        <Intro/>
       </FollowerPointerCard>
-      <Intro/>
       <AIIntro/>
       <TabsDemo/>
       <CTA/>
