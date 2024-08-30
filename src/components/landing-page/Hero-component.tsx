@@ -104,7 +104,7 @@ export default function HeroComponent() {
       </RotatingCircle>
       <div className="absolute  top-1/4 left-0 right-0 px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
         <h1 className=" ">
-          <FancyText gradient={{ from: '#C66EC5', to: '#FC608D' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
+          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
           Study together.
           </FancyText>
         </h1>
