@@ -109,7 +109,7 @@ export function TabsDemo() {
 
   return (
     <div className="flex flex-col items-center justify-center mb-10">
-      <div className="relative h-[40rem] [perspective:1000px] flex flex-col mx-auto w-full items-start justify-start my-40">
+      <div className="relative h-[40rem] [perspective:1000px] flex flex-col mx-auto w-full items-start justify-start mb-40">
         <div className="absolute top-0 left-0 w-full h-full px-20 md:px-40">
           <Tabs tabs={tabs} />
         </div>

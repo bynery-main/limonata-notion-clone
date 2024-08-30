@@ -5,7 +5,7 @@ import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebas
 import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
 import CircleGradients from "./Circle-Gradients.svg";
 import styled, { keyframes } from 'styled-components';
-
+import FancyText from '@carefully-coded/react-text-gradient';
 const gradientAnimation = keyframes`
   0% {
       background-position: 0% 50%;
@@ -98,13 +98,15 @@ export default function HeroComponent() {
   };
 
   return (
-    <div className="relative min-h-[500px] ">
+    <div className="relative min-h-[500px] ml-20">
       <RotatingCircle>
         <CircleGradients className="circle" />
       </RotatingCircle>
-      <div className="absolute top-1/4 left-0 right-0 px-4 sm:px-6 md:px-8 lg:px-16 text-center md:text-left">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-2">
+      <div className="absolute  top-1/4 left-0 right-0 px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
+        <h1 className=" ">
+          <FancyText gradient={{ from: '#C66EC5', to: '#FC608D' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
           Study together.
+          </FancyText>
         </h1>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
           Study smarter

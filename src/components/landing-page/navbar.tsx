@@ -65,12 +65,12 @@ const Navbar = () => {
     };
 
     return (
-        <header className="relative z-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="relative z-20 my-5 mx-10">
+            <div className="max-w-7xl px-8 sm:px-30 lg:px-30">
                 <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
                     <div className="flex justify-start lg:w-0 lg:flex-1">
                         <span className="sr-only">Limonata</span>
-                        <Image src={logo} alt="Limonata" width={150} height={50} className="h-8 w-auto sm:h-10" />
+                        <Image src={logo} alt="Limonata" width={150} height={50} className="h-8 w-auto mx-45 sm:h-10" />
                     </div>
                     <div className="-mr-2 -my-2 md:hidden">
                         <Button variant="ghost" onClick={toggleMenu}>
