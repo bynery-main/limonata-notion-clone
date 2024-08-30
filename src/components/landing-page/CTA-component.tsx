@@ -36,7 +36,7 @@ const AnimatedButton = styled(Button)`
 export default function CTAcomponent() {
   return (
     <div className="flex flex-col items-center justify-center text-5xl text-black mx-auto my-40 text-center max-w-3xl">
-      <p className="leading-tight">
+      <div className="leading-tight">
         Make{' '}
         <FancyText 
           gradient={{ from: '#F6B144', to: '#FE7EF4' }}
@@ -45,14 +45,17 @@ export default function CTAcomponent() {
           AI
         </FancyText>
         {' '}be at the service of your learning.
-      </p> 
+      </div> 
       <AnimatedButton 
-        className="text-2xl font-light my-10 rounded-full text-sm" 
+        className="text-2xl font-light mt-10 rounded-full text-sm" 
         style={{ width: '125px', height: '40px'}} 
         onClick={() => console.log("Clicked!")}
       >
         Get Started
       </AnimatedButton>
-    </div>
+      <p className="text-sm text-gray-500 mt-3">
+          Yes. It's free.
+      </p>
+          </div>
   );
 }

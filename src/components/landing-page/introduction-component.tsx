@@ -10,7 +10,7 @@ export default function IntroductionComponent() {
         style={{ float: "left", width: "50%", height: "auto", objectFit: "contain" }}
       />
       <div className="flex flex-col justify-center space-y-4">
-      <p className="leading-tight text-5xl">
+      <div className="leading-tight text-5xl">
         Don&apos;t only take notes.{' '}
         <FancyText 
           gradient={{ from: '#FE7EF4', to: '#F6B144' }}
@@ -19,7 +19,7 @@ export default function IntroductionComponent() {
           Learn.
         </FancyText>
         {' '}
-      </p>
+      </div>
         <p className="text-left">
           You can add study notes as images, links, notes, videos, quotes,
           PDFs, articles, any study resource from the web, or your computer.

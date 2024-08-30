@@ -211,9 +211,9 @@ const ListItem = React.forwardRef<
                     <div className="text-white text-sm font-medium leading-none">
                         {title}
                     </div>
-                    <p className="group-hover:text-white/70 line-clamp-2 text-sm leading-snug text-white/40">
+                    <div className="group-hover:text-white/70 line-clamp-2 text-sm leading-snug text-white/40">
                         {children}
-                    </p>
+                    </div>
                 </a>
             </NavigationMenuLink>
         </li>

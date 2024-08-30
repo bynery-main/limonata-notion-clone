@@ -1,10 +1,68 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
 import CircleGradients from "./Circle-Gradients.svg";
 import styled, { keyframes } from 'styled-components';
+
+const gradientAnimation = keyframes`
+  0% {
+      background-position: 0% 50%;
+  }
+  50% {
+      background-position: 100% 50%;
+  }
+  100% {
+      background-position: 0% 50%;
+  }
+`;
+
+const rotateAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const AnimatedButton = styled(Button)`
+  background: linear-gradient(-45deg, #FE7EF4, #F6B144);
+  background-size: 400% 400%;
+  animation: ${gradientAnimation} 15s ease infinite;
+  border: none;
+  color: white;
+  font-weight: bold;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`;
+
+const RotatingCircle = styled.div`
+  animation: ${rotateAnimation} 30s linear infinite;
+  position: absolute;
+  left: -100px;
+  top: -200px;
+  
+  @media (max-width: 768px) {
+    left: -150px;
+    top: -250px;
+    transform: scale(0.7);
+  }
+  
+  @media (max-width: 480px) {
+    left: -200px;
+    top: -300px;
+    transform: scale(0.5);
+  }
+`;
 
 export default function HeroComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -38,61 +96,26 @@ export default function HeroComponent() {
   const goToDashboard = () => {
     router.push("/dashboard");
   };
-  const gradientAnimation = keyframes`
-  0% {
-      background-position: 0% 50%;
-  }
-  50% {
-      background-position: 100% 50%;
-  }
-  100% {
-      background-position: 0% 50%;
-  }
-`;
-
-const AnimatedButton = styled(Button)`
-    background: linear-gradient(-45deg, #FE7EF4, #F6B144);
-  background-size: 400% 400%;
-  animation: ${gradientAnimation} 15s ease infinite;
-  border: none;
-  color: white;
-  font-weight: bold;
-  
-  &:hover {
-      opacity: 0.9;
-  }
-  
-  &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-  }
-`;
 
   return (
-    <div style={{ position: "relative", textAlign: "left", height: "500px" }}>
-      <CircleGradients
-        className="circle"
-        style={{ position: "absolute", left: "-100px", top: "-200px" }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          marginLeft: "175px",
-          color: "black",
-          fontSize: "60px",
-          fontWeight: "bold",
-        }}
-      >
-        <div style={{ fontWeight: "bold" }}>Study together.</div>
-        <div style={{ fontWeight: "lighter" }}>Study smarter</div>
-        <div className="space-x-4">
+    <div className="relative min-h-[500px] ">
+      <RotatingCircle>
+        <CircleGradients className="circle" />
+      </RotatingCircle>
+      <div className="absolute top-1/4 left-0 right-0 px-4 sm:px-6 md:px-8 lg:px-16 text-center md:text-left">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-2">
+          Study together.
+        </h1>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
+          Study smarter
+        </h2>
+        <div className="space-y-4 md:space-y-0 md:space-x-4 ">
           {!isSignedIn ? (
-            <AnimatedButton variant="default" onClick={login}>
+            <AnimatedButton variant="default" onClick={login} className=" md:w-auto">
               Start a Workspace
             </AnimatedButton>
           ) : (
-            <AnimatedButton variant="default" onClick={goToDashboard}>
+            <AnimatedButton variant="default" onClick={goToDashboard} className=" md:w-auto">
               Go to Your Dashboard
             </AnimatedButton>
           )}
