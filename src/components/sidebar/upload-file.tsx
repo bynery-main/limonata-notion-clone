@@ -97,9 +97,14 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
           fileType: fileExtension,
         });
 
-        // If the file is an audio file, trigger the Cloud Function
+        // If the file is an audio file, trigger the audio transcription Cloud Function
         if (fileType === "audio") {
           await triggerAudioTranscription(downloadURL, newFileRef.path);
+        }
+
+        // If the file is a document, trigger the document processing Cloud Function
+        if (fileType === "document") {
+          await triggerDocumentProcessing(downloadURL, newFileRef.path);
         }
 
         setUploadProgress(0); // Reset progress after upload is complete
@@ -124,6 +129,18 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       const functions = getFunctions();
       const handleAudioUpload = httpsCallable(functions, 'handleAudioUpload');
       const response = await handleAudioUpload({ audioUrl, fileRef });
+
+      console.log("Cloud Function response:", response.data);
+    } catch (error) {
+      console.error("Error calling Cloud Function:", error);
+    }
+  };
+
+  const triggerDocumentProcessing = async (documentUrl: string, fileRef: string) => {
+    try {
+      const functions = getFunctions();
+      const handleDocumentUpload = httpsCallable(functions, 'handleDocumentUpload');
+      const response = await handleDocumentUpload({ documentUrl, fileRef });
 
       console.log("Cloud Function response:", response.data);
     } catch (error) {
