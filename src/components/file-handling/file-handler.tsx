@@ -3,6 +3,7 @@ import QuillEditor from '@/components/quill-editor/quill-editor';
 import DocumentDisplay from './document-display';
 import PowerpointDisplay from './powerpoint-display';
 import AudioDisplay from './audio-display';
+import ImageDisplay from './image-display';
 
 interface FileHandlerProps {
   fileName: string;
@@ -24,6 +25,8 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
           <PowerpointDisplay fileUrl={fileUrl} />
         ) : fileExtension === 'mp3' || fileExtension === 'wav' ? (
           <AudioDisplay fileUrl={fileUrl} />
+        ) : fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' || fileExtension === 'webp' ? (
+          <ImageDisplay fileUrl={fileUrl} fileName={fileName} />
         ) : (
           <div>
             <p>File type not supported for preview. <a href={fileUrl} download>Download</a> the file to view.</p>
