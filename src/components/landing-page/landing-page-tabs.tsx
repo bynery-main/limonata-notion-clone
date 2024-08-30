@@ -19,7 +19,7 @@ interface TabContentProps {
 
 function TabContent({ title, description, image, textColor, isFlashcard = false }: TabContentProps) {
   return (
-    <div className="w-full h-[40rem] overflow-hidden relative shadow-2xl rounded-xl">
+    <div style={{ boxShadow: '0 2px 30px -3px rgba(0, 0, 0, 0.2), 0 -4px 6px -2px rgba(0, 0, 0, 0.05)' }} className="w-full h-[40rem] overflow-hidden relative rounded-xl">
       <div className="absolute inset-0 z-0">
         {/* Render gradient background */}
         <img src={Gradient.src} alt="Gradient" className="w-full h-full object-cover opacity-50" />
