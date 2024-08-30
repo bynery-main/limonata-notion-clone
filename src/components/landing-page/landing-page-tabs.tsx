@@ -1,11 +1,11 @@
 import React from 'react';
 import Image, { StaticImageData } from "next/image";
 import { Tabs } from "../ui/tabs";
-import Gradient from "./Images/Gradient.png";
-import studyguideimage from "./images/StudyGuide.png";
-import flashcardimage from "./images/Flashcards.png";
-import tutorimage from "./images/Chat.png";
-import quizimage from "./images/Quiz.png";
+import Gradient from "../../../Public/Images/Gradient.png";
+import studyguideimage from "../../../Public/Images/StudyGuide.png";
+import flashcardimage from "../../../Public/Images/Flashcards.png";
+import tutorimage from "../../../Public/Images/Chat.png";
+import quizimage from "../../../Public/Images/Quiz.png";
 import FancyText from '@carefully-coded/react-text-gradient';
 
 

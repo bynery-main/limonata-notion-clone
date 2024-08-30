@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import AIImage from './Images/AI.png';
+import AIImage from '../../../Public/Images/AI.png';
 import FancyText from '@carefully-coded/react-text-gradient';
 
 export default function IntroductionComponent() {
