@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@import url('https://fonts.googleapis.com/css2?family=Urbanist');
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -30,6 +30,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --custom-orange: 255, 89, 36; /* FF5924 in HSL */
+    --font-family: 'Urbanist', sans-serif;
   }
 
   .dark {
@@ -66,6 +67,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-family);
   }
   html,
   body {
