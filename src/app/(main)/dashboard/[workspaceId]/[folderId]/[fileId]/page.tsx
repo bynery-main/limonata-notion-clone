@@ -1,12 +1,9 @@
 "use client";
 
-import QuillEditor from '@/components/quill-editor/quill-editor';
 import React from 'react';
 import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import FileHandler from '@/components/file-handling/file-handler';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,35 +31,15 @@ const File = async ({ params }: { params: { workspaceId: string, folderId: strin
   const fileExtension = fileName.split('.').pop()?.toLowerCase();
   const fileUrl = data.url;
 
-  if (fileUrl) {
-    console.log('File URL:', fileUrl);
-    return (
-      <div className="relative">
-        <h1 className="text-xl mb-4">{fileName}</h1>
-        {fileExtension === 'pdf' ? (
-          <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.0.279/build/pdf.worker.min.js`}>
-            <div style={{ height: '750px' }}>
-              <Viewer fileUrl={fileUrl} />
-            </div>
-          </Worker>
-        ) : (
-          <div>
-            <p>File type not supported for preview. <a href={fileUrl} download>Download</a> the file to view.</p>
-          </div>
-        )}
-      </div>
-    );
-  } else {
-    return (
-      <div className="relative">
-        <QuillEditor
-          dirType="file"
-          fileId={params.fileId}
-          dirDetails={{ ...data, workspaceId: params.workspaceId, folderId: params.folderId }}
-        />
-      </div>
-    );
-  }
+  return (
+    <FileHandler
+      fileName={fileName}
+      fileUrl={fileUrl}
+      fileExtension={fileExtension}
+      data={data}
+      params={params}
+    />
+  );
 };
 
 export default File;
