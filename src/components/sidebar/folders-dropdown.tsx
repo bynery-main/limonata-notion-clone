@@ -43,28 +43,33 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   useEffect(() => {
     const foldersRef = collection(db, 'workspaces', workspaceId, 'folders');
   
-    const unsubscribe = onSnapshot(foldersRef, (snapshot) => {
-      const fetchFolders = async () => {
-        const updatedFolders: Folder[] = await Promise.all(
-          snapshot.docs.map(async (doc) => {
-            const folderData = doc.data();
-            const folderId = doc.id;
+    const unsubscribe = onSnapshot(foldersRef, async (snapshot) => {
+      const folderChanges = snapshot.docChanges();
+
+      const updatedFolders = await Promise.all(
+        folderChanges.map(async (change) => {
+          const doc = change.doc;
+          const folderData = doc.data();
+          const folderId = doc.id;
+
+          if (change.type === "added" || change.type === "modified") {
             const files = await fetchFiles(workspaceId, folderId);
-  
             return {
               id: folderId,
               name: folderData.name || 'Unnamed Folder',
               contents: folderData.contents || [],
               files,
             };
-          })
-        );
-  
-        setFolders(updatedFolders);
-        onFoldersUpdate(updatedFolders);
-      };
-  
-      fetchFolders();
+          } else if (change.type === "removed") {
+            return null; // Handle folder removal if needed
+          }
+        })
+      );
+
+      // Filter out nulls from removed folders and update state
+      const validFolders = updatedFolders.filter((folder) => folder !== null) as Folder[];
+      setFolders(validFolders);
+      onFoldersUpdate(validFolders);
     });
 
     return () => unsubscribe();
@@ -76,7 +81,6 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   };
 
   const handleFileClick = (file: FileData) => {
-    // Redirect to the file viewing page
     router.push(`/dashboard/${workspaceId}/upload/${file.id}`);
   };
 
