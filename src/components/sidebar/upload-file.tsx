@@ -7,6 +7,8 @@ interface FileData {
   id: string;
   name: string;
   url: string;
+  type: string;
+  fileType: string;
 }
 
 interface UploadFileProps {
@@ -22,6 +24,31 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const determineFileType = (fileName: string) => {
+    const extension = fileName.split(".").pop()?.toLowerCase() || "";
+
+    const fileTypeMap: { [key: string]: string } = {
+      mp3: "audio",
+      wav: "audio",
+      pdf: "document",
+      doc: "document",
+      docx: "document",
+      ppt: "powerpoint",
+      pptx: "powerpoint",
+      jpg: "image",
+      jpeg: "image",
+      png: "image",
+      gif: "image",
+      webp: "image",
+      mp4: "video",
+      avi: "video",
+      mov: "video",
+      wmv: "video",
+    };
+
+    return fileTypeMap[extension] || "other";
   };
 
   const handleUpload = async () => {
@@ -43,13 +70,17 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        await saveFileData(file.name, downloadURL);
-        console.log("File available at", downloadURL);
+        const fileType = determineFileType(file.name);
+        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+
+        await saveFileData(file.name, downloadURL, fileType, fileExtension);
 
         onFileUpload({
           id: file.name,
           name: file.name,
           url: downloadURL,
+          type: fileType,
+          fileType: fileExtension,
         });
 
         setUploadProgress(0); // Reset progress after upload is complete
@@ -57,10 +88,12 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     );
   };
 
-  const saveFileData = async (fileName: string, fileURL: string) => {
+  const saveFileData = async (fileName: string, fileURL: string, type: string, fileType: string) => {
     const fileData = {
       name: fileName,
       url: fileURL,
+      type,
+      fileType,
     };
 
     const filesRef = collection(db, folderRef, "files");
