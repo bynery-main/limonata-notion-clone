@@ -31,14 +31,21 @@ export const fetchFiles = async (workspaceId: string, folderId: string): Promise
   // Fetch files from Firebase Storage
   const filesRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
   const filesList = await listAll(filesRef);
+
+  // Fetch files metadata from Firestore
+  const filesCollectionRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
+  const filesSnapshot = await getDocs(filesCollectionRef);
+
   const files: FileData[] = await Promise.all(
     filesList.items.map(async (itemRef) => {
+      const fileDoc = filesSnapshot.docs.find(doc => doc.data().name === itemRef.name);
+      const fileId = fileDoc ? fileDoc.id : itemRef.name; // Use Firestore ID if available, otherwise fallback to the filename
       const url = await getDownloadURL(itemRef);
-      return { id: itemRef.name, name: itemRef.name, url };
+      return { id: fileId, name: itemRef.name, url };
     })
   );
 
-  // Fetch notes from Firestore
+  // Fetch notes from Firestore (as you had before)
   const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
   const notesSnapshot = await getDocs(notesRef);
   const notes: FileData[] = notesSnapshot.docs.map(doc => ({

@@ -102,13 +102,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     onSelect();
   };
   const handleFileClick = (file: FileData) => {
-    if (file.url?.startsWith('http')) {
-      // External URL, open in new tab
-      window.open(file.url, '_blank');
-    } else {
-      // Internal file, navigate using Next.js router
-      router.push(`/dashboard/${workspaceId}/${folder.id}/${file.id}`);
-    }
+    router.push(`/dashboard/${workspaceId}/${folder.id}/${file.id}`);
   };
   const handleMenuItemClick = (action: () => void) => {
     setShowMenu(false);
