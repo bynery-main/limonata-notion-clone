@@ -6,7 +6,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig'; // Adjust this import based on your firebase setup
 import Image from 'next/image';
-import logo from '../../../Public/Images/Black_Logo@4x.png';
+import logo from '../../../public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
 
 const gradientAnimation = keyframes`

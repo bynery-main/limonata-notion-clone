@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import inputTypesImage from '../../../Public/Images/Input-Types-Images.png';
+import inputTypesImage from '../../../public/Images/Input-Types-Images.png';
 import FancyText from '@carefully-coded/react-text-gradient';
 
 export default function IntroductionComponent() {
