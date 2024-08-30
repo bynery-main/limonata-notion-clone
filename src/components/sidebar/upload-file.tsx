@@ -20,10 +20,12 @@ interface UploadFileProps {
 const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
+      setErrorMessage(null); // Clear any previous error message
     }
   };
 
@@ -55,6 +57,14 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   const handleUpload = async () => {
     if (!file) return;
 
+    const fileType = determineFileType(file.name);
+
+    // Check if the file is a video
+    if (fileType === "video") {
+      setErrorMessage("Video files are not accepted");
+      return;
+    }
+
     const storageRef = ref(storage, `${folderRef}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -71,7 +81,6 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const fileType = determineFileType(file.name);
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
 
         // Create a new Firestore document with a generated ID
@@ -131,6 +140,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       >
         Upload File
       </button>
+      {errorMessage && <div className="text-red-500">{errorMessage}</div>}
       {uploadProgress > 0 && <div>Upload Progress: {uploadProgress}%</div>}
     </div>
   );
