@@ -1,6 +1,7 @@
 import React from 'react';
 import QuillEditor from '@/components/quill-editor/quill-editor';
-import PdfDisplay from './pdf-display';
+import DocumentDisplay from './document-display';
+import PowerpointDisplay from './powerpoint-display';
 import AudioDisplay from './audio-display';
 
 interface FileHandlerProps {
@@ -17,8 +18,10 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
     return (
       <div className="relative">
         <h1 className="text-xl mb-4">{fileName}</h1>
-        {fileExtension === 'pdf' ? (
-          <PdfDisplay fileUrl={fileUrl} />
+        {fileExtension === 'pdf' || fileExtension === 'docx' || fileExtension === 'doc' ? (
+          <DocumentDisplay fileUrl={fileUrl} fileExtension={fileExtension} />
+        ) : fileExtension === 'ppt' || fileExtension === 'pptx' ? (
+          <PowerpointDisplay fileUrl={fileUrl} />
         ) : fileExtension === 'mp3' || fileExtension === 'wav' ? (
           <AudioDisplay fileUrl={fileUrl} />
         ) : (
