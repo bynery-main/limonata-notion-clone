@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 interface FileData {
   id: string;
@@ -73,22 +74,31 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
         const fileType = determineFileType(file.name);
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
 
-        await saveFileData(file.name, downloadURL, fileType, fileExtension);
+        // Create a new Firestore document with a generated ID
+        const newFileRef = doc(collection(db, folderRef, "files"));
+        const fileId = newFileRef.id;
+
+        await saveFileData(newFileRef, file.name, downloadURL, fileType, fileExtension);
 
         onFileUpload({
-          id: file.name,
+          id: fileId,
           name: file.name,
           url: downloadURL,
           type: fileType,
           fileType: fileExtension,
         });
 
+        // If the file is an audio file, trigger the Cloud Function
+        if (fileType === "audio") {
+          await triggerAudioTranscription(downloadURL, newFileRef.path);
+        }
+
         setUploadProgress(0); // Reset progress after upload is complete
       }
     );
   };
 
-  const saveFileData = async (fileName: string, fileURL: string, type: string, fileType: string) => {
+  const saveFileData = async (fileRef: any, fileName: string, fileURL: string, type: string, fileType: string) => {
     const fileData = {
       name: fileName,
       url: fileURL,
@@ -96,11 +106,20 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       fileType,
     };
 
-    const filesRef = collection(db, folderRef, "files");
-    const newFileRef = doc(filesRef);
-
-    await setDoc(newFileRef, fileData);
+    await setDoc(fileRef, fileData);
     console.log("File data saved to Firestore:", fileData);
+  };
+
+  const triggerAudioTranscription = async (audioUrl: string, fileRef: string) => {
+    try {
+      const functions = getFunctions();
+      const handleAudioUpload = httpsCallable(functions, 'handleAudioUpload');
+      const response = await handleAudioUpload({ audioUrl, fileRef });
+
+      console.log("Cloud Function response:", response.data);
+    } catch (error) {
+      console.error("Error calling Cloud Function:", error);
+    }
   };
 
   return (
