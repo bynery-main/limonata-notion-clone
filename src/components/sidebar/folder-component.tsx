@@ -117,15 +117,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     action();
   };
 
-  const addSubFolder = async () => {
-    if (newSubFolderName.trim() === "") return;
-    const subfoldersRef = collection(db, "workspaces", workspaceId, "folders", folder.id, "subfolders");
-    const newSubFolderRef = doc(subfoldersRef);
-    await setDoc(newSubFolderRef, { name: newSubFolderName, contents: [] });
-    setNewSubFolderName(""); 
-    setShowAddSubtopic(false);
-  };
-
   const handleRename = async () => {
     if (newName.trim() === "") return;
     const folderRef = doc(db, "workspaces", workspaceId, "folders", folder.id);
@@ -306,23 +297,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                   className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white"
                 >
                   Rename
-                </button>
-              </div>
-            </CSSTransition>
-            <CSSTransition in={showAddSubtopic} timeout={300} classNames="add-subtopic" unmountOnExit>
-              <div className="flex center my-2">
-                <input
-                  type="text"
-                  value={newSubFolderName}
-                  onChange={(e) => setNewSubFolderName(e.target.value)}
-                  placeholder="New subtopic name"
-                  className="border p-2 rounded"
-                />
-                <button
-                  onClick={addSubFolder}
-                  className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white"
-                >
-                  Add
                 </button>
               </div>
             </CSSTransition>
