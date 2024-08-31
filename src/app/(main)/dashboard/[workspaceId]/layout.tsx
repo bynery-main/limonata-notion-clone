@@ -42,7 +42,7 @@ interface BreadcrumbItem {
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emoji, setEmoji] = useState<string>("🍋"); // Default emoji
+  const [emoji, setEmoji] = useState<string>("🍋"); 
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
   const [pageTitle, setPageTitle] = useState<string>("");
   const [fullBentoGrid, setFullBentoGrid] = useState(false);
@@ -230,9 +230,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     }
   };
 
-  const items: any[] = [
-    // your items here
-  ];
 
   const onSendMessage = (workspaceId: string, query: string) => {
     // Your message sending logic here
