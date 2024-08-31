@@ -346,8 +346,9 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                         onBlur={() => handleRenameFile(file.id)}
                         onKeyPress={(e) => handleRenameKeyPress(e, file.id)}
                         className="text-sm flex-grow border rounded p-1"
+                        title="Rename file"
                       />
-                      <button onClick={() => handleRenameFile(file.id)} className="ml-2 text-green-500">
+                      <button onClick={() => handleRenameFile(file.id)} className="ml-2 text-green-500" aria-label="Rename File">
                         <CheckIcon className="h-4 w-4" />
                       </button>
                     </div>
