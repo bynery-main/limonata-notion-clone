@@ -10,18 +10,6 @@ import FolderComponent from "./folder-component";
 import { fetchFiles, addFolder } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-interface FileData {
-  id: string;
-  name: string;
-  url: string;
-}
-
-interface Folder {
-  id: string;
-  name: string;
-  contents: any[];
-  files: FileData[];
-}
 
 interface FoldersDropDownProps {
   workspaceId: string;

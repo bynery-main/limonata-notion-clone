@@ -2,16 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Picker from "@emoji-mart/react";
 import {
-  BoxIcon,
-  CirclePlusIcon,
-  LayoutGridIcon,
-  LockIcon,
   SettingsIcon,
   UserPlusIcon,
   UsersIcon,
-  ChevronRightIcon,
 } from "lucide-react";
-import { twMerge } from "tailwind-merge";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
 import QuizzesDropdown from "./quizzes-dropdown";
@@ -33,17 +27,6 @@ import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
 
-interface Folder {
-  id: string;
-  name: string;
-  contents: any[];
-  files: FileData[];
-}
-interface FileData {
-  id: string;
-  name: string;
-  url: string;
-}
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
   className?: string;
