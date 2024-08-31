@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, DocumentChange, DocumentData } from "firebase/firestore";
-import { db } from "@/firebase/firebaseConfig";
+import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { ref, listAll, deleteObject } from "firebase/storage";
+import { db, storage } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { CirclePlusIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
-import { fetchFiles, addFolder, deleteFolder, deleteFile } from "@/lib/utils";
+import { fetchFiles, addFolder } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 interface FileData {
@@ -67,11 +68,12 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
         }
       }
 
-      setFolders(prevFolders => {
-        const newFolders = prevFolders.filter(folder => 
-          !snapshot.docChanges().some(change => 
-            change.type === "removed" && change.doc.id === folder.id
-          )
+      setFolders((prevFolders) => {
+        const newFolders = prevFolders.filter(
+          (folder) =>
+            !snapshot.docChanges().some(
+              (change) => change.type === "removed" && change.doc.id === folder.id
+            )
         );
         return [...newFolders, ...updatedFolders];
       });
@@ -90,6 +92,37 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   const handleAddFolder = async () => {
     await addFolder(workspaceId, newFolderName);
     setNewFolderName("");
+  };
+
+  const handleDeleteFolder = async (workspaceId: string, folderId: string) => {
+    try {
+      // Delete all files and subfolders in the folder from Firebase Storage
+      const folderStorageRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
+      await deleteFolderContentsRecursively(folderStorageRef);
+
+      // Delete the folder document from Firestore
+      const folderRef = doc(db, "workspaces", workspaceId, "folders", folderId);
+      await deleteDoc(folderRef);
+
+      // Remove the folder from the local state
+      setFolders((prevFolders) => prevFolders.filter((folder) => folder.id !== folderId));
+    } catch (error) {
+      console.error("Error deleting folder and its contents:", error);
+    }
+  };
+
+  const deleteFolderContentsRecursively = async (folderRef: any) => {
+    const folderFiles = await listAll(folderRef);
+
+    // Delete all files in the folder
+    for (const itemRef of folderFiles.items) {
+      await deleteObject(itemRef);
+    }
+
+    // Recursively delete all subfolders and their contents
+    for (const prefixRef of folderFiles.prefixes) {
+      await deleteFolderContentsRecursively(prefixRef);
+    }
   };
 
   const handleFileClick = (file: FileData) => {
@@ -132,8 +165,8 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
               folder={folder}
               workspaceId={workspaceId}
               setFolders={setFolders}
-              deleteFolder={deleteFolder}
-              deleteFile={deleteFile}
+              deleteFolder={handleDeleteFolder}
+              deleteFile={handleDeleteFolder} // Pass the deleteFolder function here
               isActive={folder.id === currentFolderId}
               onSelect={() => onFolderSelect(folder)}
               openFolderId={openFolderId}
