@@ -2,7 +2,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
@@ -25,16 +25,28 @@ interface CreditUsageResult {
   remainingCredits: number;
 }
 
+const LoadingDots = () => {
+  return (
+    <div className="flex space-x-1 items-center">
+      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '200ms'}}></div>
+      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '400ms'}}></div>
+    </div>
+  );
+};
+
 export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
   const [isChatVisible, setIsChatVisible] = useState(false);
   const [messages, setMessages] = useState<{ type: string, content: string }[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
-  const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
-  const [creditCost] = useState(5); // Assuming credit cost is 5
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [remainingCredits, setRemainingCredits] = useState(0);
+  const [creditCost] = useState(5);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const pathname = window.location.pathname;
@@ -42,6 +54,14 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
     const id = parts[2];
     setWorkspaceId(id);
   }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useLayoutEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   const markdownStyles = {
     p: 'mb-2 font-light break-words',
@@ -90,7 +110,6 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
 
   const handleSend = async () => {
     if (inputMessage.trim() && workspaceId) {
-
       if (!userId) {
         toast({
           title: "Error",
@@ -105,13 +124,13 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
       const newMessage = inputMessage.trim();
       setMessages([...messages, { type: 'user', content: newMessage }]);
       setInputMessage("");
+      setIsLoading(true);
 
       const functions = getFunctions(app);
       const chatWithWorkspace = httpsCallable<{ workspaceId: string, query: string }, ChatResponse>(functions, 'chatWithWorkspace');
       const creditValidation = httpsCallable<{ uid: string, cost: number }, CreditUsageResult>(functions, 'useCredits');
 
       try {
-        // First, attempt to use credits
         const creditUsageResult = await creditValidation({ uid: userId, cost: creditCost });
 
         console.log("Credit usage result:", creditUsageResult.data);
@@ -119,10 +138,10 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
         if (!creditUsageResult.data.success) {
           setRemainingCredits(creditUsageResult.data.remainingCredits);
           setShowCreditModal(true);
+          setIsLoading(false);
           return;
         }
 
-        // If credit usage was successful, proceed with sending the message
         console.log("Sending query to chatWithWorkspace:", { workspaceId, query: newMessage });
         const result = await chatWithWorkspace({ workspaceId, query: newMessage });
         const answer = result.data.answer;
@@ -144,6 +163,8 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
           duration: 5000,
           isClosable: true,
         });
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -176,11 +197,11 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
                         <AvatarFallback>AC</AvatarFallback>
                       </Avatar>
                     )}
-                  <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
-                    <ReactMarkdown components={components}>
-                      {message.content}
-                    </ReactMarkdown>
-                  </div>
+                    <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                      <ReactMarkdown components={components}>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
                     {message.type === 'user' && (
                       <Avatar className="h-8 w-8 border">
                         <AvatarImage src="/placeholder-user.jpg" alt="Image" />
@@ -189,6 +210,18 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
                     )}
                   </div>
                 ))}
+                {isLoading && (
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-8 w-8 border">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Image" />
+                      <AvatarFallback>AC</AvatarFallback>
+                    </Avatar>
+                    <div className="rounded-lg p-3 text-sm shadow bg-muted/20 backdrop-blur-sm" style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                      <LoadingDots />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
             <div className="border-t border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
@@ -231,7 +264,6 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
         </div>
       )}
 
-      {/* Use NoCreditsModal for insufficient credits */}
       {showCreditModal && (
         <NoCreditsModal
           remainingCredits={remainingCredits}
@@ -301,5 +333,3 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-
-export default ChatComponent;
