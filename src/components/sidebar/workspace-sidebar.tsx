@@ -33,17 +33,6 @@ import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
 
-interface Folder {
-  id: string;
-  name: string;
-  contents: any[];
-  files: FileData[];
-}
-interface FileData {
-  id: string;
-  name: string;
-  url: string;
-}
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
   className?: string;
