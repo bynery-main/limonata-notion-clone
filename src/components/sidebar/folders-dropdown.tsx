@@ -103,6 +103,8 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
           <button
             onClick={handleAddFolder}
             className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
+            aria-label="Add new folder"
+            
           >
             <CirclePlusIcon className="h-4 w-4" />
           </button>
