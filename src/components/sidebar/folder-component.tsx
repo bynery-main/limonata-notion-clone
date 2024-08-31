@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import { collection, doc, setDoc, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
-import { deleteObject, ref } from "firebase/storage";
-import { ChevronRightIcon, FolderPlusIcon, NotebookIcon, UploadIcon, MoreHorizontal, PencilIcon, TrashIcon, MoreVerticalIcon } from "lucide-react";
+import { deleteObject, ref, getStorage, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ChevronRightIcon, FolderPlusIcon, NotebookIcon, UploadIcon, MoreHorizontal, PencilIcon, TrashIcon, MoreVerticalIcon, CheckIcon } from "lucide-react";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { CSSTransition } from 'react-transition-group';
 import * as Accordion from "@radix-ui/react-accordion";
@@ -135,8 +135,44 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
   const handleRenameFile = async (fileId: string) => {
     if (renameFileName.trim() === "") return;
-    const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
-    await updateDoc(fileRef, { name: renameFileName });
+
+    try {
+      const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
+      const noteRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/notes/${fileId}`);
+      const fileSnapshot = await getDoc(fileRef);
+      const noteSnapshot = await getDoc(noteRef);
+
+      if (fileSnapshot.exists()) {
+        // Handle renaming a file in storage
+        const oldFileName = fileSnapshot.data()?.name;
+        const oldStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${oldFileName}`;
+        const newStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${renameFileName}`;
+        const oldStorageRef = ref(storage, oldStoragePath);
+        const newStorageRef = ref(storage, newStoragePath);
+
+        // Get the file data
+        const fileData = await getDownloadURL(oldStorageRef);
+        const response = await fetch(fileData);
+        const blob = await response.blob();
+
+        // Upload the file with the new name
+        await uploadBytes(newStorageRef, blob);
+
+        // Update Firestore with the new name
+        await updateDoc(fileRef, { name: renameFileName });
+
+        // Delete the old file from storage
+        await deleteObject(oldStorageRef);
+      } else if (noteSnapshot.exists()) {
+        // Handle renaming a note (only in Firestore)
+        await updateDoc(noteRef, { name: renameFileName });
+      } else {
+        console.error("File or note not found in Firestore.");
+      }
+    } catch (error) {
+      console.error("Error renaming file or note:", error);
+    }
+
     setRenameFileId(null);
     setRenameFileName("");
     setShowFileMenu({ ...showFileMenu, [fileId]: false });
@@ -178,6 +214,12 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       console.error("Error deleting file:", error);
     }
     setShowFileMenu({ ...showFileMenu, [fileId]: false });
+  };
+
+  const handleRenameKeyPress = async (event: React.KeyboardEvent, fileId: string) => {
+    if (event.key === "Enter") {
+      await handleRenameFile(fileId);
+    }
   };
 
   const getFileEmoji = (fileName: string | undefined) => {
@@ -322,13 +364,19 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                 >
                   <span className="mr-2" onClick={() => handleFileClick(file)}>{getFileEmoji(file.name)}</span>
                   {renameFileId === file.id ? (
-                    <input
-                      type="text"
-                      value={renameFileName}
-                      onChange={(e) => setRenameFileName(e.target.value)}
-                      onBlur={() => handleRenameFile(file.id)}
-                      className="text-sm flex-grow border rounded p-1"
-                    />
+                    <div className="flex items-center flex-grow">
+                      <input
+                        type="text"
+                        value={renameFileName}
+                        onChange={(e) => setRenameFileName(e.target.value)}
+                        onBlur={() => handleRenameFile(file.id)}
+                        onKeyPress={(e) => handleRenameKeyPress(e, file.id)}
+                        className="text-sm flex-grow border rounded p-1"
+                      />
+                      <button onClick={() => handleRenameFile(file.id)} className="ml-2 text-green-500">
+                        <CheckIcon className="h-4 w-4" />
+                      </button>
+                    </div>
                   ) : (
                     <span className="text-sm flex-grow" onClick={() => handleFileClick(file)}>
                       {file.name || "Unnamed File"}
