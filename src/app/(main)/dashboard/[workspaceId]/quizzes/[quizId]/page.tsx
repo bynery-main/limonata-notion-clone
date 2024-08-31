@@ -2,11 +2,25 @@
 
 import React, { useEffect, useState, ChangeEvent, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { db, app } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import EvaluationComponent from "@/components/ai-tools/evaluation-component";
-import { CalendarIcon, CheckIcon, Trash2, Pencil, PlusCircle } from "lucide-react";
+import {
+  CalendarIcon,
+  CheckIcon,
+  Trash2,
+  Pencil,
+  PlusCircle,
+} from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { Button } from "@/components/ui/button";
 import { Toast, useToast } from "@chakra-ui/react";
@@ -131,9 +145,15 @@ const QuizzesPage = () => {
   const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
-  const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
-  const [evaluationCollections, setEvaluationCollections] = useState<Evaluation[][]>([]);
-  const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<number | null>(null);
+  const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(
+    null
+  );
+  const [evaluationCollections, setEvaluationCollections] = useState<
+    Evaluation[][]
+  >([]);
+  const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<
+    number | null
+  >(null);
   const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
   const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
   const [creditCost] = useState(20); // Assuming credit cost is 20
@@ -189,21 +209,41 @@ const QuizzesPage = () => {
 
   const handleUpdateQuiz = async (index: number) => {
     const currentQuestion = quizzes[index].question;
-    console.log(`Edit button clicked for quiz ID: ${quizzes[index].id}, Current Question: ${currentQuestion}`);
+    console.log(
+      `Edit button clicked for quiz ID: ${quizzes[index].id}, Current Question: ${currentQuestion}`
+    );
     setCurrentEditQuizId(quizzes[index].id || null);
     setNewQuestion(currentQuestion);
     setIsEditPopupOpen(true);
   };
 
   const handleEditPopupSubmit = async () => {
-    console.log(`Submit button clicked for editing quiz ID: ${currentEditQuizId}, New Question: ${newQuestion}`);
+    console.log(
+      `Submit button clicked for editing quiz ID: ${currentEditQuizId}, New Question: ${newQuestion}`
+    );
     if (currentEditQuizId && newQuestion) {
       try {
-        const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes", currentEditQuizId);
-        console.log(`Updating Firestore document for quiz ID: ${currentEditQuizId} with new question: ${newQuestion}`);
+        const quizDocRef = doc(
+          db,
+          "workspaces",
+          workspaceId,
+          "quizSets",
+          quizId,
+          "quizzes",
+          currentEditQuizId
+        );
+        console.log(
+          `Updating Firestore document for quiz ID: ${currentEditQuizId} with new question: ${newQuestion}`
+        );
         await updateDoc(quizDocRef, { question: newQuestion });
 
-        setQuizzes(quizzes.map(quiz => quiz.id === currentEditQuizId ? { ...quiz, question: newQuestion } : quiz));
+        setQuizzes(
+          quizzes.map((quiz) =>
+            quiz.id === currentEditQuizId
+              ? { ...quiz, question: newQuestion }
+              : quiz
+          )
+        );
         setNewQuestion("");
         setIsEditPopupOpen(false);
       } catch (error) {
@@ -217,7 +257,15 @@ const QuizzesPage = () => {
     console.log(`Delete button clicked for quiz ID: ${deletedQuiz.id}`);
 
     if (deletedQuiz.id) {
-      const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes", deletedQuiz.id);
+      const quizDocRef = doc(
+        db,
+        "workspaces",
+        workspaceId,
+        "quizSets",
+        quizId,
+        "quizzes",
+        deletedQuiz.id
+      );
       await deleteDoc(quizDocRef);
     }
 
@@ -232,9 +280,18 @@ const QuizzesPage = () => {
   const handlePopupSubmit = async () => {
     if (newQuestion) {
       try {
-        const quizzesCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", quizId, "quizzes");
-        const quizDocRef = await addDoc(quizzesCollectionRef, { question: newQuestion });
-        
+        const quizzesCollectionRef = collection(
+          db,
+          "workspaces",
+          workspaceId,
+          "quizSets",
+          quizId,
+          "quizzes"
+        );
+        const quizDocRef = await addDoc(quizzesCollectionRef, {
+          question: newQuestion,
+        });
+
         setQuizzes([...quizzes, { id: quizDocRef.id, question: newQuestion }]);
         setNewQuestion("");
         setIsAddPopupOpen(false);
@@ -438,16 +495,22 @@ const QuizzesPage = () => {
                   <button
                     onClick={() => handleUpdateQuiz(index)}
                     className="text-gray-600"
+                    title="Edit"
                   >
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => handleDeleteQuiz(index)}
                     className="text-red-500"
+                    title="Delete"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
-                  <button onClick={handleAddQuiz} className="text-blue-500">
+                  <button
+                    onClick={handleAddQuiz}
+                    className="text-blue-500"
+                    title="Add Question"
+                  >
                     <PlusCircle className="w-5 h-5" />
                   </button>
                 </div>
