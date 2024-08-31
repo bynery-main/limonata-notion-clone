@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { db } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
-import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 
 const SettingsPage = () => {
