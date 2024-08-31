@@ -2,16 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Picker from "@emoji-mart/react";
 import {
-  BoxIcon,
-  CirclePlusIcon,
-  LayoutGridIcon,
-  LockIcon,
   SettingsIcon,
   UserPlusIcon,
   UsersIcon,
-  ChevronRightIcon,
 } from "lucide-react";
-import { twMerge } from "tailwind-merge";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
 import QuizzesDropdown from "./quizzes-dropdown";
