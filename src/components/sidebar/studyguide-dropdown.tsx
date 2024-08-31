@@ -26,6 +26,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [selectedStudyGuide, setSelectedStudyGuide] = useState<StudyGuide | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,6 +47,9 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   const handleDropdownToggle = (event: React.MouseEvent, studyGuide: StudyGuide) => {
     event.stopPropagation(); // Prevent the click from bubbling up
     setSelectedStudyGuide(studyGuide);
+
+    const targetRect = (event.target as HTMLElement).getBoundingClientRect();
+    setDropdownPosition({ top: targetRect.bottom, left: targetRect.left });
     setDropdownVisible(!dropdownVisible);
   };
 
@@ -125,13 +129,17 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                   onClick={(event) => handleDropdownToggle(event, studyGuide)}
                 />
                 {dropdownVisible && selectedStudyGuide?.id === studyGuide.id && (
-                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                  <div
+                    ref={dropdownRef}
+                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
+                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+                  >
                     <button
                       onClick={handleRenameStudyGuide}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <div className="flex items-center">
-                      <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
                       </div>
                     </button>
                     <button
@@ -139,10 +147,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <div className="flex items-center">
-                      <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-
-                      Delete
-
+                        <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
                       </div>
                     </button>
                   </div>

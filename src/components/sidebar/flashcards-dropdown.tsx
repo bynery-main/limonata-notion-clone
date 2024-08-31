@@ -26,6 +26,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,9 +50,12 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   }, [workspaceId]);
 
   const handleDropdownToggle = (event: React.MouseEvent, deck: FlashcardDeck) => {
-    event.stopPropagation(); // Prevent the click from bubbling up
+    event.stopPropagation();
     console.log("Dropdown toggle clicked for deck:", deck);
     setSelectedDeck(deck);
+
+    const targetRect = (event.target as HTMLElement).getBoundingClientRect();
+    setDropdownPosition({ top: targetRect.bottom, left: targetRect.left });
     setDropdownVisible(!dropdownVisible);
   };
 
@@ -139,7 +143,11 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                   onClick={(event) => handleDropdownToggle(event, deck)}
                 />
                 {dropdownVisible && selectedDeck?.id === deck.id && (
-                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                  <div
+                    ref={dropdownRef}
+                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
+                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+                  >
                     <button
                       onClick={handleRenameDeck}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
