@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { FlashCardArray } from "react-flashcards";
