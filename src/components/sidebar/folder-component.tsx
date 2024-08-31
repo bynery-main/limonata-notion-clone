@@ -43,7 +43,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
   useEffect(() => {
     if (!isOpen) {
-      setShowAddSubtopic(false);
       setShowUpload(false);
       setShowCreateNote(false);
       setShowRename(false);
@@ -238,9 +237,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         <div ref={menuRef} className="absolute right-0 top-8 bg-white border rounded shadow-lg z-10">
           <button onClick={() => handleMenuItemClick(() => setShowRename(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
             <PencilIcon className="h-4 w-4 mr-2" /> Rename
-          </button>
-          <button onClick={() => handleMenuItemClick(() => setShowAddSubtopic(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
-            <FolderPlusIcon className="h-4 w-4 mr-2" /> Add Subtopic
           </button>
           <button onClick={() => handleMenuItemClick(() => setShowCreateNote(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
             <NotebookIcon className="h-4 w-4 mr-2" /> Create Note
