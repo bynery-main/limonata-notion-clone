@@ -57,7 +57,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
       const workspaceSnap = await getDoc(workspaceRef);
       const data = workspaceSnap.data();
-      console.log("Workspace data:", data);
       return data;
     };
 
