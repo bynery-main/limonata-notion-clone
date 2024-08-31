@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, DocumentChange, DocumentData } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { CirclePlusIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
-import { fetchFiles, addFolder, deleteFolder, deleteFile } from "@/lib/utils"; 
+import { fetchFiles, addFolder, deleteFolder, deleteFile } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 interface FileData {
@@ -41,39 +41,51 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   const router = useRouter();
 
   useEffect(() => {
-    const foldersRef = collection(db, 'workspaces', workspaceId, 'folders');
-  
+    console.log(`Setting up Firestore listener for workspace: ${workspaceId}`);
+
+    const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+
     const unsubscribe = onSnapshot(foldersRef, async (snapshot) => {
-      const folderChanges = snapshot.docChanges();
+      console.log(`Snapshot received at ${new Date().toISOString()}`);
 
-      const updatedFolders = await Promise.all(
-        folderChanges.map(async (change) => {
-          const doc = change.doc;
-          const folderData = doc.data();
-          const folderId = doc.id;
+      const updatedFolders: Folder[] = [];
 
-          if (change.type === "added" || change.type === "modified") {
-            const files = await fetchFiles(workspaceId, folderId);
-            return {
-              id: folderId,
-              name: folderData.name || 'Unnamed Folder',
-              contents: folderData.contents || [],
-              files,
-            };
-          } else if (change.type === "removed") {
-            return null; // Handle folder removal if needed
-          }
-        })
-      );
+      for (const change of snapshot.docChanges()) {
+        const doc = change.doc;
+        const folderData = doc.data();
+        const folderId = doc.id;
 
-      // Filter out nulls from removed folders and update state
-      const validFolders = updatedFolders.filter((folder) => folder !== null) as Folder[];
-      setFolders(validFolders);
-      onFoldersUpdate(validFolders);
+        if (change.type === "added" || change.type === "modified") {
+          const files = await fetchFiles(workspaceId, folderId);
+          const updatedFolder: Folder = {
+            id: folderId,
+            name: folderData.name || "Unnamed Folder",
+            contents: folderData.contents || [],
+            files,
+          };
+          updatedFolders.push(updatedFolder);
+        }
+      }
+
+      setFolders(prevFolders => {
+        const newFolders = prevFolders.filter(folder => 
+          !snapshot.docChanges().some(change => 
+            change.type === "removed" && change.doc.id === folder.id
+          )
+        );
+        return [...newFolders, ...updatedFolders];
+      });
     });
 
-    return () => unsubscribe();
-  }, [workspaceId, onFoldersUpdate]);
+    return () => {
+      console.log(`Unsubscribing Firestore listener for workspace: ${workspaceId}`);
+      unsubscribe();
+    };
+  }, [workspaceId]);
+
+  useEffect(() => {
+    onFoldersUpdate(folders);
+  }, [folders, onFoldersUpdate]);
 
   const handleAddFolder = async () => {
     await addFolder(workspaceId, newFolderName);
@@ -104,18 +116,17 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             onClick={handleAddFolder}
             className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
             aria-label="Add new folder"
-            
           >
             <CirclePlusIcon className="h-4 w-4" />
           </button>
         </div>
-        <Accordion.Root 
-          type="single" 
-          value={openFolderId || undefined} 
+        <Accordion.Root
+          type="single"
+          value={openFolderId || undefined}
           onValueChange={(value) => setOpenFolderId(value)}
           className="space-y-2"
         >
-        {folders.map((folder) => (
+          {folders.map((folder) => (
             <FolderComponent
               key={folder.id}
               folder={folder}
@@ -128,8 +139,8 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
               openFolderId={openFolderId}
               setOpenFolderId={setOpenFolderId}
             />
-        ))}
-      </Accordion.Root>
+          ))}
+        </Accordion.Root>
       </div>
     </div>
   );
