@@ -32,3 +32,12 @@ interface FolderComponentProps {
   openFolderId: string | null;
   setOpenFolderId: (folderId: string | null) => void;
 }
+
+
+// // Folders Dropdown Component Interfaces
+// interface FoldersDropDownProps {
+//   workspaceId: string;
+//   onFoldersUpdate: (folders: Folder[]) => void;
+//   currentFolderId: string;
+//   onFolderSelect: (folderId: string) => void;
+// }
