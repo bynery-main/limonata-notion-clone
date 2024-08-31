@@ -29,7 +29,6 @@ const FlashcardsPage = () => {
   const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
   const [currentEditFlashcardId, setCurrentEditFlashcardId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const router = useRouter();
   const params = useParams();
 
   const workspaceId = params?.workspaceId as string;
