@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, db } from "@/firebase/firebaseConfig";
+import { db } from "@/firebase/firebaseConfig";
 import { deleteUser } from 'firebase/auth';
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
