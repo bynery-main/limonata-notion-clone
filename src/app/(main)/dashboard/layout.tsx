@@ -2,7 +2,7 @@
 
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
 import React, { useEffect, useState } from "react";
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 
 interface LayoutProps {
@@ -13,6 +13,8 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
   const user = useAuth();
+
+  console.log('Layout user', user);
 
   useEffect(() => {
     if (!user) {
