@@ -46,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [fullBentoGrid, setFullBentoGrid] = useState(false);
   const db = getFirestore();
 
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const currentUserId = user?.uid ?? "";
   // console.log("Current user ID:", currentUserId);
 
@@ -60,29 +60,32 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       return data;
     };
 
-    const validateUser = async () => {
+    const validateUserAndFetchData = async () => {
+      if (loading || !user) return; // Wait until authentication is complete
+
       const data = await getWorkspaceData();
+
+      if (!data) {
+        console.error("Workspace data not found");
+        router.push("/login");
+        return;
+      }
 
       if (
-        !data?.owners.includes(currentUserId) &&
-        !data?.collaborators.includes(currentUserId)
+        !data.owners.includes(user.uid) &&
+        !data.collaborators.includes(user.uid)
       ) {
         router.push("/login");
+        return;
+      }
+
+      // Fetch and set emoji if it exists
+      if (data.emoji) {
+        setEmoji(data.emoji);
       }
     };
 
-    const fetchWorkspaceEmoji = async () => {
-      const data = await getWorkspaceData();
-
-      if (data!.exists()) {
-        if (data!.emoji) {
-          setEmoji(data!.emoji);
-        }
-      }
-    };
-
-    validateUser();
-    fetchWorkspaceEmoji();
+    validateUserAndFetchData();
   }, [params.workspaceId, db, currentUserId]);
 
   const pathname = usePathname();
