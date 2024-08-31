@@ -4,9 +4,7 @@ import Picker from "@emoji-mart/react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import Image from "next/image";
 
-import WorkspaceSidebar, {
-  WorkspaceSidebarProps,
-} from "@/components/sidebar/workspace-sidebar";
+import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
 import { ChatComponent } from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
