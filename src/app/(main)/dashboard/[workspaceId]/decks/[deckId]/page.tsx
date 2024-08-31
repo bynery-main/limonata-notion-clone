@@ -192,19 +192,19 @@ const FlashcardsPage = () => {
             backStyle={{ backgroundColor: '#e0e0e0', padding: '20px' }}
           />
           <div className="mt-4 flex items-center justify-center gap-4">
-            <button onClick={handlePreviousFlashcard} className="text-gray-600">
+            <button onClick={handlePreviousFlashcard} className="text-gray-600" title="Previous Card">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <button onClick={handleEditFlashcard} className="text-gray-600">
+            <button onClick={handleEditFlashcard} className="text-gray-600" title="Edit">
               <Pencil className="w-5 h-5" />
             </button>
-            <button onClick={handleDeleteFlashcard} className="text-red-500">
+            <button onClick={handleDeleteFlashcard} className="text-red-500" title="Delete">
               <Trash2 className="w-5 h-5" />
             </button>
-            <button onClick={handleAddFlashcard} className="text-blue-500">
+            <button onClick={handleAddFlashcard} className="text-blue-500" title="Add Card">
               <PlusCircle className="w-5 h-5" />
             </button>
-            <button onClick={handleNextFlashcard} className="text-gray-600">
+            <button onClick={handleNextFlashcard} className="text-gray-600" title="Next Card">
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
