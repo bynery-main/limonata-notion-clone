@@ -17,13 +17,26 @@ interface UploadFileProps {
   onFileUpload: (file: FileData) => void;
 }
 
+const allowedFileTypes: { [key: string]: string } = {
+  mp3: "audio",
+  wav: "audio",
+  pdf: "document",
+  docx: "document",
+  ppt: "powerpoint",
+  pptx: "powerpoint",
+  jpg: "image",
+  jpeg: "image",
+  png: "image",
+  webp: "image",
+};
+
 const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if ( e.target.files ) {
       setFile(e.target.files[0]);
       setErrorMessage(null); // Clear any previous error message
     }
@@ -31,37 +44,17 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
 
   const determineFileType = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase() || "";
-
-    const fileTypeMap: { [key: string]: string } = {
-      mp3: "audio",
-      wav: "audio",
-      pdf: "document",
-      doc: "document",
-      docx: "document",
-      ppt: "powerpoint",
-      pptx: "powerpoint",
-      jpg: "image",
-      jpeg: "image",
-      png: "image",
-      gif: "image",
-      webp: "image",
-      mp4: "video",
-      avi: "video",
-      mov: "video",
-      wmv: "video",
-    };
-
-    return fileTypeMap[extension] || "other";
+    return allowedFileTypes[extension] || "other";
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if ( !file ) return;
 
     const fileType = determineFileType(file.name);
 
-    // Check if the file is a video
-    if (fileType === "video") {
-      setErrorMessage("Video files are not accepted");
+    // Check if the file type is allowed
+    if ( fileType === "other" ) {
+      setErrorMessage("This file type is not allowed for upload.");
       return;
     }
 
@@ -71,13 +64,13 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
         console.log(`Upload is ${progress}% done`);
       },
       (error) => {
         console.error("Upload failed:", error);
+        setErrorMessage("Upload failed. Please try again.");
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -97,13 +90,12 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
           fileType: fileExtension,
         });
 
-        // If the file is an audio file, trigger the audio transcription Cloud Function
-        if (fileType === "audio") {
+        // Trigger appropriate Cloud Function based on file type
+        if ( fileType === "audio" ) {
           await triggerAudioTranscription(downloadURL, newFileRef.path);
         }
 
-        // If the file is a document, trigger the document processing Cloud Function
-        if (fileType === "document") {
+        if ( fileType === "document" ) {
           await triggerDocumentProcessing(downloadURL, newFileRef.path);
         }
 
