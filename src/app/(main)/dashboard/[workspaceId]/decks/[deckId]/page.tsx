@@ -4,22 +4,8 @@ import { useRouter, useParams } from "next/navigation";
 import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { FlashCardArray } from "react-flashcards";
-import { CSSProperties } from 'react';
+import { Flashcard } from "./interfaces";
 import { Pencil, Trash2, PlusCircle, ArrowRight, ArrowLeft } from "lucide-react";
-
-interface Flashcard {
-  firestoreId: string; // Firestore ID as a string
-  id: number; // Keep the ID as a number for FlashCardArray compatibility
-  timerDuration: number;
-  front: string;
-  back: string;
-  isMarkdown?: boolean;
-  frontStyle?: CSSProperties;
-  backStyle?: CSSProperties;
-  currentIndex: number;
-  label: string;
-  showTextToSpeech?: boolean;
-}
 
 const FlashcardsPage = () => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
