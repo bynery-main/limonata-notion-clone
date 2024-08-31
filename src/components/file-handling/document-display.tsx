@@ -11,7 +11,7 @@ interface DocumentDisplayProps {
 const DocumentDisplay: React.FC<DocumentDisplayProps> = ({ fileUrl, fileExtension }) => {
   if (fileExtension === 'pdf') {
     return (
-      <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.0.279/build/pdf.worker.min.js`}>
+      <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
         <div style={{ height: '750px' }}>
           <Viewer fileUrl={fileUrl} />
         </div>
