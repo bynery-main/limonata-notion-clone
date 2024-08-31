@@ -150,7 +150,8 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
 
   return (
     <div className="upload-file">
-      <input type="file" onChange={handleFileChange} />
+      <label htmlFor="fileInput">Choose a file:</label>
+      <input id="fileInput" type="file" onChange={handleFileChange} />
       <button
         onClick={handleUpload}
         className="bg-blue-500 text-white p-2 rounded mt-2"
