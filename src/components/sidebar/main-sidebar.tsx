@@ -167,12 +167,16 @@ export const MainSidebar = (): JSX.Element => {
           />
         ))}
         <motion.div
-          className="mt-4 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md hover:bg-[#FC608D] hover:border-2 hover:border-white"
+          className="mt-4 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
           onClick={() => setShowDS(true)}
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
         >
           <FaPlus />
+          <motion.div
+            className="absolute inset-0 rounded-full border-2 border-transparent"
+            whileHover={{ borderColor: "white" }}
+          />
         </motion.div>
       </div>
       <div className="flex flex-col items-center pb-4">
@@ -187,12 +191,16 @@ export const MainSidebar = (): JSX.Element => {
               whileTap={{ scale: 0.9 }}
             />
             <motion.div
-              className="mt-2 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md hover:bg-[#FC608D] hover:border-2 hover:border-white"
+              className="mt-2 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
               onClick={handleSettingsClick}
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.9 }}
             >
               <FaCog className="w-5 h-5" />
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-transparent"
+                whileHover={{ borderColor: "white" }}
+              />
             </motion.div>
           </>
         )}
@@ -247,26 +255,28 @@ interface WorkspaceIconProps {
 const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive, emoji }) => {
   return (
     <motion.div
-      className="relative mt-4 flex items-center"
+      className={`relative mt-4 w-10 h-10 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
+      onClick={onClick}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       layout
     >
-
       <motion.div
-        className={`ml-1 w-10 h-10 ${isActive ? 'rounded-lg bg-white' : 'rounded-full bg-[#666666]'} overflow-hidden cursor-pointer flex items-center justify-center font-semibold text-md`}
-        onClick={onClick}
+        className={`absolute inset-0 ${isActive ? 'bg-black' : 'bg-[#666666]'}`}
         layoutId={`workspace-bg-${workspace.id}`}
+      />
+      <motion.div
+        className={`absolute inset-0 rounded-lg border-2 ${isActive ? 'border-white' : 'border-transparent'}`}
+        layoutId={`workspace-border-${workspace.id}`}
+      />
+      <motion.span
+        className="relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
       >
-        <motion.span
-          className={`relative z-10 ${isActive ? 'text-black' : 'text-white'}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          {emoji || workspace.name.charAt(0).toUpperCase()}
-        </motion.span>
-      </motion.div>
+        {emoji || workspace.name.charAt(0).toUpperCase()}
+      </motion.span>
     </motion.div>
   );
 };
