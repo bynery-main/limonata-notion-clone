@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/navigation';
-import { collection, doc, setDoc } from "firebase/firestore";
-import { ChevronRightIcon, FolderPlusIcon, NotebookIcon, UploadIcon, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
-import { db } from "@/firebase/firebaseConfig";
+import { collection, doc, setDoc, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
+import { ChevronRightIcon, FolderPlusIcon, NotebookIcon, UploadIcon, MoreHorizontal, PencilIcon, TrashIcon, MoreVerticalIcon } from "lucide-react";
+import { db, storage } from "@/firebase/firebaseConfig";
 import { CSSTransition } from 'react-transition-group';
 import * as Accordion from "@radix-ui/react-accordion";
 import UploadFile from "./upload-file"; 
@@ -28,7 +29,7 @@ interface FolderComponentProps {
   workspaceId: string;
   setFolders: React.Dispatch<React.SetStateAction<Folder[]>>;
   deleteFolder: (workspaceId: string, folderId: string, parentFolderId?: string) => Promise<void>;
-  deleteFile: (workspaceId: string, folderId: string, fileName: string) => Promise<void>;
+  deleteFile: (workspaceId: string, folderId: string, fileId: string) => Promise<void>;
   isActive: boolean;
   onSelect: () => void;
   openFolderId: string | null;
@@ -57,7 +58,10 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [showRename, setShowRename] = useState(false);
   const [newName, setNewName] = useState(folder.name);
-  
+  const [showFileMenu, setShowFileMenu] = useState<{ [key: string]: boolean }>({});
+  const [renameFileId, setRenameFileId] = useState<string | null>(null);
+  const [renameFileName, setRenameFileName] = useState<string>("");
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,10 +81,11 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowMenu(false);
+        setShowFileMenu({});
       }
     };
 
-    if (showMenu) {
+    if (showMenu || Object.values(showFileMenu).some((show) => show)) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -89,7 +94,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showMenu]);
+  }, [showMenu, showFileMenu]);
 
   const toggleFolder = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -101,9 +106,11 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     }
     onSelect();
   };
+
   const handleFileClick = (file: FileData) => {
     router.push(`/dashboard/${workspaceId}/${folder.id}/${file.id}`);
   };
+
   const handleMenuItemClick = (action: () => void) => {
     setShowMenu(false);
     setOpenFolderId(folder.id);
@@ -124,6 +131,53 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     const folderRef = doc(db, "workspaces", workspaceId, "folders", folder.id);
     await setDoc(folderRef, { name: newName }, { merge: true });
     setShowRename(false);
+  };
+
+  const handleRenameFile = async (fileId: string) => {
+    if (renameFileName.trim() === "") return;
+    const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
+    await updateDoc(fileRef, { name: renameFileName });
+    setRenameFileId(null);
+    setRenameFileName("");
+    setShowFileMenu({ ...showFileMenu, [fileId]: false });
+  };
+
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
+      const noteRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/notes/${fileId}`);
+      
+      // Attempt to delete as a file first
+      try {
+        const fileSnapshot = await getDoc(fileRef);
+        if (fileSnapshot.exists()) {
+          const fileName = fileSnapshot.data()?.name;
+          const storagePath = `workspaces/${workspaceId}/folders/${folder.id}/${fileName}`;
+          const storageRef = ref(storage, storagePath);
+          await deleteObject(storageRef);  // Delete from storage
+          await deleteDoc(fileRef);  // Delete from Firestore
+        } else {
+          // If not found as a file, attempt to delete as a note
+          const noteSnapshot = await getDoc(noteRef);
+          if (noteSnapshot.exists()) {
+            await deleteDoc(noteRef);  // Delete from Firestore
+          } else {
+            console.error("File or note not found in Firestore.");
+          }
+        }
+      } catch (error) {
+        console.error("Error deleting from Firestore or Storage:", error);
+      }
+
+      setFolders((prevFolders) =>
+        prevFolders.map((f) =>
+          f.id === folder.id ? { ...f, files: f.files.filter((file) => file.id !== fileId) } : f
+        )
+      );
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    }
+    setShowFileMenu({ ...showFileMenu, [fileId]: false });
   };
 
   const getFileEmoji = (fileName: string | undefined) => {
@@ -263,12 +317,37 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                   className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${
                     hoveredFileId === file.id ? 'bg-gray-100' : ''
                   }`}
-                  onClick={() => handleFileClick(file)}
                   onMouseEnter={() => setHoveredFileId(file.id)}
                   onMouseLeave={() => setHoveredFileId(null)}
                 >
-                  <span className="mr-2">{getFileEmoji(file.name)}</span>
-                  <span className="text-sm">{file.name || "Unnamed File"}</span>
+                  <span className="mr-2" onClick={() => handleFileClick(file)}>{getFileEmoji(file.name)}</span>
+                  {renameFileId === file.id ? (
+                    <input
+                      type="text"
+                      value={renameFileName}
+                      onChange={(e) => setRenameFileName(e.target.value)}
+                      onBlur={() => handleRenameFile(file.id)}
+                      className="text-sm flex-grow border rounded p-1"
+                    />
+                  ) : (
+                    <span className="text-sm flex-grow" onClick={() => handleFileClick(file)}>
+                      {file.name || "Unnamed File"}
+                    </span>
+                  )}
+                  <MoreVerticalIcon
+                    className="h-4 w-4 cursor-pointer"
+                    onClick={() => setShowFileMenu({ ...showFileMenu, [file.id]: !showFileMenu[file.id] })}
+                  />
+                  {showFileMenu[file.id] && (
+                    <div ref={menuRef} className="absolute right-0 mt-8 bg-white border rounded shadow-lg z-10">
+                      <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+                        <PencilIcon className="h-4 w-4 mr-2" /> Rename
+                      </button>
+                      <button onClick={() => handleDeleteFile(file.id)} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
+                        <TrashIcon className="h-4 w-4 mr-2" /> Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
