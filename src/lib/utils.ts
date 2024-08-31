@@ -14,6 +14,7 @@ export interface FileData {
 export interface NoteData {
   id: string;
   name: string;
+  type: 'note' | 'file';
 }
 
 export interface FolderNotes {
@@ -152,6 +153,7 @@ export const fetchAllNotes = async (workspaceId: string): Promise<FolderNotes[]>
     const notes: NoteData[] = notesSnapshot.docs.map(noteDoc => ({
       id: noteDoc.id,
       name: noteDoc.data().name,
+      type: 'note', // Mark this as a note
     }));
 
     foldersNotes.push({
@@ -162,6 +164,34 @@ export const fetchAllNotes = async (workspaceId: string): Promise<FolderNotes[]>
   }
 
   return foldersNotes;
+};
+
+export const fetchAllFiles = async (workspaceId: string): Promise<FolderNotes[]> => {
+  const foldersFiles: FolderNotes[] = [];
+
+  // Fetch all folders in the workspace
+  const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+  const foldersSnapshot = await getDocs(foldersRef);
+
+  // Iterate through each folder and fetch files
+  for (const folderDoc of foldersSnapshot.docs) {
+    const filesRef = collection(db, "workspaces", workspaceId, "folders", folderDoc.id, "files");
+    const filesSnapshot = await getDocs(filesRef);
+
+    const files: NoteData[] = filesSnapshot.docs.map(fileDoc => ({
+      id: fileDoc.id,
+      name: fileDoc.data().name,
+      type: 'file', // Mark this as a file
+    }));
+
+    foldersFiles.push({
+      folderId: folderDoc.id,
+      folderName: folderDoc.data().name,
+      notes: files,
+    });
+  }
+
+  return foldersFiles;
 };
 
 export const fetchFlashcardDecks = async (workspaceId: string): Promise<FlashcardDeck[]> => {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { fetchAllNotes, FolderNotes } from "@/lib/utils";
+import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; 
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
@@ -23,6 +23,7 @@ interface Quiz {
 interface NoteReference {
   folderId: string;
   noteId: string;
+  type: 'note' | 'file'; // Indicate whether it's a note or file
 }
 
 interface NameGenerationResult {
@@ -51,23 +52,37 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const toast = useToast();
 
   useEffect(() => {
-    const fetchNotes = async () => {
+    const fetchNotesAndFiles = async () => {
       try {
         const fetchedNotes = await fetchAllNotes(workspaceId);
-        setFoldersNotes(fetchedNotes);
+        const fetchedFiles = await fetchAllFiles(workspaceId);
+        const combinedFoldersNotes = mergeNotesAndFiles(fetchedNotes, fetchedFiles);
+        setFoldersNotes(combinedFoldersNotes);
       } catch (error) {
-        console.error("Error fetching notes:", error);
+        console.error("Error fetching notes and files:", error);
       }
     };
 
-    fetchNotes();
+    fetchNotesAndFiles();
   }, [workspaceId]);
 
-  const handleCheckboxChange = (folderId: string, noteId: string, isChecked: boolean) => {
+  const mergeNotesAndFiles = (notes: FolderNotes[], files: FolderNotes[]): FolderNotes[] => {
+    const mergedFolders: FolderNotes[] = notes.map(noteFolder => {
+      const matchingFileFolder = files.find(fileFolder => fileFolder.folderId === noteFolder.folderId);
+      return {
+        folderId: noteFolder.folderId,
+        folderName: noteFolder.folderName,
+        notes: [...noteFolder.notes, ...(matchingFileFolder?.notes || [])],
+      };
+    });
+    return mergedFolders;
+  };
+
+  const handleCheckboxChange = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
     if (isChecked) {
-      setSelectedNotes([...selectedNotes, { folderId, noteId }]);
+      setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
     } else {
-      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId));
+      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
     }
   };
 
@@ -94,10 +109,15 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         return;
       }
 
+      // Separate notes and files from selectedNotes
+      const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
+      const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
+
       // If credit usage was successful, proceed with quiz creation
       const payload = {
         workspaceId,
-        notes: selectedNotes,
+        notes,
+        files, // Add files to the payload
       };
       console.log("Payload being passed to quizGenAgent:", payload);
       const result = await createQuizzes(payload);
@@ -222,7 +242,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               &times;
             </button>
           </div>
-          <p className="text-center">Which notes would you like to use?</p>
+          <p className="text-center">Which notes and transcripts would you like to use?</p>
           <ul className="mt-4">
             {foldersNotes.map((folder) => (
               <li key={folder.folderId}>
@@ -233,7 +253,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
                       <input
                         type="checkbox"
                         className="mr-2"
-                        onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked)}
+                        onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked, note.type)}
                       />
                       {note.name}
                     </li>

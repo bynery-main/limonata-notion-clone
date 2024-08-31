@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { fetchAllNotes, FolderNotes } from "@/lib/utils";
+import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
@@ -20,6 +20,12 @@ interface FlashcardComponentProps {
 interface Flashcard {
   question: string;
   answer: string;
+}
+
+interface NoteReference {
+  folderId: string;
+  noteId: string;
+  type: 'note' | 'file'; // Indicate whether it's a note or file
 }
 
 interface NameGenerationResult {
@@ -53,9 +59,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
   userId,
 }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
-  const [selectedNotes, setSelectedNotes] = useState<
-    { folderId: string; noteId: string }[]
-  >([]);
+  const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
@@ -64,25 +68,44 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
   const toast = useToast();
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      const fetchedNotes = await fetchAllNotes(workspaceId);
-      setFoldersNotes(fetchedNotes);
+    const fetchNotesAndFiles = async () => {
+      try {
+        const fetchedNotes = await fetchAllNotes(workspaceId);
+        const fetchedFiles = await fetchAllFiles(workspaceId);
+        const combinedFoldersNotes = mergeNotesAndFiles(fetchedNotes, fetchedFiles);
+        setFoldersNotes(combinedFoldersNotes);
+      } catch (error) {
+        console.error("Error fetching notes and files:", error);
+      }
     };
 
-    fetchNotes();
+    fetchNotesAndFiles();
   }, [workspaceId]);
+
+  const mergeNotesAndFiles = (notes: FolderNotes[], files: FolderNotes[]): FolderNotes[] => {
+    const mergedFolders: FolderNotes[] = notes.map(noteFolder => {
+      const matchingFileFolder = files.find(fileFolder => fileFolder.folderId === noteFolder.folderId);
+      return {
+        folderId: noteFolder.folderId,
+        folderName: noteFolder.folderName,
+        notes: [...noteFolder.notes, ...(matchingFileFolder?.notes || [])],
+      };
+    });
+    return mergedFolders;
+  };
 
   const handleCheckboxChange = (
     folderId: string,
     noteId: string,
-    isChecked: boolean
+    isChecked: boolean,
+    type: 'note' | 'file'
   ) => {
     if (isChecked) {
-      setSelectedNotes([...selectedNotes, { folderId, noteId }]);
+      setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
     } else {
       setSelectedNotes(
         selectedNotes.filter(
-          (note) => note.noteId !== noteId || note.folderId !== folderId
+          (note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type
         )
       );
     }
@@ -111,10 +134,15 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         return;
       }
 
+      // Separate notes and files from selectedNotes
+      const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
+      const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
+
       // If credit usage was successful, proceed with flashcard creation
       const result = await createFlashcards({
         workspaceId,
-        notes: selectedNotes,
+        notes,
+        files, // Add files to the payload
       });
 
       const data = result.data as { flashcards: { raw: string } };
@@ -173,7 +201,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
               &times;
             </button>
           </div>
-          <p className="text-center">Which notes would you like to use?</p>
+          <p className="text-center">Which notes and transcripts would you like to use?</p>
           <div className="grid grid-cols-3 gap-4 mt-4">
             {foldersNotes.map((folder) => (
               <div
@@ -189,7 +217,8 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                           handleCheckboxChange(
                             folder.folderId,
                             note.id,
-                            e.target.checked
+                            e.target.checked,
+                            note.type
                           )
                         }
                         borderRadius="md"
