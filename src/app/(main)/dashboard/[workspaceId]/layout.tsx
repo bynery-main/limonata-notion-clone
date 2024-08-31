@@ -14,6 +14,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
+import { useRouter } from "next/navigation";
 
 interface FileData {
   id: string;
@@ -51,21 +52,41 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const currentUserId = user?.uid ?? "";
   // console.log("Current user ID:", currentUserId);
 
+  const router = useRouter();
+
   useEffect(() => {
-    const fetchWorkspaceEmoji = async () => {
+    const getWorkspaceData = async () => {
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
       const workspaceSnap = await getDoc(workspaceRef);
+      const data = workspaceSnap.data();
+      console.log("Workspace data:", data);
+      return data;
+    };
 
-      if (workspaceSnap.exists()) {
-        const data = workspaceSnap.data();
-        if (data.emoji) {
-          setEmoji(data.emoji);
+    const validateUser = async () => {
+      const data = await getWorkspaceData();
+
+      if (
+        !data?.owners.includes(currentUserId) &&
+        !data?.collaborators.includes(currentUserId)
+      ) {
+        router.push("/login");
+      }
+    };
+
+    const fetchWorkspaceEmoji = async () => {
+      const data = await getWorkspaceData();
+
+      if (data!.exists()) {
+        if (data!.emoji) {
+          setEmoji(data!.emoji);
         }
       }
     };
 
+    validateUser();
     fetchWorkspaceEmoji();
-  }, [params.workspaceId, db]);
+  }, [params.workspaceId, db, currentUserId]);
 
   const pathname = usePathname();
 
@@ -101,16 +122,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     return true;
   };
 
-
-
-
-  useEffect(() => { 
+  useEffect(() => {
     const fullestBentoGrid = isFullBentoGrid(pathname || "");
     setFullBentoGrid(fullestBentoGrid);
     console.log("Full Bento Grid:", fullestBentoGrid);
     console.log("fullBenotGrid", fullBentoGrid);
   }, [pathname]);
-
 
   const folderId = getFolderId(pathname || "");
 
@@ -216,7 +233,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const items: any[] = [
     // your items here
   ];
-
 
   const onSendMessage = (workspaceId: string, query: string) => {
     // Your message sending logic here
