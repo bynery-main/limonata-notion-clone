@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import Image, { ImageProps } from "next/image";
 import useOutsideClick from "@/hooks/use-outside-click";
+import FancyText from '@carefully-coded/react-text-gradient';
 
 interface CarouselProps {
   items: JSX.Element[];
@@ -126,9 +127,12 @@ export const Card = ({
               </motion.p>
               <motion.p
                 layoutId={layout ? `title-${card.title}` : undefined}
-                className="text-2xl md:text-5xl font-semibold text-neutral-700 mt-4 dark:text-white"
+                className="text-2xl md:text-5xl font-semibold text-neutral-700 mt-4 dark:text-white -mb-10"
               >
+                <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto ">
+
                 {card.title}
+                </FancyText>
               </motion.p>
               <div className="py-10">{card.content}</div>
             </motion.div>
