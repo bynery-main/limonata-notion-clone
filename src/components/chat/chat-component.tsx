@@ -237,7 +237,7 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
                       exit={{ opacity: 0, y: -20 }}
                       className="bg-gray-100 p-3 rounded-lg shadow-lg"
                     >
-                      <p className="text-sm text-gray-800 mb-2">Don't forget to sync your workspaces!</p>
+                      <p className="text-sm text-gray-800 mb-2">Don&apos;t forget to sync your workspaces!</p>
                       <SyncWorkspaceButton
                         workspaceId={workspaceId}
                         className="w-full"
