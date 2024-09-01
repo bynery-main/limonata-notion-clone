@@ -1,13 +1,14 @@
-"use client"
+"use client";
 
+import Footer from "@/components/footer/footer";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from '@/components/auth-provider/AuthProvider';
+import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
-import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
-import { useAuth } from "@/components/auth-provider/AuthProvider";
-import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 import ExpandableCardDemo from "@/components/blocks/expandable-card-demo-standard";
+import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ const Dashboard = () => {
       if (userDoc.exists()) {
         const owned = await fetchWorkspaces("owners", user.uid);
         const collaborated = await fetchWorkspaces("collaborators", user.uid);
+
         setOwnedWorkspaces(owned);
         setCollaboratorWorkspaces(collaborated);
       } else {
@@ -52,6 +54,7 @@ const Dashboard = () => {
     if (user) {
       const owned = await fetchWorkspaces("owners", user.uid);
       const collaborated = await fetchWorkspaces("collaborators", user.uid);
+
       setOwnedWorkspaces(owned);
       setCollaboratorWorkspaces(collaborated);
     }
@@ -63,18 +66,22 @@ const Dashboard = () => {
     }
   };
 
+  const handleAddWorkspace = () => {
+    setShowDashboardSetup(true);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (!user) return null;
 
-  const cards = [
-    ...ownedWorkspaces.map(workspace => ({ ...workspace, type: "Owned" })),
-    ...collaboratorWorkspaces.map(workspace => ({ ...workspace, type: "Collaborator" }))
+  const allWorkspaces = [
+    ...ownedWorkspaces.map(w => ({ ...w, type: 'Owned' as const })),
+    ...collaboratorWorkspaces.map(w => ({ ...w, type: 'Collaborator' as const }))
   ];
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {cards.length > 0 ? (
-        <ExpandableCardDemo cards={cards} />
+      {allWorkspaces.length > 0 ? (
+        <ExpandableCardDemo cards={allWorkspaces} onAddWorkspace={handleAddWorkspace} />
       ) : (
         <div className="h-screen flex justify-center items-center">
           <button

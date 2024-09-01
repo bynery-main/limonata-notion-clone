@@ -6,6 +6,7 @@ import useOutsideClick from "@/hooks/use-outside-click";
 import { Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
+import { UserIcon, UsersIcon, PlusIcon } from 'lucide-react';
 
 interface WorkspaceCard extends Workspace {
   type: string;
@@ -13,33 +14,37 @@ interface WorkspaceCard extends Workspace {
 
 interface ExpandableCardDemoProps {
   cards: WorkspaceCard[];
+  onAddWorkspace: () => void;
 }
 
-export default function ExpandableCardDemo({ cards }: ExpandableCardDemoProps) {
+export default function ExpandableCardDemo({ cards, onAddWorkspace }: ExpandableCardDemoProps) {
   const [active, setActive] = useState<WorkspaceCard | null>(null);
-  const [workspaceEmojis, setWorkspaceEmojis] = useState<Record<string, string>>({});
+  const [workspaceDetails, setWorkspaceDetails] = useState<Record<string, { emoji: string; description: string }>>({});
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
 
-  const getWorkspaceEmoji = async (workspaceId: string) => {
+  const getWorkspaceDetails = async (workspaceId: string) => {
     const workspaceRef = doc(db, "workspaces", workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
     const data = workspaceSnap.data();
-    if (data && data.emoji) {
-      setWorkspaceEmojis(prevEmojis => ({
-        ...prevEmojis,
-        [workspaceId]: data.emoji
+    if (data) {
+      setWorkspaceDetails(prevDetails => ({
+        ...prevDetails,
+        [workspaceId]: {
+          emoji: data.emoji || '🏢',
+          description: data.description || 'No description available'
+        }
       }));
     }
   };
 
   useEffect(() => {
     cards.forEach(card => {
-      if (!workspaceEmojis[card.id]) {
-        getWorkspaceEmoji(card.id);
+      if (!workspaceDetails[card.id]) {
+        getWorkspaceDetails(card.id);
       }
     });
-  }, [cards, workspaceEmojis]);
+  }, [cards, workspaceDetails]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -63,7 +68,7 @@ export default function ExpandableCardDemo({ cards }: ExpandableCardDemoProps) {
   const renderEmoji = (workspaceId: string) => {
     return (
       <div className="h-full w-full flex items-center justify-center bg-white text-4xl">
-        {workspaceEmojis[workspaceId] || '🏢'}
+        {workspaceDetails[workspaceId]?.emoji || '🏢'}
       </div>
     );
   };
@@ -116,7 +121,7 @@ export default function ExpandableCardDemo({ cards }: ExpandableCardDemoProps) {
                       layoutId={`description-${active.id}-${id}`}
                       className="text-neutral-600 dark:text-neutral-400"
                     >
-                      {active.type}
+                      {workspaceDetails[active.id]?.description || 'Loading...'}
                     </motion.p>
                   </div>
 
@@ -139,7 +144,7 @@ export default function ExpandableCardDemo({ cards }: ExpandableCardDemoProps) {
                     <p>
                       Workspace ID: {active.id}<br />
                       Type: {active.type} Workspace<br />
-                      Emoji: {workspaceEmojis[active.id] || 'Loading...'}
+                      Emoji: {workspaceDetails[active.id]?.emoji || 'Loading...'}
                     </p>
                   </motion.div>
                 </div>
@@ -154,9 +159,9 @@ export default function ExpandableCardDemo({ cards }: ExpandableCardDemoProps) {
             layoutId={`card-${card.id}-${id}`}
             key={`card-${card.id}-${id}`}
             onClick={() => setActive(card)}
-            className="p-4 flex flex-col md:flex-row justify-between items-center hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer"
+            className="p-4 flex flex-col md:flex-row justify-between items-center hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-xl cursor-pointer transition-colors duration-200"
           >
-            <div className="flex gap-4 flex-col md:flex-row">
+            <div className="flex gap-4 flex-col md:flex-row items-center md:items-start">
               <motion.div layoutId={`image-${card.id}-${id}`} className="h-40 w-40 md:h-14 md:w-14 rounded-lg overflow-hidden">
                 {renderEmoji(card.id)}
               </motion.div>
@@ -171,18 +176,32 @@ export default function ExpandableCardDemo({ cards }: ExpandableCardDemoProps) {
                   layoutId={`description-${card.id}-${id}`}
                   className="text-neutral-600 dark:text-neutral-400 text-center md:text-left"
                 >
-                  {card.type}
+                  {workspaceDetails[card.id]?.description || 'Loading...'}
                 </motion.p>
               </div>
             </div>
-            <motion.button
-              layoutId={`button-${card.id}-${id}`}
-              className="px-4 py-2 text-sm rounded-full font-bold bg-gray-100 hover:bg-green-500 hover:text-white text-black mt-4 md:mt-0"
-            >
-              Open
-            </motion.button>
+            <div className="flex items-center gap-2">
+              {card.type === 'Owned' ? (
+                <UserIcon className="w-5 h-5 text-gray-500" />
+              ) : (
+                <UsersIcon className="w-5 h-5 text-gray-500" />
+              )}
+              <motion.button
+                layoutId={`button-${card.id}-${id}`}
+                className="px-4 py-2 text-sm rounded-full font-bold bg-gray-100 hover:bg-green-500 hover:text-white text-black mt-4 md:mt-0 transition-colors duration-200"
+              >
+                Open
+              </motion.button>
+            </div>
           </motion.div>
         ))}
+        <motion.div
+          onClick={onAddWorkspace}
+          className="p-4 flex justify-center items-center hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-xl cursor-pointer transition-colors duration-200"
+        >
+          <PlusIcon className="w-6 h-6 mr-2" />
+          <span>Add Workspace</span>
+        </motion.div>
       </ul>
     </>
   );
