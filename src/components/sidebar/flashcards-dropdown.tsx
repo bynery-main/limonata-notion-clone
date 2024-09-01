@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 interface FlashcardDeck {
   id: string;
@@ -15,12 +15,14 @@ interface FlashcardsDropdownProps {
   workspaceId: string;
   currentFlashcardDeckId: string | null;
   onFlashcardDeckSelect: (deck: FlashcardDeck) => void;
+  icon?: React.ReactNode; 
 }
 
 const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   workspaceId,
   currentFlashcardDeckId,
   onFlashcardDeckSelect,
+  icon = <BookOpenIcon className="h-4 w-4 mr-2" />,
 }) => {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
@@ -118,7 +120,10 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
               setOpenAccordion(!openAccordion);
             }}
           >
-            <span>Flashcards</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {icon}
+              <span>Flashcards</span>
+            </div>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (

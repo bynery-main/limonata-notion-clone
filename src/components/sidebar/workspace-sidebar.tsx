@@ -5,7 +5,15 @@ import {
   SettingsIcon,
   UserPlusIcon,
   UsersIcon,
+  FolderIcon,
+  PencilIcon,
+  BookIcon,
+  LightbulbIcon,
+  ArrowUp,
+  ArrowUp01,
+
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
 import QuizzesDropdown from "./quizzes-dropdown";
@@ -44,35 +52,33 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [emoji, setEmoji] = useState<string>("🏔️");
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
-  const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
-  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null); // State for subscription status
-  const [tier, setTier] = useState<string | null>(null); // State for user tier
+  const [showGoProModal, setShowGoProModal] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [tier, setTier] = useState<string | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
-    string | null
-  >(null);
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
   const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
-  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(
-    null
-  );
-
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(null);
   const [existingCollaborators, setExistingCollaborators] = useState<
     { uid: string; email: string }[]
   >([]);
   const [newCollaborators, setNewCollaborators] = useState<
     { uid: string; email: string }[]
   >([]);
+  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
 
   const functions = getFunctions();
   const db = getFirestore();
   const manageCollaborators = httpsCallable(functions, "manageCollaborators");
 
+  const { user } = useAuth();
+  const currentUserUid = user?.uid || "";
+  const currentUserEmail = user?.email || "";
+  const MIN_WIDTH = 250;
   useEffect(() => {
     const updateWidth = () => {
       const screenWidth = window.innerWidth;
-      setWidth(screenWidth * 0.25);
-      console.log("Window resized, width set to:", screenWidth * 0.25);
+      setWidth(Math.max(screenWidth * 0.25, MIN_WIDTH));
     };
 
     updateWidth();
@@ -84,11 +90,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log("Setting up Firestore snapshot listener for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
 
     const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
-      console.log("Firestore snapshot triggered for workspace:", params.workspaceId);
       if (docSnapshot.exists()) {
         fetchExistingCollaborators();
         fetchEmoji();
@@ -96,13 +100,44 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     });
 
     return () => {
-      console.log("Cleaning up Firestore snapshot listener for workspace:", params.workspaceId);
       unsubscribe();
     };
   }, [params.workspaceId]);
 
+  useEffect(() => {
+    const getWorkspaceDetails = async () => {
+      const workspaceRef = doc(db, "workspaces", params.workspaceId);
+      const workspaceSnap = await getDoc(workspaceRef);
+
+      try {
+        const workspaceData = workspaceSnap.data();
+        const workspaceName = workspaceData?.name;
+        setWorkspaceName(workspaceName);
+      } catch (error) {
+        console.error("Error getting workspace details:", error);
+      }
+    };
+
+    getWorkspaceDetails();
+  }, [params.workspaceId]);
+
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
+
   const fetchExistingCollaborators = async () => {
-    console.log("Fetching existing collaborators for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
 
@@ -113,7 +148,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       const collaboratorsWithEmails = await Promise.all(
         collaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
-          console.log("Fetched email for collaborator:", uid, email);
           return { uid, email };
         })
       );
@@ -123,51 +157,42 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const fetchEmoji = async () => {
-    console.log("Fetching emoji for workspace:", params.workspaceId);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
 
     if (workspaceSnap.exists()) {
       const data = workspaceSnap.data();
       if (data.emoji) {
-        console.log("Emoji found:", data.emoji);
         setEmoji(data.emoji);
       }
     }
   };
 
   const handleFolderSelect = (folder: Folder) => {
-    console.log("Folder selected:", folder.id);
     setCurrentFolderId(folder.id);
     router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
 
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
-    console.log("Flashcard deck selected:", deck.id);
     setCurrentFlashcardDeckId(deck.id);
     router.push(`/dashboard/${params.workspaceId}/decks/${deck.id}`);
   };
 
   const handleQuizSetSelect = (quizSet: { id: string }) => {
-    console.log("Quiz set selected:", quizSet.id);
     setCurrentQuizSetId(quizSet.id);
     router.push(`/dashboard/${params.workspaceId}/quizzes/${quizSet.id}`);
   };
 
   const handleStudyGuideSelect = (studyGuide: { id: string }) => {
-    console.log("Study guide selected:", studyGuide.id);
     setCurrentStudyGuideId(studyGuide.id);
-    router.push(
-      `/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`
-    );
+    router.push(`/dashboard/${params.workspaceId}/studyguides/${studyGuide.id}`);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (sidebarRef.current) {
       const newWidth = e.clientX;
-      if (newWidth >= 200 && newWidth <= 500) {
+      if (newWidth >= MIN_WIDTH && newWidth <= 500) {
         setWidth(newWidth);
-        console.log("Sidebar width adjusted to:", newWidth);
       }
     }
   };
@@ -183,7 +208,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const handleEmojiSelect = async (emoji: any) => {
-    console.log("Emoji selected:", emoji.native);
     setEmoji(emoji.native);
     setShowEmojiPicker(false);
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
@@ -191,12 +215,10 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   };
 
   const handleAddCollaborator = (user: { uid: string; email: string }) => {
-    console.log("Collaborator added:", user);
     setNewCollaborators((prev) => [...prev, user]);
   };
 
   const handleRemoveCollaborator = (uid: string) => {
-    console.log("Collaborator removed:", uid);
     setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
   };
 
@@ -205,78 +227,31 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       ...existingCollaborators.map((user) => user.uid),
       ...newCollaborators.map((user) => user.uid),
     ];
-    console.log("Saving collaborators:", allCollaborators);
 
     try {
       const result = await manageCollaborators({
         workspaceId: params.workspaceId,
-        userIds: allCollaborators, 
+        userIds: allCollaborators,
       });
 
       const response = result.data as {
         message: string;
         updatedCollaborators: string[];
       };
-      console.log(response.message);
 
       const updatedCollaboratorsWithEmails = await Promise.all(
         response.updatedCollaborators.map(async (uid: string) => {
           const email = await fetchUserEmailById(uid);
-          console.log("Updated collaborator email fetched:", uid, email);
           return { uid, email };
         })
       );
 
       setExistingCollaborators(updatedCollaboratorsWithEmails);
       setNewCollaborators([]);
-      console.log("Collaborators updated successfully");
-
     } catch (error) {
       console.error("Error updating collaborators:", error);
     }
   };
-
-  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
-
-  useEffect(() => {
-    const getWorkspaceDetails = async () => {
-      console.log("Fetching workspace details for:", params.workspaceId);
-      const workspaceRef = doc(db, "workspaces", params.workspaceId);
-      const workspaceSnap = await getDoc(workspaceRef);
-
-      try {
-        const workspaceData = workspaceSnap.data();
-        const workspaceName = workspaceData?.name;
-        setWorkspaceName(workspaceName);
-        console.log("Workspace name fetched:", workspaceName);
-      } catch (error) {
-        console.error("Error getting workspace details:", error);
-      }
-    }; 
-
-    getWorkspaceDetails();
-  }, [params.workspaceId]);
-
-  const { user } = useAuth();
-  const currentUserUid = user?.uid || "";
-  const currentUserEmail = user?.email || "";
-
-  // New useEffect for listening to changes in subscription status and tier
-  useEffect(() => {
-    if (!currentUserUid) return;
-
-    const userDocRef = doc(db, "users", currentUserUid);
-
-    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const userData = docSnapshot.data();
-        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
-        setTier(userData?.tier || "free"); // Update the state with the tier
-      }
-    });
-
-    return () => unsubscribe();
-  }, [currentUserUid]);
 
   const handleSettingsClick = () => {
     if (params.workspaceId) {
@@ -285,15 +260,20 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       alert("Please select a workspace first");
     }
   };
-
   return (
     <>
-      <aside
+      <motion.aside
         ref={sidebarRef}
-        style={{ width }}
-        className="fixed inset-y-0 left-0 z-10 flex h-full flex-col border-r bg-white sm:static sm:h-auto sm:w-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]"
+        style={{ width: `${width}px`, minWidth: `${MIN_WIDTH}px` }}
+        className="fixed inset-y-0 left-0 z-10 flex h-full flex-col border-r bg-white sm:static sm:h-auto sm:w-auto shadow-[0px_32px_32px_-16px_#66240066] backdrop-blur-[160px] backdrop-brightness-[100%]"
+        initial={{ x: -300 }}
+        animate={{ x: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
+        <motion.div
+          className="flex h-20 shrink-0 items-center border-b px-6 relative"
+          whileHover={{ scale: 1.05 }}
+        >
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="flex items-center gap-2 font-semibold"
@@ -301,20 +281,27 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             <span>{emoji}</span>
             {workspaceName}
           </button>
-          {showEmojiPicker && (
-            <div className="absolute top-full left-0 mt-2 z-20">
-              <Picker onEmojiSelect={handleEmojiSelect} />
-            </div>
-          )}
+          <AnimatePresence>
+            {showEmojiPicker && (
+              <motion.div
+                className="absolute top-full left-0 mt-2 z-20"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <Picker onEmojiSelect={handleEmojiSelect} />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <span className="sr-only">Limonata</span>
-        </div>
+        </motion.div>
 
         <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
 
         {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
           <Button 
             onClick={() => setShowGoProModal(true)} 
-            className="mx-4 mt-4 shadow-lg"
+            className="mx-4 mt-4 shadow-lg nline-flex h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
           >
             {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
           </Button>
@@ -322,40 +309,57 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <nav className="grid gap-4 text-sm font-medium">
-            <FoldersDropDown
-              workspaceId={params.workspaceId}
-              onFoldersUpdate={onFoldersUpdate}
-              currentFolderId={currentFolderId}
-              onFolderSelect={handleFolderSelect}
-            />
             <div>
-              <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
+              <div className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+              
                 AI Study Resources
-              </h3>
-              <div className="grid gap-4">
-                <FlashcardsDropdown
-                  workspaceId={params.workspaceId}
-                  currentFlashcardDeckId={currentFlashcardDeckId}
-                  onFlashcardDeckSelect={handleFlashcardDeckSelect}
-                />
-                <QuizzesDropdown
-                  workspaceId={params.workspaceId}
-                  currentQuizSetId={currentQuizSetId}
-                  onQuizSetSelect={handleQuizSetSelect}
-                />
-                <StudyGuideDropdown
-                  workspaceId={params.workspaceId}
-                  currentStudyGuideId={currentStudyGuideId}
-                  onStudyGuideSelect={handleStudyGuideSelect}
-                />
               </div>
+              </div>
+              <motion.div className="grid gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ staggerChildren: 0.1 }}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <FlashcardsDropdown
+                    workspaceId={params.workspaceId}
+                    currentFlashcardDeckId={currentFlashcardDeckId}
+                    onFlashcardDeckSelect={handleFlashcardDeckSelect}
+                    icon={<LightbulbIcon className="h-4 w-4 mr-2" />}
+                  />
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <QuizzesDropdown
+                    workspaceId={params.workspaceId}
+                    currentQuizSetId={currentQuizSetId}
+                    onQuizSetSelect={handleQuizSetSelect}
+                    icon={<PencilIcon className="h-4 w-4 mr-2" />}
+                  />
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <StudyGuideDropdown
+                    workspaceId={params.workspaceId}
+                    currentStudyGuideId={currentStudyGuideId}
+                    onStudyGuideSelect={handleStudyGuideSelect}
+                    icon={<BookIcon className="h-4 w-4 mr-2" />}
+                  />
+                </motion.div>
+              </motion.div>
+            </div>
+
+            <div>
+
+                <FoldersDropDown
+                  workspaceId={params.workspaceId}
+                  onFoldersUpdate={onFoldersUpdate}
+                  currentFolderId={currentFolderId}
+                  onFolderSelect={handleFolderSelect}
+                  icon={<FolderIcon className="h-4 w-4 mr-2 " />}
+                />
             </div>
 
             <div>
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
                 People
               </h3>
-              <div className="grid gap-1">
+              <motion.div className="grid gap-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ staggerChildren: 0.1 }}>
                 <Link
                   href="#"
                   className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]"
@@ -370,24 +374,28 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   )}
                   currentUserUid={currentUserUid!}
                   onAddCollaborator={handleAddCollaborator}
-                  onOpen={fetchExistingCollaborators} // Trigger refresh on open
+                  onOpen={fetchExistingCollaborators}
                 >
-                  <div
+                  <motion.div
                     className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
                     onClick={() => setShowCollaborators(true)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <UserPlusIcon className="h-4 w-4" />
                     Add People
-                  </div>
+                  </motion.div>
                 </CollaboratorSearch>
-                <div
+                <motion.div
                   className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
                   onClick={handleSettingsClick}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <SettingsIcon className="h-4 w-4" />
                   Settings
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
           </nav>
         </div>
@@ -395,63 +403,86 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           className="w-1 h-full absolute top-0 right-0 cursor-ew-resize"
           onMouseDown={handleMouseDown}
         />
-      </aside>
+      </motion.aside>
 
       {/* Modal for managing collaborators */}
-      {showCollaborators && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Manage Collaborators</h2>
-            <CollaboratorList
-              existingCollaborators={existingCollaborators}
-              newCollaborators={newCollaborators}
-              onRemove={handleRemoveCollaborator}
-              workspaceId={params.workspaceId}
-              onCollaboratorRemoved={fetchExistingCollaborators}
-            />
-            <Button onClick={handleSaveCollaborators} className="mt-4">
-              Save Changes
-            </Button>
-            <Button
-              onClick={() => setShowCollaborators(false)}
-              variant="outline"
-              className="mt-2 ml-2"
+      <AnimatePresence>
+        {showCollaborators && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-lg w-96"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
             >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
+              <h2 className="text-xl font-bold mb-4">Manage Collaborators</h2>
+              <CollaboratorList
+                existingCollaborators={existingCollaborators}
+                newCollaborators={newCollaborators}
+                onRemove={handleRemoveCollaborator}
+                workspaceId={params.workspaceId}
+                onCollaboratorRemoved={fetchExistingCollaborators}
+              />
+              <Button onClick={handleSaveCollaborators} className="mt-4">
+                Save Changes
+              </Button>
+              <Button
+                onClick={() => setShowCollaborators(false)}
+                variant="outline"
+                className="mt-2 ml-2"
+              >
+                Cancel
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Modal for Go Pro */}
-      {showGoProModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Go Pro</h2>
-            <ul className="list-disc list-inside mb-6">
-              <li>Access to premium features</li>
-              <li>Priority support</li>
-              <li>More storage for your workspaces</li>
-              <li>Collaborate with more team members</li>
-              <li>Advanced analytics and insights</li>
-              {/* Add more benefits as needed */}
-            </ul>
-            <GoProButton
-              className="w-full"
-              userEmail={currentUserEmail!}
-              userId={currentUserUid!}
-              subscriptionStatus={subscriptionStatus} // Pass subscriptionStatus to GoProButton
-            />
-            <Button
-              onClick={() => setShowGoProModal(false)}
-              variant="outline"
-              className="mt-2 ml-2"
+      <AnimatePresence>
+        {showGoProModal && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-lg w-96"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
             >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
+              <h2 className="text-xl font-bold mb-4">Go Pro</h2>
+              <ul className="list-disc list-inside mb-6">
+                <li>Access to premium features</li>
+                <li>Priority support</li>
+                <li>More storage for your workspaces</li>
+                <li>Collaborate with more team members</li>
+                <li>Advanced analytics and insights</li>
+              </ul>
+              <GoProButton
+                className="w-full nline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+                userEmail={currentUserEmail!}
+                userId={currentUserUid!}
+                subscriptionStatus={subscriptionStatus}
+              />
+              <Button
+                onClick={() => setShowGoProModal(false)}
+                variant="outline"
+                className="mt-2 ml-2"
+              >
+                Cancel
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

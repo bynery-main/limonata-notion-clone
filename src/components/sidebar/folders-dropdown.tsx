@@ -5,7 +5,7 @@ import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { ref, listAll, deleteObject } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { CirclePlusIcon } from "lucide-react";
+import { CirclePlusIcon, FolderIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
 import { fetchFiles, addFolder } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ interface FoldersDropDownProps {
   onFoldersUpdate: (folders: Folder[]) => void;
   onFolderSelect: (folder: Folder) => void;
   currentFolderId: string | null;
+  icon?: React.ReactNode;
 }
 
 const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
@@ -23,6 +24,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   onFoldersUpdate,
   currentFolderId,
   onFolderSelect,
+  icon = <FolderIcon className="h-4 w-4 mr-2" />,
 }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [newFolderName, setNewFolderName] = useState("");
@@ -119,13 +121,16 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
 
   return (
     <div>
-      <div className="space-y-2">
+      <div className="space-y-2 pt-4">
         <div className="flex items-center justify-between space-x-4 px-3">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
+          
+          <div className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             Topics
-          </h3>
+          </div>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 ">
           <input
             type="text"
             value={newFolderName}

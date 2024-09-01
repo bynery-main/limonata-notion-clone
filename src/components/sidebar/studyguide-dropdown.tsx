@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { BookIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 interface StudyGuide {
   id: string;
@@ -15,12 +15,14 @@ interface StudyGuideDropdownProps {
   workspaceId: string;
   currentStudyGuideId: string | null;
   onStudyGuideSelect: (studyGuide: StudyGuide) => void;
+  icon?: React.ReactNode;
 }
 
 const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   workspaceId,
   currentStudyGuideId,
   onStudyGuideSelect,
+  icon = <BookIcon className="h-4 w-4 mr-2" />,
 }) => {
   const [studyGuides, setStudyGuides] = useState<StudyGuide[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
@@ -107,7 +109,10 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
-            <span>Study Guides</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {icon}
+              <span>Study Guides</span>
+            </div>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (

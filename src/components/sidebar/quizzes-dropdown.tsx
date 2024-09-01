@@ -13,12 +13,14 @@ interface QuizzesDropdownProps {
   workspaceId: string;
   currentQuizSetId: string | null;
   onQuizSetSelect: (quizSet: QuizSet) => void;
+  icon?: React.ReactNode;
 }
 
 const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
   workspaceId,
   currentQuizSetId,
   onQuizSetSelect,
+  icon = <PencilIcon className="h-4 w-4 mr-2" />,
 }) => {
   const [quizSets, setQuizSets] = useState<QuizSet[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
@@ -105,7 +107,10 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
-            <span>Quizzes</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+            {icon}
+              <span>Quizzes</span>
+            </div>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (
