@@ -6,6 +6,7 @@ import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
 import { useAuth } from "../auth-provider/AuthProvider";
+import { StarsIcon } from "lucide-react";
 
 interface QuillEditorProps {
   dirDetails: any;
@@ -36,6 +37,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
+  const [isHovered, setIsHovered] = useState(false);
 
   const details = useMemo(() => {
     return {
@@ -64,8 +66,19 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
             transformOnTextChange: true,
           },
         },
+        placeholder: "Start writing your notes here...",
       });
       setQuill(q);
+
+      // Custom CSS for the placeholder
+      const style = document.createElement('style');
+      style.innerHTML = `
+        .ql-editor.ql-blank::before {
+          font-style: normal;
+          font-weight: 300;
+        }
+      `;
+      document.head.appendChild(style);
 
       q.on("text-change", async () => {
         const text = q.root.innerHTML;
@@ -168,16 +181,37 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
   }, [quill, socket, fileId]);
 
+ 
   return (
-    <div className="
-      flex
-      justify-center
-      items-center
-      flex-col
-      mt-2
-      relative
-    ">
-      <div id="container" className="max-w-[800px]" ref={wrapperRef}></div>
+    <div className="flex w-full h-full">
+      <div className="w-5/6 min-w-[600px]">
+        <div id="container" className="w-full pl-6 h-[calc(100vh-64px)]" ref={wrapperRef}></div>
+      </div>
+      <div className="w-1/6 p-4">
+        <div className="mb-6">
+          <button 
+            className="p-[2px] relative transition-transform duration-300 ease-in-out transform hover:scale-105"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
+            <div className={`px-4 py-2 bg-white rounded-[6px] relative duration-300 ${isHovered ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : 'text-purple-500'}`}>
+              <div className="text-lg flex items-center">
+                <StarsIcon className={`w-4 h-4 mr-2 transition-transform duration-300 ${isHovered ? 'rotate-180' : ''}`} />
+                Summarize
+              </div>
+            </div>
+          </button>
+        </div>
+        <div>
+          <h3 className="text-sm font-light mb-2 text-gray-400">RELATED NOTES</h3>
+          <ul className="list-disc pl-5 font-light">
+            <li>Note 1</li>
+            <li>Note 2</li>
+            <li>Note 3</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
