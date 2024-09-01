@@ -290,7 +290,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             </BentoGrid>
           )}
         </div>
-        <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
+        <div className="fixed bottom-0 right-0 flex flex-col items-center p-4  my-12 z-50">
           <AIChatComponent
             workspaceId={params.workspaceId}
             userId={currentUserId}
