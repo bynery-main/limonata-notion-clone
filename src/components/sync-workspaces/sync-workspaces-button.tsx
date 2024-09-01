@@ -45,9 +45,27 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
 
     const syncWorkspace = async () => {
         setIsLoading(true);
+
+
+
+        setIsLoading(true);
         const functions = getFunctions();
         const syncWorkspaceNotesFunction = httpsCallable(functions, 'syncWorkspaceNotes');
-
+        if (!workspaceId) {
+            console.error("No workspace selected");
+            return;
+        }
+        try {
+            const result = await syncWorkspaceNotesFunction({ workspaceId });
+            console.log(result.data);
+            if (onSyncComplete) {
+                onSyncComplete();
+            }
+        } catch (error) {
+            console.error("Error syncing workspace:", error);
+        } finally {
+            setIsLoading(false);
+        }
         try {
             const result = await syncWorkspaceNotesFunction({ workspaceId });
             console.log(result.data);
