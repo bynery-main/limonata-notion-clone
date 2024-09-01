@@ -123,7 +123,7 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
     setWorkspaceId(id);
   }, []);
   const introDescription = `
-  Welcome to LemonGPT! I'm your AI-powered assistant with knowledge of your entire workspace.
+  Welcome to LemonGPT! I&apos;m your AI-powered assistant with knowledge of your entire workspace.
   
   I can help you:
 
@@ -135,7 +135,7 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
   
   • Provide guidance and tutorials
   
-  Feel free to ask me anything about your workspace or any topic you're working on!
+  Feel free to ask me anything about your workspace or any topic you&apos;re working on!
   `;
   
   const handleSyncComplete = () => {
