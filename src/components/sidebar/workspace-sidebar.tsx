@@ -357,17 +357,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
             <div>
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
-                People
+                People and Settings
               </h3>
               <motion.div className="grid gap-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ staggerChildren: 0.1 }}>
-                <Link
-                  href="#"
-                  className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]"
-                  prefetch={false}
-                >
-                  <UsersIcon className="h-4 w-4" />
-                  People
-                </Link>
                 <CollaboratorSearch
                   existingCollaborators={existingCollaborators.map(
                     (c) => c.uid
