@@ -1,11 +1,11 @@
 .gradient-text {
-    background: linear-gradient(90deg, #E2CBFF 0%, #393BB2 50%, #E2CBFF 100%);
+    background: linear-gradient(90deg, #F6B144 0%, #F6B144 50%, #FE7EF4 100%);
     -webkit-background-clip: text;
     background-clip: text; /* Standard property for compatibility */
     -webkit-text-fill-color: transparent;
   }
 .gradient-text {
-    background: linear-gradient(90deg, #E2CBFF 0%, #393BB2 50%, #E2CBFF 100%);
+    background: linear-gradient(90deg, #F6B144 0%, #F6B144 50%, #FE7EF4 100%);
     -webkit-background-clip: text;
     background-clip: text; /* Standard property for compatibility */
     -webkit-text-fill-color: transparent; /* Correct property for WebKit browsers */
@@ -24,10 +24,8 @@
 .animated-gradient-icon {
   background: linear-gradient(
     to right,
-    #00ccb1,
-    #7b61ff,
-    #ff4714,
-    #1ca0fb
+    #F6B144,
+    #FE7EF4,
   );
   background-size: 400% 400%;
   animation: gradient-animation 10s linear infinite;

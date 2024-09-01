@@ -10,6 +10,7 @@ import { BackgroundGradient } from "../ui/background-gradient";
 import flashcards from "../../images/flashcards.jpg";
 import StudyGuideComponent from "./study-guide-component";
 import { Button } from "@/components/ui/button";
+import FancyText from '@carefully-coded/react-text-gradient';
 
 interface AIChatComponentProps {
   workspaceId: string;
@@ -63,7 +64,6 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
         Just select the notes you want to base the flashcards on and Gemini will automatically create them for you!
         </div>
         <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" onClick={openFlashcardModal}>
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
           <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
           Create Flashcards
           </span>
@@ -79,7 +79,6 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
         Just select the notes you want to base the Study Guide on and Gemini will automatically create it for you!
         </div>
         <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" onClick={openStudyGuideModal}>
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
           <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
           Create Study Guide
           </span>
@@ -104,7 +103,6 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
         Just select the notes you want to be quized on and Gemini will automatically create questions for you! When you&apos;re done answering them, the AI will evaluate your answers and even grade you based on them.
         </div>
         <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" onClick={openQuizModal}>
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
           <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
           Create Quizzes
           </span>
@@ -119,9 +117,14 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
         className="relative mb-2 inline-flex h-12 bg-white overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
         onClick={toggleModal}
       >
-        <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-        <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-3 py-1 text-sm font-medium text-[#393BB2] backdrop-blur-2xl">
-          <StarsIcon />
+        <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#FE7EF4_0%,#FCFF8A_50%,#F6B144_100%)]" />
+        <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-3 py-1 text-sm font-medium text-[#F6B144_50] backdrop-blur-2xl">
+        <img
+            src="/favicon.ico"
+            alt="Favicon"
+            width={24}
+            height={24}
+          />
         </span>
       </button>
 
@@ -136,9 +139,9 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
               </button>
               <div className="flex justify-center items-center mb-8 space-x-4">
 
-                <h2 className="text-4xl font-bold text-center animated-gradient-text">
+                 <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-3xl sm:text-4xl md:text-5xl font-bold text-black font-extrabold h-auto">
                   Learn using AI
-                </h2>
+                </FancyText>
               </div>
             
 
