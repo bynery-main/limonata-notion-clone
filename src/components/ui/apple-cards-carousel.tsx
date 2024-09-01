@@ -35,7 +35,6 @@ export const Carousel = ({ items }: CarouselProps) => {
     <CarouselContext.Provider value={{ onCardClose: handleCardClose, currentIndex }}>
       <div className="relative w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 max-h-[60vh]">
-
           {items.map((item, index) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -89,7 +88,6 @@ export const Card = ({
     setOpen(true);
   };
 
-
   const handleClose = () => {
     setOpen(false);
     onCardClose(index);
@@ -105,7 +103,6 @@ export const Card = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="bg-black/80 backdrop-blur-lg h-full w-full fixed inset-0"
-
             />
             <motion.div
               initial={{ opacity: 0 }}
@@ -114,9 +111,6 @@ export const Card = ({
               ref={containerRef}
               layoutId={layout ? `card-${card.title}` : undefined}
               className="max-w-5xl mx-auto bg-white dark:bg-neutral-900 h-fit z-[60] my-10 p-4 md:p-10 rounded-3xl font-sans relative"
-
-
-
             >
               <button
                 className="sticky top-4 h-8 w-8 right-0 ml-auto bg-black dark:bg-white rounded-full flex items-center justify-center"
@@ -167,39 +161,34 @@ export const Card = ({
           fill
           className="object-cover absolute z-10 inset-0"
         />
-
-
-
-
       </motion.button>
     </>
   );
 };
 
 export const BlurImage = ({
-  height,
-  width,
   src,
-  className,
   alt,
+  fill,
+  className,
   ...rest
 }: ImageProps) => {
   const [isLoading, setLoading] = useState(true);
+
   return (
     <Image
+      src={src}
+      alt={alt || "Image"}
+      fill={fill}
       className={cn(
-        "transition duration-300",
-        isLoading ? "blur-sm" : "blur-0",
+        "duration-700 ease-in-out",
+        isLoading ? "scale-110 blur-2xl grayscale" : "scale-100 blur-0 grayscale-0",
         className
       )}
-      onLoad={() => setLoading(false)}
-      src={src}
-      width={width}
-      height={height}
-      loading="lazy"
-      decoding="async"
-      blurDataURL={typeof src === "string" ? src : undefined}
-      alt={alt ? alt : "Background of a beautiful view"}
+      onLoadingComplete={() => setLoading(false)}
+      priority={true}
+      loading="eager"
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       {...rest}
     />
   );
