@@ -89,7 +89,7 @@ const Dashboard = () => {
             </FancyText>
             </h1>
           <p className="text-gray-600">
-            Here you'll find the list of all your workspaces,<br />
+            Here you&apos;ll find the list of all your workspaces,<br />
             some of them are private and others are shared.
           </p>  
         </div>
