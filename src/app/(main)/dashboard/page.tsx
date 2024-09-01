@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -7,6 +7,7 @@ import { db } from "../../../firebase/firebaseConfig";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
+import ExpandableCardDemo from "@/components/blocks/expandable-card-demo-standard";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -28,7 +29,6 @@ const Dashboard = () => {
       if (userDoc.exists()) {
         const owned = await fetchWorkspaces("owners", user.uid);
         const collaborated = await fetchWorkspaces("collaborators", user.uid);
-
         setOwnedWorkspaces(owned);
         setCollaboratorWorkspaces(collaborated);
       } else {
@@ -52,7 +52,6 @@ const Dashboard = () => {
     if (user) {
       const owned = await fetchWorkspaces("owners", user.uid);
       const collaborated = await fetchWorkspaces("collaborators", user.uid);
-
       setOwnedWorkspaces(owned);
       setCollaboratorWorkspaces(collaborated);
     }
@@ -67,13 +66,15 @@ const Dashboard = () => {
   if (loading) return <div>Loading...</div>;
   if (!user) return null;
 
+  const cards = [
+    ...ownedWorkspaces.map(workspace => ({ ...workspace, type: "Owned" })),
+    ...collaboratorWorkspaces.map(workspace => ({ ...workspace, type: "Collaborator" }))
+  ];
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {ownedWorkspaces.length > 0 || collaboratorWorkspaces.length > 0 ? (
-        <WorkspaceList
-          ownedWorkspaces={ownedWorkspaces}
-          collaboratorWorkspaces={collaboratorWorkspaces}
-        />
+      {cards.length > 0 ? (
+        <ExpandableCardDemo cards={cards} />
       ) : (
         <div className="h-screen flex justify-center items-center">
           <button
@@ -92,36 +93,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
-const WorkspaceList: React.FC<{
-  ownedWorkspaces: Workspace[];
-  collaboratorWorkspaces: Workspace[];
-}> = ({ ownedWorkspaces, collaboratorWorkspaces }) => (
-  <div>
-    <WorkspaceSection title="Your Owned Workspaces" workspaces={ownedWorkspaces} />
-    <WorkspaceSection title="Your Collaborator Workspaces" workspaces={collaboratorWorkspaces} />
-  </div>
-);
-
-const WorkspaceSection: React.FC<{
-  title: string;
-  workspaces: Workspace[];
-}> = ({ title, workspaces }) => (
-  <div className="mb-6">
-    <h2 className="text-2xl font-bold mb-4">{title}</h2>
-    {workspaces.length > 0 ? (
-      <ul className="space-y-2">
-        {workspaces.map((workspace) => (
-          <li key={workspace.id} className="bg-gray-100 p-3 rounded-lg">
-            <span className="font-semibold">{workspace.name}</span>
-            <span className="text-sm text-gray-500 ml-2">(ID: {workspace.id})</span>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p className="text-gray-500">No workspaces found.</p>
-    )}
-  </div>
-);
 
 export default Dashboard;
