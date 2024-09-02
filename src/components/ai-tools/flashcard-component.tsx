@@ -66,6 +66,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
   const [creditCost] = useState(20); // Assuming credit cost is 20
   const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
   const toast = useToast();
+  const isDisabled = loading || selectedNotes.length === 0;
 
   useEffect(() => {
     const fetchNotesAndFiles = async () => {
@@ -116,7 +117,6 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
     const createFlashcards = httpsCallable(functions, "flashcardAgent");
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
-
     setLoading(true);
     try {
       // First, attempt to use credits
@@ -201,7 +201,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
               &times;
             </button>
           </div>
-          <p className="text-center">Which notes and transcripts would you like to use?</p>
+          <p className="text-center">Click on the notes and transcripts would you like to use</p>
           <div className="grid grid-cols-3 gap-4 mt-4">
             {foldersNotes.map((folder) => (
               <div
@@ -233,25 +233,31 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
             ))}
           </div>
           <div className="mt-4 flex justify-center">
-            <button
-              className="relative inline-flex h-12 overflow-hidden rounded-full p-[2.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
-              onClick={handleCreateFlashcards}
-              disabled={loading}
-            >
-              <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-              <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
-                {loading ? (
-                  "Creating..."
-                ) : (
-                  <>
-                    <div className="mr-1.5">
-                      <StarsIcon style={{ width: "15px", height: "15px" }} />
-                    </div>
-                    Create Flashcards
-                  </>
-                )}
-              </span>
-            </button>
+          <button
+            className={`relative inline-flex h-12 overflow-hidden rounded-full p-[2.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 ${
+              isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            onClick={handleCreateFlashcards}
+            disabled={isDisabled}
+          >
+            <span className={`absolute inset-[-1000%] ${
+              isDisabled ? '' : 'animate-[spin_2s_linear_infinite]'
+            } bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]`} />
+            <span className={`inline-flex h-full w-full items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl ${
+              isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'
+            }`}>
+              {loading ? (
+                "Creating..."
+              ) : (
+                <>
+                  <div className="mr-1.5">
+                    <StarsIcon style={{ width: "15px", height: "15px" }} />
+                  </div>
+                  Create Flashcards
+                </>
+              )}
+            </span>
+          </button>
           </div>
           {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
         </div>

@@ -263,13 +263,17 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
             ))}
           </ul>
           <div className="mt-4 flex justify-center">
-            <button
-              onClick={handleCreateQuizzes}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              disabled={loading}
-            >
-              {loading ? "Creating..." : "Create Quizzes"}
-            </button>
+          <button
+            onClick={handleCreateQuizzes}
+            className={`px-4 py-2 rounded-lg ${
+              selectedNotes.length > 0
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            disabled={loading || selectedNotes.length === 0}
+          >
+            {loading ? "Creating..." : "Create Study Guides"}
+          </button>
           </div>
           {quizzes.length > 0 && (
             <div className="mt-4">
