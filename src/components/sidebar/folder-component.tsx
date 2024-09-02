@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/navigation';
-import { collection, doc, setDoc, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, doc, setDoc, deleteDoc, updateDoc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteObject, ref, getStorage, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ChevronRightIcon, FolderPlusIcon, NotebookIcon, UploadIcon, MoreHorizontal, PencilIcon, TrashIcon, MoreVerticalIcon, CheckIcon } from "lucide-react";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { CSSTransition } from 'react-transition-group';
+import { fetchFiles } from "@/lib/utils";
 import * as Accordion from "@radix-ui/react-accordion";
 import UploadFile from "./upload-file"; 
 import CreateNote from "./create-note"; 
 import './folder-component.css'; 
-
 
 const FolderComponent: React.FC<FolderComponentProps> = ({ 
   folder, 
@@ -34,6 +34,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [showFileMenu, setShowFileMenu] = useState<{ [key: string]: boolean }>({});
   const [renameFileId, setRenameFileId] = useState<string | null>(null);
   const [renameFileName, setRenameFileName] = useState<string>("");
+  const [files, setFiles] = useState<FileData[]>([]); // New state variable for files and notes
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +68,27 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showMenu, showFileMenu]);
+
+  useEffect(() => {
+    const fetchAndSetFiles = async () => {
+      const fetchedFiles = await fetchFiles(workspaceId, folder.id);
+      setFiles(fetchedFiles);
+    };
+
+    fetchAndSetFiles();
+
+    // Set up a real-time listener for files and notes
+    const filesRef = collection(db, "workspaces", workspaceId, "folders", folder.id, "files");
+    const notesRef = collection(db, "workspaces", workspaceId, "folders", folder.id, "notes");
+
+    const unsubscribeFiles = onSnapshot(filesRef, () => fetchAndSetFiles());
+    const unsubscribeNotes = onSnapshot(notesRef, () => fetchAndSetFiles());
+
+    return () => {
+      unsubscribeFiles();
+      unsubscribeNotes();
+    };
+  }, [workspaceId, folder.id]);
 
   const toggleFolder = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -168,11 +190,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         console.error("Error deleting from Firestore or Storage:", error);
       }
 
-      setFolders((prevFolders) =>
-        prevFolders.map((f) =>
-          f.id === folder.id ? { ...f, files: f.files.filter((file) => file.id !== fileId) } : f
-        )
-      );
+      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
     } catch (error) {
       console.error("Error deleting file:", error);
     }
@@ -273,14 +291,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
               <div className="mx-4">
                 <UploadFile
                   folderRef={`workspaces/${workspaceId}/folders/${folder.id}`}
-                  onFileUpload={(file) => {
-                    setFolders((prevFolders) =>
-                      prevFolders.map((f) =>
-                        f.id === folder.id ? { ...f, files: [...f.files, file] } : f
-                      )
-                    );
-                    setShowUpload(false);
-                  }}
                 />
               </div>
             </CSSTransition>
@@ -296,7 +306,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             
             {/* File list */}
             <div className="mt-4">
-              {folder.files && folder.files.map((file) => (
+              {files.map((file) => (
                 <div 
                   key={file.id}
                   className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${
