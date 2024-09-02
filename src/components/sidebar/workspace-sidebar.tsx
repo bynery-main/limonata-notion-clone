@@ -371,6 +371,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   currentUserUid={currentUserUid!}
                   onAddCollaborator={handleAddCollaborator}
                   onOpen={fetchExistingCollaborators} // Trigger refresh on open
+                  workspaceId={params.workspaceId}
                 >
                   <div
                     className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
