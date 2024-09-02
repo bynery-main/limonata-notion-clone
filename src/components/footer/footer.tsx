@@ -1,8 +1,15 @@
 import React from "react";
+import Link from "next/link";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 
 const Footer: React.FC = () => {
   const gradientHoverClass = "hover:bg-gradient-to-r hover:from-[#FE7EF4] hover:to-[#F6B144] hover:text-transparent hover:bg-clip-text transition-all duration-300";
+
+  const footerLinks = [
+    { text: "Contact", href: "#" },
+    { text: "Privacy Policy", href: "/privacy-policy/privacy-policy.pdf" },
+    { text: "Terms of Service", href: "#" },
+  ];
 
   return (
     <footer className="bg-gray-900 text-white py-8">
@@ -21,14 +28,16 @@ const Footer: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-            {["Contact", "Privacy Policy", "Terms of Service"].map((text, index) => (
-              <a
+            {footerLinks.map(({ text, href }, index) => (
+              <Link
                 key={index}
-                href="#"
+                href={href}
+                target={text === "Privacy Policy" ? "_blank" : undefined}
+                rel={text === "Privacy Policy" ? "noopener noreferrer" : undefined}
                 className={`text-sm ${gradientHoverClass}`}
               >
                 {text}
-              </a>
+              </Link>
             ))}
           </div>
 
