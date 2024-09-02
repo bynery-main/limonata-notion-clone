@@ -7,16 +7,16 @@ import { db, storage } from "@/firebase/firebaseConfig";
 import { CSSTransition } from 'react-transition-group';
 import { fetchFiles } from "@/lib/utils";
 import * as Accordion from "@radix-ui/react-accordion";
-import UploadFile from "./upload-file"; 
-import CreateNote from "./create-note"; 
-import './folder-component.css'; 
+import UploadFile from "./upload-file";
+import CreateNote from "./create-note";
+import './folder-component.css';
 
-const FolderComponent: React.FC<FolderComponentProps> = ({ 
-  folder, 
-  parentFolderId, 
-  workspaceId, 
-  setFolders, 
-  deleteFolder, 
+const FolderComponent: React.FC<FolderComponentProps> = ({
+  folder,
+  parentFolderId,
+  workspaceId,
+  setFolders,
+  deleteFolder,
   deleteFile,
   isActive,
   onSelect,
@@ -143,8 +143,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         // Upload the file with the new name
         await uploadBytes(newStorageRef, blob);
 
-        // Update Firestore with the new name
-        await updateDoc(fileRef, { name: renameFileName });
+        // Get the new URL
+        const newUrl = await getDownloadURL(newStorageRef);
+
+        // Update Firestore with the new name and URL
+        await updateDoc(fileRef, {
+          name: renameFileName,
+          url: newUrl
+        });
 
         // Delete the old file from storage
         await deleteObject(oldStorageRef);
@@ -167,7 +173,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     try {
       const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
       const noteRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/notes/${fileId}`);
-      
+
       // Attempt to delete as a file first
       try {
         const fileSnapshot = await getDoc(fileRef);
@@ -205,14 +211,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
   const getFileEmoji = (fileName: string | undefined) => {
     if (!fileName) return "📝"; // Default emoji for undefined or empty file names
-  
+
     const fileExtension = fileName.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
     const pdfExtensions = ["pdf"];
     const docExtensions = ["doc", "docx"];
     const audioExtensions = ["mp3", "wav", "ogg", "flac"];
     const videoExtensions = ["mp4", "avi", "mov", "wmv"];
-  
+
     if (imageExtensions.includes(fileExtension || "")) return "🖼️";
     if (pdfExtensions.includes(fileExtension || "")) return "📕";
     if (docExtensions.includes(fileExtension || "")) return "📘";
@@ -235,9 +241,9 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           <div className="flex items-center gap-2">
             <ChevronRightIcon
               className="h-4 w-4 cursor-pointer"
-              style={{ 
-                transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
-                transition: "transform 0.3s ease" 
+              style={{
+                transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+                transition: "transform 0.3s ease"
               }}
             />
             <span className="overflow-hidden text-ellipsis">{folder.name}</span>
@@ -296,22 +302,21 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             </CSSTransition>
             <CSSTransition in={showCreateNote} timeout={300} classNames="create-note" unmountOnExit>
               <div className="mx-3">
-                <CreateNote 
-                  workspaceId={workspaceId} 
-                  folderId={folder.id} 
+                <CreateNote
+                  workspaceId={workspaceId}
+                  folderId={folder.id}
                   onNoteCreated={() => setShowCreateNote(false)}
                 />
               </div>
             </CSSTransition>
-            
+
             {/* File list */}
             <div className="mt-4">
               {files.map((file) => (
-                <div 
+                <div
                   key={file.id}
-                  className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${
-                    hoveredFileId === file.id ? 'bg-gray-100' : ''
-                  }`}
+                  className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${hoveredFileId === file.id ? 'bg-gray-100' : ''
+                    }`}
                   onMouseEnter={() => setHoveredFileId(file.id)}
                   onMouseLeave={() => setHoveredFileId(null)}
                 >
