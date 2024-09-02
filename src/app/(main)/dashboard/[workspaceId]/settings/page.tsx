@@ -1,14 +1,17 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { Toaster, toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
+import Picker from '@emoji-mart/react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Save, Trash2, RefreshCw, X } from 'lucide-react';
+import { db } from "@/firebase/firebaseConfig";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -21,6 +24,7 @@ const SettingsPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
@@ -38,22 +42,47 @@ const SettingsPage = () => {
 
   const fetchWorkspaceDetails = async (id: string) => {
     setIsLoading(true);
-    // Simulating API call to fetch workspace details
-    setTimeout(() => {
-      setTitle("My Workspace");
-      setDescription("This is a sample workspace description.");
-      setEmoji("💼");
+    try {
+      const workspaceDoc = doc(db, "workspaces", id);
+      const docSnap = await getDoc(workspaceDoc);
+
+      if (docSnap.exists()) {
+        const workspaceData = docSnap.data();
+        setTitle(workspaceData.name || "");
+        setDescription(workspaceData.description || "");
+        setEmoji(workspaceData.emoji || "💼");
+      } else {
+        toast.error("Workspace not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching workspace details:", error);
+      toast.error("Failed to load workspace details.");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSaveChanges = async () => {
+    if (!workspaceId) {
+      toast.error('Workspace ID not found.');
+      return;
+    }
+
     setIsSaving(true);
-    // Simulating API call to save workspace changes
-    setTimeout(() => {
+    try {
+      const workspaceDoc = doc(db, "workspaces", workspaceId);
+      await updateDoc(workspaceDoc, {
+        name: title,
+        description: description,
+        emoji: emoji,
+      });
       toast.success('Workspace updated successfully.');
+    } catch (error) {
+      console.error("Error updating workspace:", error);
+      toast.error('Failed to update workspace. Please try again.');
+    } finally {
       setIsSaving(false);
-    }, 1500);
+    }
   };
 
   const handleDeleteWorkspace = async () => {
@@ -67,7 +96,7 @@ const SettingsPage = () => {
     const deleteWorkspace = httpsCallable(functions, "deleteWorkspace");
 
     try {
-      const result = await deleteWorkspace({ workspaceId });
+      await deleteWorkspace({ workspaceId });
       toast.success('Workspace deleted successfully.');
       router.push("/dashboard");
     } catch (error) {
@@ -77,6 +106,11 @@ const SettingsPage = () => {
       setIsDeleting(false);
       setShowDeleteModal(false);
     }
+  };
+
+  const handleEmojiSelect = (emoji: any) => {
+    setEmoji(emoji.native);
+    setShowEmojiPicker(false);
   };
 
   return (
@@ -103,12 +137,17 @@ const SettingsPage = () => {
                 <label htmlFor="emoji" className="block text-sm font-medium text-gray-700">
                   Emoji
                 </label>
-                <Input
-                  id="emoji"
-                  value={emoji}
-                  onChange={(e) => setEmoji(e.target.value)}
-                  className="w-16 text-2xl text-center"
-                />
+                <button
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="text-4xl mr-3 focus:outline-none"
+                >
+                  <span>{emoji}</span>
+                </button>
+                {showEmojiPicker && (
+                  <div className="absolute z-10 mt-2">
+                    <Picker onEmojiSelect={handleEmojiSelect} />
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700">
