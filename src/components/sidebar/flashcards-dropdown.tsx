@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
@@ -15,7 +13,7 @@ interface FlashcardsDropdownProps {
   workspaceId: string;
   currentFlashcardDeckId: string | null;
   onFlashcardDeckSelect: (deck: FlashcardDeck) => void;
-  icon?: React.ReactNode; 
+  icon?: React.ReactNode;
 }
 
 const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
@@ -28,7 +26,6 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,9 +52,6 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
     event.stopPropagation();
     console.log("Dropdown toggle clicked for deck:", deck);
     setSelectedDeck(deck);
-
-    const targetRect = (event.target as HTMLElement).getBoundingClientRect();
-    setDropdownPosition({ top: targetRect.bottom, left: targetRect.left });
     setDropdownVisible(!dropdownVisible);
   };
 
@@ -102,7 +96,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   }, [dropdownVisible]);
 
   return (
-    <div>
+    <div className="relative">
       <Accordion.Root
         type="single"
         value={openAccordion ? "flashcards" : undefined}
@@ -143,35 +137,38 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                 }}
               >
                 <span>{deck.name}</span>
-                <MoreHorizontalIcon
-                  className="h-4 w-4 cursor-pointer"
-                  onClick={(event) => handleDropdownToggle(event, deck)}
-                />
-                {dropdownVisible && selectedDeck?.id === deck.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
-                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+                <div className="relative">
+                  <button
+                    className="p-2 rounded-full"
+                    onClick={(event) => handleDropdownToggle(event, deck)}
                   >
-                    <button
-                      onClick={handleRenameDeck}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    <MoreHorizontalIcon className="h-5 w-5" />
+                  </button>
+                  {dropdownVisible && selectedDeck?.id === deck.id && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10"
                     >
-                      <div className="flex items-center">
-                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
-                      </div>
-                    </button>
-                    <button
-                      onClick={handleDeleteDeck}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-                        Delete
-                      </div>
-                    </button>
-                  </div>
-                )}
+                      <button
+                        onClick={handleRenameDeck}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <div className="flex items-center">
+                          <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                        </div>
+                      </button>
+                      <button
+                        onClick={handleDeleteDeck}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <div className="flex items-center">
+                          <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+                          Delete
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </Accordion.Content>
