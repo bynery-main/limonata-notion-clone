@@ -10,11 +10,18 @@ interface CollaboratorListProps {
     onCollaboratorRemoved: () => void;
 }
 
-const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existingCollaborators, newCollaborators, onRemove, onCollaboratorRemoved }) => {
-    const removeCollaborator = async (uid: string) => {
-        const functions = getFunctions();
-        const removeCollaboratorFunction = httpsCallable(functions, "removeCollaborator");
+const CollaboratorList: React.FC<CollaboratorListProps> = ({
+    workspaceId,
+    existingCollaborators,
+    newCollaborators,
+    onRemove,
+    onCollaboratorRemoved
+}) => {
+    const functions = getFunctions();
 
+    const removeCollaborator = async (uid: string) => {
+        const removeCollaboratorFunction = httpsCallable(functions, "removeCollaborator");
+        
         try {
             const result = await removeCollaboratorFunction({ workspaceId, userId: uid });
             console.log(result.data);
@@ -26,7 +33,7 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({ workspaceId, existi
 
     return (
         <div className="space-y-2">
-            <h3 className="font-semibold">Existing Collaborators</h3>
+            <h3 className="font-semibold text-black">Existing Collaborators</h3>
             {existingCollaborators.map(({ uid, email }) => (
                 <div key={uid} className="flex justify-between items-center">
                     <span>{email}</span>
