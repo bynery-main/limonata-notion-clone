@@ -24,9 +24,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
 }) => {
   const [quizSets, setQuizSets] = useState<QuizSet[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
-  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
-  const [selectedQuizSet, setSelectedQuizSet] = useState<QuizSet | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,52 +42,41 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
     return () => unsubscribe();
   }, [workspaceId]);
 
-  const handleDropdownToggle = (event: React.MouseEvent, quizSet: QuizSet) => {
+  const handleDropdownToggle = (event: React.MouseEvent, quizSetId: string) => {
     event.stopPropagation();
-    setSelectedQuizSet(quizSet);
-
-    const targetRect = (event.target as HTMLElement).getBoundingClientRect();
-    setDropdownPosition({ top: targetRect.bottom, left: targetRect.left });
-    setDropdownVisible(!dropdownVisible);
+    setActiveDropdown(activeDropdown === quizSetId ? null : quizSetId);
   };
 
-  const handleRenameQuiz = async () => {
-    const newName = prompt("Enter a new name for this quiz set:", selectedQuizSet?.name);
-    if (newName && selectedQuizSet) {
-      const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", selectedQuizSet.id);
+  const handleRenameQuiz = async (quizSet: QuizSet) => {
+    const newName = prompt("Enter a new name for this quiz set:", quizSet.name);
+    if (newName && newName !== quizSet.name) {
+      const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", quizSet.id);
       await updateDoc(quizSetRef, { name: newName });
     }
-    setDropdownVisible(false);
+    setActiveDropdown(null);
   };
 
-  const handleDeleteQuiz = async () => {
-    if (selectedQuizSet) {
-      const confirmDelete = confirm(`Are you sure you want to delete ${selectedQuizSet.name}?`);
-      if (confirmDelete) {
-        const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", selectedQuizSet.id);
-        await deleteDoc(quizSetRef);
-      }
+  const handleDeleteQuiz = async (quizSet: QuizSet) => {
+    const confirmDelete = confirm(`Are you sure you want to delete ${quizSet.name}?`);
+    if (confirmDelete) {
+      const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", quizSet.id);
+      await deleteDoc(quizSetRef);
     }
-    setDropdownVisible(false);
+    setActiveDropdown(null);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      setDropdownVisible(false);
+      setActiveDropdown(null);
     }
   };
 
   useEffect(() => {
-    if (dropdownVisible) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownVisible]);
+  }, []);
 
   return (
     <div>
@@ -101,14 +88,14 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
       >
         <Accordion.Item
           value="quizzes"
-          className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
+          className="border rounded-lg"
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-            {icon}
+            <div className="flex items-center">
+              {icon}
               <span>Quizzes</span>
             </div>
             {openAccordion ? (
@@ -127,35 +114,34 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                 onClick={() => onQuizSetSelect(quizSet)}
               >
                 <span>{quizSet.name}</span>
-                <MoreHorizontalIcon
-                  className="h-4 w-4 cursor-pointer"
-                  onClick={(event) => handleDropdownToggle(event, quizSet)}
-                />
-                {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
-                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    className="p-2 rounded-full"
+                    onClick={(event) => handleDropdownToggle(event, quizSet.id)}
                   >
-                    <button
-                      onClick={handleRenameQuiz}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                      <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
-                      </div>
-                    </button>
-                    <button
-                      onClick={handleDeleteQuiz}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                      <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-                      Delete
-                      </div>
-                    </button>
-                  </div>
-                )}
+                    <MoreHorizontalIcon className="h-5 w-5" />
+                  </button>
+                  {activeDropdown === quizSet.id && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+                      <button
+                        onClick={() => handleRenameQuiz(quizSet)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <div className="flex items-center">
+                          <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteQuiz(quizSet)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <div className="flex items-center">
+                          <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </Accordion.Content>

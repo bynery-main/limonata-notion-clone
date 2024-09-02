@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
@@ -28,7 +26,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [selectedStudyGuide, setSelectedStudyGuide] = useState<StudyGuide | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,11 +45,13 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   }, [workspaceId]);
 
   const handleDropdownToggle = (event: React.MouseEvent, studyGuide: StudyGuide) => {
-    event.stopPropagation(); // Prevent the click from bubbling up
+    event.stopPropagation();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    setDropdownPosition({
+      top: rect.bottom + window.scrollY  - 400,
+      left: rect.left + window.scrollX - 300 + rect.width, // Adjust 100 as needed to align properly
+    });
     setSelectedStudyGuide(studyGuide);
-
-    const targetRect = (event.target as HTMLElement).getBoundingClientRect();
-    setDropdownPosition({ top: targetRect.bottom, left: targetRect.left });
     setDropdownVisible(!dropdownVisible);
   };
 
@@ -82,19 +82,14 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   };
 
   useEffect(() => {
-    if (dropdownVisible) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownVisible]);
+  }, []);
 
   return (
-    <div>
+    <div className="relative  overflow-show">
       <Accordion.Root
         type="single"
         value={openAccordion ? "studyGuides" : undefined}
@@ -103,13 +98,13 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
       >
         <Accordion.Item
           value="studyGuides"
-          className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
+          className="border rounded-lg"
         >
           <Accordion.Trigger
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="flex items-center">
               {icon}
               <span>Study Guides</span>
             </div>
@@ -129,39 +124,41 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                 onClick={() => onStudyGuideSelect(studyGuide)}
               >
                 <span>{studyGuide.name}</span>
-                <MoreHorizontalIcon
-                  className="h-4 w-4 cursor-pointer"
+                <div
+                  className="p-2  rounded-full cursor-pointer"
                   onClick={(event) => handleDropdownToggle(event, studyGuide)}
-                />
-                {dropdownVisible && selectedStudyGuide?.id === studyGuide.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
-                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
-                  >
-                    <button
-                      onClick={handleRenameStudyGuide}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
-                      </div>
-                    </button>
-                    <button
-                      onClick={handleDeleteStudyGuide}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
-                      </div>
-                    </button>
-                  </div>
-                )}
+                >
+                  <MoreHorizontalIcon className="h-5 w-5" />
+                </div>
               </div>
             ))}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>
+      {dropdownVisible && selectedStudyGuide && (
+        <div
+          ref={dropdownRef}
+          className="fixed w-48 bg-white border rounded-lg shadow-lg z-100 overflow-show"
+          style={{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }}
+        >
+          <button
+            onClick={handleRenameStudyGuide}
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+          >
+            <div className="flex items-center">
+              <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+            </div>
+          </button>
+          <button
+            onClick={handleDeleteStudyGuide}
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+          >
+            <div className="flex items-center">
+              <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
+            </div>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
