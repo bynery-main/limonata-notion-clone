@@ -57,14 +57,6 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showSyncReminder, setShowSyncReminder] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/');
-    const id = parts[2]; // This will get the workspaceId from the URL
-    setWorkspaceId(id || null);
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -119,12 +111,6 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
     setIsChatVisible(!isChatVisible);
   };
 
-  useEffect(() => {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/');
-    const id = parts[2]; // Adjust this index based on your URL structure
-    setWorkspaceId(id);
-  }, []);
   const introDescription = `
   Welcome to LemonGPT! I&apos;m your AI-powered assistant with knowledge of your entire workspace.
   
