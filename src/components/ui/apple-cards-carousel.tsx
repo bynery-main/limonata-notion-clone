@@ -197,3 +197,5 @@ export const BlurImage = ({
     />
   );
 };
+
+export default Carousel;

@@ -15,13 +15,17 @@ import FancyText from '@carefully-coded/react-text-gradient';
 interface AIChatComponentProps {
   workspaceId: string;
   userId: string;
+  onOpenAITutor: () => void;
 }
 
-const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }) => {
+
+
+const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, onOpenAITutor }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
-  const [isStudyGuideModalOpen, setIsStudyGuideModalOpen] = useState(false); // State for study guide modal
+  const [isStudyGuideModalOpen, setIsStudyGuideModalOpen] = useState(false);
+  
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -51,6 +55,11 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
 
   const closeStudyGuideModal = () => {
     setIsStudyGuideModalOpen(false);
+  };
+
+  const handleOpenAITutor = () => {
+    setIsModalOpen(false);
+    onOpenAITutor();
   };
 
   const cards = [
@@ -83,15 +92,26 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
           Create Study Guide
           </span>
         </button>
-
-
       </div>,
     },
     {
       src: "https://images.unsplash.com/photo-1636033503567-a59bff19d79a?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       title: "AI Tutor",
       category: "Learning Assistant",
-      content: <div>AI Tutor Content</div>,
+      content: 
+        <div>
+          <div className="mb-5">
+            Get personalized tutoring and answers to your questions with our AI-powered tutor.
+          </div>
+          <button 
+            className="relative inline-flex h-12 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50" 
+            onClick={handleOpenAITutor}
+          >
+            <span onClick={handleOpenAITutor} className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+              Open AI Tutor
+            </span>
+          </button>
+        </div>,
     },
     {
       src: "https://images.unsplash.com/photo-1635492491273-455af7728453?q=80&w=2760&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -178,7 +198,3 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId }
 };
 
 export default AIChatComponent;
-
-function setIsStudyGuideModalOpen(arg0: boolean) {
-  throw new Error("Function not implemented.");
-}
