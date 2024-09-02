@@ -84,6 +84,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
             onClick={syncWorkspace}
             disabled={isLoading}
             className={className}
+            title='All notes will now be added as context for the AI models'
         >
             {isLoading ? (
                 <>

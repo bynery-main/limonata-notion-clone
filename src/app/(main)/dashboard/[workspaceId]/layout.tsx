@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { FolderProvider, useFolder } from "@/contexts/FolderContext";
-import { ChatComponent } from "@/components/chat/chat-component";
+import ChatComponent from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { usePathname } from "next/navigation";
@@ -44,11 +44,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
   const [pageTitle, setPageTitle] = useState<string>("");
   const [fullBentoGrid, setFullBentoGrid] = useState(false);
+  const [isChatVisible, setIsChatVisible] = useState(false);
   const db = getFirestore();
 
   const { user, loading } = useAuth();
   const currentUserId = user?.uid ?? "";
-  // console.log("Current user ID:", currentUserId);
 
   const router = useRouter();
 
@@ -61,7 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     };
 
     const validateUserAndFetchData = async () => {
-      if (loading || !user) return; // Wait until authentication is complete
+      if (loading || !user) return;
 
       const data = await getWorkspaceData();
 
@@ -79,14 +79,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         return;
       }
 
-      // Fetch and set emoji if it exists
       if (data.emoji) {
         setEmoji(data.emoji);
       }
     };
 
     validateUserAndFetchData();
-  }, [params.workspaceId, db, currentUserId]);
+  }, [params.workspaceId, db, currentUserId, loading, user, router]);
 
   const pathname = usePathname();
 
@@ -105,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     }
 
     return null;
-  }; // Extract the folderId from params
+  };
 
   const isFullBentoGrid = (path: string): boolean => {
     const segments = path.split("/").filter(Boolean);
@@ -125,8 +124,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   useEffect(() => {
     const fullestBentoGrid = isFullBentoGrid(pathname || "");
     setFullBentoGrid(fullestBentoGrid);
-    console.log("Full Bento Grid:", fullestBentoGrid);
-    console.log("fullBenotGrid", fullBentoGrid);
   }, [pathname]);
 
   const folderId = getFolderId(pathname || "");
@@ -139,18 +136,14 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const updateFoldersData = (newFoldersData: Folder[]) => {
     setFoldersData(newFoldersData);
   };
+
   const updatePageTitle = (breadcrumbItems: BreadcrumbItem[]) => {
-    // console.log("Breadcrumb items received:", breadcrumbItems);
     if (breadcrumbItems.length > 0) {
       const newTitle = breadcrumbItems[breadcrumbItems.length - 1].label;
-      // console.log("Setting new page title:", newTitle);
       setPageTitle(newTitle);
-    } else {
-      // console.log("No breadcrumb items received");
     }
   };
 
-  // Update the logic to display BentoGrid on any path that includes both workspaceId and folderId
   const showBentoGrid =
     pathname?.startsWith(`/dashboard/${params.workspaceId}`) ?? false;
 
@@ -182,17 +175,17 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
       );
     } else {
-      let emoji = "📝"; // Default document emoji
+      let emoji = "📝";
       if (pdfExtensions.includes(fileExtension || "")) {
-        emoji = "📕"; // PDF emoji
+        emoji = "📕";
       } else if (docExtensions.includes(fileExtension || "")) {
-        emoji = "📘"; // Word document emoji
+        emoji = "📘";
       } else if (audioExtensions.includes(fileExtension || "")) {
-        emoji = "🎵"; // Audio file emoji
+        emoji = "🎵";
       } else if (videoExtensions.includes(fileExtension || "")) {
-        emoji = "🎥"; // Video file emoji
+        emoji = "🎥";
       } else if (!fileExtension) {
-        emoji = "📝"; // Document with pencil emoji for no extension
+        emoji = "📝";
       }
 
       return (
@@ -230,10 +223,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     }
   };
 
-
   const onSendMessage = (workspaceId: string, query: string) => {
     // Your message sending logic here
-    // console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
+    console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
+  };
+
+  const handleOpenAITutor = () => {
+    setIsChatVisible(true);
   };
 
   return (
@@ -290,12 +286,18 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             </BentoGrid>
           )}
         </div>
-        <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 space-y-2 my-12 z-50">
-          <AIChatComponent
+        <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
+        <AIChatComponent
             workspaceId={params.workspaceId}
             userId={currentUserId}
+            onOpenAITutor={handleOpenAITutor}
           />
-          <ChatComponent onSendMessage={onSendMessage} userId={currentUserId} />
+          <ChatComponent 
+            workspaceId={params.workspaceId}
+            userId={currentUserId}
+            isChatVisible={isChatVisible}
+            setIsChatVisible={setIsChatVisible}
+          />
         </div>
       </main>
     </FolderProvider>

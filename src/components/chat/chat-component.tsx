@@ -1,8 +1,10 @@
+"use client";
+
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig";
 import { useRouter } from "next/navigation";
@@ -13,8 +15,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 
 interface ChatComponentProps {
-  onSendMessage: (workspaceId: string, query: string) => void;
+  workspaceId: string;
   userId: string;
+  isChatVisible: boolean;
+  setIsChatVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface ChatResponse {
@@ -41,8 +45,7 @@ const LoadingDots = () => {
   );
 };
 
-export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
-  const [isChatVisible, setIsChatVisible] = useState(false);
+const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isChatVisible, setIsChatVisible }) => {
   const [messages, setMessages] = useState<{ type: string, content: string }[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [showCreditModal, setShowCreditModal] = useState(false);
@@ -54,14 +57,6 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showSyncReminder, setShowSyncReminder] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/');
-    const id = parts[2]; // This will get the workspaceId from the URL
-    setWorkspaceId(id || null);
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -116,12 +111,6 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
     setIsChatVisible(!isChatVisible);
   };
 
-  useEffect(() => {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/');
-    const id = parts[2]; // Adjust this index based on your URL structure
-    setWorkspaceId(id);
-  }, []);
   const introDescription = `
   Welcome to LemonGPT! I&apos;m your AI-powered assistant with knowledge of your entire workspace.
   
@@ -351,7 +340,7 @@ export function ChatComponent({ onSendMessage, userId }: ChatComponentProps) {
   )}
 </>
   );
-}
+};
 
 function ChatIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -368,6 +357,26 @@ function ChatIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
     >
       <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
+    </svg>
+  );
+}
+
+function XIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </svg>
   );
 }
@@ -392,22 +401,4 @@ function ArrowUpIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function XIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
-  );
-}
+export default ChatComponent;
