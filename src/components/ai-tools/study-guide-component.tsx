@@ -229,13 +229,17 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
             ))}
           </ul>
           <div className="mt-4 flex justify-center">
-            <button
-              onClick={handleCreateStudyGuides}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              disabled={loading}
-            >
-              {loading ? "Creating..." : "Create Study Guides"}
-            </button>
+          <button
+            onClick={handleCreateStudyGuides}
+            className={`px-4 py-2 rounded-lg ${
+              selectedNotes.length > 0
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            disabled={loading || selectedNotes.length === 0}
+          >
+            {loading ? "Creating..." : "Create Study Guides"}
+          </button>
           </div>
           {studyGuides.length > 0 && (
             <div className="mt-4">
