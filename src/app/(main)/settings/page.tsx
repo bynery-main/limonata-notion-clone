@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { db } from "@/firebase/firebaseConfig";
@@ -7,23 +6,26 @@ import { deleteUser } from 'firebase/auth';
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
-import GoProButton from '@/components/subscribe/subscribe-button';
+import { GoProButton } from "@/components/subscribe/subscribe-button";
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { Settings, CreditCard, Calendar, Trash2, AlertTriangle } from 'lucide-react';
-import { MainSidebar } from '@/components/sidebar/main-sidebar';
+import { MainSidebar } from "@/components/sidebar/main-sidebar";
+
 const SettingsPage = () => {
   const router = useRouter();
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showGoProModal, setShowGoProModal] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
-  const [tier, setTier] = useState<string | null>('free'); // Defaulting to 'free'
+  const [tier, setTier] = useState<string>('free');
   const [credits, setCredits] = useState<number | null>(null);
   const [subscriptionCurrentPeriodEnd, setSubscriptionCurrentPeriodEnd] = useState<string | null>(null);
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
+  const currentUserEmail = user?.email || "";
 
   useEffect(() => {
     if (!currentUserUid) return;
@@ -39,7 +41,6 @@ const SettingsPage = () => {
         if (userData?.tier === "pro") {
           setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
 
-          // Convert Firestore Timestamp to a human-readable date string
           const subscriptionEnd = userData?.subscriptionCurrentPeriodEnd;
           if (subscriptionEnd instanceof Timestamp) {
             setSubscriptionCurrentPeriodEnd(subscriptionEnd.toDate().toLocaleDateString());
@@ -47,7 +48,6 @@ const SettingsPage = () => {
             setSubscriptionCurrentPeriodEnd(null);
           }
         } else {
-          // If the user is on the free tier, these fields might not exist
           setSubscriptionStatus(null);
           setSubscriptionCurrentPeriodEnd(null);
         }
@@ -67,7 +67,7 @@ const SettingsPage = () => {
       console.log('Deleting account for user:', user.uid);
       await deleteUser(user);
       toast.success('Account deleted successfully.');
-      router.push('/login'); // Redirect to login page after account deletion
+      router.push('/login');
     } catch (error: any) {
       if (error.code === 'auth/requires-recent-login') {
         toast.error('Please re-login and try again.');
@@ -83,9 +83,9 @@ const SettingsPage = () => {
     setShowAccountModal(false);
   };
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, onCancel: () => void) => {
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (e.target === e.currentTarget) {
-      onCancel();
+      handleCancelAccount();
     }
   };
 
@@ -148,10 +148,31 @@ const SettingsPage = () => {
           </Button>
         </motion.div>
 
+        <motion.div 
+          className="mt-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          {tier === 'free' || subscriptionStatus === 'active_pending_cancellation' ? (
+            <Button 
+              onClick={() => setShowGoProModal(true)} 
+              className="bg-black hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300"
+            >
+              {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
+            </Button>
+          ) : (
+            <UnsubscribeButton
+              userId={currentUserUid}
+              subscriptionStatus={subscriptionStatus || "inactive"}
+            />
+          )}
+        </motion.div>
+
         {showAccountModal && (
           <motion.div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md"
-            onClick={(e) => handleOverlayClick(e, handleCancelAccount)}
+            onClick={handleOverlayClick}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -186,26 +207,33 @@ const SettingsPage = () => {
           </motion.div>
         )}
 
-        {tier === 'pro' && (
-          <motion.div 
-            className="mt-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-          >
-            {subscriptionStatus === 'active_pending_cancellation' ? (
+        {/* Go Pro Modal */}
+        {showGoProModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-96">
+              <h2 className="text-xl font-bold mb-4">Go Pro</h2>
+              <ul className="list-disc list-inside mb-6">
+                <li>Access to premium features</li>
+                <li>Priority support</li>
+                <li>More storage for your workspaces</li>
+                <li>Collaborate with more team members</li>
+                <li>Advanced analytics and insights</li>
+              </ul>
               <GoProButton
+                className="w-full"
+                userEmail={currentUserEmail}
                 userId={currentUserUid}
-                userEmail={user?.email || ''}
                 subscriptionStatus={subscriptionStatus}
               />
-            ) : (
-              <UnsubscribeButton
-                userId={currentUserUid}
-                subscriptionStatus={subscriptionStatus || "inactive"}
-              />
-            )}
-          </motion.div>
+              <Button
+                onClick={() => setShowGoProModal(false)}
+                variant="outline"
+                className="mt-2 w-full"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         )}
       </motion.div>
     </div>
