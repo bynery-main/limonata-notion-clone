@@ -11,7 +11,6 @@ import FlashcardsDropdown from "./flashcards-dropdown";
 import QuizzesDropdown from "./quizzes-dropdown";
 import StudyGuideDropdown from "./studyguide-dropdown";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
-import CollaboratorList from "../collaborator-setup/collaborator-list";
 import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import {
@@ -195,46 +194,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     setNewCollaborators((prev) => [...prev, user]);
   };
 
-  const handleRemoveCollaborator = (uid: string) => {
-    console.log("Collaborator removed:", uid);
-    setNewCollaborators((prev) => prev.filter((user) => user.uid !== uid));
-  };
 
-  const handleSaveCollaborators = async () => {
-    const allCollaborators = [
-      ...existingCollaborators.map((user) => user.uid),
-      ...newCollaborators.map((user) => user.uid),
-    ];
-    console.log("Saving collaborators:", allCollaborators);
-
-    try {
-      const result = await manageCollaborators({
-        workspaceId: params.workspaceId,
-        userIds: allCollaborators, 
-      });
-
-      const response = result.data as {
-        message: string;
-        updatedCollaborators: string[];
-      };
-      console.log(response.message);
-
-      const updatedCollaboratorsWithEmails = await Promise.all(
-        response.updatedCollaborators.map(async (uid: string) => {
-          const email = await fetchUserEmailById(uid);
-          console.log("Updated collaborator email fetched:", uid, email);
-          return { uid, email };
-        })
-      );
-
-      setExistingCollaborators(updatedCollaboratorsWithEmails);
-      setNewCollaborators([]);
-      console.log("Collaborators updated successfully");
-
-    } catch (error) {
-      console.error("Error updating collaborators:", error);
-    }
-  };
 
   const [workspaceName, setWorkspaceName] = useState<string | null>(null);
 
@@ -398,31 +358,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         />
       </aside>
 
-      {/* Modal for managing collaborators */}
-      {showCollaborators && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Manage Collaborators</h2>
-            <CollaboratorList
-              existingCollaborators={existingCollaborators}
-              newCollaborators={newCollaborators}
-              onRemove={handleRemoveCollaborator}
-              workspaceId={params.workspaceId}
-              onCollaboratorRemoved={fetchExistingCollaborators}
-            />
-            <Button onClick={handleSaveCollaborators} className="mt-4">
-              Save Changes
-            </Button>
-            <Button
-              onClick={() => setShowCollaborators(false)}
-              variant="outline"
-              className="mt-2 ml-2"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
+      
 
       {/* Modal for Go Pro */}
       {showGoProModal && (
