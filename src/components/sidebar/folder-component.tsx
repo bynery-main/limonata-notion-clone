@@ -130,8 +130,16 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       if (fileSnapshot.exists()) {
         // Handle renaming a file in storage
         const oldFileName = fileSnapshot.data()?.name;
+        const oldFileExtension = oldFileName.split('.').pop()?.toLowerCase();
+
+        // Check if the new name ends with the correct extension
+        let newFileName = renameFileName;
+        if (!newFileName.toLowerCase().endsWith(`.${oldFileExtension}`)) {
+          newFileName = `${newFileName}.${oldFileExtension}`;
+        }
+
         const oldStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${oldFileName}`;
-        const newStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${renameFileName}`;
+        const newStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${newFileName}`;
         const oldStorageRef = ref(storage, oldStoragePath);
         const newStorageRef = ref(storage, newStoragePath);
 
@@ -148,12 +156,19 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
         // Update Firestore with the new name and URL
         await updateDoc(fileRef, {
-          name: renameFileName,
+          name: newFileName,
           url: newUrl
         });
 
         // Delete the old file from storage
         await deleteObject(oldStorageRef);
+
+        // Update the state to reflect the new file name
+        setFiles(prevFiles =>
+          prevFiles.map(file =>
+            file.id === fileId ? { ...file, name: newFileName } : file
+          )
+        );
       } else if (noteSnapshot.exists()) {
         // Handle renaming a note (only in Firestore)
         await updateDoc(noteRef, { name: renameFileName });
