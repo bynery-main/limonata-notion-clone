@@ -1,12 +1,15 @@
 "use client";
 
+import Footer from "@/components/footer/footer";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from '@/components/auth-provider/AuthProvider';
+import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
+import ExpandableCardDemo from "@/components/blocks/expandable-card-demo-standard";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
-import { useAuth } from "@/components/auth-provider/AuthProvider";
-import { fetchWorkspaces, Workspace } from "@/lib/db/workspaces/get-workspaces";
+import FancyText from '@carefully-coded/react-text-gradient';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -64,64 +67,58 @@ const Dashboard = () => {
     }
   };
 
+  const handleAddWorkspace = () => {
+    setShowDashboardSetup(true);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (!user) return null;
 
+  const allWorkspaces = [
+    ...ownedWorkspaces.map(w => ({ ...w, type: 'Owned' as const })),
+    ...collaboratorWorkspaces.map(w => ({ ...w, type: 'Collaborator' as const }))
+  ];
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {ownedWorkspaces.length > 0 || collaboratorWorkspaces.length > 0 ? (
-        <WorkspaceList
-          ownedWorkspaces={ownedWorkspaces}
-          collaboratorWorkspaces={collaboratorWorkspaces}
-        />
-      ) : (
-        <div className="h-screen flex justify-center items-center">
-          <button
-            onClick={() => setShowDashboardSetup(true)}
-            className="bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md hover:bg-[#e54e1f] transition-colors"
-          >
-            Create Workspace
-          </button>
+    <div className="p-4 md:p-8 lg:p-20 w-full">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold mb-2">
+          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
+            Workspaces
+            </FancyText>
+            </h1>
+          <p className="text-gray-600">
+            Here you&apos;ll find the list of all your workspaces,<br />
+            some of them are private and others are shared.
+          </p>  
         </div>
-      )}
+        
+        <div className="w-full">
+          {allWorkspaces.length > 0 ? (
+            <ExpandableCardDemo cards={allWorkspaces} onAddWorkspace={handleAddWorkspace} />
+          ) : (
+          <div className="h-[50vh] flex justify-center items-center">
+            <button 
+              onClick={() => setShowDashboardSetup(true)}
+              className="p-[3px] relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                Create Workspace
+              </div>
+            </button>
+          </div>
+        )}
+      </div>
+      </div>
       {showDashboardSetup && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOverlayClick}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOverlayClick}>
           <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
         </div>
       )}
     </div>
   );
 };
-
-const WorkspaceList: React.FC<{
-  ownedWorkspaces: Workspace[];
-  collaboratorWorkspaces: Workspace[];
-}> = ({ ownedWorkspaces, collaboratorWorkspaces }) => (
-  <div>
-    <WorkspaceSection title="Your Owned Workspaces" workspaces={ownedWorkspaces} />
-    <WorkspaceSection title="Your Collaborator Workspaces" workspaces={collaboratorWorkspaces} />
-  </div>
-);
-
-const WorkspaceSection: React.FC<{
-  title: string;
-  workspaces: Workspace[];
-}> = ({ title, workspaces }) => (
-  <div className="mb-6">
-    <h2 className="text-2xl font-bold mb-4">{title}</h2>
-    {workspaces.length > 0 ? (
-      <ul className="space-y-2">
-        {workspaces.map((workspace) => (
-          <li key={workspace.id} className="bg-gray-100 p-3 rounded-lg">
-            <span className="font-semibold">{workspace.name}</span>
-            <span className="text-sm text-gray-500 ml-2">(ID: {workspace.id})</span>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p className="text-gray-500">No workspaces found.</p>
-    )}
-  </div>
-);
 
 export default Dashboard;

@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import { useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
+import { motion, AnimatePresence } from "framer-motion";
+import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 
 interface ChatComponentProps {
   workspaceId: string;
@@ -28,7 +30,11 @@ interface CreditUsageResult {
   message: string;
   remainingCredits: number;
 }
-
+interface SyncWorkspaceButtonProps {
+  workspaceId: string | null;
+  onSyncComplete?: () => void;
+  className?: string;
+}
 const LoadingDots = () => {
   return (
     <div className="flex space-x-1 items-center">
@@ -49,6 +55,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
   const router = useRouter();
   const toast = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showSyncReminder, setShowSyncReminder] = useState(true);
+  const [showIntro, setShowIntro] = useState(true);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const pathname = window.location.pathname;
+    const parts = pathname.split('/');
+    const id = parts[2]; // This will get the workspaceId from the URL
+    setWorkspaceId(id || null);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,6 +119,31 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
     setIsChatVisible(!isChatVisible);
   };
 
+  useEffect(() => {
+    const pathname = window.location.pathname;
+    const parts = pathname.split('/');
+    const id = parts[2]; // Adjust this index based on your URL structure
+    setWorkspaceId(id);
+  }, []);
+  const introDescription = `
+  Welcome to LemonGPT! I&apos;m your AI-powered assistant with knowledge of your entire workspace.
+  
+  I can help you:
+
+  • Explain concepts and ideas
+
+  • Compile and summarize information
+
+  • Answer questions about your projects
+  
+  • Provide guidance and tutorials
+  
+  Feel free to ask me anything about your workspace or any topic you&apos;re working on!
+  `;
+  
+  const handleSyncComplete = () => {
+    setShowSyncReminder(false);
+  };
   const handleSend = async () => {
     if (inputMessage.trim() && workspaceId) {
       if (!userId) {
@@ -165,107 +206,153 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
   };
 
   return (
-    <>
-      {isChatVisible ? (
-        <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/60 backdrop-blur-sm md:w-[400px] transition-transform duration-300 ease-in-out shadow-2xl">
-          <div className="flex h-full w-full flex-col">
-            <div className="flex items-center justify-between border-b border-background/10 bg-background/40 px-4 py-3 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-8 w-8 border">
-                  <AvatarImage src="/placeholder-user.jpg" alt="Image" />
-                  <AvatarFallback>AC</AvatarFallback>
-                </Avatar>
-                <div className="text-sm font-medium">LemonGPT</div>
-              </div>
-              <Button onClick={toggleChat} className="bg-white p-2 hover:bg-black">
-                <XIcon className="h-5 w-5 text-black hover:text-white" />
-                <span className="sr-only">Close</span>
-              </Button>
+<>
+  <AnimatePresence>
+    {isChatVisible ? (
+      <motion.div
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/60 backdrop-blur-sm md:w-[400px] shadow-2xl"
+      >
+        <div className="flex h-full w-full flex-col">
+          <div className="flex items-center justify-between border-b border-background/10 bg-background/40 px-4 py-3 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8 border">
+              <AvatarImage src="/favicon.ico" alt="LemonGPT" />
+              <AvatarFallback>LG</AvatarFallback>
+            </Avatar>
+              <div className="text-sm font-medium">LemonGPT</div>
             </div>
-            <ScrollArea className="flex-1 overflow-y-auto">
-              <div className="grid gap-4 p-4">
-                {messages.map((message, index) => (
-                  <div key={index} className={`flex items-start gap-4 ${message.type === 'user' ? 'justify-end' : ''}`}>
-                    {message.type === 'assistant' && (
-                      <Avatar className="h-8 w-8 border">
-                        <AvatarImage src="/placeholder-user.jpg" alt="Image" />
-                        <AvatarFallback>AC</AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
-                      <ReactMarkdown components={components}>
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
-                    {message.type === 'user' && (
-                      <Avatar className="h-8 w-8 border">
-                        <AvatarImage src="/placeholder-user.jpg" alt="Image" />
-                        <AvatarFallback>YO</AvatarFallback>
-                      </Avatar>
-                    )}
+            <Button onClick={toggleChat} className="bg-white p-2 hover:bg-black">
+              <XIcon className="h-5 w-5 text-black hover:text-white" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div className="grid gap-4 p-4">
+
+                  {showSyncReminder && workspaceId && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="bg-gray-100 p-3 rounded-lg shadow-lg"
+                    >
+                      <p className="text-sm text-gray-800 mb-2">Don&apos;t forget to sync your workspaces!</p>
+                      <SyncWorkspaceButton
+                        workspaceId={workspaceId}
+                        className="w-full"
+                        onSyncComplete={handleSyncComplete}
+                      />
+                    </motion.div>
+                  )}
+              {showIntro && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="bg-blue-100 p-3 rounded-lg shadow-md"
+                >
+                  <ReactMarkdown className={"text-sm"} components={components}>
+                    {introDescription}
+                  </ReactMarkdown>
+                  <Button onClick={() => setShowIntro(false)} className="mt-2 bg-blue-500 text-white hover:bg-blue-600">
+                    Got it!
+                  </Button>
+                </motion.div>
+              )}
+              {messages.map((message, index) => (
+                <div key={index} className={`flex items-start gap-4 ${message.type === 'user' ? 'justify-end' : ''}`}>
+                  {message.type === 'assistant' && (
+                    <Avatar className="h-8 w-8 border">
+                    <AvatarImage src="/favicon.ico" alt="LemonGPT" />
+                    <AvatarFallback>LG</AvatarFallback>
+                  </Avatar>
+                  )}
+                  <div className={`rounded-lg p-3 text-sm shadow ${message.type === 'user' ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' : 'bg-muted/20 backdrop-blur-sm'}`} style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                    <ReactMarkdown components={components}>
+                      {message.content}
+                    </ReactMarkdown>
                   </div>
-                ))}
-                {isLoading && (
-                  <div className="flex items-start gap-4">
+                  {message.type === 'user' && (
                     <Avatar className="h-8 w-8 border">
                       <AvatarImage src="/placeholder-user.jpg" alt="Image" />
-                      <AvatarFallback>AC</AvatarFallback>
+                      <AvatarFallback>YO</AvatarFallback>
                     </Avatar>
-                    <div className="rounded-lg p-3 text-sm shadow bg-muted/20 backdrop-blur-sm" style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
-                      <LoadingDots />
-                    </div>
+                  )}
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-8 w-8 border">
+                    <AvatarImage src="/favicon.ico" alt="LemonGPT" />
+                    <AvatarFallback>LG</AvatarFallback>
+                  </Avatar>
+                  <div className="rounded-lg p-3 text-sm shadow bg-muted/20 backdrop-blur-sm" style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                    <LoadingDots />
                   </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-            <div className="border-t border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
-              <div className="relative flex">
-                <Textarea
-                  placeholder="Type your message..."
-                  name="message"
-                  id="message"
-                  rows={1}
-                  className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/50 backdrop-blur-sm"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                />
-                <Button
-                  onClick={handleSend}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
-                >
-                  <ArrowUpIcon className="h-4 w-4" />
-                  <span className="sr-only">Send</span>
-                </Button>
-              </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+          <div className="border-t border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
+            <div className="relative flex">
+              <Textarea
+                placeholder="Type your message..."
+                name="message"
+                id="message"
+                rows={1}
+                className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/50 backdrop-blur-sm"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+              />
+              <Button
+                onClick={handleSend}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
+              >
+                <ArrowUpIcon className="h-4 w-4" />
+                <span className="sr-only">Send</span>
+              </Button>
             </div>
           </div>
         </div>
-      ) : (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button
-            className="rounded-full w-12 h-12 flex items-center justify-center bg-primary text-primary-foreground"
-            onClick={toggleChat}
-          >
-            <ChatIcon className="h-6 w-6" />
-            <span className="sr-only">Open Chat</span>
-          </Button>
-        </div>
-      )}
-      {showCreditModal && (
-        <NoCreditsModal
-          remainingCredits={remainingCredits}
-          creditCost={creditCost}
-          onClose={() => setShowCreditModal(false)}
-        />
-      )}
-    </>
+      </motion.div>
+    ) : (
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="fixed bottom-4 right-4 z-50"
+      >
+        <Button
+          className="rounded-full w-12 h-12 flex items-center justify-center bg-primary text-primary-foreground"
+          onClick={toggleChat}
+        >
+          <ChatIcon className="h-6 w-6" />
+          <span className="sr-only">Open Chat</span>
+        </Button>
+      </motion.div>
+    )}
+  </AnimatePresence>
+
+  {showCreditModal && (
+    <NoCreditsModal
+      remainingCredits={remainingCredits}
+      creditCost={creditCost}
+      onClose={() => setShowCreditModal(false)}
+    />
+  )}
+</>
   );
 };
 
