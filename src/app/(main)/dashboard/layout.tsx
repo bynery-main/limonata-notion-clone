@@ -1,7 +1,7 @@
 "use client";
 
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 
@@ -12,25 +12,27 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
-  const user = useAuth();
+  const { user, loading } = useAuth();
 
   console.log('Layout user', user);
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.push('/login'); // Redirect to login if no user
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
-  if (!user) {
-    return null; // Return null while redirecting
+  if (loading || !user) {
+    return null; // Return null while loading or redirecting
   }
 
   return (
-    <main className="flex overflow-hidden h-screen">
+    <div className="flex h-screen overflow-hidden">
       <MainSidebar />
-      {children}
-    </main>
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
+    </div>
   );
 };
 
