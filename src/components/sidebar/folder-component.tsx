@@ -9,7 +9,6 @@ import * as Accordion from "@radix-ui/react-accordion";
 import UploadFile from "./upload-file"; 
 import CreateNote from "./create-note"; 
 import './folder-component.css'; 
-import { motion } from "framer-motion";
 
 const FolderComponent: React.FC<FolderComponentProps> = ({ 
   folder, 
@@ -204,11 +203,8 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   };
 
   return (
-    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-      <Accordion.Item
-        value={folder.id}
-        className={`border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}
-      >
+    <div className={`border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}>
+      <Accordion.Item value={folder.id}>
         <Accordion.Trigger
           id="folder"
           className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
@@ -225,13 +221,15 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
               />
               <span className="overflow-hidden text-ellipsis">{folder.name}</span>
             </div>
-            <MoreHorizontal
-              className="h-4 w-4 cursor-pointer"
+            <div 
+              className="p-2 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-            />
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </div>
           </div>
         </Accordion.Trigger>
         {showMenu && (
@@ -322,15 +320,20 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                           <CheckIcon className="h-4 w-4" />
                         </button>
                       </div>
-                    ) : (
+                    ) :(
                       <span className="text-sm flex-grow" onClick={() => handleFileClick(file)}>
                         {file.name || "Unnamed File"}
                       </span>
                     )}
-                    <MoreVerticalIcon
-                      className="h-4 w-4 cursor-pointer"
-                      onClick={() => setShowFileMenu({ ...showFileMenu, [file.id]: !showFileMenu[file.id] })}
-                    />
+                    <div 
+                      className="p-2 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowFileMenu({ ...showFileMenu, [file.id]: !showFileMenu[file.id] });
+                      }}
+                    >
+                      <MoreVerticalIcon className="h-4 w-4" />
+                    </div>
                     {showFileMenu[file.id] && (
                       <div ref={menuRef} className="absolute right-0 mt-8 bg-white border rounded shadow-md z-10">
                         <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
@@ -364,7 +367,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           )}
         </Accordion.Content>
       </Accordion.Item>
-    </motion.div>
+    </div>
   );
 };
 
