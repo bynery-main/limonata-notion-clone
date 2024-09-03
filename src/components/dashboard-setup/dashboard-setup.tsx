@@ -6,6 +6,8 @@ import { Plus } from "lucide-react";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import { Button } from "../ui/button";
 import Picker from '@emoji-mart/react';
+import { workerData } from "worker_threads";
+import { set } from "zod";
 
 
 interface InitializeWorkspaceResponse {
@@ -26,6 +28,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const router = useRouter();
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
+  const [workspaceId, setWorkspaceId] = useState("");
 
   const addCollaborator = (collaborator: { uid: string; email: string }) => {
     setSelectedCollaborators(prev => [...prev, collaborator]);
@@ -60,6 +63,8 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
       });
   
       const data = result.data as InitializeWorkspaceResponse;
+
+      setWorkspaceId(data.workspaceId);
   
       if (data.workspaceId) {
         console.log(data.message);
@@ -146,6 +151,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
                 onAddCollaborator={addCollaborator}
                 onOpen={() => {}} // Add this line to pass a default function or your specific logic
                 style={{ zIndex: 10010 }}
+                workspaceId={workspaceId} // This line assumes workerData is already defined.
               >
                 <Button type="button" className="text-sm mt-4">
                   <Plus />
