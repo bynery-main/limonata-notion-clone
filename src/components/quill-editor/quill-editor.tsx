@@ -5,7 +5,6 @@ import "quill/dist/quill.snow.css";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
-import { useAuth } from "../auth-provider/AuthProvider";
 import Summarise from "../ai-tools/summarise";
 
 interface QuillEditorProps {
@@ -37,19 +36,27 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Check if dirDetails is available and create details safely
   const details = useMemo(() => {
-    return {
-      workspaceId: dirDetails.workspaceId,
-      folderId: dirDetails.folderId,
-      fileId: fileId,
-    };
+    if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
+      return {
+        workspaceId: dirDetails.workspaceId,
+        folderId: dirDetails.folderId,
+        fileId: fileId,
+      };
+    }
+    return null;
   }, [dirDetails, fileId]);
 
-  const refString = `workspaces/${dirDetails.workspaceId}/folders/${dirDetails.folderId}/notes/${fileId}`;
+  const refString = useMemo(() => {
+    if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
+      return `workspaces/${dirDetails.workspaceId}/folders/${dirDetails.folderId}/notes/${fileId}`;
+    }
+    return "";
+  }, [dirDetails, fileId]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (wrapperRef.current == null) return;
+    if (typeof window === "undefined" || !wrapperRef.current || !details) return;
 
     const initQuill = async () => {
       wrapperRef.current!.innerHTML = "";
@@ -72,20 +79,22 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
 
       q.on("text-change", async () => {
         const text = q.root.innerHTML;
-        try {
-          const fileDocRef = doc(
-            db,
-            "workspaces",
-            details.workspaceId,
-            "folders",
-            details.folderId,
-            "notes",
-            details.fileId
-          );
-          await setDoc(fileDocRef, { text }, { merge: true });
-          console.log("Document successfully updated!");
-        } catch (error) {
-          console.log("Error updating document: ", error);
+        if (details) {
+          try {
+            const fileDocRef = doc(
+              db,
+              "workspaces",
+              details.workspaceId,
+              "folders",
+              details.folderId,
+              "notes",
+              details.fileId
+            );
+            await setDoc(fileDocRef, { text }, { merge: true });
+            console.log("Document successfully updated!");
+          } catch (error) {
+            console.log("Error updating document: ", error);
+          }
         }
       });
     };
@@ -94,15 +103,15 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }, [details]);
 
   useEffect(() => {
-    if (!fileId || !quill) return;
+    if (!fileId || !quill || !details) return;
 
     const fetchInformation = async () => {
       const fileDocRef = doc(
         db,
         "workspaces",
-        dirDetails.workspaceId,
+        details.workspaceId,
         "folders",
-        dirDetails.folderId,
+        details.folderId,
         "notes",
         fileId
       );
@@ -118,20 +127,20 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
 
     fetchInformation();
-  }, [fileId, quill, dirDetails]);
+  }, [fileId, quill, details]);
 
   // Socket setup
   useEffect(() => {
-    if (!socket || !dirDetails) return;
+    if (!socket || !fileId || !details) return;
     socket.emit("create-room", fileId);
     return () => {
       socket.emit("leave-room", fileId);
     };
-  }, [socket, fileId, dirDetails]);
+  }, [socket, fileId, details]);
 
   // Send changes
   useEffect(() => {
-    if (quill === null || socket === null || fileId === null) return;
+    if (quill === null || socket === null || fileId === null || !details) return;
 
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
       if (source !== "user") return;
@@ -167,6 +176,10 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, [quill, socket, fileId, details]);
+
+  if (!details) {
+    return <div>Loading editor...</div>; // Handle case when details are not ready
+  }
 
   return (
     <div className="flex w-full h-full">
