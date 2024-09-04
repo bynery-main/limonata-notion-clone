@@ -5,7 +5,7 @@ import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
-import Flashcards from "./flashcards"; // Ensure to create and import the Flashcards component
+import Flashcards from "./flashcards";
 import { StarsIcon } from "lucide-react";
 import { Checkbox } from "@chakra-ui/checkbox";
 import { useToast } from "@chakra-ui/react";
@@ -16,6 +16,8 @@ interface FlashcardComponentProps {
   workspaceId: string;
   userId: string;
 }
+
+const allowedFileExtensions = ["pdf", "docx", "ppt", "pptx", "mp3", "wav"]; // Allowed extensions
 
 const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
   console.log("Data received by parser:", rawData);
@@ -61,15 +63,26 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
     fetchNotesAndFiles();
   }, [workspaceId]);
 
+  // Merges notes and files, filtering files by allowed extensions
   const mergeNotesAndFiles = (notes: FolderNotes[], files: FolderNotes[]): FolderNotes[] => {
     const mergedFolders: FolderNotes[] = notes.map(noteFolder => {
       const matchingFileFolder = files.find(fileFolder => fileFolder.folderId === noteFolder.folderId);
+
+      // Filter files by allowed extensions
+      const filteredFiles = matchingFileFolder
+        ? matchingFileFolder.notes.filter(file => {
+            const extension = file.name.split('.').pop()?.toLowerCase();
+            return allowedFileExtensions.includes(extension || '');
+          })
+        : [];
+
       return {
         folderId: noteFolder.folderId,
         folderName: noteFolder.folderName,
-        notes: [...noteFolder.notes, ...(matchingFileFolder?.notes || [])],
+        notes: [...noteFolder.notes, ...filteredFiles], // Merge notes and filtered files
       };
     });
+
     return mergedFolders;
   };
 
@@ -211,31 +224,31 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
             ))}
           </div>
           <div className="mt-4 flex justify-center">
-          <button
-            className={`relative inline-flex h-12 overflow-hidden rounded-full p-[2.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 ${
-              isDisabled ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            onClick={handleCreateFlashcards}
-            disabled={isDisabled}
-          >
-            <span className={`absolute inset-[-1000%] ${
-              isDisabled ? '' : 'animate-[spin_2s_linear_infinite]'
-            } bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]`} />
-            <span className={`inline-flex h-full w-full items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl ${
-              isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'
-            }`}>
-              {loading ? (
-                "Creating..."
-              ) : (
-                <>
-                  <div className="mr-1.5">
-                    <StarsIcon style={{ width: "15px", height: "15px" }} />
-                  </div>
-                  Create Flashcards
-                </>
-              )}
-            </span>
-          </button>
+            <button
+              className={`relative inline-flex h-12 overflow-hidden rounded-full p-[2.5px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 ${
+                isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              onClick={handleCreateFlashcards}
+              disabled={isDisabled}
+            >
+              <span className={`absolute inset-[-1000%] ${
+                isDisabled ? '' : 'animate-[spin_2s_linear_infinite]'
+              } bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]`} />
+              <span className={`inline-flex h-full w-full items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl ${
+                isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'
+              }`}>
+                {loading ? (
+                  "Creating..."
+                ) : (
+                  <>
+                    <div className="mr-1.5">
+                      <StarsIcon style={{ width: "15px", height: "15px" }} />
+                    </div>
+                    Create Flashcards
+                  </>
+                )}
+              </span>
+            </button>
           </div>
           {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
         </div>

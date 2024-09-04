@@ -15,7 +15,7 @@ interface StudyGuideComponentProps {
   userId: string; // Add userId prop
 }
 
-
+const allowedFileExtensions = ["pdf", "docx", "ppt", "pptx", "mp3", "wav"]; // List of allowed extensions
 
 const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
   onClose,
@@ -42,15 +42,26 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     fetchNotesAndFiles();
   }, [workspaceId]);
 
+  // Merges notes and files, filtering files by allowed extensions
   const mergeNotesAndFiles = (notes: FolderNotes[], files: FolderNotes[]): FolderNotes[] => {
     const mergedFolders: FolderNotes[] = notes.map(noteFolder => {
       const matchingFileFolder = files.find(fileFolder => fileFolder.folderId === noteFolder.folderId);
+
+      // Filter files by allowed extensions
+      const filteredFiles = matchingFileFolder
+        ? matchingFileFolder.notes.filter(file => {
+            const extension = file.name.split('.').pop()?.toLowerCase();
+            return allowedFileExtensions.includes(extension || '');
+          })
+        : [];
+
       return {
         folderId: noteFolder.folderId,
         folderName: noteFolder.folderName,
-        notes: [...noteFolder.notes, ...(matchingFileFolder?.notes || [])],
+        notes: [...noteFolder.notes, ...filteredFiles], // Merge notes and filtered files
       };
     });
+
     return mergedFolders;
   };
 

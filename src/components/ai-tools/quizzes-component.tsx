@@ -12,9 +12,10 @@ import NoCreditsModal from "../subscribe/no-credits-modal";
 interface QuizzesComponentProps {
   onClose: () => void;
   workspaceId: string;
-  userId: string; // Add userId prop
+  userId: string;
 }
 
+const allowedFileExtensions = ["pdf", "docx", "ppt", "pptx", "mp3", "wav"]; // Allowed extensions
 
 const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId, userId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
@@ -25,9 +26,9 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
   const [currentEditQuizId, setCurrentEditQuizId] = useState<string | null>(null);
-  const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
-  const [creditCost] = useState(10); // Assuming credit cost is 10
-  const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [creditCost] = useState(10);
+  const [remainingCredits, setRemainingCredits] = useState(0);
   const toast = useToast();
 
   useEffect(() => {
@@ -48,12 +49,22 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const mergeNotesAndFiles = (notes: FolderNotes[], files: FolderNotes[]): FolderNotes[] => {
     const mergedFolders: FolderNotes[] = notes.map(noteFolder => {
       const matchingFileFolder = files.find(fileFolder => fileFolder.folderId === noteFolder.folderId);
+
+      // Filter files by allowed extensions
+      const filteredFiles = matchingFileFolder
+        ? matchingFileFolder.notes.filter(file => {
+            const extension = file.name.split('.').pop()?.toLowerCase();
+            return allowedFileExtensions.includes(extension || '');
+          })
+        : [];
+
       return {
         folderId: noteFolder.folderId,
         folderName: noteFolder.folderName,
-        notes: [...noteFolder.notes, ...(matchingFileFolder?.notes || [])],
+        notes: [...noteFolder.notes, ...filteredFiles], // Merge notes and filtered files
       };
     });
+
     return mergedFolders;
   };
 
@@ -243,17 +254,17 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
             ))}
           </ul>
           <div className="mt-4 flex justify-center">
-          <button
-            onClick={handleCreateQuizzes}
-            className={`px-4 py-2 rounded-lg ${
-              selectedNotes.length > 0
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-            disabled={loading || selectedNotes.length === 0}
-          >
-            {loading ? "Creating..." : "Create Study Guides"}
-          </button>
+            <button
+              onClick={handleCreateQuizzes}
+              className={`px-4 py-2 rounded-lg ${
+                selectedNotes.length > 0
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              disabled={loading || selectedNotes.length === 0}
+            >
+              {loading ? "Creating..." : "Create Quizzes"}
+            </button>
           </div>
           {quizzes.length > 0 && (
             <div className="mt-4">
