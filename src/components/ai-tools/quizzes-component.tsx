@@ -15,27 +15,6 @@ interface QuizzesComponentProps {
   userId: string; // Add userId prop
 }
 
-interface Quiz {
-  id: string;
-  question: string;
-}
-
-interface NoteReference {
-  folderId: string;
-  noteId: string;
-  type: 'note' | 'file'; // Indicate whether it's a note or file
-}
-
-interface NameGenerationResult {
-  success: boolean;
-  answer: string;
-}
-
-interface CreditUsageResult {
-  success: boolean;
-  message: string;
-  remainingCredits: number;
-}
 
 const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId, userId }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
@@ -251,6 +230,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
                   {folder.notes.map((note) => (
                     <li key={note.id} className="flex items-center">
                       <input
+                        aria-label="Select Note"
                         type="checkbox"
                         className="mr-2"
                         onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked, note.type)}
@@ -282,10 +262,10 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
                 {quizzes.map((quiz, index) => (
                   <li key={quiz.id} className="flex items-center">
                     <h4 className="font-bold mr-2">{quiz.question}</h4>
-                    <button onClick={() => handleEditQuestion(quiz.id, quiz.question)} className="mr-2">
+                    <button title='Edit Question' onClick={() => handleEditQuestion(quiz.id!, quiz.question)} className="mr-2">
                       <Pencil className="w-5 h-5 text-gray-600" />
                     </button>
-                    <button onClick={() => handleDeleteQuestion(quiz.id)}>
+                    <button title='Delete Question' onClick={() => handleDeleteQuestion(quiz.id!)}>
                       <Trash2 className="w-5 h-5 text-red-600" />
                     </button>
                   </li>

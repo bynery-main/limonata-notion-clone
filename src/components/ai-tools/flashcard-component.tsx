@@ -17,28 +17,6 @@ interface FlashcardComponentProps {
   userId: string;
 }
 
-interface Flashcard {
-  question: string;
-  answer: string;
-}
-
-interface NoteReference {
-  folderId: string;
-  noteId: string;
-  type: 'note' | 'file'; // Indicate whether it's a note or file
-}
-
-interface NameGenerationResult {
-  success: boolean;
-  answer: string;
-}
-
-interface CreditUsageResult {
-  success: boolean;
-  message: string;
-  remainingCredits: number;
-}
-
 const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
   console.log("Data received by parser:", rawData);
   const flashcards: Flashcard[] = [];

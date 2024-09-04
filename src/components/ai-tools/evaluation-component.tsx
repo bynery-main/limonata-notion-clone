@@ -4,15 +4,6 @@ import React, { FC } from "react";
 import { Button } from "@/components/ui/button";
 import ScoreTimelineGraph from "./score-timeline-graph";
 
-interface Evaluation {
-  question: string;
-  answer: string;
-  explanation: string;
-  missedPoints: string;
-  modelAnswer: string;
-  score: string;
-}
-
 interface EvaluationComponentProps {
   evaluations: Evaluation[];
   onPrevious: () => void;

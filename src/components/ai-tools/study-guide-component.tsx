@@ -15,27 +15,7 @@ interface StudyGuideComponentProps {
   userId: string; // Add userId prop
 }
 
-interface StudyGuide {
-  name: string;
-  content: string;
-}
 
-interface NoteReference {
-  folderId: string;
-  noteId: string;
-  type: 'note' | 'file'; // Indicate whether it's a note or file
-}
-
-interface CreditUsageResult {
-  success: boolean;
-  message: string;
-  remainingCredits: number;
-}
-
-interface NameGenerationResult {
-  success: boolean;
-  answer: string;
-}
 
 const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
   onClose,
