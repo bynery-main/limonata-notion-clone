@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import "quill/dist/quill.snow.css";
@@ -6,7 +6,7 @@ import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
 import { useAuth } from "../auth-provider/AuthProvider";
-import { StarsIcon } from "lucide-react";
+import Summarise from "../ai-tools/summarise";
 
 interface QuillEditorProps {
   dirDetails: any;
@@ -36,16 +36,16 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const { socket } = useSocket();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
-  const { user } = useAuth();
-  const [isHovered, setIsHovered] = useState(false);
 
   const details = useMemo(() => {
     return {
       workspaceId: dirDetails.workspaceId,
       folderId: dirDetails.folderId,
-      fileId: fileId
+      fileId: fileId,
     };
   }, [dirDetails, fileId]);
+
+  const refString = `workspaces/${dirDetails.workspaceId}/folders/${dirDetails.folderId}/notes/${fileId}`;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -70,24 +70,20 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       });
       setQuill(q);
 
-      // Custom CSS for the placeholder
-      const style = document.createElement('style');
-      style.innerHTML = `
-        .ql-editor.ql-blank::before {
-          font-style: normal;
-          font-weight: 300;
-        }
-      `;
-      document.head.appendChild(style);
-
       q.on("text-change", async () => {
         const text = q.root.innerHTML;
         try {
-          if (details.workspaceId && details.folderId && details.fileId) {
-            const fileDocRef = doc(db, "workspaces", details.workspaceId, "folders", details.folderId, "notes", details.fileId);
-            await setDoc(fileDocRef, { text }, { merge: true });
-            console.log("Document successfully updated!");
-          }
+          const fileDocRef = doc(
+            db,
+            "workspaces",
+            details.workspaceId,
+            "folders",
+            details.folderId,
+            "notes",
+            details.fileId
+          );
+          await setDoc(fileDocRef, { text }, { merge: true });
+          console.log("Document successfully updated!");
         } catch (error) {
           console.log("Error updating document: ", error);
         }
@@ -101,54 +97,63 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     if (!fileId || !quill) return;
 
     const fetchInformation = async () => {
-      if (dirType === "file") {
-        const fileDocRef = doc(db, "workspaces", dirDetails.workspaceId, "folders", dirDetails.folderId, "notes", fileId);
-        const fileDoc = await getDoc(fileDocRef);
+      const fileDocRef = doc(
+        db,
+        "workspaces",
+        dirDetails.workspaceId,
+        "folders",
+        dirDetails.folderId,
+        "notes",
+        fileId
+      );
+      const fileDoc = await getDoc(fileDocRef);
 
-        if (fileDoc.exists()) {
-          const fileData = fileDoc.data();
-          quill.root.innerHTML = fileData.text || "";
-          console.log("Document data:", fileData);
-        } else {
-          console.log("No such document!");
-        }
+      if (fileDoc.exists()) {
+        const fileData = fileDoc.data();
+        quill.root.innerHTML = fileData.text || "";
+        console.log("Document data:", fileData);
+      } else {
+        console.log("No such document!");
       }
     };
 
     fetchInformation();
-  }, [fileId, dirType, quill, dirDetails]);
+  }, [fileId, quill, dirDetails]);
 
-  // Rooms
+  // Socket setup
   useEffect(() => {
     if (!socket || !dirDetails) return;
     socket.emit("create-room", fileId);
-    console.log("Room created for file:", fileId);
     return () => {
       socket.emit("leave-room", fileId);
     };
-  }, [socket, quill, dirDetails]);
+  }, [socket, fileId, dirDetails]);
 
-  // Send changes to all clients
+  // Send changes
   useEffect(() => {
     if (quill === null || socket === null || fileId === null) return;
 
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
-      if (source !== 'user') return;
+      if (source !== "user") return;
 
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       setSaving(true);
-      const contents = quill.getContents();
-      const quillLength = quill.getLength();
       saveTimerRef.current = setTimeout(async () => {
-        if (contents && quillLength !== 1 && fileId) {
-          try {
-            const text = quill.root.innerHTML;
-            const fileDocRef = doc(db, "workspaces", details.workspaceId, "folders", details.folderId, "notes", details.fileId);
-            await setDoc(fileDocRef, { text }, { merge: true });
-            console.log("Document successfully updated in the save function!");
-          } catch (error) {
-            console.log("Error updating document in the save function: ", error);
-          }
+        try {
+          const text = quill.root.innerHTML;
+          const fileDocRef = doc(
+            db,
+            "workspaces",
+            details.workspaceId,
+            "folders",
+            details.folderId,
+            "notes",
+            details.fileId
+          );
+          await setDoc(fileDocRef, { text }, { merge: true });
+          console.log("Document successfully updated after save delay!");
+        } catch (error) {
+          console.log("Error updating document after save delay: ", error);
         }
         setSaving(false);
       }, 850);
@@ -163,54 +168,14 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
   }, [quill, socket, fileId, details]);
 
-  // Receive changes from other clients
-  useEffect(() => {
-    if (quill === null || socket === null || fileId === null) return;
-
-    const receiveChangesHandler = (deltas: any, id: string) => {
-      if (id === fileId) {
-        console.log("Received changes for the same file:", deltas);
-        quill.updateContents(deltas);
-      }
-    };
-
-    socket.on("receive-changes", receiveChangesHandler);
-
-    return () => {
-      socket.off("receive-changes", receiveChangesHandler);
-    };
-  }, [quill, socket, fileId]);
-
- 
   return (
     <div className="flex w-full h-full">
       <div className="w-5/6 min-w-[600px]">
         <div id="container" className="w-full pl-6 h-[calc(100vh-64px)]" ref={wrapperRef}></div>
       </div>
       <div className="w-1/6 p-4">
-        <div className="mb-6">
-          <button 
-            className="p-[2px] relative transition-transform duration-300 ease-in-out transform hover:scale-105"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
-            <div className={`px-4 py-2 bg-white rounded-[6px] relative duration-300 ${isHovered ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : 'text-purple-500'}`}>
-              <div className="text-lg flex items-center">
-                <StarsIcon className={`w-4 h-4 mr-2 transition-transform duration-300 ${isHovered ? 'rotate-180' : ''}`} />
-                Summarize
-              </div>
-            </div>
-          </button>
-        </div>
-        <div>
-          <h3 className="text-sm font-light mb-2 text-gray-400">RELATED NOTES</h3>
-          <ul className="list-disc pl-5 font-light">
-            <li>Note 1</li>
-            <li>Note 2</li>
-            <li>Note 3</li>
-          </ul>
-        </div>
+        {/* Pass the constructed reference and type */}
+        <Summarise refString={refString} type="note" />
       </div>
     </div>
   );
