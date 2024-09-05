@@ -1,104 +1,109 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
-import { Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
 import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
 import { Home } from "lucide-react";
-import { onSnapshot, collection, query, where, QuerySnapshot, DocumentData, DocumentChange, doc, getDoc, getFirestore } from "firebase/firestore";
+import {
+  onSnapshot,
+  collection,
+  query,
+  where,
+  QuerySnapshot,
+  DocumentData,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Update the Workspace type
+interface Workspace {
+  id: string;
+  name: string;
+  owners: string[];
+  collaborators: string[];
+  // Add any other properties that your Workspace type should have
+}
+
 export const MainSidebar = (): JSX.Element => {
   const { user } = useAuth();
-  const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
-  const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<Workspace[]>([]);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const router = useRouter();
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
-  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
   const [workspaceEmojis, setWorkspaceEmojis] = useState<{ [key: string]: string }>({});
 
-  useEffect(() => {
-    let unsubscribeOwned: () => void;
-    let unsubscribeCollaborated: () => void;
-
-    const loadWorkspaces = () => {
-      if (user) {
-        const ownedQuery = query(
-          collection(db, "workspaces"),
-          where("owners", "array-contains", user.uid)
-        );
-        const collaboratedQuery = query(
-          collection(db, "workspaces"),
-          where("collaborators", "array-contains", user.uid)
-        );
-
-        unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
-          handleWorkspaceSnapshot(snapshot, setOwnedWorkspaces);
-        });
-
-        unsubscribeCollaborated = onSnapshot(collaboratedQuery, (snapshot) => {
-          handleWorkspaceSnapshot(snapshot, setCollaborativeWorkspaces);
-        });
-      }
-    };
-
-    const handleWorkspaceSnapshot = async (
-      snapshot: QuerySnapshot<DocumentData>,
-      setWorkspaceState: React.Dispatch<React.SetStateAction<Workspace[]>>
-    ) => {
-      setWorkspaceState((prevWorkspaces) => {
-        let updatedWorkspaces = [...prevWorkspaces];
-
-        snapshot.docChanges().forEach((change: DocumentChange<DocumentData>) => {
-          const workspaceData = { id: change.doc.id, ...change.doc.data() } as Workspace;
-
-          if (change.type === "added" || change.type === "modified") {
-            const index = updatedWorkspaces.findIndex((ws) => ws.id === workspaceData.id);
-            if (index > -1) {
-              updatedWorkspaces[index] = workspaceData;
-            } else {
-              updatedWorkspaces.push(workspaceData);
-            }
-            
-            getWorkspaceEmoji(workspaceData.id);
+  const handleWorkspaceSnapshot = useCallback((snapshot: QuerySnapshot<DocumentData>) => {
+    console.log("Handling workspace snapshot");
+    setWorkspaces((prevWorkspaces) => {
+      const updatedWorkspaces = [...prevWorkspaces];
+      snapshot.docChanges().forEach((change) => {
+        const workspaceData = { id: change.doc.id, ...change.doc.data() } as Workspace;
+        console.log(`Change type: ${change.type}, Workspace ID: ${workspaceData.id}`);
+        const index = updatedWorkspaces.findIndex((ws) => ws.id === workspaceData.id);
+        if (change.type === "added" || change.type === "modified") {
+          if (index > -1) {
+            updatedWorkspaces[index] = workspaceData;
+          } else {
+            updatedWorkspaces.push(workspaceData);
           }
-
-          if (change.type === "removed") {
-            updatedWorkspaces = updatedWorkspaces.filter((ws) => ws.id !== workspaceData.id);
+        } else if (change.type === "removed") {
+          if (index > -1) {
+            updatedWorkspaces.splice(index, 1);
           }
-        });
-
-        return updatedWorkspaces;
+        }
       });
-    };
+      return updatedWorkspaces;
+    });
+  }, []);
 
-    const getWorkspaceEmoji = async (workspaceId: string) => {
-      const workspaceRef = doc(db, "workspaces", workspaceId);
-      const workspaceSnap = await getDoc(workspaceRef);
-      const data = workspaceSnap.data();
-      if (data && data.emoji) {
-        setWorkspaceEmojis(prevEmojis => ({
-          ...prevEmojis,
-          [workspaceId]: data.emoji
-        }));
-      }
-    };
+  const getWorkspaceEmoji = useCallback(async (workspaceId: string) => {
+    console.log("Fetching emoji for workspace:", workspaceId);
+    const workspaceRef = doc(db, "workspaces", workspaceId);
+    const workspaceSnap = await getDoc(workspaceRef);
+    const data = workspaceSnap.data();
+    if (data && data.emoji) {
+      console.log(`Emoji found for workspace ${workspaceId}: ${data.emoji}`);
+      setWorkspaceEmojis((prevEmojis) => ({
+        ...prevEmojis,
+        [workspaceId]: data.emoji,
+      }));
+    }
+  }, []);
 
-    loadWorkspaces();
+  useEffect(() => {
+    console.log("useEffect triggered - Loading workspaces");
+    if (!user) return;
+
+    console.log("User detected:", user.uid);
+    const workspacesQuery = query(
+      collection(db, "workspaces"),
+      where("owners", "array-contains", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(workspacesQuery, handleWorkspaceSnapshot);
 
     return () => {
-      if (unsubscribeOwned) unsubscribeOwned();
-      if (unsubscribeCollaborated) unsubscribeCollaborated();
+      console.log("Cleaning up listeners");
+      unsubscribe();
     };
-  }, [user]);
+  }, [user, handleWorkspaceSnapshot]);
 
-  const handleWorkspaceClick = (workspaceId: string) => {
+  useEffect(() => {
+    workspaces.forEach((workspace) => {
+      if (!workspaceEmojis[workspace.id]) {
+        getWorkspaceEmoji(workspace.id);
+      }
+    });
+  }, [workspaces, workspaceEmojis, getWorkspaceEmoji]);
+
+  const handleWorkspaceClick = useCallback((workspaceId: string) => {
+    console.log("Workspace clicked:", workspaceId);
     if (workspaceId === "home") {
       setActiveIcon("home");
       router.push("/dashboard");
@@ -106,26 +111,62 @@ export const MainSidebar = (): JSX.Element => {
       router.push(`/dashboard/${workspaceId}`);
     }
     setActiveIcon(workspaceId);
-    setCurrentWorkspaceId(workspaceId);
-  };
+  }, [router]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
+    console.log("Dashboard setup canceled");
     setShowDS(false);
-  };
+  }, []);
 
-  const handleSuccess = () => {
+  const handleSuccess = useCallback(() => {
+    console.log("Dashboard setup successful");
     setShowDS(false);
-  };
+  }, []);
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleOverlayClick = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (e.target === e.currentTarget) {
+      console.log("Overlay clicked, closing settings");
       setShowSettings(false);
     }
-  };
+  }, []);
 
-  const handleSettingsClick = () => {
+  const handleSettingsClick = useCallback(() => {
+    console.log("Settings clicked, navigating to settings page");
     router.push(`/settings`);
-  };
+  }, [router]);
+
+  const ownedWorkspaces = useMemo(() => workspaces.filter(ws => ws.owners.includes(user?.uid || '')), [workspaces, user]);
+  const collaborativeWorkspaces = useMemo(() => workspaces.filter(ws => ws.collaborators.includes(user?.uid || '')), [workspaces, user]);
+
+  const WorkspaceIcon: React.FC<WorkspaceIconProps> = React.memo(({ workspace, onClick, isActive, emoji }) => {
+    console.log(`Rendering workspace icon for workspace ID: ${workspace.id}`);
+    return (
+      <motion.div
+        className={`relative mt-4 w-10 h-10 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
+        onClick={onClick}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        layout
+      >
+        <motion.div
+          className={`absolute inset-0 ${isActive ? 'bg-black' : 'bg-[#666666]'}`}
+          layoutId={`workspace-bg-${workspace.id}`}
+        />
+        <motion.div
+          className={`absolute inset-0 rounded-lg border-2 ${isActive ? 'border-white' : 'border-transparent'}`}
+          layoutId={`workspace-border-${workspace.id}`}
+        />
+        <motion.span
+          className="relative z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {emoji || workspace.name.charAt(0).toUpperCase()}
+        </motion.span>
+      </motion.div>
+    );
+  });
 
   return (
     <motion.div
@@ -145,23 +186,23 @@ export const MainSidebar = (): JSX.Element => {
             <Home className="w-5 h-5 text-white" />
           </div>
         </motion.button>
-        {ownedWorkspaces.map((workspace, index) => (
+        {ownedWorkspaces.map((workspace) => (
           <WorkspaceIcon
             key={workspace.id}
             isActive={activeIcon === workspace.id}
             workspace={workspace}
-            index={index}
             onClick={() => handleWorkspaceClick(workspace.id)}
             emoji={workspaceEmojis[workspace.id]}
           />
         ))}
-        <div className="w-full h-px bg-gray-400 my-2"></div>
-        {collaborativeWorkspaces.map((workspace, index) => (
+        {collaborativeWorkspaces.length > 0 && (
+          <div className="w-full h-px bg-gray-400 my-2"></div>
+        )}
+        {collaborativeWorkspaces.map((workspace) => (
           <WorkspaceIcon
             key={workspace.id}
             isActive={activeIcon === workspace.id}
             workspace={workspace}
-            index={index}
             onClick={() => handleWorkspaceClick(workspace.id)}
             emoji={workspaceEmojis[workspace.id]}
           />
@@ -247,12 +288,12 @@ export const MainSidebar = (): JSX.Element => {
 interface WorkspaceIconProps {
   isActive: boolean;
   workspace: Workspace;
-  index: number;
   onClick: () => void;
   emoji: string | undefined;
 }
 
-const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive, emoji }) => {
+const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, onClick, isActive, emoji }) => {
+  console.log(`Rendering workspace icon for workspace ID: ${workspace.id}`);
   return (
     <motion.div
       className={`relative mt-4 w-10 h-10 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
