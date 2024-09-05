@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, getDocs } from "firebase/firestore";
 import { ref, listAll, deleteObject } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
@@ -9,7 +9,6 @@ import { CirclePlusIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
 import { fetchFiles, addFolder } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-
 
 interface FoldersDropDownProps {
   workspaceId: string;
@@ -88,6 +87,9 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
       const folderStorageRef = ref(storage, `workspaces/${workspaceId}/folders/${folderId}`);
       await deleteFolderContentsRecursively(folderStorageRef);
 
+      // Delete all files and subfolders in the folder from Firestore
+      await deleteFolderContentsFromFirestore(workspaceId, folderId);
+
       // Delete the folder document from Firestore
       const folderRef = doc(db, "workspaces", workspaceId, "folders", folderId);
       await deleteDoc(folderRef);
@@ -110,6 +112,27 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
     // Recursively delete all subfolders and their contents
     for (const prefixRef of folderFiles.prefixes) {
       await deleteFolderContentsRecursively(prefixRef);
+    }
+  };
+
+  const deleteFolderContentsFromFirestore = async (workspaceId: string, folderId: string) => {
+    const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
+    const filesQuery = query(filesRef);
+    const filesSnapshot = await getDocs(filesQuery);
+
+    // Delete all files in the folder
+    for (const fileDoc of filesSnapshot.docs) {
+      await deleteDoc(fileDoc.ref);
+    }
+
+    // Recursively delete all subfolders and their contents
+    const subfoldersRef = collection(db, "workspaces", workspaceId, "folders", folderId, "subfolders");
+    const subfoldersQuery = query(subfoldersRef);
+    const subfoldersSnapshot = await getDocs(subfoldersQuery);
+
+    for (const subfolderDoc of subfoldersSnapshot.docs) {
+      await deleteFolderContentsFromFirestore(workspaceId, subfolderDoc.id);
+      await deleteDoc(subfolderDoc.ref);
     }
   };
 
@@ -154,7 +177,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
               workspaceId={workspaceId}
               setFolders={setFolders}
               deleteFolder={handleDeleteFolder}
-              deleteFile={handleDeleteFolder} // Pass the deleteFolder function here
+              deleteFile={handleDeleteFolder}
               isActive={folder.id === currentFolderId}
               onSelect={() => onFolderSelect(folder)}
               openFolderId={openFolderId}
