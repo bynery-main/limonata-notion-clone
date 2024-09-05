@@ -91,7 +91,7 @@ export const addNote = async (workspaceId: string, folderId: string, noteName: s
   const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
   const newNoteRef = doc(notesRef);
 
-  await setDoc(newNoteRef, { name: noteName });
+  await setDoc(newNoteRef, { name: noteName, text: "" });
   console.log(`Created note: ${noteName} in folder: ${folderId}`);
 };
 
