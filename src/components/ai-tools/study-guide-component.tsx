@@ -6,8 +6,10 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import ReactMarkdown from "react-markdown";
-import { Button, useToast } from "@chakra-ui/react";
+import { Button, Checkbox, useToast as useChakraToast, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
+import reacttoast from 'react-hot-toast';
+import { useRouter } from 'next/navigation'
 
 interface StudyGuideComponentProps {
   onClose: () => void;
@@ -30,7 +32,8 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
   const [creditCost] = useState(20); // Assuming credit cost is 20
   const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
   const toast = useToast();
-
+  const chakraToast = useChakraToast();
+  const router = useRouter();
   useEffect(() => {
     const fetchNotesAndFiles = async () => {
       const fetchedNotes = await fetchAllNotes(workspaceId);
@@ -146,16 +149,30 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         notes: selectedNotes,
       });
 
-      toast({
+      reacttoast.success("Study guides created successfully", {
+        duration: 3000,
+        icon: '🎉',
+      });
+      chakraToast({
         title: "Success",
         description: "Study guides created successfully",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
+
+      // Redirect to dashboard/workspaceid after a short delay
+      setTimeout(() => {
+        router.push(`/dashboard/${workspaceId}`);
+            });
+
     } catch (error) {
       console.error("Error creating study guides:", error);
-      toast({
+      reacttoast.error("An error occurred while creating study guides", {
+        duration: 3000,
+        icon: '❌',
+      });
+      chakraToast({
         title: "Error",
         description: "An error occurred while creating study guides",
         status: "error",
@@ -166,6 +183,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       setLoading(false);
     }
   };
+
 
   const parseRawDataToStudyGuides = (rawData: string): StudyGuide[] => {
     console.log("Data received by parser:", rawData);
@@ -186,51 +204,64 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Create Study Guides</h2>
+            <h2 className="flex text-xl justify-center font-semibold">Create Study Guides</h2>
             <button onClick={onClose} className="text-xl font-bold">
               &times;
             </button>
           </div>
-          <p className="text-center">Which notes and transcripts would you like to use?</p>
           <ul className="mt-4">
-            {foldersNotes.map((folder) => (
-              <li key={folder.folderId}>
-                <h3 className="font-bold">{folder.folderName}</h3>
-                <ul className="pl-4">
-                  {folder.notes.map((note) => (
-                    <li key={note.id} className="flex items-center">
-                      <input
-                        aria-label="View Note"
-                        type="checkbox"
-                        className="mr-2"
-                        onChange={(e) =>
-                          handleCheckboxChange(
-                            folder.folderId,
-                            note.id,
-                            e.target.checked,
-                            note.type
-                          )
-                        }
-                      />
-                      {note.name}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 flex justify-center">
-          <button
-            onClick={handleCreateStudyGuides}
-            className={`px-4 py-2 rounded-lg ${
-              selectedNotes.length > 0
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-            disabled={loading || selectedNotes.length === 0}
+       <div>
+      <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {foldersNotes.map((folder) => (
+          <div
+            key={folder.folderId}
+            className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm"
           >
-            {loading ? "Creating..." : "Create Study Guides"}
-          </button>
+            <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
+            <ul className="space-y-2">
+              {folder.notes.map((note) => (
+                <li key={note.id} className="flex items-start">
+                  <Checkbox
+                    id={`note-${note.id}`}
+                    onChange={(e) =>
+                      handleCheckboxChange(
+                        folder.folderId,
+                        note.id,
+                        e.target.checked,
+                        note.type
+                      )
+                    }
+                    className="mr-2 mt-1"
+                  />
+                  <label
+                    htmlFor={`note-${note.id}`}
+                    className="text-sm break-words cursor-pointer"
+                  >
+                    {note.name}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+    </ul>
+    <div className="mt-4 flex justify-center">
+            <button
+              onClick={handleCreateStudyGuides}
+              className={`px-4 py-2 rounded-lg ${
+                selectedNotes.length > 0
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              disabled={loading || selectedNotes.length === 0}
+            >
+              <span className="font-bold">
+                {loading ? "Creating..." : "Create Study Guides"}
+              </span>
+            </button>
           </div>
           {studyGuides.length > 0 && (
             <div className="mt-4">
