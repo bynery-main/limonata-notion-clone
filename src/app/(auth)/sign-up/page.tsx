@@ -80,7 +80,7 @@ const StyledSignUpPage = () => {
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      router.push('/');
+      router.push('/dashboard');
     } catch (e) {
       if (e instanceof Error) toast.error(e.message);
     }
