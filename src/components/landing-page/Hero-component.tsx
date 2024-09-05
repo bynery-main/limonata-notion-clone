@@ -6,6 +6,9 @@ import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if nece
 import CircleGradients from "./Circle-Gradients.svg";
 import styled, { keyframes } from 'styled-components';
 import FancyText from '@carefully-coded/react-text-gradient';
+
+
+
 const gradientAnimation = keyframes`
   0% {
       background-position: 0% 50%;

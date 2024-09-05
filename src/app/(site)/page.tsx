@@ -12,17 +12,28 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <>
-      <div className="mt-[7vw] min-h-[45vw]">
+    <div>
+      <div className="mt-[7vw] min-h-[40vw]">
         <HeroComponent />
       </div>
 
-      <FollowerPointerCard>
-        <Intro />
-      </FollowerPointerCard>
-      <AIIntro />
-      <TabsDemo />
-      <CTA />
-    </>
+
+      <div className="">
+        <AIIntro />
+      </div>
+      <div>
+        <TabsDemo />
+      </div>
+
+      <div>
+        <FollowerPointerCard>
+          <Intro />
+        </FollowerPointerCard>
+      </div>
+
+      <div>
+        <CTA />
+      </div>
+    </div>
   );
 }
