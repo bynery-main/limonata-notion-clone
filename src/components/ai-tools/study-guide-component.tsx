@@ -36,6 +36,14 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
   const toast = useToast();
   const chakraToast = useChakraToast();
   const router = useRouter();
+  const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
+  interface Note {
+    id: string;
+    name: string;
+    type: 'note' | 'file';
+  }
+
+
   useEffect(() => {
     const fetchNotesAndFiles = async () => {
       const fetchedNotes = await fetchAllNotes(workspaceId);
@@ -200,11 +208,42 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     console.log("Study Guides parsed:", studyGuides);
     return studyGuides;
   };
+  const getFileEmoji = (fileName: string): string => {
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const pdfExtensions = ['pdf'];
+    const docExtensions = ['doc', 'docx'];
+    const audioExtensions = ['mp3', 'wav', 'ogg'];
+    const videoExtensions = ['mp4', 'avi', 'mov'];
+  
+    if (pdfExtensions.includes(extension)) return "📕";
+    if (docExtensions.includes(extension)) return "📘";
+    if (audioExtensions.includes(extension)) return "🎵";
+    if (videoExtensions.includes(extension)) return "🎥";
+    return "📝";
+  };
+  
 
+  const toggleNoteSelection = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
+    setSelectedNoteIds(prev => {
+      const newSet = new Set(prev);
+      if (isChecked) {
+        newSet.add(noteId);
+      } else {
+        newSet.delete(noteId);
+      }
+      return newSet;
+    });
+    
+    if (isChecked) {
+      setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
+    } else {
+      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
+    }
+  };
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
             <FancyText 
               gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
@@ -220,9 +259,9 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
             </button>
           </div>
           
-          <p className="text-center mb-4">Click on the notes and transcripts you would like use</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             {foldersNotes.map((folder) => (
               <div
                 key={folder.folderId}
@@ -230,59 +269,77 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
               >
                 <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
                 <ul className="space-y-2">
-                  {folder.notes.map((note) => (
-                    <li key={note.id} className="flex items-start">
-                      <Checkbox
-                        id={`note-${note.id}`}
-                        onChange={(e) =>
-                          handleCheckboxChange(
-                            folder.folderId,
-                            note.id,
-                            e.target.checked,
-                            note.type
-                          )
-                        }
-                        color={note.type === 'note' ? ['#FE7EF4'] : ['#F6B144']}
-                        className="mr-2 mt-1"
-                      />
-                      <label
-                        htmlFor={`note-${note.id}`}
-                        className="text-sm break-words cursor-pointer"
-                      >
-                        {note.name}
-                      </label>
-                    </li>
-                  ))}
+                  {folder.notes.map((note) => {
+                    const emoji = getFileEmoji(note.name);
+                    const isSelected = selectedNoteIds.has(note.id);
+                    
+                    return (
+                      <li key={note.id} className="flex items-start">
+                        <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
+                          <Checkbox
+                            id={`note-${note.id}`}
+                            isChecked={isSelected}
+                            onChange={(e) =>
+                              toggleNoteSelection(
+                                folder.folderId,
+                                note.id,
+                                e.target.checked,
+                                note.type
+                              )
+                            }
+                            className="z-10"
+                          />
+                          <span
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
+                              isSelected ? 'opacity-0' : 'opacity-100'
+                            }`}
+                          >
+                            {emoji}
+                          </span>
+                        </div>
+                        <label
+                          htmlFor={`note-${note.id}`}
+                          className="text-sm break-words cursor-pointer hover:text-[#F6B144] transition-colors duration-200 flex items-center"
+                        >
+                          {note.name}
+                        </label>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
           </div>
-          
-          <div className="flex justify-center">
-            <div className={`inline-block ${
-              selectedNotes.length > 0
-                ? ''
-                : 'cursor-not-allowed'
-            }`}>
-              <button
-                onClick={handleCreateStudyGuides}
-                className="relative"
-                title={
-                  selectedNotes.length > 0
-                    ? ''
-                    : 'Click on a note first to create study guide'
-                }
-                disabled={loading || selectedNotes.length === 0}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                <div className="px-4 py-2 relative bg-white rounded-full transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                  <span className="font-bold">
-                    {loading ? "Creating..." : "Create Study Guide"}
-                  </span>
-                </div>
-              </button>
-            </div>
+
+          <div className="mt-4 flex justify-center">
+          <div className={`${
+            selectedNotes.length > 0
+              ? 'p-[1px] relative'
+              : 'p-[1px] relative cursor-not-allowed'
+          }`}>
+            <button
+              onClick={handleCreateStudyGuides}
+              className="p-[1px] relative"
+              title={
+                selectedNotes.length > 0
+                  ? ''
+                  : 'Click on a note first to create Study Guides'
+              }
+              disabled={loading || selectedNotes.length === 0}
+            >
+              
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                <span className="font-bold">
+                  {loading ? "Creating..." : "Create Study Guides"}
+                </span>
+              </div>
+            </button>
           </div>
+          
+        </div>
+ 
+
           
           {studyGuides.length > 0 && (
             <div className="mt-6">

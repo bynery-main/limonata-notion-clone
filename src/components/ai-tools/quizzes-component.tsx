@@ -31,7 +31,18 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [creditCost] = useState(10);
   const [remainingCredits, setRemainingCredits] = useState(0);
   const toast = useToast();
-
+  const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
+  interface Note {
+    id: string;
+    name: string;
+    type: 'note' | 'file';
+  }
+  
+  interface Folder {
+    folderId: string;
+    folderName: string;
+    notes: Note[];
+  }
   useEffect(() => {
     const fetchNotesAndFiles = async () => {
       try {
@@ -77,6 +88,21 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     }
   };
 
+
+  const getFileEmoji = (fileName: string): string => {
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const pdfExtensions = ['pdf'];
+    const docExtensions = ['doc', 'docx'];
+    const audioExtensions = ['mp3', 'wav', 'ogg'];
+    const videoExtensions = ['mp4', 'avi', 'mov'];
+  
+    if (pdfExtensions.includes(extension)) return "📕";
+    if (docExtensions.includes(extension)) return "📘";
+    if (audioExtensions.includes(extension)) return "🎵";
+    if (videoExtensions.includes(extension)) return "🎥";
+    return "📝";
+  };
+  
   const handleCreateQuizzes = async () => {
     const functions = getFunctions(app);
     const createQuizzes = httpsCallable(functions, "quizGenAgent");
@@ -222,11 +248,27 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       }
     }
   };
-
+  const toggleNoteSelection = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
+    setSelectedNoteIds(prev => {
+      const newSet = new Set(prev);
+      if (isChecked) {
+        newSet.add(noteId);
+      } else {
+        newSet.delete(noteId);
+      }
+      return newSet;
+    });
+    
+    if (isChecked) {
+      setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
+    } else {
+      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
+    }
+  };
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
             <FancyText 
               gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
@@ -243,8 +285,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
           </div>
           
           <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             {foldersNotes.map((folder) => (
               <div
                 key={folder.folderId}
@@ -252,77 +294,92 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               >
                 <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
                 <ul className="space-y-2">
-                  {folder.notes.map((note) => (
-                    <li key={note.id} className="flex items-start">
-                      <Checkbox
-                        id={`note-${note.id}`}
-                        onChange={(e) =>
-                          handleCheckboxChange(
-                            folder.folderId,
-                            note.id,
-                            e.target.checked,
-                            note.type
-                          )
-                        }
-                        color={note.type === 'note' ? ['#FE7EF4'] : ['#F6B144']}
-                        className="mr-2 mt-1"
-                      />
-                      <label
-                        htmlFor={`note-${note.id}`}
-                        className="text-sm break-words cursor-pointer"
-                      >
-                        {note.name}
-                      </label>
-                    </li>
-                  ))}
+                  {folder.notes.map((note) => {
+                    const emoji = getFileEmoji(note.name);
+                    const isSelected = selectedNoteIds.has(note.id);
+                    
+                    return (
+                      <li key={note.id} className="flex items-start">
+                        <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
+                          <Checkbox
+                            id={`note-${note.id}`}
+                            isChecked={isSelected}
+                            onChange={(e) =>
+                              toggleNoteSelection(
+                                folder.folderId,
+                                note.id,
+                                e.target.checked,
+                                note.type
+                              )
+                            }
+                            className="z-10"
+                          />
+                          <span
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
+                              isSelected ? 'opacity-0' : 'opacity-100'
+                            }`}
+                          >
+                            {emoji}
+                          </span>
+                        </div>
+                        <label
+                          htmlFor={`note-${note.id}`}
+                          className="text-sm break-words cursor-pointer hover:text-[#F6B144] transition-colors duration-200 flex items-center"
+                        >
+                          {note.name}
+                        </label>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
           </div>
-          
-          <button
+
+          <div className="mt-4 flex justify-center">
+          <div className={`${
+            selectedNotes.length > 0
+              ? 'p-[1px] relative'
+              : 'p-[1px] relative cursor-not-allowed'
+          }`}>
+            <button
               onClick={handleCreateQuizzes}
-              className={`p-[1px] relative ${
-                selectedNotes.length > 0
-                  ? 'p-[1px] relative'
-                  : 'p-[1px] relative cursor-not-allowed'
-              }`}
+              className="p-[1px] relative"
               title={
                 selectedNotes.length > 0
                   ? ''
-                  : 'Click on a note first to create study guide'
+                  : 'Click on a note first to create quiz'
               }
               disabled={loading || selectedNotes.length === 0}
             >
-              <span className="font-bold">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                  {loading ? "Creating..." : "Create Study Guide"}
-                </div>
-              </span>
+              
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                <span className="font-bold">
+                  {loading ? "Creating..." : "Create Quiz"}
+                </span>
+              </div>
             </button>
-          {quizzes.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-xl font-semibold mb-2">Generated Quizzes</h3>
-              <ul className="space-y-4">
-                {quizzes.map((quiz) => (
-                  <li key={quiz.id} className="border-t pt-4 flex items-center justify-between">
-                    <h4 className="font-bold mr-2">{quiz.question}</h4>
-                    <div>
-                      <button title='Edit Question' onClick={() => handleEditQuestion(quiz.id!, quiz.question)} className="mr-2">
-                        <Pencil className="w-5 h-5 text-gray-600" />
-                      </button>
-                      <button title='Delete Question' onClick={() => handleDeleteQuestion(quiz.id!)}>
-                        <Trash2 className="w-5 h-5 text-red-600" />
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          </div>
+          
         </div>
-      </div>
+      {/*  
+      PREVIEW STUDY GUIDE
+      {quizzes.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-xl font-semibold">Generated Study Guide</h3>
+            <ul>
+              {quizzes.map((guide, index) => (
+                <li key={index}>
+                  <h4 className="font-bold">{quiz.name}</h4>
+                  <ReactMarkdown>{guide.content}</ReactMarkdown>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )} */}
+          </div>
+        </div>
 
       {isAddPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
