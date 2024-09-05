@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
 import HeroComponent from "@/components/landing-page/Hero-component";
 import Intro from "@/components/landing-page/introduction-component";
-import { useAuth } from "@/components/auth-provider/AuthProvider";
 import Navbar from "@/components/landing-page/navbar";
 import {TabsDemo} from "@/components/landing-page/landing-page-tabs";
 import { FollowerPointerCard } from "@/components/ui/following-pointer";
