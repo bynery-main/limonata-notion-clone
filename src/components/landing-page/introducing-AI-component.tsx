@@ -6,8 +6,8 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import AIAnimation from '../../../public/Images/AILottieExport.json';
 export default function IntroductionComponent() {
   return (
-    <div className="w-full max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1400px] mx-auto px-4 sm:px-10 md:px-40 lg:px-40">
-      <div className="flex flex-col-reverse md:flex-row md:items-center md:space-x-8 lg:space-x-16">
+    <div className="w-full max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1400px] mx-40">
+      <div className="flex flex-col-reverse md:flex-row md:items-center">
         <div className="w-full md:w-1/2 flex flex-col justify-center space-y-4 sm:space-y-6">
           <h2 className="sm:text-4xl md:text-4xl lg:text-5xl leading-tight">
             Introducing the{' '}
@@ -30,8 +30,8 @@ export default function IntroductionComponent() {
             </a>
           </p>
         </div>
-        <div className="w-[100%] h-auto relative bg-blue-200 -my-100">
-        <div className="  -ml-80 overflow-visible">
+        <div className="relative ">
+        <div className=" w-[125%] overflow-visible -ml-80">
           <DotLottieReact       
             src='https://lottie.host/29673738-770c-4b7e-9d9f-6733b3c4c6e7/8KYAf1OB8n.json'
             loop
