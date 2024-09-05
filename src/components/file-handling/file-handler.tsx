@@ -58,10 +58,6 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
           fileId={params.fileId}
           dirDetails={{ ...data, workspaceId: params.workspaceId, folderId: params.folderId }}
         />
-        <Summarise
-          refString={`workspaces/${params.workspaceId}/folders/${params.folderId}/notes/${params.fileId}`}
-          type="note"
-        /> {/* Summarise for notes */}
       </div>
     );
   }
