@@ -205,24 +205,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     }
   };
 
-  const handleDeleteQuestion = async (quizId: string) => {
-    try {
-      const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", "quizzes", quizId);
-      await deleteDoc(quizDocRef);
-
-      setQuizzes(quizzes.filter(quiz => quiz.id !== quizId));
-    } catch (error) {
-      console.error("Error deleting question:", error);
-    }
-  };
-
-  const handleEditQuestion = (quizId: string, currentQuestion: string) => {
-    console.log(`Edit button clicked for quiz ID: ${quizId}, Current Question: ${currentQuestion}`);
-    setCurrentEditQuizId(quizId);
-    setNewQuestion(currentQuestion);
-    setIsEditPopupOpen(true);
-  };
-
   const handleEditPopupSubmit = async () => {
     console.log(`Submit button clicked for editing quiz ID: ${currentEditQuizId}, New Question: ${newQuestion}`);
     if (currentEditQuizId && newQuestion) {
