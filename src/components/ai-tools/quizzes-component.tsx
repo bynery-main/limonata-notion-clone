@@ -6,8 +6,9 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; 
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Pencil, Trash2 } from "lucide-react";
-import { useToast } from "@chakra-ui/react";
+import { Checkbox, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
+import FancyText from '@carefully-coded/react-text-gradient';
 
 interface QuizzesComponentProps {
   onClose: () => void;
@@ -224,61 +225,97 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl ">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Create Quizzes</h2>
-            <button onClick={onClose} className="text-xl font-bold">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
+          <div className="relative flex justify-center items-center mb-4">
+            <FancyText 
+              gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
+              className="text-2xl sm:text-3xl md:text-3xl font-bold text-black font-extrabold"
+            >
+              Create Quizzes
+            </FancyText>
+            <button 
+              onClick={onClose} 
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
+            >
               &times;
             </button>
           </div>
-          <p className="text-center">Which notes and transcripts would you like to use?</p>
-          <ul className="mt-4">
+          
+          <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             {foldersNotes.map((folder) => (
-              <li key={folder.folderId}>
-                <h3 className="font-bold">{folder.folderName}</h3>
-                <ul className="pl-4">
+              <div
+                key={folder.folderId}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm"
+              >
+                <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
+                <ul className="space-y-2">
                   {folder.notes.map((note) => (
-                    <li key={note.id} className="flex items-center">
-                      <input
-                        aria-label="Select Note"
-                        type="checkbox"
-                        className="mr-2"
-                        onChange={(e) => handleCheckboxChange(folder.folderId, note.id, e.target.checked, note.type)}
+                    <li key={note.id} className="flex items-start">
+                      <Checkbox
+                        id={`note-${note.id}`}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            folder.folderId,
+                            note.id,
+                            e.target.checked,
+                            note.type
+                          )
+                        }
+                        color={note.type === 'note' ? ['#FE7EF4'] : ['#F6B144']}
+                        className="mr-2 mt-1"
                       />
-                      {note.name}
+                      <label
+                        htmlFor={`note-${note.id}`}
+                        className="text-sm break-words cursor-pointer"
+                      >
+                        {note.name}
+                      </label>
                     </li>
                   ))}
                 </ul>
-              </li>
+              </div>
             ))}
-          </ul>
-          <div className="mt-4 flex justify-center">
-            <button
+          </div>
+          
+          <button
               onClick={handleCreateQuizzes}
-              className={`px-4 py-2 rounded-lg ${
+              className={`p-[1px] relative ${
                 selectedNotes.length > 0
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'p-[1px] relative'
+                  : 'p-[1px] relative cursor-not-allowed'
               }`}
+              title={
+                selectedNotes.length > 0
+                  ? ''
+                  : 'Click on a note first to create study guide'
+              }
               disabled={loading || selectedNotes.length === 0}
             >
-              {loading ? "Creating..." : "Create Quizzes"}
+              <span className="font-bold">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                  {loading ? "Creating..." : "Create Study Guide"}
+                </div>
+              </span>
             </button>
-          </div>
           {quizzes.length > 0 && (
-            <div className="mt-4">
-              <h3 className="text-xl font-semibold">Generated Quizzes</h3>
-              <ul>
-                {quizzes.map((quiz, index) => (
-                  <li key={quiz.id} className="flex items-center">
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold mb-2">Generated Quizzes</h3>
+              <ul className="space-y-4">
+                {quizzes.map((quiz) => (
+                  <li key={quiz.id} className="border-t pt-4 flex items-center justify-between">
                     <h4 className="font-bold mr-2">{quiz.question}</h4>
-                    <button title='Edit Question' onClick={() => handleEditQuestion(quiz.id!, quiz.question)} className="mr-2">
-                      <Pencil className="w-5 h-5 text-gray-600" />
-                    </button>
-                    <button title='Delete Question' onClick={() => handleDeleteQuestion(quiz.id!)}>
-                      <Trash2 className="w-5 h-5 text-red-600" />
-                    </button>
+                    <div>
+                      <button title='Edit Question' onClick={() => handleEditQuestion(quiz.id!, quiz.question)} className="mr-2">
+                        <Pencil className="w-5 h-5 text-gray-600" />
+                      </button>
+                      <button title='Delete Question' onClick={() => handleDeleteQuestion(quiz.id!)}>
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -287,7 +324,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         </div>
       </div>
 
-      {/* Popup for adding new question */}
       {isAddPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
@@ -316,7 +352,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         </div>
       )}
 
-      {/* Popup for editing existing question */}
       {isEditPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
@@ -345,7 +380,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         </div>
       )}
 
-      {/* Use NoCreditsModal for insufficient credits */}
       {showCreditModal && (
         <NoCreditsModal
           remainingCredits={remainingCredits}
