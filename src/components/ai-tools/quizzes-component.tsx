@@ -79,14 +79,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     return mergedFolders;
   };
 
-  const handleCheckboxChange = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
-    if (isChecked) {
-      setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
-    } else {
-      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
-    }
-  };
-
 
   const getFileEmoji = (fileName: string): string => {
     const extension = fileName.split('.').pop()?.toLowerCase() || '';
