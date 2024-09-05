@@ -98,11 +98,11 @@ export default function HeroComponent() {
   };
 
   return (
-    <div className="relative min-h-[500px] ml-20">
+    <div className="relative ml-20 overflow-x-clip">
       <RotatingCircle>
         <CircleGradients className="circle" />
       </RotatingCircle>
-      <div className="absolute  top-1/4 left-0 right-0 px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
+      <div className="absolute  top-[10vw] left-0 right-0 px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
         <h1 className=" ">
           <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
           Study together.
