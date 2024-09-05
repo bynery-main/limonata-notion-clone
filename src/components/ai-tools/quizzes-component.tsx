@@ -5,7 +5,6 @@ import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; 
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { Pencil, Trash2 } from "lucide-react";
 import { Checkbox, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
@@ -78,14 +77,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     });
 
     return mergedFolders;
-  };
-
-  const handleCheckboxChange = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
-    if (isChecked) {
-      setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
-    } else {
-      setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
-    }
   };
 
 
@@ -212,24 +203,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         console.error("Error adding question:", error);
       }
     }
-  };
-
-  const handleDeleteQuestion = async (quizId: string) => {
-    try {
-      const quizDocRef = doc(db, "workspaces", workspaceId, "quizSets", "quizzes", quizId);
-      await deleteDoc(quizDocRef);
-
-      setQuizzes(quizzes.filter(quiz => quiz.id !== quizId));
-    } catch (error) {
-      console.error("Error deleting question:", error);
-    }
-  };
-
-  const handleEditQuestion = (quizId: string, currentQuestion: string) => {
-    console.log(`Edit button clicked for quiz ID: ${quizId}, Current Question: ${currentQuestion}`);
-    setCurrentEditQuizId(quizId);
-    setNewQuestion(currentQuestion);
-    setIsEditPopupOpen(true);
   };
 
   const handleEditPopupSubmit = async () => {
