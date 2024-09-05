@@ -1,11 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { auth } from "@/firebase/firebaseConfig";
-import { signOut } from "firebase/auth";
 import HeroComponent from "@/components/landing-page/Hero-component";
 import Intro from "@/components/landing-page/introduction-component";
-import Navbar from "@/components/landing-page/navbar";
 import {TabsDemo} from "@/components/landing-page/landing-page-tabs";
 import { FollowerPointerCard } from "@/components/ui/following-pointer";
 import AIIntro from "@/components/landing-page/introducing-AI-component";
@@ -16,7 +13,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar/>
+
       <HeroComponent/>
       <FollowerPointerCard>
         <Intro/>

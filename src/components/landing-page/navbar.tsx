@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogInIcon, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
