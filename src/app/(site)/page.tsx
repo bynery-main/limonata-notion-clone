@@ -14,11 +14,6 @@ import CTA from "@/components/landing-page/CTA-component";
 export default function Home() {
   const router = useRouter();
 
-  const handleSignOut = () => {
-    signOut(auth);
-    router.push('/login');
-  };
-
   return (
     <>
       <Navbar/>
