@@ -120,7 +120,6 @@ const SettingsPage = () => {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-8"
     >
-      <Toaster />
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-3xl font-bold">Workspace Settings</CardTitle>
