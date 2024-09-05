@@ -5,7 +5,6 @@ import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig"; 
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { Pencil, Trash2 } from "lucide-react";
 import { Checkbox, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
