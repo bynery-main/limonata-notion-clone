@@ -10,6 +10,8 @@ import { Button, Checkbox, useToast as useChakraToast, useToast } from "@chakra-
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import reacttoast from 'react-hot-toast';
 import { useRouter } from 'next/navigation'
+import FancyText from '@carefully-coded/react-text-gradient';
+import { title } from "process";
 
 interface StudyGuideComponentProps {
   onClose: () => void;
@@ -204,7 +206,9 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="flex text-xl justify-center font-semibold">Create Study Guides</h2>
+          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className="justify-center min-h-20 text-2xl sm:text-3xl md:text-3xl font-bold text-black font-extrabold h-auto">
+              
+              Create Study Guides</FancyText>
             <button onClick={onClose} className="text-xl font-bold">
               &times;
             </button>
@@ -232,6 +236,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                         note.type
                       )
                     }
+                    color={'#F6B144'}
                     className="mr-2 mt-1"
                   />
                   <label
@@ -249,23 +254,32 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     </div>
     </ul>
     <div className="mt-4 flex justify-center">
+
             <button
               onClick={handleCreateStudyGuides}
-              className={`px-4 py-2 rounded-lg ${
+              className={`p-[1px] relative ${
                 selectedNotes.length > 0
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'p-[1px] relative'
+                  : 'p-[1px] relative cursor-not-allowed'
               }`}
+              title={
+                selectedNotes.length > 0
+                  ? ''
+                  : 'Click on a note first to create study guide'
+              }
               disabled={loading || selectedNotes.length === 0}
             >
               <span className="font-bold">
-                {loading ? "Creating..." : "Create Study Guides"}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+              {loading ? "Creating..." : "Create Study Guide"}
+              </div>
               </span>
             </button>
           </div>
           {studyGuides.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-xl font-semibold">Generated Study Guides</h3>
+              <h3 className="text-xl font-semibold">Generated Study Guide</h3>
               <ul>
                 {studyGuides.map((guide, index) => (
                   <li key={index}>
