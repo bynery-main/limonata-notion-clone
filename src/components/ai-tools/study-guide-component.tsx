@@ -205,86 +205,95 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-3xl">
-          <div className="flex justify-between items-center mb-4">
-          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className="justify-center min-h-20 text-2xl sm:text-3xl md:text-3xl font-bold text-black font-extrabold h-auto">
-              
-              Create Study Guides</FancyText>
-            <button onClick={onClose} className="text-xl font-bold">
+          <div className="relative flex justify-center items-center mb-4">
+            <FancyText 
+              gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
+              className="text-2xl sm:text-3xl md:text-3xl font-bold text-black font-extrabold"
+            >
+              Create Study Guides
+            </FancyText>
+            <button 
+              onClick={onClose} 
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
+            >
               &times;
             </button>
           </div>
-          <ul className="mt-4">
-       <div>
-      <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {foldersNotes.map((folder) => (
-          <div
-            key={folder.folderId}
-            className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm"
-          >
-            <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
-            <ul className="space-y-2">
-              {folder.notes.map((note) => (
-                <li key={note.id} className="flex items-start">
-                  <Checkbox
-                    id={`note-${note.id}`}
-                    onChange={(e) =>
-                      handleCheckboxChange(
-                        folder.folderId,
-                        note.id,
-                        e.target.checked,
-                        note.type
-                      )
-                    }
-                    color={'#F6B144'}
-                    className="mr-2 mt-1"
-                  />
-                  <label
-                    htmlFor={`note-${note.id}`}
-                    className="text-sm break-words cursor-pointer"
-                  >
-                    {note.name}
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </div>
-    </ul>
-    <div className="mt-4 flex justify-center">
-
-            <button
-              onClick={handleCreateStudyGuides}
-              className={`p-[1px] relative ${
-                selectedNotes.length > 0
-                  ? 'p-[1px] relative'
-                  : 'p-[1px] relative cursor-not-allowed'
-              }`}
-              title={
-                selectedNotes.length > 0
-                  ? ''
-                  : 'Click on a note first to create study guide'
-              }
-              disabled={loading || selectedNotes.length === 0}
-            >
-              <span className="font-bold">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-              {loading ? "Creating..." : "Create Study Guide"}
+          
+          <p className="text-center mb-4">Click on the notes and transcripts you would like use</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {foldersNotes.map((folder) => (
+              <div
+                key={folder.folderId}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm"
+              >
+                <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
+                <ul className="space-y-2">
+                  {folder.notes.map((note) => (
+                    <li key={note.id} className="flex items-start">
+                      <Checkbox
+                        id={`note-${note.id}`}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            folder.folderId,
+                            note.id,
+                            e.target.checked,
+                            note.type
+                          )
+                        }
+                        color={note.type === 'note' ? ['#FE7EF4'] : ['#F6B144']}
+                        className="mr-2 mt-1"
+                      />
+                      <label
+                        htmlFor={`note-${note.id}`}
+                        className="text-sm break-words cursor-pointer"
+                      >
+                        {note.name}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              </span>
-            </button>
+            ))}
           </div>
+          
+          <div className="flex justify-center">
+            <div className={`inline-block ${
+              selectedNotes.length > 0
+                ? ''
+                : 'cursor-not-allowed'
+            }`}>
+              <button
+                onClick={handleCreateStudyGuides}
+                className="relative"
+                title={
+                  selectedNotes.length > 0
+                    ? ''
+                    : 'Click on a note first to create study guide'
+                }
+                disabled={loading || selectedNotes.length === 0}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                <div className="px-4 py-2 relative bg-white rounded-full transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                  <span className="font-bold">
+                    {loading ? "Creating..." : "Create Study Guide"}
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+          
           {studyGuides.length > 0 && (
-            <div className="mt-4">
-              <h3 className="text-xl font-semibold">Generated Study Guide</h3>
-              <ul>
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold mb-2">Generated Study Guide</h3>
+              <ul className="space-y-4">
                 {studyGuides.map((guide, index) => (
-                  <li key={index}>
-                    <h4 className="font-bold">{guide.name}</h4>
-                    <ReactMarkdown>{guide.content}</ReactMarkdown>
+                  <li key={index} className="border-t pt-4">
+                    <h4 className="font-bold mb-2">{guide.name}</h4>
+                    <ReactMarkdown className="prose dark:prose-invert">
+                      {guide.content}
+                    </ReactMarkdown>
                   </li>
                 ))}
               </ul>
@@ -293,7 +302,6 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         </div>
       </div>
 
-      {/* Use NoCreditsModal for insufficient credits */}
       {showCreditModal && (
         <NoCreditsModal
           remainingCredits={remainingCredits}
