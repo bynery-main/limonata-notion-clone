@@ -98,11 +98,11 @@ export default function HeroComponent() {
   };
 
   return (
-    <div className="relative ml-20 overflow-x-clip">
+    <div className="relative ml-44 overflow-x-clip">
       <RotatingCircle>
         <CircleGradients className="circle" />
       </RotatingCircle>
-      <div className="absolute  top-[10vw] left-0 right-0 px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
+      <div className="absolute  top-[8vw] left-0 right-0 px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
         <h1 className=" ">
           <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
           Study together.
@@ -111,7 +111,7 @@ export default function HeroComponent() {
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
           Study smarter
         </h2>
-        <div className="space-y-4 md:space-y-0 md:space-x-4 ">
+        <div className="mt-4">
           {!isSignedIn ? (
             <AnimatedButton variant="default" onClick={login} className=" md:w-auto">
               Start a Workspace
