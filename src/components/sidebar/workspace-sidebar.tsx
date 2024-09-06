@@ -43,6 +43,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [width, setWidth] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emoji, setEmoji] = useState<string>("🏔️");
+  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
@@ -92,8 +93,10 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     const unsubscribe = onSnapshot(workspaceRef, (docSnapshot) => {
       console.log("Firestore snapshot triggered for workspace:", params.workspaceId);
       if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setWorkspaceName(data.name || null);
+        setEmoji(data.emoji || "🏔️");
         fetchExistingCollaborators();
-        fetchEmoji();
       }
     });
 
@@ -197,10 +200,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     setNewCollaborators((prev) => [...prev, user]);
   };
 
-
-
-  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
-
   useEffect(() => {
     const getWorkspaceDetails = async () => {
       console.log("Fetching workspace details for:", params.workspaceId);
@@ -273,7 +272,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           )}
           <span className="sr-only">Limonata</span>
 
-          {/* Credits Display on the Right */}
           <div className="ml-auto flex items-center space-x-2">
             <CreditCard className="w-6 h-6 text-blue-500" />
             <span>{credits}</span>
