@@ -5,6 +5,7 @@ import {
   SettingsIcon,
   UserPlusIcon,
   UsersIcon,
+  CreditCard,
 } from "lucide-react";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
@@ -20,6 +21,7 @@ import {
   getFirestore,
   updateDoc,
 } from "firebase/firestore";
+import { db } from '@/firebase/firebaseConfig';
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
@@ -47,6 +49,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null); // State for subscription status
   const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [credits, setCredits] = useState<number | null>(null);
 
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
     string | null
@@ -212,7 +215,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       } catch (error) {
         console.error("Error getting workspace details:", error);
       }
-    }; 
+    };
 
     getWorkspaceDetails();
   }, [params.workspaceId]);
@@ -220,6 +223,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
   const currentUserEmail = user?.email || "";
+
 
   // New useEffect for listening to changes in subscription status and tier
   useEffect(() => {
@@ -230,6 +234,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
+        setCredits(userData?.credits || 0);
         setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
         setTier(userData?.tier || "free"); // Update the state with the tier
       }
@@ -267,13 +272,19 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             </div>
           )}
           <span className="sr-only">Limonata</span>
+
+          {/* Credits Display on the Right */}
+          <div className="ml-auto flex items-center space-x-2">
+            <CreditCard className="w-6 h-6 text-blue-500" />
+            <span>{credits}</span>
+          </div>
         </div>
 
         <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
 
         {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
-          <Button 
-            onClick={() => setShowGoProModal(true)} 
+          <Button
+            onClick={() => setShowGoProModal(true)}
             className="mx-4 mt-4 shadow-lg"
           >
             {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
@@ -358,7 +369,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         />
       </aside>
 
-      
+
 
       {/* Modal for Go Pro */}
       {showGoProModal && (
