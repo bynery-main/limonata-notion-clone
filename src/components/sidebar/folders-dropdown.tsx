@@ -148,7 +148,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             Topics
           </h3>
         </div>
-        <div className="flex items-center space-x-2 px-3"> {/* Added padding */}
+        <div className="flex items-center space-x-2"> {/* Added padding */}
           <input
             type="text"
             value={newFolderName}

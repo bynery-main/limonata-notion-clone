@@ -276,7 +276,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </Button>
         )}
         
-        <div className="px-4">
+
+        
+        <div className="flex-1 overflow-y-auto px-4 py-6">
           <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
             AI Study Resources
           </h3>
@@ -297,10 +299,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               onStudyGuideSelect={handleStudyGuideSelect}
             />
           </div>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          <nav className="grid gap-4 text-sm font-medium">
+          <nav className="grid gap-4 text-sm font-medium mt-4">
             <FoldersDropDown
               workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}
