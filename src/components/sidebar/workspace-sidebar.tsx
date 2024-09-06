@@ -299,7 +299,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               onStudyGuideSelect={handleStudyGuideSelect}
             />
           </div>
-          <nav className="grid gap-4 text-sm font-medium mt-4">
+          <nav className="grid gap-4 text-sm font-medium mt-4 z-100">
             <FoldersDropDown
               workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}

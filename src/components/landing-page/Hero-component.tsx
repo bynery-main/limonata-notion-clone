@@ -31,7 +31,7 @@ const rotateAnimation = keyframes`
 `;
 
 const AnimatedButton = styled(Button)`
-  background: linear-gradient(-45deg, #FE7EF4, #F6B144);
+  background: linear-gradient(-45deg,#FE7EF4, #F6B144);
   background-size: 400% 400%;
   animation: ${gradientAnimation} 15s ease infinite;
   border: none;

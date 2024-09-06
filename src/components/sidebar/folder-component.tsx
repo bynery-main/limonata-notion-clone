@@ -243,99 +243,41 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   };
 
   return (
-    <div className={`overflow-hidden w-64 break-words border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}>
-      <Accordion.Item value={folder.id}>
-        <Accordion.Trigger
-          id="folder"
-          className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
-          onClick={toggleFolder}
-        >
-          <div className="flex items-center justify-between overflow-hidden">
-            <div className="flex items-center gap-2 flex-grow min-w-0">
-              <ChevronRightIcon
-                className="h-4 w-4 cursor-pointer flex-shrink-0"
-                style={{ 
-                  transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
-                  transition: "transform 0.3s ease" 
+    <div className="relative w-64">
+      <div className={`overflow-visible break-words border border-gray-300 rounded-lg ${isActive ? 'bg-gray-100' : ''}`}>
+        <Accordion.Item value={folder.id}>
+          <Accordion.Trigger
+            className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
+            onClick={toggleFolder}
+          >
+            <div className="flex items-center justify-between overflow-visible">
+              <div className="flex items-center gap-2 flex-grow min-w-0">
+                <ChevronRightIcon
+                  className="h-4 w-4 cursor-pointer flex-shrink-0"
+                  style={{ 
+                    transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
+                    transition: "transform 0.3s ease" 
+                  }}
+                />
+                <span className="truncate w-full flex-grow overflow-visible break-words">{folder.name}</span> 
+              </div>
+              <div 
+                className="p-2 cursor-pointer flex-shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(!showMenu);
                 }}
-              />
-              <span className="truncat w-full flex-grow overflow-hidden break-words w-full">{folder.name}</span> 
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </div>
             </div>
-            <div 
-              className="p-2 cursor-pointer flex-shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMenu(!showMenu);
-              }}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </div>
-          </div>
-        </Accordion.Trigger>
-        {showMenu && (
-          <div ref={menuRef} className="absolute right-0 top-8 bg-white border rounded shadow-md z-10">
-            <button onClick={() => handleMenuItemClick(() => setShowRename(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
-              <PencilIcon className="h-4 w-4 mr-2" /> Rename
-            </button>
-            <button onClick={() => handleMenuItemClick(() => setShowCreateNote(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
-              <NotebookIcon className="h-4 w-4 mr-2" /> Create Note
-            </button>
-            <button onClick={() => handleMenuItemClick(() => setShowUpload(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
-              <UploadIcon className="h-4 w-4 mr-2" /> Upload File
-            </button>
-            <button onClick={() => { deleteFolder(workspaceId, folder.id, parentFolderId); setShowMenu(false); }} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
-              <TrashIcon className="h-4 w-4 mr-2" /> Delete Topic
-            </button>
-          </div>
-        )}
-        <Accordion.Content className="overflow-hidden transition-all duration-300 ease-in-out">
-          {isOpen && (
-            <div className="p-2 w-full text-gray-500 font-light">
-              <CSSTransition in={showRename} timeout={300} classNames="rename" unmountOnExit>
-                <div className="flex center my-2">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder="New folder name"
-                    className="border p-2 rounded"
-                  />
-                  <button
-                    onClick={handleRename}
-                    className="bg-transparent text-black p-3 mx-2 rounded hover:bg-blue-500 hover:text-white"
-                  >
-                    Rename
-                  </button>
-                </div>
-              </CSSTransition>
-              <CSSTransition in={showUpload} timeout={300} classNames="upload" unmountOnExit>
-                <div className="mx-4">
-                  <UploadFile
-                    folderRef={`workspaces/${workspaceId}/folders/${folder.id}`}
-                    onFileUpload={(file) => {
-                      setFolders((prevFolders) =>
-                        prevFolders.map((f) =>
-                          f.id === folder.id ? { ...f, files: [...f.files, file] } : f
-                        )
-                      );
-                      setShowUpload(false);
-                    }}
-                  />
-                </div>
-              </CSSTransition>
-              <CSSTransition in={showCreateNote} timeout={300} classNames="create-note" unmountOnExit>
-                <div className="mx-3">
-                  <CreateNote 
-                    workspaceId={workspaceId} 
-                    folderId={folder.id} 
-                    onNoteCreated={() => setShowCreateNote(false)}
-                  />
-                </div>
-              </CSSTransition>
-              
-              {/* File list */}
-              <div className="mt-4 w-full">
-                {folder.files && folder.files.map((file) => (
+          </Accordion.Trigger>
+          
+          <Accordion.Content className="transition-all duration-300 ease-in-out">
+            {isOpen && (
+              <div className="p-2 w-full text-gray-500 font-light">
+                {/* File list */}
+                {files.map((file) => (
                   <div 
                     key={file.id}
                     className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${
@@ -360,7 +302,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                           <CheckIcon className="h-4 w-4" />
                         </button>
                       </div>
-                    ) :(
+                    ) : (
                       <span className="text-sm flex-grow" onClick={() => handleFileClick(file)}>
                         {file.name || "Unnamed File"}
                       </span>
@@ -375,7 +317,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                       <MoreVerticalIcon className="h-4 w-4" />
                     </div>
                     {showFileMenu[file.id] && (
-                      <div ref={menuRef} className="absolute right-0 mt-8 bg-white border rounded shadow-md z-10">
+                      <div className="absolute right-0 mt-8 bg-white border rounded shadow-md z-50">
                         <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
                           <PencilIcon className="h-4 w-4 mr-2" /> Rename
                         </button>
@@ -386,29 +328,103 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                     )}
                   </div>
                 ))}
+  
+                {/* Subfolders */}
+                {folder.contents.map((subfolder) => (
+                  <FolderComponent
+                    key={subfolder.id}
+                    folder={subfolder}
+                    parentFolderId={folder.id}
+                    workspaceId={workspaceId}
+                    setFolders={setFolders}
+                    deleteFolder={deleteFolder}
+                    deleteFile={deleteFile}
+                    isActive={isActive}
+                    onSelect={onSelect}
+                    openFolderId={openFolderId}
+                    setOpenFolderId={setOpenFolderId}
+                  />
+                ))}
               </div>
-
-              {folder.contents.map((subfolder: Folder) => (
-                <FolderComponent
-                  key={subfolder.id}
-                  folder={subfolder}
-                  parentFolderId={folder.id}
-                  workspaceId={workspaceId}
-                  setFolders={setFolders}
-                  deleteFolder={deleteFolder}
-                  deleteFile={deleteFile}
-                  isActive={isActive}
-                  onSelect={onSelect}
-                  openFolderId={openFolderId}
-                  setOpenFolderId={setOpenFolderId}
-                />
-              ))}
-            </div>
-          )}
-        </Accordion.Content>
-      </Accordion.Item>
+            )}
+          </Accordion.Content>
+        </Accordion.Item>
+      </div>
+      
+      {/* Folder Menu */}
+      {showMenu && (
+        <div 
+          ref={menuRef} 
+          className="absolute left-20 right-0 bg-white border rounded shadow-lg"
+          style={{
+            top: '0',
+            zIndex: 1000,
+          }}
+        >
+          <button onClick={() => handleMenuItemClick(() => setShowRename(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+            <PencilIcon className="h-4 w-4 mr-2" /> Rename
+          </button>
+          <button onClick={() => handleMenuItemClick(() => setShowCreateNote(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+            <NotebookIcon className="h-4 w-4 mr-2" /> Create Note
+          </button>
+          <button onClick={() => handleMenuItemClick(() => setShowUpload(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+            <UploadIcon className="h-4 w-4 mr-2" /> Upload File
+          </button>
+          <button onClick={() => { deleteFolder(workspaceId, folder.id, parentFolderId); setShowMenu(false); }} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
+            <TrashIcon className="h-4 w-4 mr-2" /> Delete Topic
+          </button>
+        </div>
+      )}
+  
+      {/* Rename Component */}
+      <CSSTransition in={showRename} timeout={300} classNames="rename" unmountOnExit>
+        <div className="absolute left-0 right-0 bg-white border rounded p-2 shadow-lg"
+             style={{
+               bottom: '100%',
+               marginBottom: '4px',
+               zIndex: 1001,
+             }}>
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            className="border p-1 w-full mb-2"
+          />
+          <button onClick={handleRename} className="bg-blue-500 text-white p-1 rounded">Rename</button>
+        </div>
+      </CSSTransition>
+  
+      {/* Upload Component */}
+      <CSSTransition in={showUpload} timeout={300} classNames="upload" unmountOnExit>
+        <div className="absolute left-0 right-0 bg-white border rounded shadow-lg p-2"
+             style={{
+               bottom: '100%',
+               marginBottom: '4px',
+               zIndex: 1001,
+             }}>
+          <UploadFile
+            folderRef={`workspaces/${workspaceId}/folders/${folder.id}`}
+            onFileUpload={() => setShowUpload(false)}
+          />
+        </div>
+      </CSSTransition>
+  
+      {/* Create Note Component */}
+      <CSSTransition in={showCreateNote} timeout={300} classNames="create-note" unmountOnExit>
+        <div className="absolute left-0 right-0 bg-white border rounded shadow-lg p-2"
+             style={{
+               bottom: '100%',
+               marginBottom: '4px',
+               zIndex: 1001,
+             }}>
+          <CreateNote 
+            workspaceId={workspaceId} 
+            folderId={folder.id} 
+            onNoteCreated={() => setShowCreateNote(false)}
+          />
+        </div>
+      </CSSTransition>
     </div>
   );
-};
-
+}
 export default FolderComponent;

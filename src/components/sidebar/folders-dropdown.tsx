@@ -9,6 +9,7 @@ import { CirclePlusIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
 import { fetchFiles, addFolder } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 interface FoldersDropDownProps {
   workspaceId: string;
@@ -156,19 +157,21 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             placeholder="New Topic name"
             className="border p-2 rounded flex-grow"
           />
-          <button
+          <motion.div
             onClick={handleAddFolder}
-            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white flex-shrink-0" 
+            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]" 
+            whileHover={{ scale: 1.1, rotate: 180 }}
+            whileTap={{ scale: 0.9 }}
             aria-label="Add new folder"
           >
-            <CirclePlusIcon className="h-4 w-4" />
-          </button>
+            <CirclePlusIcon className="h-4 w-4 " />
+          </motion.div>
         </div>
         <Accordion.Root
           type="single"
           value={openFolderId || undefined}
           onValueChange={(value) => setOpenFolderId(value)}
-          className="space-y-2 overflow-hide"
+          className="space-y-2 overflow-show"
         >
           {folders.map((folder) => (
             <FolderComponent
