@@ -41,7 +41,6 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [newCollaborators, setNewCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [existingCollaboratorsWithEmail, setExistingCollaboratorsWithEmail] = useState<{ uid: string; email: string }[]>([]);
-  const [showCollaborators, setShowCollaborators] = useState(false);
 
   const functions = getFunctions();
   const db = getFirestore();
@@ -61,17 +60,20 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
           !newCollaborators.some(nc => nc.uid === user.uid)
       );
       setUsers(filtered);
-      setFilteredUsers(filtered);
     };
     loadUsers();
   }, [existingCollaborators, currentUserUid, newCollaborators]);
 
   useEffect(() => {
     const query = searchQuery.toLowerCase();
-    const filtered = users.filter((user) =>
-      user.email.toLowerCase().includes(query)
-    );
-    setFilteredUsers(filtered);
+    if (query.length >= 6) {
+      const filtered = users
+        .filter((user) => user.email.toLowerCase().includes(query))
+        .slice(0, 3); // Limit to top 3 results
+      setFilteredUsers(filtered);
+    } else {
+      setFilteredUsers([]);
+    }
   }, [searchQuery, users]);
 
   const fetchExistingCollaborators = async () => {
@@ -94,6 +96,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   const addCollaboratorLocal = (user: { uid: string; email: string }) => {
     setNewCollaborators(prev => [...prev, user]);
     onAddCollaborator(user);
+    setSearchQuery(""); // Clear the search query after adding a collaborator
   };
 
   const handleRemoveNewCollaborator = (uid: string) => {
@@ -140,7 +143,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
             </SheetDescription>
           </SheetHeader>
           <Input
-            placeholder="Search by email"
+            placeholder="Search by email (enter at least 6 characters)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="mb-4 mt-4"
@@ -163,6 +166,16 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
                 </Button>
               </div>
             ))}
+            {searchQuery.length > 0 && searchQuery.length < 6 && (
+              <div className="p-4 text-sm text-muted-foreground">
+                Enter at least 6 characters to search
+              </div>
+            )}
+            {searchQuery.length >= 6 && filteredUsers.length === 0 && (
+              <div className="p-4 text-sm text-muted-foreground">
+                No matching users found
+              </div>
+            )}
           </ScrollArea>
           <CollaboratorList
             workspaceId={workspaceId}
