@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
 import CircleGradients from "./Circle-Gradients.svg";
-import styled, { keyframes } from 'styled-components';
 import FancyText from '@carefully-coded/react-text-gradient';
+import { RotatingCircle } from "./rotating-circle";
+import styled, { keyframes } from 'styled-components';
 
 
 
@@ -21,14 +22,7 @@ const gradientAnimation = keyframes`
   }
 `;
 
-const rotateAnimation = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
+
 
 const AnimatedButton = styled(Button)`
   background: linear-gradient(-45deg, #FE7EF4, #F6B144);
@@ -48,24 +42,7 @@ const AnimatedButton = styled(Button)`
   }
 `;
 
-const RotatingCircle = styled.div`
-  animation: ${rotateAnimation} 30s linear infinite;
-  position: absolute;
-  left: -100px;
-  top: -200px;
-  
-  @media (max-width: 768px) {
-    left: -150px;
-    top: -250px;
-    transform: scale(0.7);
-  }
-  
-  @media (max-width: 480px) {
-    left: -200px;
-    top: -300px;
-    transform: scale(0.5);
-  }
-`;
+
 
 export default function HeroComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
