@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
 import { FaPlus, FaCog } from "react-icons/fa";
@@ -12,9 +11,14 @@ import { onSnapshot, collection, query, where, QuerySnapshot, DocumentData, Docu
 import { db } from "@/firebase/firebaseConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import WorkspaceIcon from "./workspace-icon";
+import { User } from "firebase/auth";
 
-export const MainSidebar = (): JSX.Element => {
-  const { user } = useAuth();
+interface MainSidebarProps {
+  user: User | null;
+}
+
+export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
+
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<Workspace[]>([]);
   const router = useRouter();
@@ -23,6 +27,7 @@ export const MainSidebar = (): JSX.Element => {
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
   const [workspaceEmojis, setWorkspaceEmojis] = useState<{ [key: string]: string }>({});
+
 
   useEffect(() => {
     let unsubscribeOwned: () => void;
@@ -169,11 +174,10 @@ export const MainSidebar = (): JSX.Element => {
         ))}
         <motion.div
           className="mt-4 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
-          onClick={() => setShowDS(true)}
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
         >
-          <FaPlus />
+          <FaPlus onClick={() => setShowDS(true)}/>
           <motion.div
             className="absolute inset-0 rounded-full border-2 border-transparent"
             // whileHover={{ borderColor: "white" }}
