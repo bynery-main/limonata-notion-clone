@@ -12,7 +12,8 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div>
+    <div className="items-center justify-center">
+      
       <div className="mt-[7vw] min-h-[40vw]">
         <HeroComponent />
       </div>
@@ -26,9 +27,9 @@ export default function Home() {
       </div>
 
       <div>
-        <FollowerPointerCard>
+        {/* <FollowerPointerCard> */}
           <Intro />
-        </FollowerPointerCard>
+        {/* </FollowerPointerCard> */}
       </div>
 
       <div>
