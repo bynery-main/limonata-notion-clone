@@ -105,7 +105,10 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
-            <span>Quizzes</span>
+            <div className="flex items-center">
+              <PencilIcon className="h-4 w-4 mr-2" />
+              <span>Quizzes</span>
+            </div>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (

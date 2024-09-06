@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { BookIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 interface StudyGuide {
   id: string;
@@ -107,7 +107,10 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
             className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
-            <span>Study Guides</span>
+                        <div className="flex items-center">
+                        <BookIcon className="h-4 w-4 mr-2" />
+              <span>Study Guides</span>
+            </div>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (
