@@ -101,7 +101,7 @@ const SettingsPage = () => {
 
   return (
     <div className="flex">
-      <MainSidebar />
+      <MainSidebar user={user}/>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
