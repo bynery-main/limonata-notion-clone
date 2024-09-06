@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { StarsIcon } from "lucide-react";
-import { getFunctions, httpsCallable } from "firebase/functions"; // Correct import for Firebase functions
-import { app } from "@/firebase/firebaseConfig"; // Import your Firebase app configuration
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app } from "@/firebase/firebaseConfig";
+import NoCreditsModal from "../subscribe/no-credits-modal"; // Import the NoCreditsModal component
 
 interface SummariseProps {
   refString: string;
   type: string;
+  userId: string; // Add userId prop
 }
 
 interface SummariseResponse {
@@ -13,18 +15,42 @@ interface SummariseResponse {
   success: boolean;
 }
 
-const Summarise: React.FC<SummariseProps> = ({ refString, type }) => {
+interface CreditUsageResult {
+  success: boolean;
+  remainingCredits: number;
+}
+
+const Summarise: React.FC<SummariseProps> = ({ refString, type, userId }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [summaryText, setSummaryText] = useState<string | null>(null); // To store the summarisation response
+  const [summaryText, setSummaryText] = useState<string | null>(null);
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [remainingCredits, setRemainingCredits] = useState(0);
+  const creditCost = 5; 
 
   const handleSummariseClick = async () => {
     setLoading(true);
 
-    const functions = getFunctions(app); // Initialize Firebase Functions
-    const summariseAgent = httpsCallable<{ ref: string; type: string }, SummariseResponse>(functions, "summariseAgent"); // Define callable function with correct response type
+    const functions = getFunctions(app);
+    const creditValidation = httpsCallable<{ uid: string; cost: number }, CreditUsageResult>(functions, "useCredits");
+    const summariseAgent = httpsCallable<{ ref: string; type: string }, SummariseResponse>(functions, "summariseAgent");
 
     try {
+      const creditUsageResult = await creditValidation({
+        uid: userId,
+        cost: creditCost,
+      });
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        setRemainingCredits(creditUsageResult.data.remainingCredits);
+        setShowCreditModal(true);
+        setLoading(false);
+        return;
+      }
+
+      // If credit check passes, proceed with summarization
       console.log("Summarising agent for ref:", refString);
 
       const response = await summariseAgent({
@@ -33,7 +59,7 @@ const Summarise: React.FC<SummariseProps> = ({ refString, type }) => {
       });
 
       console.log("Summarisation response:", response);
-      setSummaryText(response.data.answer); // Store the received summary text
+      setSummaryText(response.data.answer);
     } catch (error) {
       console.error("Error during summarisation:", error);
       setSummaryText("Error occurred during summarisation.");
@@ -70,12 +96,19 @@ const Summarise: React.FC<SummariseProps> = ({ refString, type }) => {
         </div>
       </button>
 
-      {/* Display the summarised text below the button if available */}
       {summaryText && (
         <div className="mt-4 bg-gray-100 p-4 rounded-lg">
           <h4 className="font-semibold mb-2">Summary:</h4>
           <p className="text-sm whitespace-pre-line">{summaryText}</p>
         </div>
+      )}
+
+      {showCreditModal && (
+        <NoCreditsModal
+          remainingCredits={remainingCredits}
+          creditCost={creditCost}
+          onClose={() => setShowCreditModal(false)}
+        />
       )}
     </div>
   );

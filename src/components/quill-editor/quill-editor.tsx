@@ -6,6 +6,7 @@ import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
 import Summarise from "../ai-tools/summarise";
+import { useAuth } from "../auth-provider/AuthProvider";
 
 interface QuillEditorProps {
   dirDetails: any;
@@ -35,6 +36,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const { socket } = useSocket();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
+
 
   // Check if dirDetails is available and create details safely
   const details = useMemo(() => {
@@ -187,8 +190,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         <div id="container" className="w-full pl-6 h-[calc(100vh-64px)]" ref={wrapperRef}></div>
       </div>
       <div className="w-1/6 p-4">
-        {/* Pass the constructed reference and type */}
-        <Summarise refString={refString} type="note" />
+        {user && <Summarise refString={refString} type="note" userId={user.uid} />}
       </div>
     </div>
   );
