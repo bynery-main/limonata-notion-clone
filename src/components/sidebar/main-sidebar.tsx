@@ -27,7 +27,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
   const [workspaceEmojis, setWorkspaceEmojis] = useState<{ [key: string]: string }>({});
-
+  MainSidebar.displayName = 'MainSidebar';
 
   useEffect(() => {
     let unsubscribeOwned: () => void;
