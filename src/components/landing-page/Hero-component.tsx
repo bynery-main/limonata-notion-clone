@@ -30,7 +30,7 @@ const AnimatedButton = styled(Button)`
   animation: ${gradientAnimation} 15s ease infinite;
   border: none;
   color: white;
-  font-weight: bold;
+  font-weight: normal;
   
   &:hover {
     opacity: 0.9;
