@@ -175,7 +175,7 @@ export const MainSidebar = (): JSX.Element => {
           <FaPlus />
           <motion.div
             className="absolute inset-0 rounded-full border-2 border-transparent"
-            whileHover={{ borderColor: "white" }}
+            // whileHover={{ borderColor: "white" }}
           />
         </motion.div>
       </div>
@@ -199,7 +199,7 @@ export const MainSidebar = (): JSX.Element => {
               <FaCog className="w-5 h-5" />
               <motion.div
                 className="absolute inset-0 rounded-full border-2 border-transparent"
-                whileHover={{ borderColor: "white" }}
+                // whileHover={{ borderColor: "white" }}
               />
             </motion.div>
           </>
