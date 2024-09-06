@@ -39,3 +39,25 @@
 .shadow-lg {
   box-shadow: 2px 5px 15px -3px rgba(0, 0, 0, 0.1), -1px -1px 4px 2px rgba(0, 0, 0, 0.06);
 }
+
+.accordion-content-enter {
+  max-height: 0;
+  opacity: 0;
+}
+
+.accordion-content-enter-active {
+  max-height: 1000px;
+  opacity: 1;
+  transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out;
+}
+
+.accordion-content-exit {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.accordion-content-exit-active {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out;
+}

@@ -4,8 +4,17 @@ import { db, storage } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
+interface FileData {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  fileType: string;
+}
+
 interface UploadFileProps {
   folderRef: string;
+  onFileUpload: (file: FileData) => void;
 }
 
 const allowedFileTypes: { [key: string]: string } = {
@@ -21,15 +30,15 @@ const allowedFileTypes: { [key: string]: string } = {
   webp: "image",
 };
 
-const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
+const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if ( e.target.files ) {
       setFile(e.target.files[0]);
-      setErrorMessage(null);
+      setErrorMessage(null); // Clear any previous error message
     }
   };
 
@@ -39,11 +48,12 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if ( !file ) return;
 
     const fileType = determineFileType(file.name);
 
-    if (fileType === "other") {
+    // Check if the file type is allowed
+    if ( fileType === "other" ) {
       setErrorMessage("This file type is not allowed for upload.");
       return;
     }
@@ -66,21 +76,30 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
 
+        // Create a new Firestore document with a generated ID
         const newFileRef = doc(collection(db, folderRef, "files"));
         const fileId = newFileRef.id;
 
         await saveFileData(newFileRef, file.name, downloadURL, fileType, fileExtension);
 
-        if (fileType === "audio") {
+        onFileUpload({
+          id: fileId,
+          name: file.name,
+          url: downloadURL,
+          type: fileType,
+          fileType: fileExtension,
+        });
+
+        // Trigger appropriate Cloud Function based on file type
+        if ( fileType === "audio" ) {
           await triggerAudioTranscription(downloadURL, newFileRef.path);
         }
 
-        if (fileType === "document") {
+        if ( fileType === "document" ) {
           await triggerDocumentProcessing(downloadURL, newFileRef.path);
         }
 
-        setUploadProgress(0);
-        setFile(null);
+        setUploadProgress(0); // Reset progress after upload is complete
       }
     );
   };
@@ -102,6 +121,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
       const functions = getFunctions();
       const handleAudioUpload = httpsCallable(functions, 'handleAudioUpload');
       const response = await handleAudioUpload({ audioUrl, fileRef });
+
       console.log("Cloud Function response:", response.data);
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
@@ -113,6 +133,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
       const functions = getFunctions();
       const handleDocumentUpload = httpsCallable(functions, 'handleDocumentUpload');
       const response = await handleDocumentUpload({ documentUrl, fileRef });
+
       console.log("Cloud Function response:", response.data);
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
@@ -126,7 +147,6 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef }) => {
       <button
         onClick={handleUpload}
         className="bg-blue-500 text-white p-2 rounded mt-2"
-        disabled={!file}
       >
         Upload File
       </button>
