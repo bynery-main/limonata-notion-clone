@@ -158,6 +158,17 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     if (videoExtensions.includes(fileExtension || "")) return "🎥";
     return "📝";
   };
+  const GradientButton = ({ onClick, children, disabled = false }: { onClick?: () => void, children: React.ReactNode, disabled?: boolean }) => (
+    <div className={`p-[1px] relative block ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`} onClick={disabled ? undefined : onClick}>
+      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+      <div className={`px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black ${disabled ? '' : 'hover:bg-transparent hover:text-white'}`}>
+        <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+
 
   return (
     <div className="upload-file bg-white p-6 rounded-lg shadow-md">
@@ -171,12 +182,11 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
             <label htmlFor="fileInput" className="block mb-2 font-semibold text-gray-700">
               Choose a file:
             </label>
-            <label
-              htmlFor="fileInput"
-              className="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300 flex items-center inline-block"
-            >
-              <FileIcon className="w-5 h-5 mr-2" />
-              Select File
+            <label htmlFor="fileInput">
+              <GradientButton>
+                <FileIcon className="w-5 h-5 mr-2" />
+                <span>Select File</span>
+              </GradientButton>
             </label>
           </motion.div>
         )}
@@ -191,41 +201,36 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4"
+          className="mt-4 items-center"
         >
           <span className="text-gray-600 flex items-center">
             {getFileEmoji(file.name)}
-            <span className="ml-2">{truncateFileName(file.name, 25)}</span>
+            <span className="ml-2">{truncateFileName(file.name, 22)}</span>
           </span>
-          <motion.button
-            onClick={handleUpload}
-            className={`mt-4 flex items-center justify-center w-full py-2 px-4 rounded-md text-white font-semibold ${
-              isUploading ? 'bg-yellow-500' : isUploadComplete ? 'bg-green-500' : 'bg-blue-500 hover:bg-blue-600'
-            } transition-colors duration-300`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            disabled={isUploading}
-          >
-            {isUploading ? (
-              <motion.div
-                className="w-5 h-5 border-t-2 border-white rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
-            ) : isUploadComplete ? (
-              <CheckCircle className="w-5 h-5 mr-2" />
-            ) : (
-              <UploadIcon className="w-5 h-5 mr-2" />
-            )}
-            {isUploading ? "Uploading..." : isUploadComplete ? "Upload Complete" : "Upload File"}
-          </motion.button>
-          <div className="flex justify-center">
-            <label
-              htmlFor="fileInput"
-              className="relative cursor-pointer center justify-centre text-blue-500 hover:text-blue-600 transition-colors duration-300 mt-2 inline-block"
-            >
-              Choose another file
-            </label>
+          <div className="mt-4">
+            <GradientButton onClick={handleUpload} disabled={isUploading}>
+              {isUploading ? (
+                <motion.div
+                  className="w-5 h-5 mr-2 border-t-2 border-current rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+              ) : isUploadComplete ? (
+                <CheckCircle className="w-5 h-5 mr-2" />
+              ) : (
+                <UploadIcon className="w-5 h-5 mr-2" />
+              )}
+              <span>{isUploading ? "Uploading..." : isUploadComplete ? "Upload Complete" : "Upload File"}</span>
+            </GradientButton>
+          </div>
+          <div className="flex justify-center mt-2">
+
+          <label
+            htmlFor="fileInput"
+            className="cursor-pointer text-[#F6B144] hover:text-[#FE7EF4]
+             transition-colors duration-300 mt-2 inline-block">
+            Choose another file
+          </label>
           </div>
         </motion.div>
       )}
@@ -246,7 +251,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
           animate={{ width: "100%" }}
         >
           <motion.div
-            className="h-2 bg-blue-500"
+            className="h-2 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${uploadProgress}%` }}
             transition={{ duration: 0.5 }}
