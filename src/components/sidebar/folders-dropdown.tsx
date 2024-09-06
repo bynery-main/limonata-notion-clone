@@ -141,14 +141,14 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   };
 
   return (
-    <div>
+    <div className="w-full max-w-xs "> {/* Added max-width and full width */}
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
           <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
             Topics
           </h3>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 px-3"> {/* Added padding */}
           <input
             type="text"
             value={newFolderName}
@@ -158,7 +158,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
           />
           <button
             onClick={handleAddFolder}
-            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
+            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white flex-shrink-0" 
             aria-label="Add new folder"
           >
             <CirclePlusIcon className="h-4 w-4" />
@@ -168,7 +168,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
           type="single"
           value={openFolderId || undefined}
           onValueChange={(value) => setOpenFolderId(value)}
-          className="space-y-2"
+          className="space-y-2 overflow-hide"
         >
           {folders.map((folder) => (
             <FolderComponent

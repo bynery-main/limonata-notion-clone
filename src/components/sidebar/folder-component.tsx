@@ -241,32 +241,28 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     if (videoExtensions.includes(fileExtension || "")) return "🎥";
     return "📝";
   };
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.style.height = isOpen ? `${contentRef.current.scrollHeight}px` : '0px';
-    }
-  }, [isOpen, files]);
+
   return (
-    <div className={`border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}>
+    <div className={`overflow-hidden w-full break-words border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}>
       <Accordion.Item value={folder.id}>
         <Accordion.Trigger
           id="folder"
           className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
           onClick={toggleFolder}
         >
-          <div className="flex gap-4 items-center justify-between overflow-hidden">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between overflow-hidden">
+            <div className="flex items-center gap-2 flex-grow min-w-0">
               <ChevronRightIcon
-                className="h-4 w-4 cursor-pointer"
+                className="h-4 w-4 cursor-pointer flex-shrink-0"
                 style={{ 
                   transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
                   transition: "transform 0.3s ease" 
                 }}
               />
-              <span className="overflow-hidden text-ellipsis">{folder.name}</span>
+              <span className="truncate w-full flex-grow overflow-hidden break-words w-full">{folder.name}</span> 
             </div>
             <div 
-              className="p-2 cursor-pointer"
+              className="p-2 cursor-pointer flex-shrink-0"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowMenu(!showMenu);
