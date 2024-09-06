@@ -254,11 +254,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
                 </>
               )}
-              {showEmojiPicker && (
-                <div className="absolute top-full left-6 mt-2 z-20">
-                  <Picker onEmojiSelect={handleEmojiSelect} />
-                </div>
-              )}
             </div>
           </div>
           {children}
