@@ -3,6 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { UploadIcon } from "lucide-react";
 
 interface FileData {
   id: string;
@@ -146,8 +147,9 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       <input id="fileInput" type="file" onChange={handleFileChange} />
       <button
         onClick={handleUpload}
-        className="bg-blue-500 text-white p-2 rounded mt-2"
+        className="bg-[#F6B144] text-white p-2 rounded mt-2"
       >
+        <UploadIcon className="h-4 w-4 inline-block mr-2" />
         Upload File
       </button>
       {errorMessage && <div className="text-red-500">{errorMessage}</div>}

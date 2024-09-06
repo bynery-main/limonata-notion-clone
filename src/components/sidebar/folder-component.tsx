@@ -390,7 +390,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             onChange={(e) => setNewName(e.target.value)}
             className="border p-1 w-full mb-2"
           />
-          <button onClick={handleRename} className="bg-blue-500 text-white p-1 rounded">Rename</button>
+          <button onClick={handleRename} className="bg-[#F6B144] text-white p-1 rounded">Rename</button>
         </div>
       </CSSTransition>
   
