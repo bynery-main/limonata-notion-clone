@@ -243,7 +243,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   };
 
   return (
-    <div className={`overflow-hidden w-full break-words border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}>
+    <div className={`overflow-hidden w-64 break-words border border-gray-300 rounded-lg relative group ${isActive ? 'bg-gray-100 shadow-lg' : ''}`}>
       <Accordion.Item value={folder.id}>
         <Accordion.Trigger
           id="folder"
@@ -259,7 +259,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                   transition: "transform 0.3s ease" 
                 }}
               />
-              <span className="truncate w-full flex-grow overflow-hidden break-words w-full">{folder.name}</span> 
+              <span className="truncat w-full flex-grow overflow-hidden break-words w-full">{folder.name}</span> 
             </div>
             <div 
               className="p-2 cursor-pointer flex-shrink-0"
@@ -290,7 +290,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
         )}
         <Accordion.Content className="overflow-hidden transition-all duration-300 ease-in-out">
           {isOpen && (
-            <div className="p-2 text-gray-500 font-light">
+            <div className="p-2 w-full text-gray-500 font-light">
               <CSSTransition in={showRename} timeout={300} classNames="rename" unmountOnExit>
                 <div className="flex center my-2">
                   <input
@@ -334,7 +334,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
               </CSSTransition>
               
               {/* File list */}
-              <div className="mt-4">
+              <div className="mt-4 w-full">
                 {folder.files && folder.files.map((file) => (
                   <div 
                     key={file.id}
