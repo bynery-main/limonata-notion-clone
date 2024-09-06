@@ -3,7 +3,8 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { UploadIcon } from "lucide-react";
+import { UploadIcon, CheckCircle, AlertCircle, FileIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FileData {
   id: string;
@@ -35,11 +36,14 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isUploadComplete, setIsUploadComplete] = useState<boolean>(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if ( e.target.files ) {
+    if (e.target.files) {
       setFile(e.target.files[0]);
-      setErrorMessage(null); // Clear any previous error message
+      setErrorMessage(null);
+      setIsUploadComplete(false);
     }
   };
 
@@ -49,16 +53,16 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
   };
 
   const handleUpload = async () => {
-    if ( !file ) return;
+    if (!file) return;
 
     const fileType = determineFileType(file.name);
 
-    // Check if the file type is allowed
-    if ( fileType === "other" ) {
+    if (fileType === "other") {
       setErrorMessage("This file type is not allowed for upload.");
       return;
     }
 
+    setIsUploading(true);
     const storageRef = ref(storage, `${folderRef}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -67,17 +71,16 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
-        console.log(`Upload is ${progress}% done`);
       },
       (error) => {
         console.error("Upload failed:", error);
         setErrorMessage("Upload failed. Please try again.");
+        setIsUploading(false);
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
 
-        // Create a new Firestore document with a generated ID
         const newFileRef = doc(collection(db, folderRef, "files"));
         const fileId = newFileRef.id;
 
@@ -91,39 +94,31 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
           fileType: fileExtension,
         });
 
-        // Trigger appropriate Cloud Function based on file type
-        if ( fileType === "audio" ) {
+        if (fileType === "audio") {
           await triggerAudioTranscription(downloadURL, newFileRef.path);
         }
 
-        if ( fileType === "document" ) {
+        if (fileType === "document") {
           await triggerDocumentProcessing(downloadURL, newFileRef.path);
         }
 
-        setUploadProgress(0); // Reset progress after upload is complete
+        setIsUploading(false);
+        setIsUploadComplete(true);
+        setUploadProgress(0);
       }
     );
   };
 
   const saveFileData = async (fileRef: any, fileName: string, fileURL: string, type: string, fileType: string) => {
-    const fileData = {
-      name: fileName,
-      url: fileURL,
-      type,
-      fileType,
-    };
-
+    const fileData = { name: fileName, url: fileURL, type, fileType };
     await setDoc(fileRef, fileData);
-    console.log("File data saved to Firestore:", fileData);
   };
 
   const triggerAudioTranscription = async (audioUrl: string, fileRef: string) => {
     try {
       const functions = getFunctions();
       const handleAudioUpload = httpsCallable(functions, 'handleAudioUpload');
-      const response = await handleAudioUpload({ audioUrl, fileRef });
-
-      console.log("Cloud Function response:", response.data);
+      await handleAudioUpload({ audioUrl, fileRef });
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
     }
@@ -133,27 +128,131 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     try {
       const functions = getFunctions();
       const handleDocumentUpload = httpsCallable(functions, 'handleDocumentUpload');
-      const response = await handleDocumentUpload({ documentUrl, fileRef });
-
-      console.log("Cloud Function response:", response.data);
+      await handleDocumentUpload({ documentUrl, fileRef });
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
     }
   };
 
+  const truncateFileName = (name: string, maxLength: number) => {
+    if (name.length <= maxLength) return name;
+    const extension = name.split('.').pop();
+    const nameWithoutExtension = name.slice(0, name.lastIndexOf('.'));
+    return `${nameWithoutExtension.slice(0, maxLength - 3)}...${extension}`;
+  };
+
+  const getFileEmoji = (fileName: string | undefined) => {
+    if (!fileName) return "📝"; // Default emoji for undefined or empty file names
+
+    const fileExtension = fileName.split(".").pop()?.toLowerCase();
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+    const pdfExtensions = ["pdf"];
+    const docExtensions = ["doc", "docx"];
+    const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+    const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+
+    if (imageExtensions.includes(fileExtension || "")) return "🖼️";
+    if (pdfExtensions.includes(fileExtension || "")) return "📕";
+    if (docExtensions.includes(fileExtension || "")) return "📘";
+    if (audioExtensions.includes(fileExtension || "")) return "🎵";
+    if (videoExtensions.includes(fileExtension || "")) return "🎥";
+    return "📝";
+  };
+
   return (
-    <div className="upload-file">
-      <label htmlFor="fileInput">Choose a file:</label>
-      <input id="fileInput" type="file" onChange={handleFileChange} />
-      <button
-        onClick={handleUpload}
-        className="bg-[#F6B144] text-white p-2 rounded mt-2"
-      >
-        <UploadIcon className="h-4 w-4 inline-block mr-2" />
-        Upload File
-      </button>
-      {errorMessage && <div className="text-red-500">{errorMessage}</div>}
-      {uploadProgress > 0 && <div>Upload Progress: {uploadProgress}%</div>}
+    <div className="upload-file bg-white p-6 rounded-lg shadow-md">
+      <AnimatePresence>
+        {!file && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <label htmlFor="fileInput" className="block mb-2 font-semibold text-gray-700">
+              Choose a file:
+            </label>
+            <label
+              htmlFor="fileInput"
+              className="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300 flex items-center inline-block"
+            >
+              <FileIcon className="w-5 h-5 mr-2" />
+              Select File
+            </label>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <input
+        id="fileInput"
+        type="file"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      {file && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4"
+        >
+          <span className="text-gray-600 flex items-center">
+            {getFileEmoji(file.name)}
+            <span className="ml-2">{truncateFileName(file.name, 25)}</span>
+          </span>
+          <motion.button
+            onClick={handleUpload}
+            className={`mt-4 flex items-center justify-center w-full py-2 px-4 rounded-md text-white font-semibold ${
+              isUploading ? 'bg-yellow-500' : isUploadComplete ? 'bg-green-500' : 'bg-blue-500 hover:bg-blue-600'
+            } transition-colors duration-300`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <motion.div
+                className="w-5 h-5 border-t-2 border-white rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+            ) : isUploadComplete ? (
+              <CheckCircle className="w-5 h-5 mr-2" />
+            ) : (
+              <UploadIcon className="w-5 h-5 mr-2" />
+            )}
+            {isUploading ? "Uploading..." : isUploadComplete ? "Upload Complete" : "Upload File"}
+          </motion.button>
+          <div className="flex justify-center">
+            <label
+              htmlFor="fileInput"
+              className="relative cursor-pointer center justify-centre text-blue-500 hover:text-blue-600 transition-colors duration-300 mt-2 inline-block"
+            >
+              Choose another file
+            </label>
+          </div>
+        </motion.div>
+      )}
+      {errorMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 text-red-500 flex items-center"
+        >
+          <AlertCircle className="w-5 h-5 mr-2" />
+          {errorMessage}
+        </motion.div>
+      )}
+      {isUploading && (
+        <motion.div
+          className="mt-4 bg-gray-200 rounded-full overflow-hidden"
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+        >
+          <motion.div
+            className="h-2 bg-blue-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${uploadProgress}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </motion.div>
+      )}
     </div>
   );
 };
