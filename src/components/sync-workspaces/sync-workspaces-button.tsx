@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { Loader2 } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
+import NoCreditsModal from "../subscribe/no-credits-modal"; // Import the NoCreditsModal component
+import { useAuth } from '../auth-provider/AuthProvider';
 
 interface SyncWorkspaceButtonProps {
     workspaceId: string;
@@ -42,31 +44,41 @@ const AnimatedButton = styled(Button)`
 
 const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, onSyncComplete, className }) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [showCreditModal, setShowCreditModal] = useState(false);
+    const [remainingCredits, setRemainingCredits] = useState(0);
+    const { user } = useAuth(); 
+    const creditCost = 15;
 
     const syncWorkspace = async () => {
-        setIsLoading(true);
-
-
+        if (!user) {
+            console.error("No user logged in");
+            return;
+        }
 
         setIsLoading(true);
         const functions = getFunctions();
+        const creditValidation = httpsCallable(functions, 'useCredits');
         const syncWorkspaceNotesFunction = httpsCallable(functions, 'syncWorkspaceNotes');
+
         if (!workspaceId) {
             console.error("No workspace selected");
+            setIsLoading(false);
             return;
         }
+
         try {
-            const result = await syncWorkspaceNotesFunction({ workspaceId });
-            console.log(result.data);
-            if (onSyncComplete) {
-                onSyncComplete();
+            // First, check if the user has enough credits
+            const creditUsageResult = await creditValidation({ uid: user.uid, cost: creditCost });
+            const creditResponse = creditUsageResult.data as { success: boolean; remainingCredits: number };
+
+            if (!creditResponse.success) {
+                setRemainingCredits(creditResponse.remainingCredits);
+                setShowCreditModal(true);
+                setIsLoading(false);
+                return;
             }
-        } catch (error) {
-            console.error("Error syncing workspace:", error);
-        } finally {
-            setIsLoading(false);
-        }
-        try {
+
+            // If credit check passes, proceed with syncing
             const result = await syncWorkspaceNotesFunction({ workspaceId });
             console.log(result.data);
             if (onSyncComplete) {
@@ -80,21 +92,31 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
     };
 
     return (
-        <AnimatedButton
-            onClick={syncWorkspace}
-            disabled={isLoading}
-            className={className}
-            title='All notes will now be added as context for the AI models'
-        >
-            {isLoading ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Syncing...
-                </>
-            ) : (
-                ['Sync Workspace']
+        <>
+            <AnimatedButton
+                onClick={syncWorkspace}
+                disabled={isLoading}
+                className={className}
+                title='All notes will now be added as context for the AI models'
+            >
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Syncing...
+                    </>
+                ) : (
+                    'Sync Workspace'
+                )}
+            </AnimatedButton>
+
+            {showCreditModal && (
+                <NoCreditsModal
+                    remainingCredits={remainingCredits}
+                    creditCost={creditCost}
+                    onClose={() => setShowCreditModal(false)}
+                />
             )}
-        </AnimatedButton>
+        </>
     );
 };
 

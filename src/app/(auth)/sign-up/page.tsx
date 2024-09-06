@@ -151,12 +151,13 @@ const StyledSignUpPage = () => {
                             {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                           </button>
                         </div>
-                        <button
+                        {/* Sign up for email implement later */}
+                        {/* <button
                           type="submit"
                           className="w-full p-3 bg-[#ff5924] rounded-[25px] text-white hover:bg-[#ff7a4c] shadow-[5px_5px_10px_#0000001a] mb-4"
                         >
                           Sign Up
-                        </button>
+                        </button> */}
                       </form>
                       <div className="flex flex-col items-center w-full">
                         <p className="text-lg mb-4">

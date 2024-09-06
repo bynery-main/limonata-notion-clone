@@ -89,9 +89,10 @@ const Navbar = () => {
                                     <AnimatedButton variant="ghost" onClick={handleLogin} className="mr-2">
                                         LOG IN
                                     </AnimatedButton>
-                                    <AnimatedButton variant="default" onClick={handleSignUp}>
+                                    {/* Sign up for email implement later */}
+                                    {/* <AnimatedButton variant="default" onClick={handleSignUp}>
                                         SIGN UP
-                                    </AnimatedButton>
+                                    </AnimatedButton> */}
                                 </>
                             )
                         )}

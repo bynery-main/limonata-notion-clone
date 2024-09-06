@@ -103,7 +103,7 @@ const LoginPage = () => { // Changed to const
                           </div>
                         </div>
                       </div>
-                      <form
+                      {/* <form
                         onSubmit={handleSignInWithEmail}
                         className="flex flex-col items-center w-full"
                       >
@@ -130,13 +130,13 @@ const LoginPage = () => { // Changed to const
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                           </button>
                         </div>
-                        <button
+                          <button
                           type="submit"
                           className="w-full p-3 bg-[#ff5924] rounded-[25px] text-white hover:bg-[#ff7a4c] shadow-[5px_5px_10px_#0000001a] mb-4"
                         >
                           Sign In
                         </button>
-                      </form>
+                      </form> */}
                       <div className="inline-flex flex-col items-start pt-5 pb-0 px-0 relative flex-[0_0_auto]">
                         <button
                           onClick={handleSignInWithGoogle}
@@ -154,7 +154,8 @@ const LoginPage = () => { // Changed to const
                           </div>
                         </button>
                       </div>
-                      <div className="flex flex-col items-center w-full">
+                      {/* Sign Up Code Implement */}
+                      {/* <div className="flex flex-col items-center w-full">
                         <a
                           href="/forgot-password"
                           className="text-[#ff5924] text-sm underline cursor-pointer mb-4"
@@ -169,24 +170,23 @@ const LoginPage = () => { // Changed to const
                           >
                             Sign Up
                           </span>
-                        </p>
-                      </div>
+                        </p> */}
                     </div>
-                    <div className="inline-flex flex-col items-start pt-5 pb-0 px-0 relative flex-[0_0_auto]">
-                      <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
-                        <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-black text-lg text-center tracking-[0] leading-[30px] whitespace-nowrap">
-                          <span className="underline cursor-pointer">
-                            Terms of Use
-                          </span>
-                          <span className="[font-family:'Nunito-Light',Helvetica] font-light text-black text-lg tracking-[0] leading-[30px]">
-                            {" "}
-                            |{" "}
-                          </span>
-                          <span className="underline cursor-pointer">
-                            Privacy Policy
-                          </span>
-                        </p>
-                      </div>
+                  </div>
+                  <div className="inline-flex flex-col items-start pt-5 pb-0 px-0 relative flex-[0_0_auto]">
+                    <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
+                      <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-black text-lg text-center tracking-[0] leading-[30px] whitespace-nowrap">
+                        <span className="underline cursor-pointer">
+                          Terms of Use
+                        </span>
+                        <span className="[font-family:'Nunito-Light',Helvetica] font-light text-black text-lg tracking-[0] leading-[30px]">
+                          {" "}
+                          |{" "}
+                        </span>
+                        <span className="underline cursor-pointer">
+                          Privacy Policy
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>

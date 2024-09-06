@@ -12,23 +12,25 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div>
-      <div className="mt-[7vw] min-h-[40vw]">
+    <div className="items-center justify-center">
+
+      <div className="mt-[7vw] min-h-[40vw] ml-[15vw]">
         <HeroComponent />
       </div>
 
 
-      <div className="">
+      <div className="mx-8 border-t-2 mt-4 border-b-2">
         <AIIntro />
       </div>
-      <div>
+
+      <div className="mt-8">
         <TabsDemo />
       </div>
 
-      <div>
-        <FollowerPointerCard>
+      <div className="mt-32 border-t-2 mx-8 py-14 px-5">
+        {/* <FollowerPointerCard> */}
           <Intro />
-        </FollowerPointerCard>
+        {/* </FollowerPointerCard> */}
       </div>
 
       <div>

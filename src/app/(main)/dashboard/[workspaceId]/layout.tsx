@@ -40,7 +40,7 @@ interface BreadcrumbItem {
 
 const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emoji, setEmoji] = useState<string>("🍋"); 
+  const [emoji, setEmoji] = useState<string>("🍋");
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
   const [pageTitle, setPageTitle] = useState<string>("");
   const [fullBentoGrid, setFullBentoGrid] = useState(false);
@@ -88,6 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   }, [params.workspaceId, db, currentUserId, loading, user, router]);
 
   const pathname = usePathname();
+  const isSettingsPage = pathname?.endsWith('/settings');
 
   const getFolderId = (path: string): string | null => {
     const segments = path.split("/").filter(Boolean);
@@ -242,17 +243,16 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
             </div>
             <div className="flex items-center w-full mt-2">
-              <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="text-4xl mr-3 focus:outline-none"
-              >
-                <span>{emoji}</span>
-              </button>
-              {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
-              {showEmojiPicker && (
-                <div className="absolute top-full left-6 mt-2 z-20">
-                  <Picker onEmojiSelect={handleEmojiSelect} />
-                </div>
+              {!isSettingsPage && (
+                <>
+                  <button
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className="text-4xl mr-3 focus:outline-none"
+                  >
+                    <span>{emoji}</span>
+                  </button>
+                  {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
+                </>
               )}
             </div>
           </div>
@@ -263,36 +263,36 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               {foldersData.flatMap((folder, folderIndex) =>
                 fullBentoGrid || folder.id === folderId
                   ? folder.files.map((file, fileIndex) => (
-                      <BentoGridItem
-                        key={file.id}
-                        title={file.name}
-                        description={`In folder: ${folder.name}`}
-                        header={getFilePreview(file)}
-                        href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
-                        className={
+                    <BentoGridItem
+                      key={file.id}
+                      title={file.name}
+                      description={`In folder: ${folder.name}`}
+                      header={getFilePreview(file)}
+                      href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
+                      className={
+                        (folderIndex * folder.files.length + fileIndex) %
+                          7 ===
+                          3 ||
                           (folderIndex * folder.files.length + fileIndex) %
-                            7 ===
-                            3 ||
-                          (folderIndex * folder.files.length + fileIndex) %
-                            7 ===
-                            6
-                            ? "md:col-span-2"
-                            : ""
-                        }
-                      />
-                    ))
+                          7 ===
+                          6
+                          ? "md:col-span-2"
+                          : ""
+                      }
+                    />
+                  ))
                   : []
               )}
             </BentoGrid>
           )}
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
-        <AIChatComponent
+          <AIChatComponent
             workspaceId={params.workspaceId}
             userId={currentUserId}
             onOpenAITutor={handleOpenAITutor}
           />
-          <ChatComponent 
+          <ChatComponent
             workspaceId={params.workspaceId}
             userId={currentUserId}
             isChatVisible={isChatVisible}

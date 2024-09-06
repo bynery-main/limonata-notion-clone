@@ -1,18 +1,19 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { db } from "@/firebase/firebaseConfig";
-import { deleteUser } from 'firebase/auth';
+import { auth, db } from "@/firebase/firebaseConfig";
+import { deleteUser, signOut } from 'firebase/auth';
 import { Toaster, toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import UnsubscribeButton from '@/components/subscribe/unsubscribe-button';
-import { GoProButton } from "@/components/subscribe/subscribe-button";
+import { GoProButton } from '@/components/subscribe/subscribe-button';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { Settings, CreditCard, Calendar, Trash2, AlertTriangle } from 'lucide-react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
+
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -89,9 +90,18 @@ const SettingsPage = () => {
     }
   };
 
+  const handleSignOut = () => {
+    if (user) {
+      signOut(auth);
+      router.push('/login');
+    } else {
+      toast.error('No user is currently signed in.');
+    }
+  };
+
   return (
     <div className="flex">
-      <MainSidebar />
+      <MainSidebar user={user}/>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -235,6 +245,18 @@ const SettingsPage = () => {
             </div>
           </div>
         )}
+
+        {/* Sign Out Button */}
+        <motion.div
+          className="mt-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <Button variant="default" onClick={handleSignOut}>
+            SIGN OUT
+          </Button>
+        </motion.div>
       </motion.div>
     </div>
   );
