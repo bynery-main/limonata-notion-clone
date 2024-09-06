@@ -103,7 +103,7 @@ const LoginPage = () => { // Changed to const
                           </div>
                         </div>
                       </div>
-                      <form
+                      {/* <form
                         onSubmit={handleSignInWithEmail}
                         className="flex flex-col items-center w-full"
                       >
@@ -130,14 +130,13 @@ const LoginPage = () => { // Changed to const
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                           </button>
                         </div>
-                        {/* Part of Email sign up implement later */}
-                        {/* <button
+                          <button
                           type="submit"
                           className="w-full p-3 bg-[#ff5924] rounded-[25px] text-white hover:bg-[#ff7a4c] shadow-[5px_5px_10px_#0000001a] mb-4"
                         >
                           Sign In
-                        </button> */}
-                      </form>
+                        </button>
+                      </form> */}
                       <div className="inline-flex flex-col items-start pt-5 pb-0 px-0 relative flex-[0_0_auto]">
                         <button
                           onClick={handleSignInWithGoogle}

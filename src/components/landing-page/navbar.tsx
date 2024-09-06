@@ -3,12 +3,11 @@ import { Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
-import { signOut, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig'; // Adjust this import based on your firebase setup
 import Image from 'next/image';
 import logo from '../../../public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
-import toast from 'react-hot-toast';
 
 const gradientAnimation = keyframes`
   0% {
@@ -44,20 +43,10 @@ const Navbar = () => {
     const router = useRouter();
     const { user, loading } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const provider = new GoogleAuthProvider();
 
-    // Router.push to /login implement later
-    const handleLogin = async () => {
-        try {
-            await setPersistence(auth, browserLocalPersistence); // Persist login state
-            await signInWithPopup(auth, provider); // Google sign-in popup
-            router.push('/dashboard'); // Redirect to dashboard after login
-        } catch (error) {
-            if (error instanceof Error) {
-                toast.error(error.message); // Display error if sign-in fails
-            }
-        }
-        setIsMenuOpen(false); // Close the menu after login
+    const handleLogin = () => {
+        router.push('/login');
+        setIsMenuOpen(false);
     };
 
     const handleSignUp = () => {
