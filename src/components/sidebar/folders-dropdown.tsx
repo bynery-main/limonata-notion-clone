@@ -9,6 +9,7 @@ import { CirclePlusIcon } from "lucide-react";
 import FolderComponent from "./folder-component";
 import { fetchFiles, addFolder } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 interface FoldersDropDownProps {
   workspaceId: string;
@@ -141,14 +142,14 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   };
 
   return (
-    <div>
+    <div className="w-full max-w-xs "> {/* Added max-width and full width */}
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
           <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
             Topics
           </h3>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2"> {/* Added padding */}
           <input
             type="text"
             value={newFolderName}
@@ -156,19 +157,21 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             placeholder="New Topic name"
             className="border p-2 rounded flex-grow"
           />
-          <button
+          <motion.div
             onClick={handleAddFolder}
-            className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
+            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]" 
+            whileHover={{ scale: 1.1, rotate: 180 }}
+            whileTap={{ scale: 0.9 }}
             aria-label="Add new folder"
           >
-            <CirclePlusIcon className="h-4 w-4" />
-          </button>
+            <CirclePlusIcon className="h-4 w-4 " />
+          </motion.div>
         </div>
         <Accordion.Root
           type="single"
           value={openFolderId || undefined}
           onValueChange={(value) => setOpenFolderId(value)}
-          className="space-y-2"
+          className="space-y-2 overflow-show"
         >
           {folders.map((folder) => (
             <FolderComponent

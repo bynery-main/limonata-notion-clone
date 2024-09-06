@@ -252,11 +252,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   return (
     <>
-      <aside
-        ref={sidebarRef}
-        style={{ width }}
-        className="fixed inset-y-0 left-0 z-10 flex h-full flex-col border-r bg-white sm:static sm:h-auto sm:w-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]"
-      >
+      <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
         <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -288,58 +284,50 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
           </Button>
         )}
+        
 
+        
         <div className="flex-1 overflow-y-auto px-4 py-6">
-          <nav className="grid gap-4 text-sm font-medium">
+          <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
+            AI Study Resources
+          </h3>
+          <div className="grid gap-4">
+            <FlashcardsDropdown
+              workspaceId={params.workspaceId}
+              currentFlashcardDeckId={currentFlashcardDeckId}
+              onFlashcardDeckSelect={handleFlashcardDeckSelect}
+            />
+            <QuizzesDropdown
+              workspaceId={params.workspaceId}
+              currentQuizSetId={currentQuizSetId}
+              onQuizSetSelect={handleQuizSetSelect}
+            />
+            <StudyGuideDropdown
+              workspaceId={params.workspaceId}
+              currentStudyGuideId={currentStudyGuideId}
+              onStudyGuideSelect={handleStudyGuideSelect}
+            />
+          </div>
+          <nav className="grid gap-4 text-sm font-medium mt-4 z-100">
             <FoldersDropDown
               workspaceId={params.workspaceId}
               onFoldersUpdate={onFoldersUpdate}
               currentFolderId={currentFolderId}
               onFolderSelect={handleFolderSelect}
             />
-            <div>
-              <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
-                AI Study Resources
-              </h3>
-              <div className="grid gap-4">
-                <FlashcardsDropdown
-                  workspaceId={params.workspaceId}
-                  currentFlashcardDeckId={currentFlashcardDeckId}
-                  onFlashcardDeckSelect={handleFlashcardDeckSelect}
-                />
-                <QuizzesDropdown
-                  workspaceId={params.workspaceId}
-                  currentQuizSetId={currentQuizSetId}
-                  onQuizSetSelect={handleQuizSetSelect}
-                />
-                <StudyGuideDropdown
-                  workspaceId={params.workspaceId}
-                  currentStudyGuideId={currentStudyGuideId}
-                  onStudyGuideSelect={handleStudyGuideSelect}
-                />
-              </div>
-            </div>
 
             <div>
               <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
-                People
+                People and Settings
               </h3>
               <div className="grid gap-1">
-                <Link
-                  href="#"
-                  className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a]"
-                  prefetch={false}
-                >
-                  <UsersIcon className="h-4 w-4" />
-                  People
-                </Link>
                 <CollaboratorSearch
                   existingCollaborators={existingCollaborators.map(
                     (c) => c.uid
                   )}
                   currentUserUid={currentUserUid!}
                   onAddCollaborator={handleAddCollaborator}
-                  onOpen={fetchExistingCollaborators} // Trigger refresh on open
+                  onOpen={fetchExistingCollaborators}
                   workspaceId={params.workspaceId}
                 >
                   <div
@@ -361,13 +349,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             </div>
           </nav>
         </div>
-        <div
-          className="w-1 h-full absolute top-0 right-0 cursor-ew-resize"
-          onMouseDown={handleMouseDown}
-        />
       </aside>
-
-
 
       {/* Modal for Go Pro */}
       {showGoProModal && (
@@ -380,13 +362,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               <li>More storage for your workspaces</li>
               <li>Collaborate with more team members</li>
               <li>Advanced analytics and insights</li>
-              {/* Add more benefits as needed */}
             </ul>
             <GoProButton
               className="w-full"
               userEmail={currentUserEmail!}
               userId={currentUserUid!}
-              subscriptionStatus={subscriptionStatus} // Pass subscriptionStatus to GoProButton
+              subscriptionStatus={subscriptionStatus}
             />
             <Button
               onClick={() => setShowGoProModal(false)}

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 interface FlashcardDeck {
   id: string;
@@ -118,7 +118,10 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
               setOpenAccordion(!openAccordion);
             }}
           >
-            <span>Flashcards</span>
+            <div className="flex items-center">
+            <BookOpenIcon className="h-4 w-4 mr-2" />
+              <span>Flashcards</span>
+            </div>
             {openAccordion ? (
               <ChevronDownIcon className="h-4 w-4" />
             ) : (

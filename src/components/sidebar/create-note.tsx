@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { addNote } from "@/lib/utils";
 import { CirclePlusIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CreateNoteProps {
   workspaceId: string;
@@ -32,12 +33,15 @@ const CreateNote: React.FC<CreateNoteProps> = ({ workspaceId, folderId, onNoteCr
         placeholder="Enter note name"
         className="border p-2 rounded"
       />
-      <button 
-        onClick={handleCreateNote}
-        className="bg-white text-black p-2 rounded hover:bg-blue-500 hover:text-white"
-      >
-        <CirclePlusIcon className="h-4 w-4" />
-      </button>
+          <motion.div
+            onClick={handleCreateNote}
+            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]" 
+            whileHover={{ scale: 1.1, rotate: 180 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Add new folder"
+          >
+            <CirclePlusIcon className="h-4 w-4 " />
+          </motion.div>
     </div>
   );
 };
