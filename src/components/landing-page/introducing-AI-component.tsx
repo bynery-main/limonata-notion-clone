@@ -5,7 +5,7 @@ import FancyText from '@carefully-coded/react-text-gradient';
 
 export default function IntroductionComponent() {
   return (
-    <div className="w-full max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1400px] mx-auto my-16 sm:my-24 md:my-32 lg:my-40 px-4 sm:px-10 md:px-40 lg:px-40">
+    <div className="w-full max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1400px] mx-auto my-16 sm:my-24 md:my-20 lg:my-28 px-4 sm:px-10 md:px-40 lg:px-40">
       <div className="flex flex-col-reverse md:flex-row md:items-center md:space-x-8 lg:space-x-16">
         <div className="w-full md:w-1/2 flex flex-col justify-center space-y-4 sm:space-y-6 mt-8 md:mt-0">
           <h2 className="sm:text-4xl md:text-4xl lg:text-5xl leading-tight">
