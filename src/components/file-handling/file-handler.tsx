@@ -5,6 +5,7 @@ import PowerpointDisplay from './powerpoint-display';
 import AudioDisplay from './audio-display';
 import ImageDisplay from './image-display';
 import Summarise from '@/components/ai-tools/summarise';
+import { useAuth } from '../auth-provider/AuthProvider';
 
 interface FileHandlerProps {
   fileName: string;
@@ -16,6 +17,14 @@ interface FileHandlerProps {
 
 const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtension, data, params }) => {
   const refString = `workspaces/${params.workspaceId}/folders/${params.folderId}/files/${params.fileId}`;
+  const { user } = useAuth(); // Get the current user from the auth provider
+
+  const renderSummariseButton = () => {
+    if (user) {
+      return <Summarise refString={refString} type="file" userId={user.uid} />;
+    }
+    return null; // Don't render the Summarise button if there's no user
+  };
 
   if (fileUrl) {
     console.log('File URL:', fileUrl);
@@ -25,27 +34,27 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
         {fileExtension === 'pdf' || fileExtension === 'docx' ? (
           <>
             <DocumentDisplay fileUrl={fileUrl} fileExtension={fileExtension} />
-            <Summarise refString={refString} type="file" /> {/* Add summarise button for files */}
+            {renderSummariseButton()}
           </>
         ) : fileExtension === 'ppt' || fileExtension === 'pptx' ? (
           <>
             <PowerpointDisplay fileUrl={fileUrl} />
-            <Summarise refString={refString} type="file" /> {/* Add summarise button for files */}
+            {renderSummariseButton()}
           </>
         ) : fileExtension === 'mp3' || fileExtension === 'wav' ? (
           <>
             <AudioDisplay fileUrl={fileUrl} />
-            <Summarise refString={refString} type="file" /> {/* Add summarise button for files */}
+            {renderSummariseButton()}
           </>
         ) : fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' || fileExtension === 'webp' ? (
           <>
             <ImageDisplay fileUrl={fileUrl} fileName={fileName} />
-            <Summarise refString={refString} type="file" /> {/* Add summarise button for images */}
+            {renderSummariseButton()}
           </>
         ) : (
           <div>
             <p>File type not supported for preview. <a href={fileUrl} download>Download</a> the file to view.</p>
-            <Summarise refString={refString} type="file" /> {/* Add summarise button for unsupported files */}
+            {renderSummariseButton()}
           </div>
         )}
       </div>

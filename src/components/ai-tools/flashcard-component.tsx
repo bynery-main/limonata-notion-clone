@@ -220,7 +220,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
           <div className="relative flex justify-center items-center mb-4">
             <FancyText 
               gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
-              className="text-2xl sm:text-3xl md:text-3xl font-bold text-black font-extrabold"
+              className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
             >
               Create Flashcards
             </FancyText>
