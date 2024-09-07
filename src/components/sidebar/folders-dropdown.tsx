@@ -126,6 +126,14 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
       await deleteDoc(fileDoc.ref);
     }
 
+    // Delete notes
+    const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+    const notesQuery = query(notesRef);
+    const notesSnapshot = await getDocs(notesQuery);
+    for (const noteDoc of notesSnapshot.docs) {
+      await deleteDoc(noteDoc.ref);
+    }
+
     // Recursively delete all subfolders and their contents
     const subfoldersRef = collection(db, "workspaces", workspaceId, "folders", folderId, "subfolders");
     const subfoldersQuery = query(subfoldersRef);
@@ -159,7 +167,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
           />
           <motion.div
             onClick={handleAddFolder}
-            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]" 
+            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]"
             whileHover={{ scale: 1.1, rotate: 180 }}
             whileTap={{ scale: 0.9 }}
             aria-label="Add new folder"
