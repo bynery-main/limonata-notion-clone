@@ -385,6 +385,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                zIndex: 1001,
              }}>
           <input
+            aria-label="Rename Folder"
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
