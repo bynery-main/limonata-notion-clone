@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
 import NoCreditsModal from "../subscribe/no-credits-modal"; // Import the NoCreditsModal component
 import { useAuth } from '../auth-provider/AuthProvider';
+import CostButton from '../ai-tools/cost-button';
 
 interface SyncWorkspaceButtonProps {
     workspaceId: string;
@@ -107,6 +108,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
                 ) : (
                     'Sync Workspace'
                 )}
+                <CostButton cost={creditCost.toString()} />
             </AnimatedButton>
 
             {showCreditModal && (
