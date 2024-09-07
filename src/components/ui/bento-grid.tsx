@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebaseConfig";
+import { db, storage } from "@/firebase/firebaseConfig";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 interface FileData {
   id: string;
@@ -26,7 +27,7 @@ export const BentoGrid = ({
   className?: string;
 }) => {
   const [items, setItems] = useState<FileData[]>([]);
-  const [folderNames, setFolderNames] = useState<{[key: string]: string}>({});
+  const [folderNames, setFolderNames] = useState<{ [key: string]: string }>({});
 
 
   const getFilePreview = (file: FileData) => {
@@ -154,23 +155,23 @@ export const BentoGrid = ({
     };
   }, [workspaceId, folderId]);
 
-return (
-  <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
-    {items.map((item) => (
-      <BentoGridItem
-        key={item.id}
-        workspaceId={workspaceId}
-        folderId={folderId!}
-        fileId={item.id}
-        title={item.name}
-        header={getFilePreview(item)}
-        description={`In Folder: ${folderNames[item.folderId || ''] || 'Unknown'}`}
-        href={`/dashboard/${workspaceId}/${folderId}/${item.id}`}
-        type={item.type}
-      />
-    ))}
-  </div>
-);
+  return (
+    <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
+      {items.map((item) => (
+        <BentoGridItem
+          key={item.id}
+          workspaceId={workspaceId}
+          folderId={folderId!}
+          fileId={item.id}
+          title={item.name}
+          header={getFilePreview(item)}
+          description={`In Folder: ${folderNames[item.folderId || ''] || 'Unknown'}`}
+          href={`/dashboard/${workspaceId}/${folderId}/${item.id}`}
+          type={item.type}
+        />
+      ))}
+    </div>
+  );
 };
 
 export const BentoGridItem = ({
@@ -202,24 +203,89 @@ export const BentoGridItem = ({
   const [newName, setNewName] = useState(title);
 
   const handleRename = async (event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent click from triggering redirect
+    event.stopPropagation();
+    if (newName.trim() === "") return;
+
     try {
-      const itemRef = doc(db, "workspaces", workspaceId, "folders", folderId, type === "file" ? "files" : "notes", fileId);
-      await updateDoc(itemRef, { name: newName });
+      const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folderId}/files/${fileId}`);
+      const noteRef = doc(db, `workspaces/${workspaceId}/folders/${folderId}/notes/${fileId}`);
+      const fileSnapshot = await getDoc(fileRef);
+      const noteSnapshot = await getDoc(noteRef);
+
+      if (fileSnapshot.exists()) {
+        // Handle renaming a file in storage
+        const oldFileName = fileSnapshot.data()?.name;
+        const oldFileExtension = oldFileName.split('.').pop()?.toLowerCase();
+
+        // Check if the new name ends with the correct extension
+        let newFileName = newName;
+        if (!newFileName.toLowerCase().endsWith(`.${oldFileExtension}`)) {
+          newFileName = `${newFileName}.${oldFileExtension}`;
+        }
+
+        const oldStoragePath = `workspaces/${workspaceId}/folders/${folderId}/${oldFileName}`;
+        const newStoragePath = `workspaces/${workspaceId}/folders/${folderId}/${newFileName}`;
+        const oldStorageRef = ref(storage, oldStoragePath);
+        const newStorageRef = ref(storage, newStoragePath);
+
+        // Get the file data
+        const fileData = await getDownloadURL(oldStorageRef);
+        const response = await fetch(fileData);
+        const blob = await response.blob();
+
+        // Upload the file with the new name
+        await uploadBytes(newStorageRef, blob);
+
+        // Get the new URL
+        const newUrl = await getDownloadURL(newStorageRef);
+
+        // Update Firestore with the new name and URL
+        await updateDoc(fileRef, {
+          name: newFileName,
+          url: newUrl
+        });
+
+        // Delete the old file from storage
+        await deleteObject(oldStorageRef);
+
+      } else if (noteSnapshot.exists()) {
+        // Handle renaming a note (only in Firestore)
+        await updateDoc(noteRef, { name: newName });
+      } else {
+        console.error("File or note not found in Firestore.");
+      }
+
       setDropdownVisible(false);
     } catch (error) {
-      console.error("Error renaming file/note:", error);
+      console.error("Error renaming file or note:", error);
     }
   };
 
   const handleDelete = async (event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent click from triggering redirect
+    event.stopPropagation();
     try {
-      const itemRef = doc(db, "workspaces", workspaceId, "folders", folderId, type === "file" ? "files" : "notes", fileId);
-      await deleteDoc(itemRef);
+      const fileRef = doc(db, "workspaces", workspaceId, "folders", folderId, "files", fileId);
+      const noteRef = doc(db, "workspaces", workspaceId, "folders", folderId, "notes", fileId);
+
+      const fileSnapshot = await getDoc(fileRef);
+      if (fileSnapshot.exists()) {
+        const fileName = fileSnapshot.data()?.name;
+        const storagePath = `workspaces/${workspaceId}/folders/${folderId}/${fileName}`;
+        const storageRef = ref(storage, storagePath);
+        await deleteObject(storageRef);  // Delete from storage
+        await deleteDoc(fileRef);  // Delete from Firestore
+      } else {
+        // If not found as a file, attempt to delete as a note
+        const noteSnapshot = await getDoc(noteRef);
+        if (noteSnapshot.exists()) {
+          await deleteDoc(noteRef);  // Delete from Firestore
+        } else {
+          console.error("File or note not found in Firestore.");
+        }
+      }
       setDropdownVisible(false);
     } catch (error) {
-      console.error("Error deleting file/note:", error);
+      console.error("Error deleting from Firestore or Storage:", error);
     }
   };
 
