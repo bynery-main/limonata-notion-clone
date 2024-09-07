@@ -15,7 +15,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import CollaboratorList from "@/components/collaborator-setup/collaborator-list";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
-
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import toast from "react-hot-toast";
 interface CollaboratorSearchProps {
   children: React.ReactNode;
   existingCollaborators: string[];
@@ -41,6 +42,8 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [newCollaborators, setNewCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [existingCollaboratorsWithEmail, setExistingCollaboratorsWithEmail] = useState<{ uid: string; email: string }[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const functions = getFunctions();
   const db = getFirestore();
@@ -104,6 +107,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   };
 
   const handleSaveCollaborators = async () => {
+    setIsSaving(true);
     const allCollaborators = [
       ...existingCollaborators,
       ...newCollaborators.map(nc => nc.uid),
@@ -124,8 +128,32 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
     } catch (error) {
       console.error("Error updating collaborators:", error);
     }
+    finally {
+      setIsSaving(false);
+    }
   };
 
+  const handleRemoveCollaborator = async (uid: string) => {
+    setIsRemoving(true);
+    try {
+      // Your existing removal logic here
+      // For example:
+      // await removeCollaborator(workspaceId, uid);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API call
+      fetchExistingCollaborators();
+    } catch (error) {
+      console.error("Error removing collaborator:", error);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+  const handleCollaboratorRemoved = () => {
+    toast.success("Collaborator removed successfully");
+    setTimeout(() => {
+      //I'll comment this out because it seems like it takes a bit for the db to remove the collaborator
+      //fetchExistingCollaborators();
+    }, 5000); // 3000 milliseconds = 3 seconds
+  };
   return (
     <div style={style}>
       <Sheet open={isOpen} onOpenChange={handleOpenChange}>
@@ -133,6 +161,11 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
           {children}
         </SheetTrigger>
         <SheetContent className="w-[400px] sm:w-[540px]" style={{ zIndex: 10020 }}>
+          {isRemoving && (
+            <Alert className="mb-4">
+              <AlertDescription>Removing collaborator...</AlertDescription>
+            </Alert>
+          )}
           <SheetHeader>
             <SheetTitle className="text-pink-500 flex items-center">
               <UserPlus className="mr-2 h-5 w-5" />
@@ -182,10 +215,11 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
             existingCollaborators={existingCollaboratorsWithEmail}
             newCollaborators={newCollaborators}
             onRemove={handleRemoveNewCollaborator}
-            onCollaboratorRemoved={fetchExistingCollaborators}
+            onCollaboratorRemoved={handleCollaboratorRemoved}
           />
-          <Button onClick={handleSaveCollaborators} className="mt-4">
-            Save Changes
+          <Button onClick={handleSaveCollaborators} className="mt-4"
+            disabled={isSaving || isRemoving}>
+            {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </SheetContent>
       </Sheet>
