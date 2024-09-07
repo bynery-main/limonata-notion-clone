@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 interface WorkspaceIconProps {
     isActive: boolean;
     workspace: Workspace;
-    index: number;
+    index?: number;
     onClick: () => void;
     emoji: string | undefined;
   }
