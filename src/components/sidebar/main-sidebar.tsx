@@ -123,7 +123,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
     <div className="relative w-[3.5vw] h-screen bg-[#272727] flex flex-col justify-between">
       <div className="mt-3 bg-[#272727] flex flex-col items-center">
         <motion.button
-          className="w-[36px] h-[36px] bg-[#773276] rounded-full cursor-pointer mb-1"
+          className="w-[36px] h-[36px] bg-[#d14a24ed] rounded-full cursor-pointer mb-1"
           onClick={() => handleWorkspaceClick("home")}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
