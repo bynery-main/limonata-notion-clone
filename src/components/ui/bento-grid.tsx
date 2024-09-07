@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
-import { doc, collection, onSnapshot, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,8 @@ interface FileData {
   description?: string;
   url?: string; // Optional for notes, since notes won't have URLs
   type: "file" | "note"; // Distinguish between files and notes
+  folderId?: string; // Add this to keep track of which folder the item belongs to
+
 }
 
 export const BentoGrid = ({
@@ -19,59 +21,112 @@ export const BentoGrid = ({
   className,
 }: {
   workspaceId: string;
-  folderId: string;
+  folderId?: string;
   className?: string;
 }) => {
-  const [items, setItems] = useState<FileData[]>([]); // Store both files and notes
+  const [items, setItems] = useState<FileData[]>([]);
 
   useEffect(() => {
-    if (!workspaceId || !folderId) return;
+    if (!workspaceId) return;
 
-    const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
-    const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+    let unsubscribeFunctions: (() => void)[] = [];
 
-    const unsubscribeFiles = onSnapshot(filesRef, (snapshot) => {
-      const updatedFiles: FileData[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        type: "file",
-      })) as FileData[];
+    const fetchAllItems = async () => {
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const foldersSnapshot = await getDocs(foldersRef);
 
-      setItems((prevItems) => [...prevItems.filter((item) => item.type !== "file"), ...updatedFiles]);
-    });
+      foldersSnapshot.forEach((folderDoc) => {
+        const currentFolderId = folderDoc.id;
 
-    const unsubscribeNotes = onSnapshot(notesRef, (snapshot) => {
-      const updatedNotes: FileData[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        type: "note",
-      })) as FileData[];
+        const filesRef = collection(db, "workspaces", workspaceId, "folders", currentFolderId, "files");
+        const notesRef = collection(db, "workspaces", workspaceId, "folders", currentFolderId, "notes");
 
-      setItems((prevItems) => [...prevItems.filter((item) => item.type !== "note"), ...updatedNotes]);
-    });
+        const unsubscribeFiles = onSnapshot(filesRef, (snapshot) => {
+          const updatedFiles: FileData[] = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            type: "file",
+            folderId: currentFolderId,
+          })) as FileData[];
+
+          setItems((prevItems) => [
+            ...prevItems.filter((item) => !(item.type === "file" && item.folderId === currentFolderId)),
+            ...updatedFiles,
+          ]);
+        });
+
+        const unsubscribeNotes = onSnapshot(notesRef, (snapshot) => {
+          const updatedNotes: FileData[] = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            type: "note",
+            folderId: currentFolderId,
+          })) as FileData[];
+
+          setItems((prevItems) => [
+            ...prevItems.filter((item) => !(item.type === "note" && item.folderId === currentFolderId)),
+            ...updatedNotes,
+          ]);
+        });
+
+        unsubscribeFunctions.push(unsubscribeFiles, unsubscribeNotes);
+      });
+    };
+
+    if (folderId) {
+      // Existing logic for a specific folder
+      const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
+      const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+
+      const unsubscribeFiles = onSnapshot(filesRef, (snapshot) => {
+        const updatedFiles: FileData[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          type: "file",
+          folderId,
+        })) as FileData[];
+
+        setItems((prevItems) => [...prevItems.filter((item) => item.type !== "file"), ...updatedFiles]);
+      });
+
+      const unsubscribeNotes = onSnapshot(notesRef, (snapshot) => {
+        const updatedNotes: FileData[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          type: "note",
+          folderId,
+        })) as FileData[];
+
+        setItems((prevItems) => [...prevItems.filter((item) => item.type !== "note"), ...updatedNotes]);
+      });
+
+      unsubscribeFunctions.push(unsubscribeFiles, unsubscribeNotes);
+    } else {
+      // Fetch all items from all folders
+      fetchAllItems();
+    }
 
     return () => {
-      unsubscribeFiles();
-      unsubscribeNotes();
+      unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     };
   }, [workspaceId, folderId]);
 
-  return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
-      {items.map((item) => (
-        <BentoGridItem
-          key={item.id}
-          workspaceId={workspaceId}
-          folderId={folderId}
-          fileId={item.id}
-          title={item.name}
-          description={item.description || (item.type === "note" ? "Note content" : "No description available")}
-          href={`/dashboard/${workspaceId}/${folderId}/${item.id}`}
-          type={item.type}
-        />
-      ))}
-    </div>
-  );
+return (
+  <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
+    {items.map((item) => (
+      <BentoGridItem
+        key={item.id}
+        workspaceId={workspaceId}
+        folderId={folderId!}
+        fileId={item.id}
+        title={item.name}
+        description={item.description || (item.type === "note" ? "Note content" : "No description available")}
+        href={`/dashboard/${workspaceId}/${folderId}/${item.id}`}
+        type={item.type}
+      />
+    ))}
+  </div>
+);
 };
 
 export const BentoGridItem = ({
