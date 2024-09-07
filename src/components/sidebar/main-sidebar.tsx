@@ -123,15 +123,16 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
     <div className="relative w-[3.5vw] h-screen bg-[#272727] flex flex-col justify-between">
       <div className="mt-3 bg-[#272727] flex flex-col items-center">
         <motion.button
-          className="w-[36px] h-[36px] bg-[#d14a24ed] rounded-full cursor-pointer mb-1"
+          className="w-[37px] h-[37px] bg-[#d14a24ed] rounded-full cursor-pointer mb-2"
           onClick={() => handleWorkspaceClick("home")}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <div className="flex items-center justify-center w-[36px] h-[36px] rounded-full overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-white">
+          <div className="flex items-center justify-center w-[37px] h-[37px] rounded-full overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-white">
             <Home className="w-5 h-5 text-white" />
           </div>
         </motion.button>
+        <div className="w-full h-px bg-gray-400 my-1"></div>
         {ownedWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
             key={workspace.id}
