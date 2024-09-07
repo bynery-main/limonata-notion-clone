@@ -12,7 +12,7 @@ interface WorkspaceIconProps {
 const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive, emoji }) => {
     return (
       <motion.div
-        className={`relative mt-4 w-10 h-10 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
+        className={`relative mt-2 mb-2 w-9 h-9 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
         onClick={onClick}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
