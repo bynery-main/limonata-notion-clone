@@ -5,7 +5,17 @@ import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
 import { Home } from "lucide-react";
-import { onSnapshot, collection, query, where, QuerySnapshot, DocumentData, DocumentChange, doc, getDoc } from "firebase/firestore";
+import {
+  onSnapshot,
+  collection,
+  query,
+  where,
+  QuerySnapshot,
+  DocumentData,
+  DocumentChange,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import WorkspaceIcon from "./workspace-icon";
@@ -17,13 +27,17 @@ interface MainSidebarProps {
 
 export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
-  const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<Workspace[]>([]);
+  const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<
+    Workspace[]
+  >([]);
   const router = useRouter();
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
-  const [workspaceEmojis, setWorkspaceEmojis] = useState<{ [key: string]: string }>({});
-  MainSidebar.displayName = 'MainSidebar';
+  const [workspaceEmojis, setWorkspaceEmojis] = useState<{
+    [key: string]: string;
+  }>({});
+  MainSidebar.displayName = "MainSidebar";
   useEffect(() => {
     let unsubscribeOwned: () => void;
     let unsubscribeCollaborated: () => void;
@@ -56,24 +70,33 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
       setWorkspaceState((prevWorkspaces) => {
         let updatedWorkspaces = [...prevWorkspaces];
 
-        snapshot.docChanges().forEach((change: DocumentChange<DocumentData>) => {
-          const workspaceData = { id: change.doc.id, ...change.doc.data() } as Workspace;
+        snapshot
+          .docChanges()
+          .forEach((change: DocumentChange<DocumentData>) => {
+            const workspaceData = {
+              id: change.doc.id,
+              ...change.doc.data(),
+            } as Workspace;
 
-          if (change.type === "added" || change.type === "modified") {
-            const index = updatedWorkspaces.findIndex((ws) => ws.id === workspaceData.id);
-            if (index > -1) {
-              updatedWorkspaces[index] = workspaceData;
-            } else {
-              updatedWorkspaces.push(workspaceData);
+            if (change.type === "added" || change.type === "modified") {
+              const index = updatedWorkspaces.findIndex(
+                (ws) => ws.id === workspaceData.id
+              );
+              if (index > -1) {
+                updatedWorkspaces[index] = workspaceData;
+              } else {
+                updatedWorkspaces.push(workspaceData);
+              }
+
+              getWorkspaceEmoji(workspaceData.id);
             }
-            
-            getWorkspaceEmoji(workspaceData.id);
-          }
 
-          if (change.type === "removed") {
-            updatedWorkspaces = updatedWorkspaces.filter((ws) => ws.id !== workspaceData.id);
-          }
-        });
+            if (change.type === "removed") {
+              updatedWorkspaces = updatedWorkspaces.filter(
+                (ws) => ws.id !== workspaceData.id
+              );
+            }
+          });
 
         return updatedWorkspaces;
       });
@@ -84,9 +107,9 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
       const workspaceSnap = await getDoc(workspaceRef);
       const data = workspaceSnap.data();
       if (data && data.emoji) {
-        setWorkspaceEmojis(prevEmojis => ({
+        setWorkspaceEmojis((prevEmojis) => ({
           ...prevEmojis,
-          [workspaceId]: data.emoji
+          [workspaceId]: data.emoji,
         }));
       }
     };
@@ -113,7 +136,9 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
     router.push(`/settings`);
   };
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleOverlayClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
     if (e.target === e.currentTarget) {
       setShowSettings(false);
     }
@@ -132,7 +157,10 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             <Home className="w-5 h-5 text-white" />
           </div>
         </motion.button>
-        <div className="w-full h-px bg-gray-400 my-1"></div>
+        {/* divider 1 */}
+        {ownedWorkspaces.length > 0 && (
+          <div className="w-full h-px bg-gray-400 my-1"></div>
+        )}
         {ownedWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
             key={workspace.id}
@@ -143,7 +171,10 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             emoji={workspaceEmojis[workspace.id]}
           />
         ))}
-        <div className="w-full h-px bg-gray-400 my-1"></div>
+        {/* divider 2 */}
+        {ownedWorkspaces.length > 0 && (
+          <div className="w-full h-px bg-gray-400 my-1"></div>
+        )}
         {collaborativeWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
             key={workspace.id}
@@ -176,7 +207,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             />
             <motion.div
               className="mt-2 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm"
-              onClick={() => router.push('/settings')}
+              onClick={() => router.push("/settings")}
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.9 }}
             >
@@ -216,7 +247,10 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <DashboardSetup onCancel={() => setShowDS(false)} onSuccess={() => setShowDS(false)} />
+            <DashboardSetup
+              onCancel={() => setShowDS(false)}
+              onSuccess={() => setShowDS(false)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
