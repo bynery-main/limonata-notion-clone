@@ -120,15 +120,15 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
   };
 
   return (
-    <div className="relative w-14 h-screen bg-[#272727] flex flex-col justify-between">
+    <div className="relative w-[3.5vw] h-screen bg-[#272727] flex flex-col justify-between">
       <div className="mt-3 bg-[#272727] flex flex-col items-center">
         <motion.button
-          className="w-[34px] h-[34px] bg-[#020039] rounded-full cursor-pointer"
+          className="w-[36px] h-[36px] bg-[#773276] rounded-full cursor-pointer mb-1"
           onClick={() => handleWorkspaceClick("home")}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <div className="flex items-center justify-center w-[34px] h-[34px] rounded-full overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-white">
+          <div className="flex items-center justify-center w-[36px] h-[36px] rounded-full overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-white">
             <Home className="w-5 h-5 text-white" />
           </div>
         </motion.button>
@@ -142,7 +142,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             emoji={workspaceEmojis[workspace.id]}
           />
         ))}
-        <div className="w-full h-px bg-gray-400 my-2"></div>
+        <div className="w-full h-px bg-gray-400 my-1"></div>
         {collaborativeWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
             key={workspace.id}
@@ -154,7 +154,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
           />
         ))}
         <motion.div
-          className="mt-4 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
+          className="mt-3 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm"
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setShowDS(true)}
@@ -162,24 +162,24 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
           <FaPlus />
         </motion.div>
       </div>
-      <div className="flex flex-col items-center pb-4">
+      <div className="flex flex-col items-center pb-2">
         {user && user.photoURL && (
           <>
             <motion.img
               src={user.photoURL}
               alt="Google Profile"
-              className="w-10 h-10 rounded-full mt-2 cursor-pointer"
+              className="w-8 h-8 rounded-full mt-2 cursor-pointer"
               onClick={handleSettingsClick}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             />
             <motion.div
-              className="mt-2 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
+              className="mt-2 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm"
               onClick={() => router.push('/settings')}
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.9 }}
             >
-              <FaCog className="w-5 h-5" />
+              <FaCog className="w-4 h-4" />
             </motion.div>
           </>
         )}
@@ -187,20 +187,20 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
       <AnimatePresence>
         {showSettings && (
           <motion.div
-            className="absolute bottom-0 left-16 z-50"
+            className="absolute bottom-0 left-12 z-50"
             onClick={handleOverlayClick}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
           >
-            <div className="relative w-32 bg-white rounded-lg shadow-lg p-2 mb-2">
+            <div className="relative w-24 bg-white rounded-lg shadow-lg p-2 mb-2">
               <Link href="/settings" passHref>
                 <motion.div
-                  className="text-black px-4 py-2 hover:bg-gray-200 rounded-md cursor-pointer flex items-center"
+                  className="text-black px-3 py-1 hover:bg-gray-200 rounded-md cursor-pointer flex items-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <FaCog className="mr-2" /> Settings
+                  <FaCog className="mr-1" /> Settings
                 </motion.div>
               </Link>
             </div>
