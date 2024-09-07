@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Picker from "@emoji-mart/react";
-import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
+import { BentoGrid } from "@/components/ui/bento-grid";
 import Image from "next/image";
 
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
-import { FolderProvider, useFolder } from "@/contexts/FolderContext";
+import { FolderProvider } from "@/contexts/FolderContext";
 import ChatComponent from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
@@ -71,10 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         return;
       }
 
-      if (
-        !data.owners.includes(user.uid) &&
-        !data.collaborators.includes(user.uid)
-      ) {
+      if (!data.owners.includes(user.uid) && !data.collaborators.includes(user.uid)) {
         router.push("/login");
         return;
       }
@@ -82,44 +79,31 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       if (data.emoji) {
         setEmoji(data.emoji);
       }
+
+      setFoldersData(data.folders || []);
     };
 
     validateUserAndFetchData();
   }, [params.workspaceId, db, currentUserId, loading, user, router]);
 
   const pathname = usePathname();
-  const isSettingsPage = pathname?.endsWith('/settings');
+  const isSettingsPage = pathname?.endsWith("/settings");
 
   const getFolderId = (path: string): string | null => {
     const segments = path.split("/").filter(Boolean);
-
-    if (segments.length === 3) {
-      return segments[2];
-    } else if (segments.length > 3) {
+    if (segments.length === 3) return segments[2];
+    else if (segments.length > 3) {
       const thirdSegment = segments[2];
-      if (
-        !["quizzes", "decks", "studyguides", "settings"].includes(thirdSegment)
-      ) {
+      if (!["quizzes", "decks", "studyguides", "settings"].includes(thirdSegment)) {
         return thirdSegment;
       }
     }
-
     return null;
   };
 
   const isFullBentoGrid = (path: string): boolean => {
     const segments = path.split("/").filter(Boolean);
-    if (segments.length === 3) {
-      return false;
-    } else if (segments.length > 3) {
-      const thirdSegment = segments[2];
-      if (
-        !["quizzes", "decks", "studyguides", "settings"].includes(thirdSegment)
-      ) {
-        return false;
-      }
-    }
-    return true;
+    return segments.length > 3 && !["quizzes", "decks", "studyguides", "settings"].includes(segments[2]);
   };
 
   useEffect(() => {
@@ -145,18 +129,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     }
   };
 
-  const showBentoGrid =
-    pathname?.startsWith(`/dashboard/${params.workspaceId}`) ?? false;
+  const showBentoGrid = pathname?.startsWith(`/dashboard/${params.workspaceId}`) ?? false;
 
   const getFilePreview = (file: FileData) => {
-    if (!file || !file.name) {
-      return (
-        <div className="w-full h-48 flex items-center justify-center bg-gray-200">
-          <span className="text-4xl">📄</span>
-        </div>
-      );
-    }
-
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
     const pdfExtensions = ["pdf"];
@@ -167,65 +142,25 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     if (imageExtensions.includes(fileExtension || "")) {
       return (
         <div className="w-full h-48 relative">
-          <Image
-            src={file.url}
-            alt={file.name}
-            fill
-            style={{ objectFit: "cover" }}
-          />
-        </div>
-      );
-    } else {
-      let emoji = "📝";
-      if (pdfExtensions.includes(fileExtension || "")) {
-        emoji = "📕";
-      } else if (docExtensions.includes(fileExtension || "")) {
-        emoji = "📘";
-      } else if (audioExtensions.includes(fileExtension || "")) {
-        emoji = "🎵";
-      } else if (videoExtensions.includes(fileExtension || "")) {
-        emoji = "🎥";
-      } else if (!fileExtension) {
-        emoji = "📝";
-      }
-
-      return (
-        <div className="w-full h-48 flex items-center justify-center">
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "200px",
-              overflow: "hidden",
-            }}
-          >
-            <Image
-              src="https://images.template.net/wp-content/uploads/2017/01/17002828/Word-Document-Resume-Template.jpg"
-              alt="Image Placeholder"
-              layout="fill"
-              objectFit="cover"
-              style={{ filter: "blur(8px)" }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                fontSize: "48px",
-                color: "white",
-              }}
-            >
-              {emoji}
-            </div>
-          </div>
+          <Image src={file.url} alt={file.name} fill style={{ objectFit: "cover" }} />
         </div>
       );
     }
+
+    let emoji = "📝";
+    if (pdfExtensions.includes(fileExtension || "")) emoji = "📕";
+    else if (docExtensions.includes(fileExtension || "")) emoji = "📘";
+    else if (audioExtensions.includes(fileExtension || "")) emoji = "🎵";
+    else if (videoExtensions.includes(fileExtension || "")) emoji = "🎥";
+
+    return (
+      <div className="w-full h-48 flex items-center justify-center">
+        <span className="text-4xl">{emoji}</span>
+      </div>
+    );
   };
 
   const onSendMessage = (workspaceId: string, query: string) => {
-    // Your message sending logic here
     console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
   };
 
@@ -245,10 +180,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             <div className="flex items-center w-full mt-2">
               {!isSettingsPage && (
                 <>
-                  <button
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="text-4xl mr-3 focus:outline-none"
-                  >
+                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
                     <span>{emoji}</span>
                   </button>
                   {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
@@ -258,46 +190,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           </div>
           {children}
 
-          {showBentoGrid && (
-            <BentoGrid className="max-w-7xl mx-auto p-4">
-              {foldersData.flatMap((folder, folderIndex) =>
-                fullBentoGrid || folder.id === folderId
-                  ? folder.files.map((file, fileIndex) => (
-                    <BentoGridItem
-                      key={file.id}
-                      title={file.name}
-                      description={`In folder: ${folder.name}`}
-                      header={getFilePreview(file)}
-                      href={`/dashboard/${params.workspaceId}/${folder.id}/${file.id}`}
-                      className={
-                        (folderIndex * folder.files.length + fileIndex) %
-                          7 ===
-                          3 ||
-                          (folderIndex * folder.files.length + fileIndex) %
-                          7 ===
-                          6
-                          ? "md:col-span-2"
-                          : ""
-                      }
-                    />
-                  ))
-                  : []
-              )}
-            </BentoGrid>
+          {showBentoGrid && folderId && (
+            <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId} />
           )}
         </div>
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
-          <AIChatComponent
-            workspaceId={params.workspaceId}
-            userId={currentUserId}
-            onOpenAITutor={handleOpenAITutor}
-          />
-          <ChatComponent
-            workspaceId={params.workspaceId}
-            userId={currentUserId}
-            isChatVisible={isChatVisible}
-            setIsChatVisible={setIsChatVisible}
-          />
+          <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor} />
+          <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
         </div>
       </main>
     </FolderProvider>
