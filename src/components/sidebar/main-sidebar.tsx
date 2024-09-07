@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Workspace } from "@/lib/db/workspaces/get-workspaces";
 import { useRouter } from "next/navigation";
@@ -7,7 +5,7 @@ import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
 import { Home } from "lucide-react";
-import { onSnapshot, collection, query, where, QuerySnapshot, DocumentData, DocumentChange, doc, getDoc, getFirestore } from "firebase/firestore";
+import { onSnapshot, collection, query, where, QuerySnapshot, DocumentData, DocumentChange, doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import WorkspaceIcon from "./workspace-icon";
@@ -18,17 +16,14 @@ interface MainSidebarProps {
 }
 
 export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
-
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<Workspace[]>([]);
   const router = useRouter();
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
-  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
   const [workspaceEmojis, setWorkspaceEmojis] = useState<{ [key: string]: string }>({});
   MainSidebar.displayName = 'MainSidebar';
-
   useEffect(() => {
     let unsubscribeOwned: () => void;
     let unsubscribeCollaborated: () => void;
@@ -112,15 +107,10 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
       router.push(`/dashboard/${workspaceId}`);
     }
     setActiveIcon(workspaceId);
-    setCurrentWorkspaceId(workspaceId);
   };
 
-  const handleCancel = () => {
-    setShowDS(false);
-  };
-
-  const handleSuccess = () => {
-    setShowDS(false);
+  const handleSettingsClick = () => {
+    router.push(`/settings`);
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -129,20 +119,11 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
     }
   };
 
-  const handleSettingsClick = () => {
-    router.push(`/settings`);
-  };
-
   return (
-    <motion.div
-      className="relative w-14 h-screen bg-[#272727] flex flex-col justify-between"
-      initial={{ opacity: 0, x: -50 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div className="relative w-14 h-screen bg-[#272727] flex flex-col justify-between">
       <div className="mt-3 bg-[#272727] flex flex-col items-center">
         <motion.button
-          className="w-[34px] h-[34px] bg-[#020039] rounded-full"
+          className="w-[34px] h-[34px] bg-[#020039] rounded-full cursor-pointer"
           onClick={() => handleWorkspaceClick("home")}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -176,12 +157,9 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
           className="mt-4 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
+          onClick={() => setShowDS(true)}
         >
-          <FaPlus onClick={() => setShowDS(true)}/>
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-transparent"
-            // whileHover={{ borderColor: "white" }}
-          />
+          <FaPlus />
         </motion.div>
       </div>
       <div className="flex flex-col items-center pb-4">
@@ -197,15 +175,11 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             />
             <motion.div
               className="mt-2 w-10 h-10 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-md"
-              onClick={handleSettingsClick}
+              onClick={() => router.push('/settings')}
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.9 }}
             >
               <FaCog className="w-5 h-5" />
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-transparent"
-                // whileHover={{ borderColor: "white" }}
-              />
             </motion.div>
           </>
         )}
@@ -241,11 +215,10 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
+            <DashboardSetup onCancel={() => setShowDS(false)} onSuccess={() => setShowDS(false)} />
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
-
