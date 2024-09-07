@@ -84,7 +84,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">
-          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black font-extrabold h-auto">
+          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black h-auto">
             Workspaces
             </FancyText>
             </h1>
