@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
-import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface FileData {
   id: string;
@@ -12,7 +13,7 @@ interface FileData {
   url?: string; // Optional for notes, since notes won't have URLs
   type: "file" | "note"; // Distinguish between files and notes
   folderId?: string; // Add this to keep track of which folder the item belongs to
-
+  folderName?: string;
 }
 
 export const BentoGrid = ({
@@ -25,11 +26,51 @@ export const BentoGrid = ({
   className?: string;
 }) => {
   const [items, setItems] = useState<FileData[]>([]);
+  const [folderNames, setFolderNames] = useState<{[key: string]: string}>({});
+
+
+  const getFilePreview = (file: FileData) => {
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+    const pdfExtensions = ["pdf"];
+    const docExtensions = ["doc", "docx"];
+    const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+    const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+
+    if (imageExtensions.includes(fileExtension || "")) {
+      return (
+        <div className="w-full h-48 relative">
+          <Image src={file.url!} alt={file.name} fill style={{ objectFit: "cover" }} />
+        </div>
+      );
+    }
+
+    let emoji = "📝";
+    if (pdfExtensions.includes(fileExtension || "")) emoji = "📕";
+    else if (docExtensions.includes(fileExtension || "")) emoji = "📘";
+    else if (audioExtensions.includes(fileExtension || "")) emoji = "🎵";
+    else if (videoExtensions.includes(fileExtension || "")) emoji = "🎥";
+
+    return (
+      <div className="w-full h-48 flex items-center justify-center">
+        <span className="text-4xl">{emoji}</span>
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (!workspaceId) return;
 
     let unsubscribeFunctions: (() => void)[] = [];
+
+    const fetchFolderName = async (folderId: string) => {
+      const folderRef = doc(db, "workspaces", workspaceId, "folders", folderId);
+      const folderSnap = await getDoc(folderRef);
+      if (folderSnap.exists()) {
+        const folderData = folderSnap.data();
+        setFolderNames(prev => ({ ...prev, [folderId]: folderData.name }));
+      }
+    };
 
     const fetchAllItems = async () => {
       const foldersRef = collection(db, "workspaces", workspaceId, "folders");
@@ -37,6 +78,7 @@ export const BentoGrid = ({
 
       foldersSnapshot.forEach((folderDoc) => {
         const currentFolderId = folderDoc.id;
+        fetchFolderName(currentFolderId);
 
         const filesRef = collection(db, "workspaces", workspaceId, "folders", currentFolderId, "files");
         const notesRef = collection(db, "workspaces", workspaceId, "folders", currentFolderId, "notes");
@@ -74,6 +116,7 @@ export const BentoGrid = ({
     };
 
     if (folderId) {
+      fetchFolderName(folderId);
       // Existing logic for a specific folder
       const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
       const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
@@ -120,7 +163,8 @@ return (
         folderId={folderId!}
         fileId={item.id}
         title={item.name}
-        description={item.description || (item.type === "note" ? "Note content" : "No description available")}
+        header={getFilePreview(item)}
+        description={`In Folder: ${folderNames[item.folderId || ''] || 'Unknown'}`}
         href={`/dashboard/${workspaceId}/${folderId}/${item.id}`}
         type={item.type}
       />

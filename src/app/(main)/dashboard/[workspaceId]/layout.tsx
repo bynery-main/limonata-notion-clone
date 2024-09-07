@@ -131,35 +131,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   const showBentoGrid = pathname?.startsWith(`/dashboard/${params.workspaceId}`) ?? false;
 
-  const getFilePreview = (file: FileData) => {
-    const fileExtension = file.name.split(".").pop()?.toLowerCase();
-    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
-    const pdfExtensions = ["pdf"];
-    const docExtensions = ["doc", "docx"];
-    const audioExtensions = ["mp3", "wav", "ogg", "flac"];
-    const videoExtensions = ["mp4", "avi", "mov", "wmv"];
-
-    if (imageExtensions.includes(fileExtension || "")) {
-      return (
-        <div className="w-full h-48 relative">
-          <Image src={file.url} alt={file.name} fill style={{ objectFit: "cover" }} />
-        </div>
-      );
-    }
-
-    let emoji = "📝";
-    if (pdfExtensions.includes(fileExtension || "")) emoji = "📕";
-    else if (docExtensions.includes(fileExtension || "")) emoji = "📘";
-    else if (audioExtensions.includes(fileExtension || "")) emoji = "🎵";
-    else if (videoExtensions.includes(fileExtension || "")) emoji = "🎥";
-
-    return (
-      <div className="w-full h-48 flex items-center justify-center">
-        <span className="text-4xl">{emoji}</span>
-      </div>
-    );
-  };
-
   const onSendMessage = (workspaceId: string, query: string) => {
     console.log(`Workspace ID: ${workspaceId}, Query: ${query}`);
   };
@@ -191,7 +162,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           {children}
 
           {showBentoGrid && folderId && (
-            <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId} />
+            <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
           )}
 
           {showBentoGrid && !folderId && (
