@@ -61,7 +61,7 @@ export function TabsDemo() {
       value: "quiz",
       content: (
         <TabContent
-          title="AI Quizes"
+          title="AI Quizzes"
           description="Test your knowledge with questions created by AI using all your study resources. You will also be corrected and given a grade and explanations for each question."
           image={quizimage.src}
           textColor="text-yellow-600"
