@@ -132,10 +132,25 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                     noteId
                   )
                 );
-                const noteName = noteDoc.exists()
-                  ? noteDoc.data()?.name
-                  : "Note";
+
+                const noteName = noteDoc.exists() ? noteDoc.data()?.name : null;
+                let fileName = null;
+                let fileId = null;
+
+                if (!noteName) {
+                  const fileId = pathSegments[3];
+                  const fileDoc = await getDoc(
+                    doc(
+                      db,
+                      `workspaces/${workspaceId}/folders/${folderId}/files`,
+                      fileId
+                    )
+                  );
+                  fileName = fileDoc.exists() ? fileDoc.data()?.name : null;
+                }
+
                 console.log("Note Name:", noteName);
+                console.log("File Name:", fileName);
 
                 const folderDoc = await getDoc(
                   doc(db, `workspaces/${workspaceId}/folders`, folderId)
@@ -151,11 +166,19 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
                   icon: <Folder className="w-4 h-4 mr-1" />,
                 });
 
-                items.push({
-                  href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${noteId}`,
-                  label: noteName,
-                  icon: <FileText className="w-4 h-4 mr-1" />,
-                });
+                if (noteName) {
+                  items.push({
+                    href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${noteId}`,
+                    label: noteName,
+                    icon: <FileText className="w-4 h-4 mr-1" />,
+                  });
+                } else if (fileName) {
+                  items.push({
+                    href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${fileId}`,
+                    label: fileName,
+                    icon: <FileText className="w-4 h-4 mr-1" />,
+                  });
+                }
               }
             }
           }
