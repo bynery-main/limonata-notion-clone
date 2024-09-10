@@ -9,7 +9,7 @@ const Folder = async ({ params }: { params: { folderId: string } }) => {
   const { data } = await getFolderDetails(params.folderId);
 
   return (
-    <div className="w-full h-[calc(100vh-64px)] overflow-hidden">
+    <div className="relative hidden">
       <QuillEditor
         dirType="folder"
         fileId={params.folderId}

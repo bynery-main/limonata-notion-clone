@@ -181,7 +181,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }, [quill, socket, fileId, details]);
 
   if (!details) {
-    return <div className="w-full h-full flex items-center justify-center
+    return <div className="w-full h-[calc(100vh-64px)] flex items-center justify-center
     ">
       <div className="animate-spin w-10 h-10 border-t-2 border-b-2 border-purple-500 rounded-full mx-5"></div>
       Loading...</div>; // Handle case when details are not ready
