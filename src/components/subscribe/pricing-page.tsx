@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { CloudIcon, CodeIcon, MessageCircleIcon, UserIcon, GlobeIcon, ShareIcon, BookIcon, PencilIcon, Share2Icon, FolderArchiveIcon, FolderIcon, FoldersIcon } from "lucide-react"
+import { LightMode } from "@chakra-ui/react";
+import { CloudIcon, CodeIcon, MessageCircleIcon, UserIcon, GlobeIcon, ShareIcon, BookIcon, PencilIcon, Share2Icon, FolderArchiveIcon, FolderIcon, FoldersIcon, Lightbulb, LightbulbIcon, BookOpenIcon } from "lucide-react"
 
 interface FeatureProps {
   icon: React.ReactNode;
@@ -16,7 +17,7 @@ export function PricingPage() {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center">
           <span className="bg-black text-white rounded-full p-2 mr-2">
-            <CloudIcon className="h-6 w-6" />
+            <LightbulbIcon className="h-6 w-6" />
           </span>
           Get Limonata Pro
         </h1>
@@ -27,7 +28,7 @@ export function PricingPage() {
         <div className="grid md:grid-cols-2 gap-6 p-6">
           <div className="space-y-4">
             <Feature icon={<CloudIcon />} title="Massive Storage" description="Up to 50GB per Workspace" />
-            <Feature icon={<CodeIcon />} title="Unlimited Flashcards" description="Create as many as you want" />
+            <Feature icon={<BookOpenIcon />} title="Unlimited Flashcards" description="Create as many as you want" />
             <Feature icon={<MessageCircleIcon />} title="Unlimited Chat" description="Chat with your AI tutor without limits" />
           </div>
           <div className="space-y-4">
