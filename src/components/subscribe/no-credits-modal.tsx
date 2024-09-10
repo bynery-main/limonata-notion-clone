@@ -4,7 +4,7 @@ import { GoProButton } from "@/components/subscribe/subscribe-button";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
-
+import { PricingPage } from "./pricing-page";
 interface NoCreditsModalProps {
   remainingCredits: number;
   creditCost: number;
@@ -51,7 +51,9 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      
       <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-96">
+        {/* 
         <h2 className="text-xl font-bold mb-4">Not Enough Credits</h2>
         <p className="mb-2">{getNoCreditsText()}</p>
         <p className="mb-2">Credits remaining: {remainingCredits}</p>
@@ -64,6 +66,8 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
           <li>Collaborate with more team members</li>
           <li>Advanced analytics and insights</li>
         </ul>
+        */}
+        <PricingPage />
         {/* Conditionally render the GoProButton only if user is on the free tier */}
         {subscriptionStatus === "free" && resolvedUserId && resolvedUserEmail && (
           <GoProButton

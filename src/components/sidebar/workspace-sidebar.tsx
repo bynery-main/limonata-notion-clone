@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
+import { PricingPage } from "../subscribe/pricing-page";
 
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
@@ -354,7 +355,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       {/* Modal for Go Pro */}
       {showGoProModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
+          <div className="bg-white p-6 rounded-lg w-200 h-auto items-center">
+            {/*
             <h2 className="text-xl font-bold mb-4">Go Pro</h2>
             <ul className="list-disc list-inside mb-6">
               <li>Access to premium features</li>
@@ -363,17 +365,20 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               <li>Collaborate with more team members</li>
               <li>Advanced analytics and insights</li>
             </ul>
-            <GoProButton
-              className="w-full"
-              userEmail={currentUserEmail!}
-              userId={currentUserUid!}
-              subscriptionStatus={subscriptionStatus}
-            />
+*/}
+            <PricingPage/>
+            <div className="flex justify-center items-center">
+              <GoProButton
+                className="bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors"
+                userEmail={currentUserEmail!}
+                userId={currentUserUid!}
+                subscriptionStatus={subscriptionStatus}
+              />
+            </div>
             <Button
               onClick={() => setShowGoProModal(false)}
               variant="outline"
-              className="mt-2 ml-2"
-            >
+              className="mt-2 ml-2">
               Cancel
             </Button>
           </div>
