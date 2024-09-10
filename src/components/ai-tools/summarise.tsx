@@ -3,6 +3,7 @@ import { StarsIcon } from "lucide-react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig";
 import NoCreditsModal from "../subscribe/no-credits-modal"; // Import the NoCreditsModal component
+import ReactMarkdown from "react-markdown";
 import CostButton from "./cost-button";
 
 interface SummariseProps {
@@ -70,7 +71,7 @@ const Summarise: React.FC<SummariseProps> = ({ refString, type, userId }) => {
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 ">
       <button
         className="p-[2px] relative transition-transform duration-300 ease-in-out transform hover:scale-105"
         onClick={handleSummariseClick}
@@ -97,14 +98,15 @@ const Summarise: React.FC<SummariseProps> = ({ refString, type, userId }) => {
           </div>
         </div>
       </button>
+      
 
       {summaryText && (
         <div className="mt-4 bg-gray-100 p-4 rounded-lg">
           <h4 className="font-semibold mb-2">Summary:</h4>
-          <p className="text-sm whitespace-pre-line">{summaryText}</p>
+          <p className="text-sm whitespace-pre-line"><ReactMarkdown className="prose dark:prose-invert">{summaryText}</ReactMarkdown></p>
         </div>
       )}
-
+      
       {showCreditModal && (
         <NoCreditsModal
           remainingCredits={remainingCredits}
