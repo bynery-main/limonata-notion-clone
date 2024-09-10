@@ -76,6 +76,8 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
             userEmail={resolvedUserEmail}
           />
         )}
+        <div className="flex justify-center items-center">
+
         <Button
           onClick={onClose}
           variant="outline"
@@ -83,6 +85,7 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
         >
           Cancel
         </Button>
+        </div>
       </div>
     </div>
   );
