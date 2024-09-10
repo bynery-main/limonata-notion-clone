@@ -13,6 +13,7 @@ import { useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import { motion, AnimatePresence } from "framer-motion";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
+import CostButton from "../ai-tools/cost-button";
 
 interface ChatComponentProps {
   workspaceId: string;
@@ -306,7 +307,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
               >
                 <ArrowUpIcon className="h-4 w-4" />
-                <span className="sr-only">Send</span>
+                <CostButton cost={creditCost.toString()} className='hidden hover:visible'/>
               </Button>
             </div>
           </div>

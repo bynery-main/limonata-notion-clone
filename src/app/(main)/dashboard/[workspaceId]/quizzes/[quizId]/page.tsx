@@ -25,6 +25,7 @@ import { Toast, useToast } from "@chakra-ui/react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import NoCreditsModal from "@/components/subscribe/no-credits-modal";
 import AnimatedButton from "@/components/animated-button/animated-button";
+import CostButton from "@/components/ai-tools/cost-button";
 
 const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = ({
   value,
@@ -465,6 +466,7 @@ const QuizzesPage = () => {
                   Submit Answers
                 </div>
               )}
+              <CostButton cost={creditCost.toString()} />
             </AnimatedButton>
             <button
               onClick={handleEvaluationHistoryClick}

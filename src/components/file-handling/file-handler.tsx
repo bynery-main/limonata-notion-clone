@@ -30,7 +30,6 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
     console.log('File URL:', fileUrl);
     return (
       <div className="relative">
-        <h1 className="text-xl mb-4">{fileName}</h1>
         {fileExtension === 'pdf' || fileExtension === 'docx' ? (
           <>
             <DocumentDisplay fileUrl={fileUrl} fileExtension={fileExtension} />

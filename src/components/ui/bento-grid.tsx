@@ -161,12 +161,12 @@ export const BentoGrid = ({
         <BentoGridItem
           key={item.id}
           workspaceId={workspaceId}
-          folderId={folderId!}
+          folderId={item.folderId || ''} // Use the item's folderId
           fileId={item.id}
           title={item.name}
           header={getFilePreview(item)}
           description={`In Folder: ${folderNames[item.folderId || ''] || 'Unknown'}`}
-          href={`/dashboard/${workspaceId}/${folderId}/${item.id}`}
+          href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`} // Use item.folderId in the href
           type={item.type}
         />
       ))}

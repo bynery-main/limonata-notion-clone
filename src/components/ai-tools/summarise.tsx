@@ -4,6 +4,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "@/firebase/firebaseConfig";
 import NoCreditsModal from "../subscribe/no-credits-modal"; // Import the NoCreditsModal component
 import ReactMarkdown from "react-markdown";
+import CostButton from "./cost-button";
 
 interface SummariseProps {
   refString: string;
@@ -93,6 +94,7 @@ const Summarise: React.FC<SummariseProps> = ({ refString, type, userId }) => {
               }`}
             />
             {loading ? "Summarising..." : "Summarise"}
+            <CostButton cost={creditCost.toString()} />
           </div>
         </div>
       </button>
