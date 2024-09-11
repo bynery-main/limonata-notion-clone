@@ -6,12 +6,13 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards";
-import { StarsIcon } from "lucide-react";
+import { BookOpen, Loader2, StarsIcon } from "lucide-react";
 import { Checkbox } from "@chakra-ui/checkbox";
 import { Button, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
+import { motion } from "framer-motion";
 
 interface FlashcardComponentProps {
   onClose: () => void;
@@ -289,28 +290,48 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                 ? 'p-[1px] relative'
                 : 'p-[1px] relative cursor-not-allowed'
               }`}>
-              <Button
-                onClick={handleCreateFlashcards}
-                className="p-[1px] relative"
-                title={
-                  selectedNotes.length > 0
-                    ? ''
-                    : 'Click on a note first to create quiz'
-                }
-                disabled={loading || selectedNotes.length === 0}
-              >
-
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-
-                <div className="space-x-2">
-                  <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                    <span className="font-bold">
-                      {loading ? "Creating..." : "Create Flashcards"}
-                    </span>
-                    <CostButton cost={creditCost.toString()} />
-                  </div>
-                </div>
-              </Button>
+                  <Button
+      onClick={handleCreateFlashcards}
+      className="p-[1px] relative"
+      title={
+        selectedNotes.length > 0
+          ? ''
+          : 'Click on a note first to create quiz'
+      }
+      disabled={loading || selectedNotes.length === 0}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+        <motion.div
+          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
+          whileHover="hover"
+          whileTap="tap"
+        >
+          <motion.span
+            className="font-bold inline-block"
+            variants={{
+              hover: { x: -20, opacity: 0 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? "Creating..." : "Create Flashcards"}
+          </motion.span>
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ x: 20, opacity: 0 }}
+            variants={{
+              hover: { x: 0, opacity: 1 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="whitespace-nowrap">20 Credits</span>
+            )}
+          </motion.div>
+          
+        </motion.div>
+      </Button>
             </div>
           </div>
           {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
