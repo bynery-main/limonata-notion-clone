@@ -27,6 +27,8 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
+import { Progress } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
@@ -51,7 +53,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-
+  const showProgressBar = tier === "free" || subscriptionStatus === "active_pending_cancellation";
+  const [maxCredits, setMaxCredits] = useState<number>(100); // Assuming a default max of 100 credits per day
+  const progressValue = credits !== null ? (credits / maxCredits) * 100 : 0;
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
     string | null
   >(null);
@@ -277,12 +281,32 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
 
         {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
-          <Button
+         <>
+         <Button
             onClick={() => setShowGoProModal(true)}
             className="mx-4 mt-4 shadow-lg"
           >
             {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
           </Button>
+            <div className="mx-4 mt-2">
+              <motion.div
+                className="bg-gray-200 rounded-full overflow-hidden"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+              >
+                <motion.div
+                  className="h-1 bg-gray-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressValue}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </motion.div>
+              <p className="text-xs text-center mt-1 text-gray-400">
+                {credits} / {maxCredits} credits remaining
+              </p>
+          </div>
+                  </>
+
         )}
         
 
