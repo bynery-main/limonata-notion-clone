@@ -157,7 +157,6 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             <Home className="w-5 h-5 text-white" />
           </div>
         </motion.button>
-        {/* divider 1 */}
         {ownedWorkspaces.length > 0 && (
           <div className="w-full h-px bg-gray-400 my-1"></div>
         )}
@@ -171,9 +170,8 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
             emoji={workspaceEmojis[workspace.id]}
           />
         ))}
-        {/* divider 2 */}
-        {ownedWorkspaces.length > 0 && (
-          <div className="w-full h-px bg-gray-400 my-1"></div>
+        {ownedWorkspaces.length > 0 && collaborativeWorkspaces.length > 0 && (
+          <div className="w-[80%] h-[2px] bg-gray-600 my-2 rounded-full"></div>
         )}
         {collaborativeWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
