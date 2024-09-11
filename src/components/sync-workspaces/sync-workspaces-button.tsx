@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, StarsIcon } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import NoCreditsModal from "../subscribe/no-credits-modal";
@@ -53,6 +53,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
     const [remainingCredits, setRemainingCredits] = useState(0);
     const { user } = useAuth(); 
     const creditCost = 15;
+    const [isHovered, setIsHovered] = useState(false);
 
     const syncWorkspace = async () => {
         if (!user) {
@@ -116,17 +117,25 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
                 <motion.div
                     className="absolute inset-0 flex items-center justify-center"
                     initial={{ x: 20, opacity: 0 }}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                     variants={{
                         hover: { x: 0, opacity: 1 },
                         tap: { scale: 0.95 }
                     }}
                 >
-                    {isLoading ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        <span className="whitespace-nowrap">15 Credits</span>
-                    )}
-                </motion.div>
+           
+                {isLoading ? (
+                <Loader2 className="animate-spin" />
+                ) : (
+                <div className="flex items-center">
+                    <StarsIcon
+                    className={`w-5 h-5 mr-2 transition-transform duration-300 ${isHovered ? "rotate-180" : ""}`}
+                    />
+                    <span className="whitespace-nowrap">{creditCost.toString()} credits</span>
+                </div>
+                )}
+            </motion.div>
                
             </AnimatedButton>
 
