@@ -11,7 +11,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
-import { Settings, CreditCard, Calendar, Trash2, AlertTriangle } from 'lucide-react';
+import { Settings, CreditCard, Calendar, Trash2, AlertTriangle, LogOut } from 'lucide-react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
 
 
@@ -144,19 +144,7 @@ const SettingsPage = () => {
           )}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Button
-            onClick={() => setShowAccountModal(true)}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300"
-          >
-            <Trash2 className="w-5 h-5" />
-            <span>Delete Account</span>
-          </Button>
-        </motion.div>
+
 
         <motion.div 
           className="mt-10"
@@ -251,10 +239,28 @@ const SettingsPage = () => {
           className="mt-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 1 }}
         >
-          <Button variant="default" onClick={handleSignOut}>
-            SIGN OUT
+          <Button 
+            variant="outline" 
+            onClick={handleSignOut}
+            className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-6 border border-gray-400 rounded-full shadow-sm transition-all duration-300 flex items-center justify-center space-x-2"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Sign Out</span>
+          </Button>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Button
+            onClick={() => setShowAccountModal(true)}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span>Delete Account</span>
           </Button>
         </motion.div>
       </motion.div>
