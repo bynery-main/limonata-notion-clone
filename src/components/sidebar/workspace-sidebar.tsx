@@ -5,7 +5,6 @@ import {
   SettingsIcon,
   UserPlusIcon,
   UsersIcon,
-  CreditCard,
 } from "lucide-react";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
@@ -271,11 +270,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             </div>
           )}
           <span className="sr-only">Limonata</span>
-
-          <div className="ml-auto flex items-center space-x-2">
-            <CreditCard className="w-6 h-6 text-blue-500" />
-            <span>{credits}</span>
-          </div>
         </div>
 
         <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
