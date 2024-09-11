@@ -296,7 +296,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       title={
         selectedNotes.length > 0
           ? ''
-          : 'Click on a note first to create quiz'
+          : 'Click on a note first to create Flashcards'
       }
       disabled={loading || selectedNotes.length === 0}
     >
