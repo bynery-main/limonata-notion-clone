@@ -154,7 +154,8 @@ const LoginPage = () => {
         <div className="mt-6 text-center text-xs text-gray-500">
           <span className="cursor-pointer hover:underline">Terms of Use</span>
           {" | "}
-          <span className="cursor-pointer hover:underline">Privacy Policy</span>
+          <span className="cursor-pointer hover:underline" onClick={() => router.push("/privacy-policy/privacy-policy.pdf")}
+          >Privacy Policy</span>
         </div>
       </div>
     </div>
