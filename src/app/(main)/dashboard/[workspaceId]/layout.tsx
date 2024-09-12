@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Picker from "@emoji-mart/react";
-import { BentoGrid } from "@/components/ui/bento-grid";
+import { BentoGrid } from "@/components/BentoGrid/bento-grid";
 import Image from "next/image";
 
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
