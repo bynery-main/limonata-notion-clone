@@ -76,7 +76,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ fileName, fileUrl, classN
       
       {/* Emoji overlay */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-4xl z-10">{emoji}</span>
+        <span className="text-4xl">{emoji}</span>
       </div>
     </div>
   );

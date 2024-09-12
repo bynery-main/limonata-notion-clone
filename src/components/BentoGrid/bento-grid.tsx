@@ -304,7 +304,7 @@ export const BentoGridItem = ({
   return (
     <div
       className={cn(
-        "rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border border-neutral-200 dark:border-neutral-800 flex flex-col space-y-4 cursor-pointer",
+        "rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border border-neutral-200 dark:border-neutral-800 flex flex-col space-y-4 cursor-pointer relative",
         className
       )}
       onClick={handleClick}
@@ -317,7 +317,6 @@ export const BentoGridItem = ({
           {title}
         </h3>
         <p className="text-sm text-gray-500 overflow-hidden text-ellipsis">
-          <FoldersIcon className="h-3 w-3 inline mr-1" />
           {description}
         </p>
       </div>
@@ -336,7 +335,11 @@ export const BentoGridItem = ({
             }}
           />
           {dropdownVisible && (
-            <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-100">
+            <div 
+              ref={dropdownRef} 
+              className="absolute left-0 bottom-full mb-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+              style={{ minWidth: '200px' }}
+            >
               <div className="p-2">
                 <input
                   type="text"
