@@ -38,8 +38,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
 
-
-  // Check if dirDetails is available and create details safely
   const details = useMemo(() => {
     if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
       return {
@@ -82,6 +80,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
 
       q.on("text-change", async () => {
         const text = q.root.innerHTML;
+        console.log("Text change detected:", text);
+
         if (details) {
           try {
             const fileDocRef = doc(
@@ -123,7 +123,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       if (fileDoc.exists()) {
         const fileData = fileDoc.data();
         quill.root.innerHTML = fileData.text || "";
-        console.log("Document data:", fileData);
+        console.log("Fetched document data:", fileData);
       } else {
         console.log("No such document!");
       }
@@ -135,8 +135,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   // Socket setup
   useEffect(() => {
     if (!socket || !fileId || !details) return;
+
+    console.log("Creating socket room:", fileId);
     socket.emit("create-room", fileId);
+
     return () => {
+      console.log("Leaving socket room:", fileId);
       socket.emit("leave-room", fileId);
     };
   }, [socket, fileId, details]);
@@ -148,8 +152,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
       if (source !== "user") return;
 
+      console.log("Sending changes to socket:", delta);
+      socket.emit("send-changes", delta, fileId);
+
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       setSaving(true);
+
       saveTimerRef.current = setTimeout(async () => {
         try {
           const text = quill.root.innerHTML;
@@ -169,7 +177,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         }
         setSaving(false);
       }, 850);
-      socket.emit("send-changes", delta, fileId);
     };
 
     quill.on("text-change", quillHandler);
@@ -180,11 +187,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
   }, [quill, socket, fileId, details]);
 
-  
+  // Receive changes
   useEffect(() => {
     if (quill === null || socket === null || fileId === null) return;
 
     const handler = (delta: any) => {
+      console.log("Receiving changes from socket:", delta);
       quill.updateContents(delta);
     };
 
@@ -196,7 +204,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }, [quill, socket, fileId]);
 
   if (!details) {
-    return <div>Loading editor...</div>; // Handle case when details are not ready
+    return <div>Loading editor...</div>;
   }
 
   return (
