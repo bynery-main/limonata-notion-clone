@@ -27,7 +27,6 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
-import { PricingPage } from "../subscribe/pricing-page";
 
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
@@ -250,23 +249,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       alert("Please select a workspace first");
     }
   };
-  const modalRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        setShowGoProModal(false);
-      }
-    };
-
-    if (showGoProModal) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showGoProModal]);
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
@@ -296,8 +279,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
           <Button
             onClick={() => setShowGoProModal(true)}
-             className="mx-4 mt-4 shadow-lg inline-flex text-white h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
-
+            className="mx-4 mt-4 shadow-lg"
           >
             {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
           </Button>
@@ -369,18 +351,31 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         </div>
       </aside>
 
+      {/* Modal for Go Pro */}
       {showGoProModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div ref={modalRef} className="bg-white p-6 rounded-lg w-200 h-auto items-center">
-            <PricingPage/>
-            <div className="flex justify-center items-center">
-              <GoProButton
-                className="bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors"
-                userEmail={currentUserEmail!}
-                userId={currentUserUid!}
-                subscriptionStatus={subscriptionStatus}
-              />
-            </div>
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Go Pro</h2>
+            <ul className="list-disc list-inside mb-6">
+              <li>Access to premium features</li>
+              <li>Priority support</li>
+              <li>More storage for your workspaces</li>
+              <li>Collaborate with more team members</li>
+              <li>Advanced analytics and insights</li>
+            </ul>
+            <GoProButton
+              className="w-full"
+              userEmail={currentUserEmail!}
+              userId={currentUserUid!}
+              subscriptionStatus={subscriptionStatus}
+            />
+            <Button
+              onClick={() => setShowGoProModal(false)}
+              variant="outline"
+              className="mt-2 ml-2"
+            >
+              Cancel
+            </Button>
           </div>
         </div>
       )}
