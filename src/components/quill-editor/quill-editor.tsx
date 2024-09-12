@@ -180,6 +180,21 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     };
   }, [quill, socket, fileId, details]);
 
+  
+  useEffect(() => {
+    if (quill === null || socket === null || fileId === null) return;
+
+    const handler = (delta: any) => {
+      quill.updateContents(delta);
+    };
+
+    socket.on(`receive-changes-${fileId}`, handler);
+
+    return () => {
+      socket.off(`receive-changes-${fileId}`, handler);
+    };
+  }, [quill, socket, fileId]);
+
   if (!details) {
     return <div>Loading editor...</div>; // Handle case when details are not ready
   }
