@@ -22,20 +22,33 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance = new (ClientIO as any)(
-      process.env.NEXT_PUBLIC_SITE_URL!,
-      {
-        path: '/api/socket/io',
-        addTrailingSlash: false,
-        secure: true,
-      }
-    );
+    const socketUrl = typeof window !== 'undefined' 
+      ? `${window.location.protocol}//${window.location.host}`
+      : process.env.NEXT_PUBLIC_SITE_URL;
+
+    // Ensure the URL is using HTTPS
+    const secureSocketUrl = socketUrl?.replace('http://', 'https://');
+
+    const socketInstance = new (ClientIO as any)(secureSocketUrl, {
+      path: '/api/socket/io',
+      addTrailingSlash: false,
+      secure: true,
+      rejectUnauthorized: false, // Only for development
+      transports: ['websocket'],
+    });
+
     socketInstance.on('connect', () => {
+      console.log('Socket connected');
       setIsConnected(true);
     });
 
     socketInstance.on('disconnect', () => {
+      console.log('Socket disconnected');
       setIsConnected(false);
+    });
+
+    socketInstance.on('connect_error', (error: Error) => {
+      console.error('Socket connection error:', error);
     });
 
     setSocket(socketInstance);
