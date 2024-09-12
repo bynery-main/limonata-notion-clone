@@ -120,7 +120,7 @@ const SettingsPage = () => {
         </motion.h1>
 
         <motion.div 
-          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+          className="bg-white shadow-lg rounded-lg p-6 space-y-2"
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.4 }}
