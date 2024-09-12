@@ -37,6 +37,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const details = useMemo(() => {
     if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
@@ -78,7 +79,9 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       });
       setQuill(q);
 
-      q.on("text-change", async () => {
+      q.on("text-change", async (delta, oldDelta, source) => {
+        if (source !== "user" || !isInitialized) return;
+
         const text = q.root.innerHTML;
         console.log("Text change detected:", text);
 
@@ -124,8 +127,10 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         const fileData = fileDoc.data();
         quill.root.innerHTML = fileData.text || "";
         console.log("Fetched document data:", fileData);
+        setIsInitialized(true);
       } else {
         console.log("No such document!");
+        setIsInitialized(true);
       }
     };
 
@@ -147,7 +152,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
 
   // Send changes
   useEffect(() => {
-    if (quill === null || socket === null || fileId === null || !details) return;
+    if (quill === null || socket === null || fileId === null || !details || !isInitialized) return;
 
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
       if (source !== "user") return;
@@ -185,7 +190,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       quill.off("text-change", quillHandler);
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [quill, socket, fileId, details]);
+  }, [quill, socket, fileId, details, isInitialized]);
 
   // Receive changes
   useEffect(() => {
