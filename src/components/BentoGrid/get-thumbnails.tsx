@@ -10,12 +10,6 @@ interface FileThumbnailProps {
 
 const WaveformIcon = () => (
   <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="waveformGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#C66EC5" />
-        <stop offset="100%" stopColor="#FC608D" />
-      </linearGradient>
-    </defs>
     {[...Array(25)].map((_, i) => {
       const height = Math.random() * 58 + 2;
       return (
@@ -25,7 +19,8 @@ const WaveformIcon = () => (
           y={(60 - height) / 2}
           width="2"
           height={height}
-          fill="url(#waveformGradient)"
+          fill="#FC608D"
+          opacity="0.6"
         />
       );
     })}

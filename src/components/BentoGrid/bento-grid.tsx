@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
+import { FolderIcon, FoldersIcon, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { cn } from "@/lib/utils";
@@ -127,16 +127,20 @@ export const BentoGrid = ({
       unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     };
   }, [workspaceId, folderId]);
+
   const getItemClass = (index: number) => {
     // This pattern repeats every 8 items
-    switch (index % 8) {
-      case 0: // First item in the pattern
-      case 7: // Last item in the pattern
+    switch (index % 9) {
+      case 0: // 1st item
+      case 3: // 4th item
+      case 7: // 8th item
         return "col-span-2";
       default:
         return "";
     }
   };
+
+
 
   return (
     <div className={cn("grid grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
@@ -148,7 +152,7 @@ export const BentoGrid = ({
           fileId={item.id}
           title={item.name}
           header={<FileThumbnail fileName={item.name} fileUrl={item.url} />}
-          description={`In Folder: ${folderNames[item.folderId || ''] || 'Unknown'}`}
+          description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
           href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
           type={item.type}
           className={getItemClass(index)}
@@ -313,6 +317,7 @@ export const BentoGridItem = ({
           {title}
         </h3>
         <p className="text-sm text-gray-500 overflow-hidden text-ellipsis">
+          <FoldersIcon className="h-3 w-3 inline mr-1" />
           {description}
         </p>
       </div>
@@ -331,7 +336,7 @@ export const BentoGridItem = ({
             }}
           />
           {dropdownVisible && (
-            <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+            <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-100">
               <div className="p-2">
                 <input
                   type="text"
