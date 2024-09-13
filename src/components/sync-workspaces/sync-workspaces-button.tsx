@@ -5,7 +5,6 @@ import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import { useAuth } from '../auth-provider/AuthProvider';
-import CostButton from '../ai-tools/cost-button';
 
 interface SyncWorkspaceButtonProps {
     workspaceId: string;
@@ -36,14 +35,19 @@ const AnimatedButton = styled(motion.button)`
     border-radius: 0.375rem;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
     
     &:hover {
         opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     &:disabled {
         opacity: 0.7;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
     }
 `;
 
@@ -124,19 +128,17 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
                         tap: { scale: 0.95 }
                     }}
                 >
-           
-                {isLoading ? (
-                <Loader2 className="animate-spin" />
-                ) : (
-                <div className="flex items-center">
-                    <StarsIcon
-                    className={`w-5 h-5 mr-2 transition-transform duration-300 ${isHovered ? "rotate-180" : ""}`}
-                    />
-                    <span className="whitespace-nowrap">{creditCost.toString()} credits</span>
-                </div>
-                )}
-            </motion.div>
-               
+                    {isLoading ? (
+                        <Loader2 className="animate-spin" />
+                    ) : (
+                        <div className="flex items-center">
+                            <StarsIcon
+                                className={`w-5 h-5 mr-2 transition-transform duration-300 ${isHovered ? "rotate-180" : ""}`}
+                            />
+                            <span className="whitespace-nowrap">{creditCost.toString()} credits</span>
+                        </div>
+                    )}
+                </motion.div>
             </AnimatedButton>
 
             {showCreditModal && (

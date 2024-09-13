@@ -302,12 +302,28 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
                   }
                 }}
               />
-              <Button
+                <Button
                 onClick={handleSend}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
               >
-                <ArrowUpIcon className="h-4 w-4" />
-                <CostButton cost={creditCost.toString()} className='hidden hover:visible'/>
+                <motion.div className="relative" whileHover="hover">
+                  <motion.div
+                    variants={{
+                      hover: { x: -20, opacity: 0 }
+                    }}
+                  >
+                    <ArrowUpIcon className="h-4 w-4" />
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ x: 20, opacity: 0 }}
+                    variants={{
+                      hover: { x: 0, opacity: 1 }
+                    }}
+                  >
+                    5
+                  </motion.div>
+                </motion.div>
               </Button>
             </div>
           </div>
