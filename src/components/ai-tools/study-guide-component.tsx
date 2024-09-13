@@ -12,6 +12,9 @@ import reacttoast from 'react-hot-toast';
 import { useRouter } from 'next/navigation'
 import FancyText from '@carefully-coded/react-text-gradient';
 import { title } from "process";
+import CostButton from "./cost-button";
+import { motion } from "framer-motion";
+import { Loader, Loader2 } from "lucide-react";
 
 interface StudyGuideComponentProps {
   onClose: () => void;
@@ -63,9 +66,9 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       // Filter files by allowed extensions
       const filteredFiles = matchingFileFolder
         ? matchingFileFolder.notes.filter(file => {
-            const extension = file.name.split('.').pop()?.toLowerCase();
-            return allowedFileExtensions.includes(extension || '');
-          })
+          const extension = file.name.split('.').pop()?.toLowerCase();
+          return allowedFileExtensions.includes(extension || '');
+        })
         : [];
 
       return {
@@ -174,7 +177,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       // Redirect to dashboard/workspaceid after a short delay
       setTimeout(() => {
         router.push(`/dashboard/${workspaceId}`);
-            });
+      });
 
     } catch (error) {
       console.error("Error creating study guides:", error);
@@ -214,14 +217,14 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     const docExtensions = ['doc', 'docx'];
     const audioExtensions = ['mp3', 'wav', 'ogg'];
     const videoExtensions = ['mp4', 'avi', 'mov'];
-  
+
     if (pdfExtensions.includes(extension)) return "📕";
     if (docExtensions.includes(extension)) return "📘";
     if (audioExtensions.includes(extension)) return "🎵";
     if (videoExtensions.includes(extension)) return "🎥";
     return "📝";
   };
-  
+
 
   const toggleNoteSelection = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
     setSelectedNoteIds(prev => {
@@ -233,7 +236,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       }
       return newSet;
     });
-    
+
     if (isChecked) {
       setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
     } else {
@@ -245,20 +248,20 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
-            <FancyText 
-              gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
+            <FancyText
+              gradient={{ from: '#FE7EF4', to: '#F6B144' }}
               className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
             >
               Create Study Guides
             </FancyText>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
             >
               &times;
             </button>
           </div>
-          
+
           <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -272,7 +275,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                   {folder.notes.map((note) => {
                     const emoji = getFileEmoji(note.name);
                     const isSelected = selectedNoteIds.has(note.id);
-                    
+
                     return (
                       <li key={note.id} className="flex items-start">
                         <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
@@ -290,9 +293,8 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                             className="z-10"
                           />
                           <span
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
-                              isSelected ? 'opacity-0' : 'opacity-100'
-                            }`}
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
+                              }`}
                           >
                             {emoji}
                           </span>
@@ -312,35 +314,55 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
           </div>
 
           <div className="mt-4 flex justify-center">
-          <div className={`${
-            selectedNotes.length > 0
-              ? 'p-[1px] relative'
-              : 'p-[1px] relative cursor-not-allowed'
-          }`}>
-            <button
-              onClick={handleCreateStudyGuides}
-              className="p-[1px] relative"
-              title={
-                selectedNotes.length > 0
-                  ? ''
-                  : 'Click on a note first to create Study Guides'
-              }
-              disabled={loading || selectedNotes.length === 0}
-            >
-              
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                <span className="font-bold">
-                  {loading ? "Creating..." : "Create Study Guides"}
-                </span>
-              </div>
-            </button>
+            <div className={`${selectedNotes.length > 0
+                ? 'p-[1px] relative'
+                : 'p-[1px] relative cursor-not-allowed'
+              }`}>
+                  <Button
+      onClick={handleCreateStudyGuides}
+      className="p-[1px] relative"
+      title={
+        selectedNotes.length > 0
+          ? ''
+          : 'Click on a note first to create Study Guide'
+      }
+      disabled={loading || selectedNotes.length === 0}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+        <motion.div
+          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
+          whileHover="hover"
+          whileTap="tap"
+        >
+          <motion.span
+            className="font-bold inline-block"
+            variants={{
+              hover: { x: -20, opacity: 0 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? "Creating..." : "Create Study Guides"}
+          </motion.span>
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ x: 20, opacity: 0 }}
+            variants={{
+              hover: { x: 0, opacity: 1 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="whitespace-nowrap">20 Credits</span>
+            )}
+          </motion.div>
+          
+        </motion.div>
+      </Button>
+            </div>
           </div>
-          
-        </div>
- 
 
-          
           {studyGuides.length > 0 && (
             <div className="mt-6">
               <h3 className="text-xl font-semibold mb-2">Generated Study Guide</h3>

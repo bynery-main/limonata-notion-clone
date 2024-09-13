@@ -25,6 +25,8 @@ import { Toast, useToast } from "@chakra-ui/react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import NoCreditsModal from "@/components/subscribe/no-credits-modal";
 import AnimatedButton from "@/components/animated-button/animated-button";
+import CostButton from "@/components/ai-tools/cost-button";
+import { motion } from "framer-motion";
 
 const AutoResizingTextArea: React.FC<AutoResizingTextAreaProps> = ({
   value,
@@ -452,20 +454,37 @@ const QuizzesPage = () => {
             </div>
           ))}
           <div className="flex gap-4 items-center justify-center font-bold">
-            <AnimatedButton
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200"
-              disabled={loading}
-            >
-              {loading ? (
-                "Submitting..."
-              ) : (
-                <div className="flex items-center">
-                  <CheckIcon className="mr-2" />
-                  Submit Answers
-                </div>
-              )}
-            </AnimatedButton>
+          <AnimatedButton
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200"
+            disabled={loading}
+          >
+            <motion.div className="relative" whileHover="hover">
+              <motion.div
+                variants={{
+                  hover: { y: -30, opacity: 0 }
+                }}
+              >
+                {loading ? (
+                  "Submitting..."
+                ) : (
+                  <div className="flex items-center">
+                    <CheckIcon className="mr-2" />
+                    Submit Answers
+                  </div>
+                )}
+              </motion.div>
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ y: 30, opacity: 0 }}
+                variants={{
+                  hover: { y: 0, opacity: 1 }
+                }}
+              >
+                {creditCost} credits
+              </motion.div>
+            </motion.div>
+          </AnimatedButton>
             <button
               onClick={handleEvaluationHistoryClick}
               className="px-4 py-2 bg-transparent text-sm text-gray outline rounded-xl hover:bg-gray-400 hover:text-white transition-colors duration-200"

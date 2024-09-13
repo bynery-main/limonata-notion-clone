@@ -6,6 +6,7 @@ import {
   UserPlusIcon,
   UsersIcon,
   CreditCard,
+  LogOut,
 } from "lucide-react";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
@@ -27,6 +28,9 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
+import { motion } from "framer-motion";
+import { Progress } from "@chakra-ui/react";
+import { set } from "zod";
 
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
@@ -51,7 +55,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-
+  const showProgressBar = tier === "free" || subscriptionStatus === "active_pending_cancellation";
+  const [maxCredits, setMaxCredits] = useState<number>(100); // Assuming a default max of 100 credits per day
+  const progressValue = credits !== null ? (credits / maxCredits) * 100 : 0;
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
     string | null
   >(null);
@@ -235,7 +241,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         const userData = docSnapshot.data();
         setCredits(userData?.credits || 0);
         setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
-        setTier(userData?.tier || "free"); // Update the state with the tier
+        setTier(userData?.tier || "free");
       }
     });
 
@@ -249,6 +255,28 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       alert("Please select a workspace first");
     }
   };
+
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setCredits(userData?.credits || 0);
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free");
+        setMaxCredits(userData?.tier === "pro" ? 1000 : 100);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
+
+
+
+
 
   return (
     <>
@@ -265,28 +293,72 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             <div className="absolute top-full left-0 mt-2 z-20">
               <Picker onEmojiSelect={handleEmojiSelect} />
             </div>
-          )}
+          )
+          }
           <span className="sr-only">Limonata</span>
-
-          <div className="ml-auto flex items-center space-x-2">
-            <CreditCard className="w-6 h-6 text-blue-500" />
-            <span>{credits}</span>
-          </div>
         </div>
 
         <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
 
-        {(tier === "free" || subscriptionStatus === "active_pending_cancellation") && (
-          <Button
-            onClick={() => setShowGoProModal(true)}
-            className="mx-4 mt-4 shadow-lg"
-          >
-            {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
-          </Button>
-        )}
-        
 
-        
+
+        {tier === "free" && (
+          <>
+            <Button
+              onClick={() => setShowGoProModal(true)}
+              className="mx-4 mt-4 shadow-lg"
+            >
+              Go Pro
+            </Button>
+            <div className="mx-4 mt-2">
+              <motion.div
+                className="bg-gray-200 rounded-full overflow-hidden"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+              >
+                <motion.div
+                  className="h-1 bg-gray-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressValue}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </motion.div>
+              <p className="text-xs text-center mt-1 text-gray-400">
+                {credits} / 100 credits remaining
+              </p>
+            </div>
+          </>
+        )}
+
+        {tier === "pro" && (
+          <>
+            {subscriptionStatus === "active_pending_cancellation" && (
+              <Button
+                onClick={() => setShowGoProModal(true)}
+                className="mx-4 mt-4 shadow-lg"
+              >
+                Resubscribe
+              </Button>
+            )}
+            <div className="mx-4 mt-2">
+              <motion.div
+                className="bg-gray-200 rounded-full overflow-hidden"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+              >
+                <motion.div
+                  className="h-1 bg-gray-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressValue}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </motion.div>
+              <p className="text-xs text-center mt-1 text-gray-400">
+                {credits} / 1000 credits remaining
+              </p>
+            </div>
+          </>
+        )}        
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
             AI Study Resources
@@ -369,10 +441,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               userId={currentUserUid!}
               subscriptionStatus={subscriptionStatus}
             />
-            <Button
+                        <Button
               onClick={() => setShowGoProModal(false)}
               variant="outline"
               className="mt-2 ml-2"
+
             >
               Cancel
             </Button>

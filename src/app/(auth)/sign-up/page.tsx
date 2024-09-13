@@ -1,5 +1,4 @@
-'use client';
-
+"use client";
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from "../../../firebase/firebaseConfig";
@@ -8,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import FancyText from "@carefully-coded/react-text-gradient";
 
 const SignUpFormSchema = z
   .object({
@@ -50,26 +50,16 @@ const StyledSignUpPage = () => {
   const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   
-    // Validation checks
-    if (!email) {
-      toast.error('Please provide a valid email address.');
-      return;
-    }
-    if (!password) {
-      toast.error('Please provide a password.');
-      return; 
-    }
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match.');
-      return;
-    }
-  
-    // Attempt to create user with email and password
     try {
+      const result = SignUpFormSchema.safeParse({ email, password, confirmPassword });
+      
+      if (!result.success) {
+        result.error.issues.forEach((issue) => {
+          toast.error(issue.message);
+        });
+        return;
+      }
+  
       const userCredential: UserCredential | undefined = await createUserWithEmailAndPassword(email, password);
       if (!userCredential) {
         toast.error('Failed to create user.');
@@ -95,96 +85,84 @@ const StyledSignUpPage = () => {
   };
 
   return (
-    <div className="bg-white flex flex-row justify-center w-full">
-      <div className="bg-white w-[1440px] h-[810px]">
-        <div className="flex flex-col w-[1440px] h-[810px] items-start px-[35px] py-0 relative">
-          <div className="relative w-[1370px] h-[810px] bg-[#f6f8fa] overflow-hidden">
-            <div className="relative w-[1426px] h-[810px] left-[-31px]">
-              <div className="flex w-[1426px] h-[810px] items-start justify-center absolute top-0 left-0">
-                <div className="relative w-[754px] h-[740px] bg-[#f6f8fa] overflow-hidden">
-                  <div className="flex flex-col w-[654px] h-[740.4px] items-center justify-center pl-[140.42px] pr-[140.55px] py-0 relative top-[50px] left-[50px]">
-                    <div className="inline-flex flex-col h-[510px] items-center justify-center px-0 py-[45.7px] relative">
-                      <div className="inline-flex flex-col max-w-[400px] items-start pt-0 pb-5 px-0 relative flex-[0_0_auto]">
-                        <div className="inline-flex flex-col max-w-[400px] items-center relative flex-[0_0_auto]">
-                          <div className="relative w-fit mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[66.2px] text-center tracking-[-4.00px] leading-[80px]">
-                            Create a new<br />account
-                          </div>
-                        </div>
-                      </div>
-                      <form onSubmit={handleSignUp} className="flex flex-col items-center w-full">
-                        <input
-                          type="email"
-                          placeholder="Email"
-                          value={email}
-                          onChange={handleEmailChange}
-                          className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
-                        />
-                        <div className="w-full relative">
-                          <input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Password"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
-                          />
-                          <button
-                            type="button"
-                            onClick={togglePasswordVisibility}
-                            className="absolute right-4 top-4"
-                          >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
-                          </button>
-                        </div>
-                        <div className="w-full relative">
-                          <input
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={handleConfirmPasswordChange}
-                            className="w-full p-3 mb-4 bg-white rounded-[25px] outline-none text-black placeholder-gray-500 shadow-[5px_5px_10px_#0000001a]"
-                          />
-                          <button
-                            type="button"
-                            onClick={toggleConfirmPasswordVisibility}
-                            className="absolute right-4 top-4"
-                          >
-                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                          </button>
-                        </div>
-                        {/* Sign up for email implement later */}
-                        {/* <button
-                          type="submit"
-                          className="w-full p-3 bg-[#ff5924] rounded-[25px] text-white hover:bg-[#ff7a4c] shadow-[5px_5px_10px_#0000001a] mb-4"
-                        >
-                          Sign Up
-                        </button> */}
-                      </form>
-                      <div className="flex flex-col items-center w-full">
-                        <p className="text-lg mb-4">
-                          Already have an account?{' '}
-                          <a href="/login" className="text-[#ff5924] underline cursor-pointer">
-                            Sign In
-                          </a>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="inline-flex flex-col items-start pt-5 pb-0 px-0 relative flex-[0_0_auto]">
-                      <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
-                        <p className="relative w-fit mt-[-1.00px] [font-family:'Nunito-Light',Helvetica] font-light text-black text-lg text-center tracking-[0] leading-[30px] whitespace-nowrap">
-                          <span className="underline cursor-pointer">Terms of Use</span>
-                          <span className="[font-family:'Nunito-Light',Helvetica] font-light text-black text-lg tracking-[0] leading-[30px]">
-                            {" "}
-                            |{" "}
-                          </span>
-                          <span className="underline cursor-pointer">Privacy Policy</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+        <div className="text-center mb-8">
+        <FancyText
+            gradient={{ from: '#FE7EF4', to: '#F6B144' }}
+            className="text-4xl font-bold mb-2"
+          >
+            Create Account
+          </FancyText>
+          <p className="text-gray-600">Join Limonata today</p>
+        </div>
+
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={handleEmailChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F7B64F]"
+            />
           </div>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={handlePasswordChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C66EC5]"
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C66EC5]"
+            />
+            <button
+              type="button"
+              onClick={toggleConfirmPasswordVisibility}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-[#C66EC5] to-[#FC608D] text-white py-2 rounded-md hover:from-purple-700 hover:to-pink-700 transition duration-300"
+          >
+            Sign Up
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <span
+            onClick={() => router.push("/login")}
+            className="font-medium text-purple-600 hover:text-purple-500 cursor-pointer"
+          >
+            Sign In
+          </span>
+        </p>
+
+        <div className="mt-6 text-center text-xs text-gray-500">
+          <span className="cursor-pointer hover:underline">Terms of Use</span>
+          {" | "}
+          <span className="cursor-pointer hover:underline" onClick={() => router.push("/privacy-policy/privacy-policy.pdf")}>
+
+            Privacy Policy</span>
         </div>
       </div>
     </div>

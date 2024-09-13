@@ -3,11 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app, db } from "@/firebase/firebaseConfig"; 
+import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { Checkbox, useToast } from "@chakra-ui/react";
+import { Button, Checkbox, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
+import CostButton from "./cost-button";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 interface QuizzesComponentProps {
   onClose: () => void;
@@ -36,7 +39,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     name: string;
     type: 'note' | 'file';
   }
-  
+
   interface Folder {
     folderId: string;
     folderName: string;
@@ -64,9 +67,9 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       // Filter files by allowed extensions
       const filteredFiles = matchingFileFolder
         ? matchingFileFolder.notes.filter(file => {
-            const extension = file.name.split('.').pop()?.toLowerCase();
-            return allowedFileExtensions.includes(extension || '');
-          })
+          const extension = file.name.split('.').pop()?.toLowerCase();
+          return allowedFileExtensions.includes(extension || '');
+        })
         : [];
 
       return {
@@ -86,20 +89,20 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     const docExtensions = ['doc', 'docx'];
     const audioExtensions = ['mp3', 'wav', 'ogg'];
     const videoExtensions = ['mp4', 'avi', 'mov'];
-  
+
     if (pdfExtensions.includes(extension)) return "📕";
     if (docExtensions.includes(extension)) return "📘";
     if (audioExtensions.includes(extension)) return "🎵";
     if (videoExtensions.includes(extension)) return "🎥";
     return "📝";
   };
-  
+
   const handleCreateQuizzes = async () => {
     const functions = getFunctions(app);
     const createQuizzes = httpsCallable(functions, "quizGenAgent");
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
-  
+
     setLoading(true);
     try {
       // First, attempt to use credits
@@ -130,23 +133,23 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       console.log("Payload being passed to quizGenAgent:", payload);
       const result = await createQuizzes(payload);
       console.log("Quizzes created successfully:", result.data);
-  
+
       const data = result.data as { answer: string };
       const raw = data.answer || "";
-  
+
       console.log("Raw data received from cloud function:", raw);
-  
+
       const parsedQuizzes = parseRawDataToQuizzes(raw);
       setQuizzes(parsedQuizzes);
-  
+
       const nameGenerationResult = await generateName({ content: raw });
       const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
-  
+
       console.log("Generated name for quiz set:", generatedName);
-  
+
       const quizSetsCollectionRef = collection(db, "workspaces", workspaceId, "quizSets");
       const quizSetDocRef = await addDoc(quizSetsCollectionRef, { name: generatedName, notes: selectedNotes });
-  
+
       const quizzesCollectionRef = collection(quizSetDocRef, "quizzes");
       for (const quiz of parsedQuizzes) {
         await addDoc(quizzesCollectionRef, { question: quiz.question });
@@ -172,9 +175,9 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       setLoading(false);
     }
   };
-  
+
   const parseRawDataToQuizzes = (rawData: string): Quiz[] => {
-    console.log("Data received by parser:", rawData); 
+    console.log("Data received by parser:", rawData);
     const quizzes: Quiz[] = [];
     const quizRegex = /Question \d+: ([\s\S]+?)(?=\nQuestion \d+:|$)/g;
     let match;
@@ -182,7 +185,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       quizzes.push({ id: '', question: match[1].trim() });
     }
 
-    console.log("Quizzes parsed:", quizzes); 
+    console.log("Quizzes parsed:", quizzes);
     return quizzes;
   };
 
@@ -195,7 +198,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       try {
         const quizzesCollectionRef = collection(db, "workspaces", workspaceId, "quizSets", "quizzes");
         const quizDocRef = await addDoc(quizzesCollectionRef, { question: newQuestion });
-        
+
         setQuizzes([...quizzes, { id: quizDocRef.id, question: newQuestion }]);
         setNewQuestion("");
         setIsAddPopupOpen(false);
@@ -231,7 +234,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       }
       return newSet;
     });
-    
+
     if (isChecked) {
       setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
     } else {
@@ -243,20 +246,20 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
-            <FancyText 
-              gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
+            <FancyText
+              gradient={{ from: '#FE7EF4', to: '#F6B144' }}
               className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
             >
               Create Quizzes
             </FancyText>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
             >
               &times;
             </button>
           </div>
-          
+
           <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -270,7 +273,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
                   {folder.notes.map((note) => {
                     const emoji = getFileEmoji(note.name);
                     const isSelected = selectedNoteIds.has(note.id);
-                    
+
                     return (
                       <li key={note.id} className="flex items-start">
                         <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
@@ -288,9 +291,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
                             className="z-10"
                           />
                           <span
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
-                              isSelected ? 'opacity-0' : 'opacity-100'
-                            }`}
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
+                              }`}
                           >
                             {emoji}
                           </span>
@@ -310,33 +312,55 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
           </div>
 
           <div className="mt-4 flex justify-center">
-          <div className={`${
-            selectedNotes.length > 0
+            <div className={`${selectedNotes.length > 0
               ? 'p-[1px] relative'
               : 'p-[1px] relative cursor-not-allowed'
-          }`}>
-            <button
-              onClick={handleCreateQuizzes}
-              className="p-[1px] relative"
-              title={
-                selectedNotes.length > 0
-                  ? ''
-                  : 'Click on a note first to create quiz'
-              }
-              disabled={loading || selectedNotes.length === 0}
-            >
-              
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                <span className="font-bold">
-                  {loading ? "Creating..." : "Create Quiz"}
-                </span>
-              </div>
-            </button>
-          </div>
+              }`}>
+                  <Button
+      onClick={handleCreateQuizzes}
+      className="p-[1px] relative"
+      title={
+        selectedNotes.length > 0
+          ? ''
+          : 'Click on a note first to create quiz'
+      }
+      disabled={loading || selectedNotes.length === 0}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+        <motion.div
+          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
+          whileHover="hover"
+          whileTap="tap"
+        >
+          <motion.span
+            className="font-bold inline-block"
+            variants={{
+              hover: { x: -20, opacity: 0 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? "Creating..." : "Create Quiz"}
+          </motion.span>
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ x: 20, opacity: 0 }}
+            variants={{
+              hover: { x: 0, opacity: 1 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="whitespace-nowrap">10 Credits</span>
+            )}
+          </motion.div>
           
-        </div>
-      {/*  
+        </motion.div>
+      </Button>
+            </div>
+          </div>
+          {/*  
       PREVIEW STUDY GUIDE
       {quizzes.length > 0 && (
           <div className="mt-4">
@@ -351,8 +375,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
             </ul>
           </div>
         )} */}
-          </div>
         </div>
+      </div>
 
       {isAddPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

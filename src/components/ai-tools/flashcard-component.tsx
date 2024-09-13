@@ -6,11 +6,13 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards";
-import { StarsIcon } from "lucide-react";
+import { BookOpen, Loader2, StarsIcon } from "lucide-react";
 import { Checkbox } from "@chakra-ui/checkbox";
-import { useToast } from "@chakra-ui/react";
+import { Button, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
+import CostButton from "./cost-button";
+import { motion } from "framer-motion";
 
 interface FlashcardComponentProps {
   onClose: () => void;
@@ -73,9 +75,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       // Filter files by allowed extensions
       const filteredFiles = matchingFileFolder
         ? matchingFileFolder.notes.filter(file => {
-            const extension = file.name.split('.').pop()?.toLowerCase();
-            return allowedFileExtensions.includes(extension || '');
-          })
+          const extension = file.name.split('.').pop()?.toLowerCase();
+          return allowedFileExtensions.includes(extension || '');
+        })
         : [];
 
       return {
@@ -187,14 +189,14 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
     const docExtensions = ['doc', 'docx'];
     const audioExtensions = ['mp3', 'wav', 'ogg'];
     const videoExtensions = ['mp4', 'avi', 'mov'];
-  
+
     if (pdfExtensions.includes(extension)) return "📕";
     if (docExtensions.includes(extension)) return "📘";
     if (audioExtensions.includes(extension)) return "🎵";
     if (videoExtensions.includes(extension)) return "🎥";
     return "📝";
   };
-  
+
 
   const toggleNoteSelection = (folderId: string, noteId: string, isChecked: boolean, type: 'note' | 'file') => {
     setSelectedNoteIds(prev => {
@@ -206,7 +208,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       }
       return newSet;
     });
-    
+
     if (isChecked) {
       setSelectedNotes([...selectedNotes, { folderId, noteId, type }]);
     } else {
@@ -218,20 +220,20 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
-            <FancyText 
-              gradient={{ from: '#FE7EF4', to: '#F6B144' }} 
+            <FancyText
+              gradient={{ from: '#FE7EF4', to: '#F6B144' }}
               className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
             >
               Create Flashcards
             </FancyText>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
             >
               &times;
             </button>
           </div>
-          
+
           <p className="text-center mb-4">Click on the notes and transcripts you would like to use</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -245,7 +247,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                   {folder.notes.map((note) => {
                     const emoji = getFileEmoji(note.name);
                     const isSelected = selectedNoteIds.has(note.id);
-                    
+
                     return (
                       <li key={note.id} className="flex items-start">
                         <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
@@ -263,9 +265,8 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                             className="z-10"
                           />
                           <span
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
-                              isSelected ? 'opacity-0' : 'opacity-100'
-                            }`}
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
+                              }`}
                           >
                             {emoji}
                           </span>
@@ -285,32 +286,54 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
           </div>
 
           <div className="mt-4 flex justify-center">
-          <div className={`${
-            selectedNotes.length > 0
-              ? 'p-[1px] relative'
-              : 'p-[1px] relative cursor-not-allowed'
-          }`}>
-            <button
-              onClick={handleCreateFlashcards}
-              className="p-[1px] relative"
-              title={
-                selectedNotes.length > 0
-                  ? ''
-                  : 'Click on a note first to create Flashcards'
-              }
-              disabled={loading || selectedNotes.length === 0}
-            >
-              
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                <span className="font-bold">
-                  {loading ? "Creating..." : "Create Flashcards"}
-                </span>
-              </div>
-            </button>
-          </div>
+            <div className={`${selectedNotes.length > 0
+                ? 'p-[1px] relative'
+                : 'p-[1px] relative cursor-not-allowed'
+              }`}>
+                  <Button
+      onClick={handleCreateFlashcards}
+      className="p-[1px] relative"
+      title={
+        selectedNotes.length > 0
+          ? ''
+          : 'Click on a note first to create Flashcards'
+      }
+      disabled={loading || selectedNotes.length === 0}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+        <motion.div
+          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
+          whileHover="hover"
+          whileTap="tap"
+        >
+          <motion.span
+            className="font-bold inline-block"
+            variants={{
+              hover: { x: -20, opacity: 0 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? "Creating..." : "Create Flashcards"}
+          </motion.span>
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ x: 20, opacity: 0 }}
+            variants={{
+              hover: { x: 0, opacity: 1 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="whitespace-nowrap">20 Credits</span>
+            )}
+          </motion.div>
           
-        </div>
+        </motion.div>
+      </Button>
+            </div>
+          </div>
           {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
         </div>
       </div>

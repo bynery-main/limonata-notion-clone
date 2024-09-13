@@ -13,6 +13,8 @@ import { useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import { motion, AnimatePresence } from "framer-motion";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
+import CostButton from "../ai-tools/cost-button";
+import ChatButton from "./chat-button";
 
 interface ChatComponentProps {
   workspaceId: string;
@@ -301,35 +303,37 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
                   }
                 }}
               />
-              <Button
+                <Button
                 onClick={handleSend}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
               >
-                <ArrowUpIcon className="h-4 w-4" />
-                <span className="sr-only">Send</span>
+                <motion.div className="relative" whileHover="hover">
+                  <motion.div
+                    variants={{
+                      hover: { x: -20, opacity: 0 }
+                    }}
+                  >
+                    <ArrowUpIcon className="h-4 w-4" />
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ x: 20, opacity: 0 }}
+                    variants={{
+                      hover: { x: 0, opacity: 1 }
+                    }}
+                  >
+                    {creditCost}
+                  </motion.div>
+                </motion.div>
               </Button>
             </div>
           </div>
         </div>
       </motion.div>
-    ) : (
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="fixed bottom-4 right-4 z-50"
-      >
-        <Button
-          className="rounded-full w-12 h-12 flex items-center justify-center bg-primary text-primary-foreground"
-          onClick={toggleChat}
-        >
-          <ChatIcon className="h-6 w-6" />
-          <span className="sr-only">Open Chat</span>
-        </Button>
-      </motion.div>
-    )}
-  </AnimatePresence>
+      ) : (
+        <ChatButton toggleChat={toggleChat} isChatVisible={isChatVisible} />
+      )}
+    </AnimatePresence>
 
   {showCreditModal && (
     <NoCreditsModal
@@ -342,24 +346,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
   );
 };
 
-function ChatIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
-    </svg>
-  );
-}
+
 
 function XIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

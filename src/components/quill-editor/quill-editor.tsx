@@ -37,9 +37,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
+  const [isInitialized, setIsInitialized] = useState(false);
 
-
-  // Check if dirDetails is available and create details safely
   const details = useMemo(() => {
     if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
       return {
@@ -80,8 +79,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       });
       setQuill(q);
 
-      q.on("text-change", async () => {
+      q.on("text-change", async (delta, oldDelta, source) => {
+        if (source !== "user" || !isInitialized) return;
+
         const text = q.root.innerHTML;
+        console.log("Text change detected:", text);
+
         if (details) {
           try {
             const fileDocRef = doc(
@@ -123,9 +126,11 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       if (fileDoc.exists()) {
         const fileData = fileDoc.data();
         quill.root.innerHTML = fileData.text || "";
-        console.log("Document data:", fileData);
+        console.log("Fetched document data:", fileData);
+        setIsInitialized(true);
       } else {
         console.log("No such document!");
+        setIsInitialized(true);
       }
     };
 
@@ -135,21 +140,29 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   // Socket setup
   useEffect(() => {
     if (!socket || !fileId || !details) return;
+
+    console.log("Creating socket room:", fileId);
     socket.emit("create-room", fileId);
+
     return () => {
+      console.log("Leaving socket room:", fileId);
       socket.emit("leave-room", fileId);
     };
   }, [socket, fileId, details]);
 
   // Send changes
   useEffect(() => {
-    if (quill === null || socket === null || fileId === null || !details) return;
+    if (quill === null || socket === null || fileId === null || !details || !isInitialized) return;
 
     const quillHandler = (delta: any, oldDelta: any, source: any) => {
       if (source !== "user") return;
 
+      console.log("Sending changes to socket:", delta);
+      socket.emit("send-changes", delta, fileId);
+
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       setSaving(true);
+
       saveTimerRef.current = setTimeout(async () => {
         try {
           const text = quill.root.innerHTML;
@@ -169,7 +182,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         }
         setSaving(false);
       }, 850);
-      socket.emit("send-changes", delta, fileId);
     };
 
     quill.on("text-change", quillHandler);
@@ -178,18 +190,37 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       quill.off("text-change", quillHandler);
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [quill, socket, fileId, details]);
+  }, [quill, socket, fileId, details, isInitialized]);
+
+  // Receive changes
+  useEffect(() => {
+    if (quill === null || socket === null || fileId === null) return;
+
+    const handler = (delta: any) => {
+      console.log("Receiving changes from socket:", delta);
+      quill.updateContents(delta);
+    };
+
+    socket.on(`receive-changes-${fileId}`, handler);
+
+    return () => {
+      socket.off(`receive-changes-${fileId}`, handler);
+    };
+  }, [quill, socket, fileId]);
 
   if (!details) {
-    return <div>Loading editor...</div>; // Handle case when details are not ready
+    return <div className="w-full h-[calc(100vh-64px)] flex items-center justify-center
+    ">
+      <div className="animate-spin w-10 h-10 border-t-2 border-b-2 border-purple-500 rounded-full mx-5"></div>
+      Loading...</div>;
   }
 
   return (
-    <div className="flex w-full h-full">
-      <div className="w-5/6 min-w-[600px]">
-        <div id="container" className="w-full pl-6 h-[calc(100vh-64px)]" ref={wrapperRef}></div>
+    <div className="flex flex-col md:flex-row w-full h-full">
+      <div className="w-full md:w-3/4 h-[50vh] md:h-full">
+        <div id="container" className="w-full h-full p-4 overflow-hidden" ref={wrapperRef}></div>
       </div>
-      <div className="w-1/6 p-4">
+      <div className="w-full md:w-1/4 h-[50vh] md:h-full p-4 overflow-y-auto">
         {user && <Summarise refString={refString} type="note" userId={user.uid} />}
       </div>
     </div>
