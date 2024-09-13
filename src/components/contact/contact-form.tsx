@@ -4,6 +4,8 @@ import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import FancyText from "@carefully-coded/react-text-gradient";
 import toast from 'react-hot-toast';
+import { FilloutStandardEmbed } from "@fillout/react";
+import "@fillout/react/style.css";
 
 const FirebaseContactForm = () => {
   const [name, setName] = useState('');
@@ -43,8 +45,8 @@ const FirebaseContactForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-        <div className="text-center mb-8">
+      <div className="bg-white p-8 rounded-lg justify-center shadow-2xl w-full max-w-lg  mb-8 w-400 h-auto">
+        <div className="text-center">
           <FancyText
             gradient={{ from: '#FE7EF4', to: '#F6B144' }}
             className="text-4xl font-bold mb-2"
@@ -53,56 +55,23 @@ const FirebaseContactForm = () => {
           </FancyText>
           <p className="text-gray-600">We'd love to hear from you</p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your Name"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
-            />
-          </div>
-          <div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your Email"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C66EC5]"
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Subject"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C66EC5]"
-            />
-          </div>
-          <div>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Your Message"
-              required
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C66EC5] resize-none"
-            ></textarea>
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-[#C66EC5] to-[#FC608D] text-white py-2 rounded-md hover:from-purple-700 hover:to-pink-700 transition duration-300 disabled:opacity-50"
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '50vh', // Full viewport height to center vertically
+          }}
+        >
+          <div
+            style={{
+              width: 400,
+              height: 400,
+            }}
           >
-            {isSubmitting ? 'Sending...' : 'Send Message'}
-          </button>
-        </form>
+            <FilloutStandardEmbed filloutId="wG2BWAgeBdus" />
+          </div>
+        </div>
       </div>
     </div>
   );
