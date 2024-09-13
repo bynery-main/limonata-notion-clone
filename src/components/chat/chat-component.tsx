@@ -321,7 +321,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
                       hover: { x: 0, opacity: 1 }
                     }}
                   >
-                    5
+                    {creditCost}
                   </motion.div>
                 </motion.div>
               </Button>
