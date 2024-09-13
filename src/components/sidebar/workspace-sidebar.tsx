@@ -256,6 +256,28 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (!currentUserUid) return;
+
+    const userDocRef = doc(db, "users", currentUserUid);
+
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        setCredits(userData?.credits || 0);
+        setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
+        setTier(userData?.tier || "free");
+        setMaxCredits(userData?.tier === "pro" ? 1000 : 100);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserUid]);
+
+
+
+
+
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
@@ -280,13 +302,13 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
 
 
-        {(tier === "free") && (
+        {tier === "free" && (
           <>
             <Button
               onClick={() => setShowGoProModal(true)}
               className="mx-4 mt-4 shadow-lg"
             >
-              {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
+              Go Pro
             </Button>
             <div className="mx-4 mt-2">
               <motion.div
@@ -306,38 +328,37 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               </p>
             </div>
           </>
-
         )}
 
-        {(tier === "pro") && (
-          (subscriptionStatus === "active_pending_cancellation") && (
-            <Button
-              onClick={() => setShowGoProModal(true)}
-              className="mx-4 mt-4 shadow-lg"
-            >
-              {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
-            </Button>
-          ))}
-        <>
-          <div className="mx-4 mt-2">
-            <motion.div
-              className="bg-gray-200 rounded-full overflow-hidden"
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-            >
+        {tier === "pro" && (
+          <>
+            {subscriptionStatus === "active_pending_cancellation" && (
+              <Button
+                onClick={() => setShowGoProModal(true)}
+                className="mx-4 mt-4 shadow-lg"
+              >
+                Resubscribe
+              </Button>
+            )}
+            <div className="mx-4 mt-2">
               <motion.div
-                className="h-1 bg-gray-500 rounded-full"
+                className="bg-gray-200 rounded-full overflow-hidden"
                 initial={{ width: 0 }}
-                animate={{ width: `${progressValue}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </motion.div>
-            <p className="text-xs text-center mt-1 text-gray-400">
-              {credits} / 1000 credits remaining
-            </p>
-          </div>
-        </>
-
+                animate={{ width: "100%" }}
+              >
+                <motion.div
+                  className="h-1 bg-gray-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressValue}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </motion.div>
+              <p className="text-xs text-center mt-1 text-gray-400">
+                {credits} / 1000 credits remaining
+              </p>
+            </div>
+          </>
+        )}        
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
             AI Study Resources
