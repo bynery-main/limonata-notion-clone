@@ -154,6 +154,7 @@ const FlashcardsPage = () => {
             autoPlay={false}
             cycle={true}
             width="100%"
+            onCardChange={(index) => setCurrentIndex(index - 1)}
             frontStyle={{ backgroundColor: '#f0f0f0', padding: '20px' }}
             backStyle={{ backgroundColor: '#e0e0e0', padding: '20px' }}
           />
