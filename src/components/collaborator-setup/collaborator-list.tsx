@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { Trash } from 'lucide-react';
@@ -24,9 +24,6 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({
   const [isRemoving, setIsRemoving] = useState(false);
   const [removingEmail, setRemovingEmail] = useState('');
 
-  // Combine collaborators directly in the render, not in state
-  const allCollaborators = [...existingCollaborators, ...newCollaborators];
-
   const removeCollaborator = async (uid: string, email: string) => {
     setIsRemoving(true);
     setRemovingEmail(email);
@@ -34,7 +31,7 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({
     try {
       const result = await removeCollaboratorFunction({ workspaceId, userId: uid });
       console.log(result.data);
-      onRemove(uid); // Call the onRemove prop instead of modifying local state
+      onRemove(uid);
       onCollaboratorRemoved();
       toast.success("Collaborator removed successfully!");
     } catch (error) {
@@ -46,6 +43,20 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({
     }
   };
 
+  const renderCollaborator = (collaborator: { uid: string; email: string }, isNew: boolean) => (
+    <div key={collaborator.uid} className={`flex justify-between items-center ${isNew ? 'text-gray-400' : ''}`}>
+      <span>{collaborator.email}</span>
+      <Button
+        className='bg-transparent text-red-600 hover:text-red-800 hover:bg-transparent'
+        onClick={() => removeCollaborator(collaborator.uid, collaborator.email)}
+        size="sm"
+        disabled={isRemoving}
+      >
+        <Trash size={16} />
+      </Button>
+    </div>
+  );
+
   return (
     <div className="space-y-2">
       {isRemoving && (
@@ -54,19 +65,8 @@ const CollaboratorList: React.FC<CollaboratorListProps> = ({
         </Alert>
       )}
       <h3 className="font-semibold text-black">All Collaborators</h3>
-      {allCollaborators.map(({ uid, email }) => (
-        <div key={uid} className="flex justify-between items-center">
-          <span>{email}</span>
-          <Button
-            className='bg-transparent text-red-600 hover:text-red-800 hover:bg-transparent'
-            onClick={() => removeCollaborator(uid, email)}
-            size="sm"
-            disabled={isRemoving}
-          >
-            <Trash size={16} className='t' />
-          </Button>
-        </div>
-      ))}
+      {existingCollaborators.map(collaborator => renderCollaborator(collaborator, false))}
+      {newCollaborators.map(collaborator => renderCollaborator(collaborator, true))}
     </div>
   );
 };

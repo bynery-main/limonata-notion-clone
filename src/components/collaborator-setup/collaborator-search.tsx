@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { fetchUsers, fetchUserEmailById } from "@/lib/db/users/get-users";
+import { User, fetchUsers, fetchUserEmailById, fetchUserById } from "@/lib/db/users/get-users";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,6 +17,8 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import toast from "react-hot-toast";
+import { Avatar } from "@chakra-ui/react";
+import { AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 interface CollaboratorSearchProps {
   children: React.ReactNode;
   existingCollaborators: string[];
@@ -26,6 +28,7 @@ interface CollaboratorSearchProps {
   style?: React.CSSProperties;
   workspaceId: string;
 }
+
 
 const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   children,
@@ -41,8 +44,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [newCollaborators, setNewCollaborators] = useState<{ uid: string; email: string }[]>([]);
-  const [existingCollaboratorsWithEmail, setExistingCollaboratorsWithEmail] = useState<{ uid: string; email: string }[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
+  const [existingCollaboratorsWithData, setExistingCollaboratorsWithData] = useState<User[]>([]);  const [isSaving, setIsSaving] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
   const functions = getFunctions();
@@ -80,14 +82,14 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   }, [searchQuery, users]);
 
   const fetchExistingCollaborators = async () => {
-    const collaboratorsWithEmails = await Promise.all(
+    const collaboratorsWithData = await Promise.all(
       existingCollaborators.map(async (uid: string) => {
-        const email = await fetchUserEmailById(uid);
-        return { uid, email };
+        return await fetchUserById(uid);
       })
     );
-    setExistingCollaboratorsWithEmail(collaboratorsWithEmails);
+    setExistingCollaboratorsWithData(collaboratorsWithData);
   };
+
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -183,10 +185,11 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
           />
           <ScrollArea className="h-[200px] w-full rounded-md border mb-4">
             {filteredUsers.map((user) => (
-              <div
-                key={user.uid}
-                className="p-4 flex justify-between items-center"
-              >
+              <div className="flex items-center">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={user.photoURL} alt={user.email} />
+                  <AvatarFallback>{user.email[0].toUpperCase()}</AvatarFallback>
+                </Avatar>
                 <div className="text-sm overflow-hidden overflow-ellipsis w-[180px] text-muted-foreground">
                   {user.email}
                 </div>
@@ -212,7 +215,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
           </ScrollArea>
           <CollaboratorList
             workspaceId={workspaceId}
-            existingCollaborators={existingCollaboratorsWithEmail}
+            existingCollaborators={existingCollaboratorsWithData}
             newCollaborators={newCollaborators}
             onRemove={handleRemoveNewCollaborator}
             onCollaboratorRemoved={handleCollaboratorRemoved}
