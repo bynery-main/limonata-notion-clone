@@ -5,6 +5,8 @@ import {
   SettingsIcon,
   UserPlusIcon,
   UsersIcon,
+  CreditCard,
+  LogOut,
 } from "lucide-react";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
@@ -26,8 +28,8 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
-import { Progress } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { Progress } from "@chakra-ui/react";
 import { set } from "zod";
 
 export interface WorkspaceSidebarProps {
@@ -418,10 +420,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               userId={currentUserUid!}
               subscriptionStatus={subscriptionStatus}
             />
-            <Button
+                        <Button
               onClick={() => setShowGoProModal(false)}
               variant="outline"
               className="mt-2 ml-2"
+
             >
               Cancel
             </Button>
