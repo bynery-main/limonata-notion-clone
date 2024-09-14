@@ -142,12 +142,14 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   return (
     <FolderProvider>
-      <main className="flex w-full h-full z-10">
-      <ResponsiveSidebar 
+      <div className="flex h-screen overflow-hidden">
+        <ResponsiveSidebar 
           user={user} 
           workspaceId={params.workspaceId} 
           onFoldersUpdate={updateFoldersData} 
         />
+        <main className="flex-1 overflow-y-auto">
+      
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
           <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
             <div className="w-full mt-8 ">
@@ -180,6 +182,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
         </div>
       </main>
+      </div>
     </FolderProvider>
   );
 };

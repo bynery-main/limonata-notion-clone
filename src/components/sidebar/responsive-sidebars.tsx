@@ -9,10 +9,7 @@ interface Folder {
   name: string;
   contents: any[];
   files: FileData[];
-}
-
-
-interface ResponsiveSidebarProps {
+}interface ResponsiveSidebarProps {
   user: any;
   workspaceId?: string;
   onFoldersUpdate?: (newFoldersData: Folder[]) => void;
@@ -24,6 +21,8 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
 
+  const isDashboardRoot = pathname === '/dashboard';
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768); // Adjust breakpoint as needed
@@ -33,8 +32,6 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const isDashboardRoot = pathname === '/dashboard';
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -47,21 +44,6 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
       console.log('Folders updated:', folders);
     }
   };
-
-  const renderSidebars = () => (
-    <div className={`fixed inset-y-0 left-0 transform ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'} transition-transform duration-200 ease-in-out flex z-30`}>
-      <MainSidebar 
-        user={user}
-        setShowDashboardSetup={setShowDashboardSetup}
-      />
-      {!isDashboardRoot && workspaceId && (
-        <WorkspaceSidebar 
-          params={{ workspaceId: workspaceId }}
-          onFoldersUpdate={handleFoldersUpdate}
-        />
-      )}
-    </div>
-  );
 
   return (
     <>
@@ -76,7 +58,20 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
       )}
 
       {/* Sidebars */}
-      {renderSidebars()}
+      <div className={`h-full ${isMobile ? 'fixed inset-y-0 left-0 z-30' : 'relative'} flex`}>
+        <div className={`flex ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'} transition-transform duration-200 ease-in-out`}>
+          <MainSidebar 
+            user={user}
+            setShowDashboardSetup={setShowDashboardSetup}
+          />
+          {!isDashboardRoot && workspaceId && (
+            <WorkspaceSidebar 
+              params={{ workspaceId: workspaceId }}
+              onFoldersUpdate={handleFoldersUpdate}
+            />
+          )}
+        </div>
+      </div>
 
       {/* Overlay for mobile */}
       {isMobile && isSidebarOpen && (
