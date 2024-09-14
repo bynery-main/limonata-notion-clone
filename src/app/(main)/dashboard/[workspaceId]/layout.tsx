@@ -147,7 +147,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       <main className="flex w-full h-full z-10">
         <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
+          <div className="flex flex-col min-h-40 shrink-0 items-start border-b px-10 pb-8 relative text-xl">
             <div className="w-full mt-8 ">
               <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
             </div>
