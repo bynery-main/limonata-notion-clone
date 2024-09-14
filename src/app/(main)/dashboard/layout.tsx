@@ -1,9 +1,10 @@
 "use client";
 
-import { MainSidebar } from "@/components/sidebar/main-sidebar";
 import React, { useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
+import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
+import { MainSidebar } from "@/components/sidebar/main-sidebar";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <MainSidebar user={user} />
+      <ResponsiveSidebar user={user} />
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

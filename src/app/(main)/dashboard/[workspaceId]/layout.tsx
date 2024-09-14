@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
+import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 
 interface FileData {
   id: string;
@@ -142,7 +143,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   return (
     <FolderProvider>
       <main className="flex w-full h-full z-10">
-        <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
+      <ResponsiveSidebar 
+          user={user} 
+          workspaceId={params.workspaceId} 
+          onFoldersUpdate={updateFoldersData} 
+        />
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
           <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
             <div className="w-full mt-8 ">

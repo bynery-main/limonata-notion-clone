@@ -20,12 +20,14 @@ import { db } from "@/firebase/firebaseConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import WorkspaceIcon from "./workspace-icon";
 import { User } from "firebase/auth";
+import { createPortal } from "react-dom";
 
 interface MainSidebarProps {
   user: User | null;
+  setShowDashboardSetup: (show: boolean) => void;
 }
 
-export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
+export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboardSetup }) => {
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<
     Workspace[]
@@ -143,6 +145,39 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
       setShowSettings(false);
     }
   };
+  const renderDashboardSetupModal = () => {
+    const portalElement = document.getElementById('dashboard-setup-portal');
+    if (!portalElement) return null;
+
+    return createPortal(
+      <AnimatePresence>
+        {showDS && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowDS(false);
+            }}
+          >
+            <motion.div
+              className="bg-white rounded-lg shadow-xl p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <DashboardSetup
+                onCancel={() => setShowDS(false)}
+                onSuccess={() => setShowDS(false)}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>,
+      portalElement
+    );
+  };
 
   return (
     <div className="relative w-[3.5vw] h-screen bg-[#272727] flex flex-col justify-between">
@@ -185,7 +220,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
           className="mt-3 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm"
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
-          onClick={() => setShowDS(true)}
+          onClick={() => setShowDashboardSetup(true)}
         >
           <FaPlus />
         </motion.div>
@@ -237,19 +272,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user }) => {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {showDS && (
-          <motion.div
-            className="absolute top-0 left-0 w-full h-full bg-[#6FA2FF] bg-opacity-50 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <DashboardSetup
-              onCancel={() => setShowDS(false)}
-              onSuccess={() => setShowDS(false)}
-            />
-          </motion.div>
-        )}
+      {renderDashboardSetupModal()}
       </AnimatePresence>
     </div>
   );
