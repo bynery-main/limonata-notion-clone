@@ -9,16 +9,18 @@ import { Button, Checkbox, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
+import { ArrowLeft } from "lucide-react";
 
 interface QuizzesComponentProps {
   onClose: () => void;
   workspaceId: string;
   userId: string;
+  onBack: () => void;
 }
 
 const allowedFileExtensions = ["pdf", "docx", "ppt", "pptx", "mp3", "wav"]; // Allowed extensions
 
-const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId, userId }) => {
+const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceId, userId, onBack }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -239,11 +241,26 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
     }
   };
+
+  const handleBackClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent the default link behavior
+    onClose(); // Close the current modal
+    onBack();
+    
+  };
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
+                        {/* Add back arrow */}
+                        <button
+              onClick={handleBackClick}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
+            >
+              <ArrowLeft size={24} />
+            </button>
             <FancyText
               gradient={{ from: '#FE7EF4', to: '#F6B144' }}
               className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"

@@ -197,11 +197,19 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
       )}
 
       {isQuizModalOpen && (
-        <QuizzesComponent onClose={closeQuizModal} workspaceId={workspaceId} userId={userId} />
+        <QuizzesComponent             
+        onClose={closeQuizModal}
+        workspaceId={workspaceId}
+        userId={userId}
+        onBack={handleOpenAIChat} />
       )}
 
       {isStudyGuideModalOpen && (
-        <StudyGuideComponent onClose={closeStudyGuideModal} workspaceId={workspaceId} userId={userId} />
+        <StudyGuideComponent         
+        onClose={closeStudyGuideModal}
+        workspaceId={workspaceId}
+        userId={userId}
+        onBack={handleOpenAIChat} />
       )}
     </>
   );
