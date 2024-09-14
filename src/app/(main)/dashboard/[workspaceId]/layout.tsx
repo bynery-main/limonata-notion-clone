@@ -43,6 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [emoji, setEmoji] = useState<string>("🍋");
   const [foldersData, setFoldersData] = useState<Folder[]>([]);
   const [pageTitle, setPageTitle] = useState<string>("");
+  const [pageDescription, setPageDescription] = useState<string>("Welcome to your workspace dashboard");
   const [fullBentoGrid, setFullBentoGrid] = useState(false);
   const [isChatVisible, setIsChatVisible] = useState(false);
   const db = getFirestore();
@@ -81,6 +82,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       }
 
       setFoldersData(data.folders || []);
+      setPageDescription(data.description || "Welcome to your workspace dashboard");
+
     };
 
     validateUserAndFetchData();
@@ -155,9 +158,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                     <span>{emoji}</span>
                   </button>
                   {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
+
                 </>
               )}
             </div>
+            <p className="text-sm text-gray-600 mt-2 font-light">{pageDescription}</p>
+
           </div>
           {children}
 
