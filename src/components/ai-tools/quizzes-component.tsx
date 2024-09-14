@@ -11,6 +11,7 @@ import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import { on } from "events";
 
 interface QuizzesComponentProps {
   onClose: () => void;
@@ -34,6 +35,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [remainingCredits, setRemainingCredits] = useState(0);
   const toast = useToast();
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
+  const isDisabled = loading || selectedNotes.length === 0;
+
   interface Note {
     id: string;
     name: string;
@@ -173,6 +176,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       });
     } finally {
       setLoading(false);
+      onClose();
     }
   };
 
@@ -316,48 +320,49 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               ? 'p-[1px] relative'
               : 'p-[1px] relative cursor-not-allowed'
               }`}>
-                  <Button
+                 <Button
       onClick={handleCreateQuizzes}
       className="p-[1px] relative"
       title={
         selectedNotes.length > 0
-          ? ''
-          : 'Click on a note first to create quiz'
+          ? 'Create Flashcards'
+          : 'Click on a note first to create Flashcards'
       }
-      disabled={loading || selectedNotes.length === 0}
+      disabled={isDisabled}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-        <motion.div
-          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
-          whileHover="hover"
-          whileTap="tap"
+      <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+      <motion.div
+        className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${
+          isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
+        }`}
+        whileHover={isDisabled ? {} : "hover"}
+        whileTap={isDisabled ? {} : "tap"}
+      >
+        <motion.span
+          className="font-bold inline-block"
+          variants={{
+            hover: { x: -20, opacity: 0 },
+            tap: { scale: 0.95 }
+          }}
         >
-          <motion.span
-            className="font-bold inline-block"
-            variants={{
-              hover: { x: -20, opacity: 0 },
-              tap: { scale: 0.95 }
-            }}
-          >
-            {loading ? "Creating..." : "Create Quiz"}
-          </motion.span>
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ x: 20, opacity: 0 }}
-            variants={{
-              hover: { x: 0, opacity: 1 },
-              tap: { scale: 0.95 }
-            }}
-          >
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <span className="whitespace-nowrap">10 Credits</span>
-            )}
-          </motion.div>
-          
+          {loading ? "Creating..." : "Create Flashcards"}
+        </motion.span>
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ x: 20, opacity: 0 }}
+          variants={{
+            hover: { x: 0, opacity: 1 },
+            tap: { scale: 0.95 }
+          }}
+        >
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <span className="whitespace-nowrap">{creditCost} Credits</span>
+          )}
         </motion.div>
-      </Button>
+      </motion.div>
+    </Button>
             </div>
           </div>
           {/*  

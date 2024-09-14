@@ -328,7 +328,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
           {loading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <span className="whitespace-nowrap">20 Credits</span>
+            <span className="whitespace-nowrap">{creditCost} Credits</span>
           )}
         </motion.div>
       </motion.div>
