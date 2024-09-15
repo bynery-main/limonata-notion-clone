@@ -9,7 +9,8 @@ import { Button, Checkbox, useToast } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface QuizzesComponentProps {
   onClose: () => void;

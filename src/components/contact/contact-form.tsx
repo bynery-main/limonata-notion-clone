@@ -53,7 +53,7 @@ const FirebaseContactForm = () => {
           >
             Contact Us
           </FancyText>
-          <p className="text-gray-600">We'd love to hear from you</p>
+          <p className="text-gray-600">We&aposd love to hear from you</p>
         </div>
         <div
           style={{
