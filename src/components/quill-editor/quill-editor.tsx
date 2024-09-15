@@ -209,15 +209,18 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }, [quill, socket, fileId]);
 
   if (!details) {
-    return <div>Loading editor...</div>;
+    return <div className="w-full h-[calc(100vh-64px)] flex items-center justify-center
+    ">
+      <div className="animate-spin w-10 h-10 border-t-2 border-b-2 border-purple-500 rounded-full mx-5"></div>
+      Loading...</div>;
   }
 
   return (
-    <div className="flex w-full h-full">
-      <div className="w-5/6 min-w-[600px]">
-        <div id="container" className="w-full pl-6 h-[calc(100vh-64px)]" ref={wrapperRef}></div>
+    <div className="flex flex-col md:flex-row w-full h-full">
+      <div className="w-full md:w-3/4 h-[50vh] md:h-full">
+        <div id="container" className="w-full h-full p-4 overflow-hidden" ref={wrapperRef}></div>
       </div>
-      <div className="w-1/6 p-4">
+      <div className="w-full md:w-1/4 h-[50vh] md:h-full p-4 overflow-y-auto">
         {user && <Summarise refString={refString} type="note" userId={user.uid} />}
       </div>
     </div>

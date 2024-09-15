@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { collection, onSnapshot, doc, deleteDoc, query, getDocs } from "firebase/firestore";
 import { ref, listAll, deleteObject } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
@@ -28,7 +28,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   const [newFolderName, setNewFolderName] = useState("");
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
   const router = useRouter();
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     console.log(`Setting up Firestore listener for workspace: ${workspaceId}`);
 
@@ -148,9 +148,20 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   const handleFileClick = (file: FileData) => {
     router.push(`/dashboard/${workspaceId}/upload/${file.id}`);
   };
-
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenFolderId(null);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
-    <div className="w-full max-w-xs "> {/* Added max-width and full width */}
+    <div className="w-full max-w-xs " ref={dropdownRef}> {/* Added max-width and full width */}
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
           <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">

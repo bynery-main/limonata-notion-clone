@@ -62,6 +62,10 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
     onOpenAITutor();
   };
 
+  const handleOpenAIChat = () => {
+    setIsModalOpen(true);
+  };
+
   const cards = [
     {
       src: 'https://images.unsplash.com/photo-1669968910904-c4738ba5be6e?q=80&w=2358&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -133,6 +137,12 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
 
   return (
     <>
+      <div className="relative group">
+        <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out transform translate-x-2 group-hover:translate-x-0">
+          <div className="bg-[#F6B144] text-white px-3 py-1 rounded-full whitespace-nowrap">
+            AI Tools
+          </div>
+        </div>
       <button
         className="relative mb-2 inline-flex h-12 bg-white overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
         onClick={toggleModal}
@@ -147,7 +157,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
           />
         </span>
       </button>
-
+      </div>
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={toggleModal} />
@@ -183,15 +193,29 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
       )}
 
       {isFlashcardModalOpen && (
-        <FlashcardComponent onClose={closeFlashcardModal} workspaceId={workspaceId} userId={userId} />
+        <FlashcardComponent
+            onClose={closeFlashcardModal}
+            workspaceId={workspaceId}
+            userId={userId}
+            onBack={handleOpenAIChat}
+
+          />
       )}
 
       {isQuizModalOpen && (
-        <QuizzesComponent onClose={closeQuizModal} workspaceId={workspaceId} userId={userId} />
+        <QuizzesComponent             
+        onClose={closeQuizModal}
+        workspaceId={workspaceId}
+        userId={userId}
+        onBack={handleOpenAIChat} />
       )}
 
       {isStudyGuideModalOpen && (
-        <StudyGuideComponent onClose={closeStudyGuideModal} workspaceId={workspaceId} userId={userId} />
+        <StudyGuideComponent         
+        onClose={closeStudyGuideModal}
+        workspaceId={workspaceId}
+        userId={userId}
+        onBack={handleOpenAIChat} />
       )}
     </>
   );

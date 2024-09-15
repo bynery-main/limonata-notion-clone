@@ -13,11 +13,13 @@ import { useRouter } from 'next/navigation'
 import FancyText from '@carefully-coded/react-text-gradient';
 import { title } from "process";
 import CostButton from "./cost-button";
+import { ArrowLeft } from "lucide-react";
 
 interface StudyGuideComponentProps {
   onClose: () => void;
   workspaceId: string;
   userId: string; // Add userId prop
+  onBack: () => void; // Optional onBack prop
 }
 
 const allowedFileExtensions = ["pdf", "docx", "ppt", "pptx", "mp3", "wav"]; // List of allowed extensions
@@ -26,6 +28,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
   onClose,
   workspaceId,
   userId,
+  onBack,
 }) => {
   const [foldersNotes, setFoldersNotes] = useState<FolderNotes[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<NoteReference[]>([]);
@@ -241,11 +244,23 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       setSelectedNotes(selectedNotes.filter((note) => note.noteId !== noteId || note.folderId !== folderId || note.type !== type));
     }
   };
+  const handleBackClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent the default link behavior
+    onClose(); // Close the current modal
+    onBack();
+  };
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
+            {/* Add back arrow */}
+            <button
+              onClick={handleBackClick}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
+            >
+              <ArrowLeft size={24} />
+            </button>
             <FancyText
               gradient={{ from: '#FE7EF4', to: '#F6B144' }}
               className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
@@ -316,28 +331,48 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                 ? 'p-[1px] relative'
                 : 'p-[1px] relative cursor-not-allowed'
               }`}>
-              <Button
-                onClick={handleCreateStudyGuides}
-                className="p-[1px] relative"
-                title={
-                  selectedNotes.length > 0
-                    ? ''
-                    : 'Click on a note first to create quiz'
-                }
-                disabled={loading || selectedNotes.length === 0}
-              >
-
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-
-                <div className="space-x-2">
-                  <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                    <span className="font-bold">
-                      {loading ? "Creating..." : "Create Study Guide"}
-                    </span>
-                    <CostButton cost={creditCost.toString()} />
-                  </div>
-                </div>
-              </Button>
+                  <Button
+      onClick={handleCreateStudyGuides}
+      className="p-[1px] relative"
+      title={
+        selectedNotes.length > 0
+          ? ''
+          : 'Click on a note first to create Study Guide'
+      }
+      disabled={loading || selectedNotes.length === 0}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+        <motion.div
+          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
+          whileHover="hover"
+          whileTap="tap"
+        >
+          <motion.span
+            className="font-bold inline-block"
+            variants={{
+              hover: { x: -20, opacity: 0 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? "Creating..." : "Create Study Guides"}
+          </motion.span>
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ x: 20, opacity: 0 }}
+            variants={{
+              hover: { x: 0, opacity: 1 },
+              tap: { scale: 0.95 }
+            }}
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="whitespace-nowrap">20 Credits</span>
+            )}
+          </motion.div>
+          
+        </motion.div>
+      </Button>
             </div>
           </div>
 
