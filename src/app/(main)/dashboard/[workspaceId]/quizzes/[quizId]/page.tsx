@@ -408,7 +408,7 @@ const QuizzesPage = () => {
 
   return (
     <div
-      className="m-10"
+      className="m-4 sm:m-10"
       style={{
         fontFamily: "Inter, sans-serif",
         display: "flex",
@@ -416,75 +416,79 @@ const QuizzesPage = () => {
       }}
     >
       {quizzes.length > 0 ? (
-        <div>
+        <div className="w-full max-w-3xl">
           {quizzes.map((quiz, index) => (
             <div key={index} className="mb-6">
               <h2 className="text-xl font-semibold mb-2">
                 {quiz.question}
-                <div className="flex items-center gap-2 ml-4">
+              </h2>
+              <div className="flex items-start gap-2">
+                <div className="flex-grow">
+                  <AutoResizingTextArea
+                    value={answers[index]}
+                    onChange={handleAnswerChange}
+                    placeholder="Type your answer here"
+                    index={index}
+                  />
+                </div>
+                <div className="flex flex-col items-center gap-3 pt-4 text-gray-400">
                   <button
                     onClick={() => handleUpdateQuiz(index)}
-                    className="text-gray-600"
+                    className=" hover:text-yellow-600"
                     title="Edit"
                   >
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => handleDeleteQuiz(index)}
-                    className="text-red-500"
+                    className="hover:text-red-500"
                     title="Delete"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
                   <button
                     onClick={handleAddQuiz}
-                    className="text-blue-500"
+                    className="hover:text-blue-500"
                     title="Add Question"
                   >
                     <PlusCircle className="w-5 h-5" />
                   </button>
                 </div>
-              </h2>
-              <AutoResizingTextArea
-                value={answers[index]}
-                onChange={handleAnswerChange}
-                placeholder="Type your answer here"
-                index={index}
-              />
+              </div>
             </div>
           ))}
-          <div className="flex gap-4 items-center justify-center font-bold">
-          <AnimatedButton
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200"
-            disabled={loading}
-          >
-            <motion.div className="relative" whileHover="hover">
-              <motion.div
-                variants={{
-                  hover: { y: -30, opacity: 0 }
-                }}
-              >
-                {loading ? (
-                  "Submitting..."
-                ) : (
-                  <div className="flex items-center">
-                    <CheckIcon className="mr-2" />
-                    Submit Answers
-                  </div>
-                )}
+          <div className="flex flex-wrap gap-4 items-center justify-center font-bold">
+            <AnimatedButton
+              onClick={handleSubmit}
+              className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200"
+              disabled={loading}
+            >
+              <motion.div className="relative" whileHover="hover">
+                <motion.div
+                  variants={{
+                    hover: { y: -30, opacity: 0 }
+                  }}
+                >
+                  {loading ? (
+                    "Submitting..."
+                  ) : (
+                    <div className="flex items-center">
+                      <CheckIcon className="mr-2" />
+                      Submit Answers
+                    </div>
+                  )}
+                </motion.div>
+                <motion.div
+                  className="absolute inset-0 flex items-center justify-center"
+                  initial={{ y: 30, opacity: 0 }}
+                  variants={{
+                    hover: { y: 0, opacity: 1 }
+                  }}
+                >
+                  {creditCost} credits
+                </motion.div>
               </motion.div>
-              <motion.div
-                className="absolute inset-0 flex items-center justify-center"
-                initial={{ y: 30, opacity: 0 }}
-                variants={{
-                  hover: { y: 0, opacity: 1 }
-                }}
-              >
-                {creditCost} credits
-              </motion.div>
-            </motion.div>
-          </AnimatedButton>
+            </AnimatedButton>
             <button
               onClick={handleEvaluationHistoryClick}
               className="px-4 py-2 bg-transparent text-sm text-gray outline rounded-xl hover:bg-gray-400 hover:text-white transition-colors duration-200"
@@ -533,11 +537,11 @@ const QuizzesPage = () => {
       ) : (
         <p>No quizzes available.</p>
       )}
-
+  
       {/* Popup for adding new question */}
       {isAddPopupOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-sm">
             <h2 className="text-xl font-semibold mb-4">New Question</h2>
             <textarea
               className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -562,11 +566,11 @@ const QuizzesPage = () => {
           </div>
         </div>
       )}
-
+  
       {/* Popup for editing existing question */}
       {isEditPopupOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-sm">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-sm">
             <h2 className="text-xl font-semibold mb-4">Edit Question</h2>
             <textarea
               className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -591,7 +595,7 @@ const QuizzesPage = () => {
           </div>
         </div>
       )}
-
+  
       {/* Modal for insufficient credits */}
       {showCreditModal && (
         <NoCreditsModal
@@ -602,6 +606,6 @@ const QuizzesPage = () => {
       )}
     </div>
   );
-};
+}
 
 export default QuizzesPage;
