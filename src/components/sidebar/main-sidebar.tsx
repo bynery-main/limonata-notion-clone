@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import WorkspaceIcon from "./workspace-icon";
 import { User } from "firebase/auth";
 import { createPortal } from "react-dom";
+import exp from "constants";
 
 interface MainSidebarProps {
   user: User | null;
@@ -180,7 +181,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
   };
 
   return (
-    <div className="relative w-[3.5vw] h-screen bg-[#272727] flex flex-col justify-between">
+    <div className="relative w-[50px] h-screen bg-[#272727] flex flex-col justify-between">
       <div className="mt-3 bg-[#272727] flex flex-col items-center">
         <motion.button
           className="w-[37px] h-[37px] bg-[#d14a24ed] rounded-full cursor-pointer mb-2"
@@ -192,7 +193,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
             <Home className="w-5 h-5 text-white" />
           </div>
         </motion.button>
-
+  
         {ownedWorkspaces.map((workspace, index) => (
           <WorkspaceIcon
             key={workspace.id}
@@ -225,7 +226,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
           <FaPlus />
         </motion.div>
       </div>
-
+  
       <div className="flex flex-col items-center pb-2">
         {user && user.photoURL && (
           <>
@@ -272,8 +273,9 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
         )}
       </AnimatePresence>
       <AnimatePresence>
-      {renderDashboardSetupModal()}
+        {renderDashboardSetupModal()}
       </AnimatePresence>
     </div>
   );
-};
+}
+export default MainSidebar;

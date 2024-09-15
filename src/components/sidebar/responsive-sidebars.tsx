@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { usePathname } from 'next/navigation';
-import DashboardSetup from '@/components/dashboard-setup/dashboard-setup'; // Adjust the import path as needed
+import DashboardSetup from '@/components/dashboard-setup/dashboard-setup';
 
 interface Folder {
   id: string;
   name: string;
   contents: any[];
   files: FileData[];
-}interface ResponsiveSidebarProps {
+}
+
+interface ResponsiveSidebarProps {
   user: any;
   workspaceId?: string;
   onFoldersUpdate?: (newFoldersData: Folder[]) => void;
@@ -25,7 +27,12 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // Adjust breakpoint as needed
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true); // Ensure sidebars are open on larger screens
+      } else {
+        setIsSidebarOpen(false); // Ensure sidebars are closed on smaller screens
+      }
     };
 
     checkMobile();
@@ -46,37 +53,51 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
   };
 
   return (
-    <>
+    <div className="flex h-screen overflow-hidden"> {/* Ensure parent takes full screen height and hides overflow */}
+      {/* Main Sidebar */}
+      <div
+        className={`h-full ${
+          isMobile ? 'fixed inset-y-0 left-0 z-20' : 'relative'
+        } ${
+          isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
+        } transition-transform duration-300 ease-in-out`}
+      >
+        <MainSidebar
+          user={user}
+          setShowDashboardSetup={setShowDashboardSetup}
+        />
+      </div>
+
+      {/* Workspace Sidebar */}
+      {!isDashboardRoot && workspaceId && (!isMobile || isSidebarOpen) && (
+        <div
+          className={`h-screen ${ // Ensuring it takes full screen height
+            isMobile ? 'fixed inset-y-0 left-[50px] z-30' : 'relative'
+          } ${
+            isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
+          } transition-transform duration-300 ease-in-out flex`}
+        >
+          <WorkspaceSidebar
+            params={{ workspaceId: workspaceId }}
+            onFoldersUpdate={handleFoldersUpdate}
+          />
+        </div>
+      )}
+
       {/* Menu button for mobile */}
       {isMobile && (
         <button
-          className="fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-md"
+          className="fixed top-4 left-4 z-40 bg-gray-800 text-white p-2 rounded-md"
           onClick={toggleSidebar}
         >
           {isSidebarOpen ? '✕' : '☰'}
         </button>
       )}
 
-      {/* Sidebars */}
-      <div className={`h-full ${isMobile ? 'fixed inset-y-0 left-0 z-30' : 'relative'} flex`}>
-        <div className={`flex ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'} transition-transform duration-200 ease-in-out`}>
-          <MainSidebar 
-            user={user}
-            setShowDashboardSetup={setShowDashboardSetup}
-          />
-          {!isDashboardRoot && workspaceId && (
-            <WorkspaceSidebar 
-              params={{ workspaceId: workspaceId }}
-              onFoldersUpdate={handleFoldersUpdate}
-            />
-          )}
-        </div>
-      </div>
-
       {/* Overlay for mobile */}
       {isMobile && isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          className="fixed inset-0 bg-black bg-opacity-50 z-10"
           onClick={toggleSidebar}
         ></div>
       )}
@@ -92,7 +113,7 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
