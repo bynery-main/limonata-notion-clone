@@ -161,7 +161,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
                     <span>{emoji}</span>
                   </button>
-                  {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
+                  {pageTitle && (
+                    <h1 className="text-4xl font-bold line-clamp-2">
+                      {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                    </h1>
+                  )}
                 </>
               )}
             </div>
