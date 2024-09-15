@@ -143,23 +143,24 @@ const FlashcardsPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center mt-10 h-full w-full">
+    <div className="flex flex-col items-center p-4 min-h-screen w-full">
       {flashcards.length > 0 ? (
-        <div style={{ width: '700px', height: '800px' }}>
-          <FlashCardArray
-            cards={flashcards}
-            label="Flashcards"
-            timerDuration={10}
-            showCount={true}
-            autoPlay={false}
-            cycle={true}
-            width="100%"
-            onCardChange={(index) => setCurrentIndex(index - 1)}
-            frontStyle={{ backgroundColor: '#f0f0f0', padding: '20px' }}
-            backStyle={{ backgroundColor: '#e0e0e0', padding: '20px' }}
-          />
-          <div className="mt-4 flex items-center justify-center gap-4">
-
+        <div className="w-full max-w-3xl">
+          <div className=" w-full">
+            <FlashCardArray
+              cards={flashcards}
+              label="Flashcards"
+              timerDuration={10}
+              showCount={true}
+              autoPlay={false}
+              cycle={true}
+              width="100%"
+              onCardChange={(index) => setCurrentIndex(index - 1)}
+              frontStyle={{ backgroundColor: '#f0f0f0', padding: '20px' }}
+              backStyle={{ backgroundColor: '#e0e0e0', padding: '20px' }}
+            />
+          </div>
+          <div className="flex justify-center gap-4 mb-4">
             <button onClick={handleEditFlashcard} className="hover:text-yellow-500" title="Edit">
               <Pencil className="w-5 h-5" />
             </button>
@@ -172,23 +173,23 @@ const FlashcardsPage = () => {
           </div>
         </div>
       ) : (
-        <p>No flashcards available.</p>
+        <p className="text-center">No flashcards available.</p>
       )}
 
       {/* Popup for adding a new flashcard */}
       {isAddPopupOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-3/4 max-w-2xl">
-              <div className="flex justify-center">
-            <FancyText
-              gradient={{ from: "#FE7EF4", to: "#F6B144" }}
-              className="min-h-20 text-4xl font-bold h-auto"
-            >
-              New Flashcard
-            </FancyText>
-          </div>            
-          <textarea
-              className="w-full p-3 mb-4 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-2xl">
+            <div className="flex justify-center">
+              <FancyText
+                gradient={{ from: "#FE7EF4", to: "#F6B144" }}
+                className="text-2xl sm:text-4xl font-bold text-center"
+              >
+                New Flashcard
+              </FancyText>
+            </div>
+            <textarea
+              className="w-full p-3 my-4 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter question..."
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
@@ -199,22 +200,16 @@ const FlashcardsPage = () => {
               value={newAnswer}
               onChange={(e) => setNewAnswer(e.target.value)}
             />
-            <div className="mt-4 flex justify-center gap-4 ">
+            <div className="mt-4 flex flex-col sm:flex-row justify-center gap-4">
               <button onClick={() => setIsAddPopupOpen(false)} className="px-4 py-2 text-md text-gray-500 rounded-lg hover:text-gray-600">
                 Cancel
               </button>
-
-            <button onClick={handleAddPopupSubmit} >
-                <a className="p-[1px] relative block ">
-                      
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                      <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-md text-gray-600 hover:bg-transparent hover:text-white">
-                        <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                          <span>Save Changes</span>
-                        </div>
-                      </div>
-                    </a>
-            </button>
+              <button onClick={handleAddPopupSubmit} className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-md text-gray-600 hover:bg-transparent hover:text-white">
+                  <span>Save Changes</span>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -222,44 +217,38 @@ const FlashcardsPage = () => {
 
       {/* Popup for editing an existing flashcard */}
       {isEditPopupOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-3/4 max-w-2xl">
-      <div className="flex justify-center">
-        <FancyText
-          gradient={{ from: "#FE7EF4", to: "#F6B144" }}
-          className="min-h-20 text-4xl font-bold h-auto"
-        >
-          Edit Flashcard
-        </FancyText>
-      </div>
-      <textarea
-        className="w-full p-3 mb-4 border text-md rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Edit question..."
-        value={newQuestion}
-        onChange={(e) => setNewQuestion(e.target.value)}
-      />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-2xl">
+            <div className="flex justify-center">
+              <FancyText
+                gradient={{ from: "#FE7EF4", to: "#F6B144" }}
+                className="text-2xl sm:text-4xl font-bold text-center"
+              >
+                Edit Flashcard
+              </FancyText>
+            </div>
+            <textarea
+              className="w-full p-3 my-4 border text-md rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Edit question..."
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+            />
             <textarea
               className="w-full p-3 border rounded text-md font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Edit answer..."
               value={newAnswer}
               onChange={(e) => setNewAnswer(e.target.value)}
             />
-            <div className="mt-4 flex justify-center gap-4">
+            <div className="mt-4 flex flex-col sm:flex-row justify-center gap-4">
               <button onClick={() => setIsEditPopupOpen(false)} className="px-4 py-2 text-md text-gray-500 rounded-lg hover:text-gray-600">
                 Cancel
               </button>
-
-            <button onClick={handleEditPopupSubmit} >
-                <a className="p-[1px] relative block ">
-                      
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                      <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-md text-gray-600 hover:bg-transparent hover:text-white">
-                        <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                          <span>Save Changes</span>
-                        </div>
-                      </div>
-                    </a>
-            </button>
+              <button onClick={handleEditPopupSubmit} className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-md text-gray-600 hover:bg-transparent hover:text-white">
+                  <span>Save Changes</span>
+                </div>
+              </button>
             </div>
           </div>
         </div>
