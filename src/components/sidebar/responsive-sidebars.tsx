@@ -3,6 +3,9 @@ import { MainSidebar } from "@/components/sidebar/main-sidebar";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { usePathname } from 'next/navigation';
 import DashboardSetup from '@/components/dashboard-setup/dashboard-setup';
+import { motion } from 'framer-motion'; // Import Framer Motion
+import { IconArrowsLeft, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+import { ArrowLeftCircleIcon, LucideSidebarClose, Menu, MoveLeftIcon, SidebarCloseIcon } from 'lucide-react';
 
 interface Folder {
   id: string;
@@ -71,7 +74,7 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
       {/* Workspace Sidebar */}
       {!isDashboardRoot && workspaceId && (!isMobile || isSidebarOpen) && (
         <div
-          className={`h-screen ${ // Ensuring it takes full screen height
+          className={`h-full ${
             isMobile ? 'fixed inset-y-0 left-[50px] z-30' : 'relative'
           } ${
             isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
@@ -86,12 +89,14 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
 
       {/* Menu button for mobile */}
       {isMobile && (
-        <button
-          className="fixed top-4 left-4 z-40 bg-gray-800 text-white p-2 rounded-md"
+        <motion.button
+          className="fixed top-4 z-40 bg-gray-200 text-gray p-2 shadow-lgs rounded-md opacity-90 hover:opacity-100 transition-opacity"
+          animate={{ left: isSidebarOpen ? 350 : 16 }} // Animate the left position
+          transition={{ type: 'spring', stiffness: 100, damping: 20 }} // Spring animation
           onClick={toggleSidebar}
         >
-          {isSidebarOpen ? '✕' : '☰'}
-        </button>
+          {isSidebarOpen ? <ArrowLeftCircleIcon className='h-4 w-4'/> : <Menu className='h-4 w-4'/>}
+        </motion.button>
       )}
 
       {/* Overlay for mobile */}
