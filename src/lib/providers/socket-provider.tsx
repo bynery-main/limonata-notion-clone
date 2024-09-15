@@ -28,14 +28,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         path: '/api/socket/io',
         addTrailingSlash: false,
         secure: true,
+        transports: ['websocket'],
+        upgrade: false,
       }
     );
+
     socketInstance.on('connect', () => {
+      console.log('Socket connected');
       setIsConnected(true);
     });
 
     socketInstance.on('disconnect', () => {
+      console.log('Socket disconnected');
       setIsConnected(false);
+    });
+
+    socketInstance.on('connect_error', (error: Error) => {
+      console.error('Socket connection error:', error);
     });
 
     setSocket(socketInstance);

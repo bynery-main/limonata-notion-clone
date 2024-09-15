@@ -2,6 +2,7 @@ import { NextApiResponseServerIo } from '@/lib/types';
 import { Server as NetServer } from 'http';
 import { Server as ServerIO } from 'socket.io';
 import { NextApiRequest } from 'next';
+import https from 'https';
 
 export const config = {
   api: {
@@ -12,11 +13,18 @@ export const config = {
 const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
   if (!res.socket.server.io) {
     const path = '/api/socket/io';
-    const httpServer: NetServer = res.socket.server as any;
-    const io = new ServerIO(httpServer, {
+    
+    // Use HTTPS server with SSL configuration from environment variables
+    const httpsServer = https.createServer({
+      key: process.env.SSL_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+      cert: process.env.SSL_DOMAIN_CERT!.replace(/\\n/g, '\n'),
+    });
+
+    const io = new ServerIO(httpsServer, {
       path,
       addTrailingSlash: false,
     });
+    
     io.on('connection', (socket) => {
       socket.on('create-room', (fileId) => {
         socket.join(fileId);
