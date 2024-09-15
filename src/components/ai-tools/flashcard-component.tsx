@@ -13,6 +13,7 @@ import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
 import router from "next/router";
 import { motion } from "framer-motion";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 interface FlashcardComponentProps {
   onClose: () => void;

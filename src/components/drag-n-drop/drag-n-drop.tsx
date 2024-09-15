@@ -217,7 +217,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
           {
             isDragActive ?
               <p className="text-center">Drop the file here ...</p> :
-              <p className="text-center">Drag 'n' drop a file here, or click to select a file</p>
+              <p className="text-center">Drag &aposn&apos drop a file here, or click to select a file</p>
           }
         </div>
         

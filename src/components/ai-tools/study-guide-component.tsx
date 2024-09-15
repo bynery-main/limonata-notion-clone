@@ -13,7 +13,8 @@ import { useRouter } from 'next/navigation'
 import FancyText from '@carefully-coded/react-text-gradient';
 import { title } from "process";
 import CostButton from "./cost-button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface StudyGuideComponentProps {
   onClose: () => void;
