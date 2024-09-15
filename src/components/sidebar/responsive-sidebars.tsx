@@ -90,7 +90,7 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
       {/* Menu button for mobile */}
       {isMobile && (
         <motion.button
-          className="fixed top-4 z-40 bg-gray-200 text-gray p-2 shadow-lgs rounded-md opacity-90 hover:opacity-100 transition-opacity"
+          className="fixed top-3 z-40 bg-gray-200 text-gray p-2 shadow-lgs rounded-md opacity-90 hover:opacity-100 transition-opacity"
           animate={{ left: isSidebarOpen ? 350 : 16 }} // Animate the left position
           transition={{ type: 'spring', stiffness: 100, damping: 20 }} // Spring animation
           onClick={toggleSidebar}

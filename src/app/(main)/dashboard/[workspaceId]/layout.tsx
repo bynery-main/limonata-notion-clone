@@ -151,11 +151,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         <main className="flex-1 overflow-y-auto">
       
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
-            <div className="w-full mt-8 ">
+          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
+            <div className="w-full mt-11">
               <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
             </div>
-            <div className="flex items-center w-full mt-2">
+            <div className="flex items-center w-full mt-2 ">
               {!isSettingsPage && (
                 <>
                   <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
