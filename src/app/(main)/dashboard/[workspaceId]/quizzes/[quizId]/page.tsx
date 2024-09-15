@@ -410,7 +410,6 @@ const QuizzesPage = () => {
     <div
       className="m-4 sm:m-10"
       style={{
-        fontFamily: "Inter, sans-serif",
         display: "flex",
         justifyContent: "center",
       }}
@@ -431,7 +430,7 @@ const QuizzesPage = () => {
                     index={index}
                   />
                 </div>
-                <div className="flex flex-col items-center gap-3 pt-4 text-gray-400">
+                <div className="flex flex-col items-center gap-3 pt-4 ">
                   <button
                     onClick={() => handleUpdateQuiz(index)}
                     className=" hover:text-yellow-600"
