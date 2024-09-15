@@ -13,6 +13,7 @@ import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { Settings, CreditCard, Calendar, Trash2, AlertTriangle, LogOut } from 'lucide-react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
+import ResponsiveSidebar from '@/components/sidebar/responsive-sidebars';
 
 
 const SettingsPage = () => {
@@ -23,6 +24,7 @@ const SettingsPage = () => {
   const [tier, setTier] = useState<string>('free');
   const [credits, setCredits] = useState<number | null>(null);
   const [subscriptionCurrentPeriodEnd, setSubscriptionCurrentPeriodEnd] = useState<string | null>(null);
+  const [showDashboardSetup, setShowDashboardSetup] = useState(false);
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
@@ -101,7 +103,7 @@ const SettingsPage = () => {
 
   return (
     <div className="flex">
-      <MainSidebar user={user}/>
+      <MainSidebar setShowDashboardSetup={setShowDashboardSetup} user={user}/>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
