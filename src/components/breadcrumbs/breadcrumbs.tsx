@@ -70,7 +70,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
 
             items.push({
               href: `/dashboard/${workspaceId}/${folderId}`,
-              label: folderName,
+              label:truncateFilename(folderName),
               icon: <Folder className="w-4 h-4 mr-1" />,
             });
           } else if (pathSegments.length > 2) {
@@ -162,20 +162,20 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
 
                 items.push({
                   href: `/dashboard/${workspaceId}/${folderId}`,
-                  label: folderName,
+                  label: truncateFilename(folderName),
                   icon: <Folder className="w-4 h-4 mr-1" />,
                 });
 
                 if (noteName) {
                   items.push({
                     href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${noteId}`,
-                    label: noteName,
+                    label: truncateFilename(noteName),
                     icon: <FileText className="w-4 h-4 mr-1" />,
                   });
                 } else if (fileName) {
                   items.push({
                     href: `/dashboard/${workspaceId}/${itemType}/${folderId}/${fileId}`,
-                    label: fileName,
+                    label: truncateFilename(noteName),
                     icon: <FileText className="w-4 h-4 mr-1" />,
                   });
                 }
@@ -194,7 +194,14 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
       fetchBreadcrumbs();
     }
   }, [pathname, onBreadcrumbsUpdate]);
-
+  const truncateFilename = (filename: string | null | undefined, maxLength: number = 15) => {
+    if (!filename) return "Untitled";
+    if (filename.length <= maxLength) return filename;
+    const extension = filename.split('.').pop();
+    const name = filename.substring(0, filename.lastIndexOf('.'));
+    const truncatedName = name.substring(0, maxLength - 4) + '...'; // 4 accounts for '...' and a minimum of 1 character for the extension
+    return extension ? `${truncatedName}.${extension}` : truncatedName;
+  };
   return (
     <nav aria-label="breadcrumb" className="mb-4">
       <ol className="flex items-center flex-wrap text-sm">
