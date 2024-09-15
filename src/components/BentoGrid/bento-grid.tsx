@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
+import { FolderIcon, FoldersIcon, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import FileThumbnail from "./get-thumbnails";
 
 interface FileData {
   id: string;
@@ -16,6 +17,7 @@ interface FileData {
   folderId?: string; // Add this to keep track of which folder the item belongs to
   folderName?: string;
 }
+
 
 export const BentoGrid = ({
   workspaceId,
@@ -29,35 +31,6 @@ export const BentoGrid = ({
   const [items, setItems] = useState<FileData[]>([]);
   const [folderNames, setFolderNames] = useState<{ [key: string]: string }>({});
 
-
-  const getFilePreview = (file: FileData) => {
-    const fileExtension = file.name.split(".").pop()?.toLowerCase();
-    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
-    const pdfExtensions = ["pdf"];
-    const docExtensions = ["doc", "docx"];
-    const audioExtensions = ["mp3", "wav", "ogg", "flac"];
-    const videoExtensions = ["mp4", "avi", "mov", "wmv"];
-
-    if (imageExtensions.includes(fileExtension || "")) {
-      return (
-        <div className="w-full h-48 relative">
-          <Image src={file.url!} alt={file.name} fill style={{ objectFit: "cover" }} />
-        </div>
-      );
-    }
-
-    let emoji = "📝";
-    if (pdfExtensions.includes(fileExtension || "")) emoji = "📕";
-    else if (docExtensions.includes(fileExtension || "")) emoji = "📘";
-    else if (audioExtensions.includes(fileExtension || "")) emoji = "🎵";
-    else if (videoExtensions.includes(fileExtension || "")) emoji = "🎥";
-
-    return (
-      <div className="w-full h-48 flex items-center justify-center">
-        <span className="text-4xl">{emoji}</span>
-      </div>
-    );
-  };
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -155,19 +128,34 @@ export const BentoGrid = ({
     };
   }, [workspaceId, folderId]);
 
+  const getItemClass = (index: number) => {
+    // This pattern repeats every 8 items
+    switch (index % 9) {
+      case 0: // 1st item
+      case 3: // 4th item
+      case 7: // 8th item
+        return "col-span-2";
+      default:
+        return "";
+    }
+  };
+
+
+
   return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
-      {items.map((item) => (
+    <div className={cn("grid grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
+      {items.map((item, index) => (
         <BentoGridItem
           key={item.id}
           workspaceId={workspaceId}
-          folderId={item.folderId || ''} // Use the item's folderId
+          folderId={item.folderId || ''}
           fileId={item.id}
           title={item.name}
-          header={getFilePreview(item)}
-          description={`In Folder: ${folderNames[item.folderId || ''] || 'Unknown'}`}
-          href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`} // Use item.folderId in the href
+          header={<FileThumbnail fileName={item.name} fileUrl={item.url} />}
+          description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
+          href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
           type={item.type}
+          className={getItemClass(index)}
         />
       ))}
     </div>
@@ -184,7 +172,7 @@ export const BentoGridItem = ({
   header,
   icon,
   href,
-  type, // New prop to distinguish between file and note
+  type,
 }: {
   workspaceId: string;
   folderId: string;
@@ -195,7 +183,7 @@ export const BentoGridItem = ({
   header?: React.ReactNode;
   icon?: React.ReactNode;
   href: string;
-  type: "file" | "note"; // New prop
+  type: "file" | "note";
 }) => {
   const router = useRouter();
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
@@ -316,57 +304,67 @@ export const BentoGridItem = ({
   return (
     <div
       className={cn(
-        "row-span-1 rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border-2 border-neutral-200 dark:border-neutral-800 flex flex-col space-y-4 cursor-pointer",
+        "rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border border-neutral-200 dark:border-neutral-800 flex flex-col space-y-4 cursor-pointer relative",
         className
       )}
-      onClick={handleClick} // Trigger redirect if not interacting with buttons
+      onClick={handleClick}
     >
       <div className="aspect-w-16 aspect-h-9 relative rounded-lg overflow-hidden">
         {header}
       </div>
-      <div className="group-hover/bento:translate-x-2 transition duration-200">
-        <div className="flex items-center justify-between">
-          <div className="font-sans font-bold text-neutral-600 dark:text-neutral-200 mb-2 mt-2">{title}</div>
-          <div className="flex items-center space-x-2 relative">
-            {icon && (
-              <div className="opacity-70 group-hover/bento:opacity-100 transition duration-200">{icon}</div>
-            )}
-            <MoreHorizontal
-              className="h-5 w-5 text-neutral-500 cursor-pointer bento-menu"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent redirect
-                setDropdownVisible(!dropdownVisible);
-              }}
-            />
-            {dropdownVisible && (
-              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
-                <div className="p-2">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder="Rename"
-                    className="border p-1 rounded w-full"
-                    onClick={(e) => e.stopPropagation()} // Prevent click from triggering redirect
-                  />
-                  <button
-                    onClick={handleRename}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                  >
-                    <PencilIcon className="h-3.5 w-3.5 mr-2" /> Rename
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                  >
-                    <TrashIcon className="h-3.5 w-3.5 mr-2" /> Delete
-                  </button>
-                </div>
-              </div>
-            )}
+      <div className="flex flex-col flex-grow min-h-0 group-hover/bento:translate-x-2 transition duration-200">
+        <h3 className="font-semibold text-lg mb-1 truncate" title={title}>
+          {title}
+        </h3>
+        <p className="text-sm text-gray-500 overflow-hidden text-ellipsis">
+          {description}
+        </p>
+      </div>
+      <div className="flex items-center justify-between mt-auto group-hover/bento:translate-x-2 transition duration-200">
+        {icon && (
+          <div className="opacity-70 group-hover/bento:opacity-100 transition duration-200">
+            {icon}
           </div>
+        )}
+        <div className="relative">
+          <MoreHorizontal
+            className="h-5 w-5 text-neutral-500 cursor-pointer bento-menu"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDropdownVisible(!dropdownVisible);
+            }}
+          />
+          {dropdownVisible && (
+            <div 
+              ref={dropdownRef} 
+              className="absolute left-0 bottom-full mb-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+              style={{ minWidth: '200px' }}
+            >
+              <div className="p-2">
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Rename"
+                  className="border p-1 rounded w-full"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <button
+                  onClick={handleRename}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                >
+                  <PencilIcon className="h-3.5 w-3.5 mr-2 inline" /> Rename
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                >
+                  <TrashIcon className="h-3.5 w-3.5 mr-2 inline" /> Delete
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="font-sans font-normal text-neutral-600 text-sm dark:text-neutral-300">{description}</div>
       </div>
     </div>
   );
