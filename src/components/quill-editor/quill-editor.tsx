@@ -220,12 +220,11 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       <div className="w-full md:w-3/4 h-[70vh] md:h-full">
         <div id="container" className="w-full h-full p-4 overflow-hidden" ref={wrapperRef}></div>
       </div>
-      <div className="w-full md:w-1/4 h-[30vh] md:h-full p-4 overflow-y-auto">
+      <div className="w-full md:w-1/4 md:h-full p-4 overflow-y-auto">
         {user && <Summarise refString={refString} type="note" userId={user.uid} />}
       </div>
     </div>
   );
-  
 }
 
 export default QuillEditor;
