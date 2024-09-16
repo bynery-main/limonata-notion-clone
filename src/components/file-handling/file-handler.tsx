@@ -12,24 +12,24 @@ interface FileHandlerProps {
   fileUrl: string | undefined;
   fileExtension: string | undefined;
   data: any;
-  params: { workspaceId: string, folderId: string, fileId: string };
+  params: { workspaceId: string; folderId: string; fileId: string };
 }
 
 const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtension, data, params }) => {
   const refString = `workspaces/${params.workspaceId}/folders/${params.folderId}/files/${params.fileId}`;
-  const { user } = useAuth(); // Get the current user from the auth provider
+  const { user } = useAuth();
 
   const renderSummariseButton = () => {
     if (user) {
       return <Summarise refString={refString} type="file" userId={user.uid} />;
     }
-    return null; // Don't render the Summarise button if there's no user
+    return null;
   };
 
   if (fileUrl) {
     console.log('File URL:', fileUrl);
     return (
-      <div className="relative">
+      <div className="relative h-full">
         {fileExtension === 'pdf' || fileExtension === 'docx' ? (
           <>
             <DocumentDisplay fileUrl={fileUrl} fileExtension={fileExtension} />
@@ -60,12 +60,14 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
     );
   } else {
     return (
-      <div className="relative">
-        <QuillEditor
-          dirType="file"
-          fileId={params.fileId}
-          dirDetails={{ ...data, workspaceId: params.workspaceId, folderId: params.folderId }}
-        />
+      <div className="relative h-full flex flex-col">
+        <div className="flex-grow overflow-auto">
+          <QuillEditor
+            dirType="file"
+            fileId={params.fileId}
+            dirDetails={{ ...data, workspaceId: params.workspaceId, folderId: params.folderId }}
+          />
+        </div>
       </div>
     );
   }
