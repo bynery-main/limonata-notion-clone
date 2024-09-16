@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
+import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
 
 interface FileData {
@@ -190,20 +191,30 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   return (
     <FolderProvider>
-      <main className="flex w-full h-full z-10">
-        <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
+      <div className="flex h-screen overflow-hidden">
+        <ResponsiveSidebar 
+          user={user} 
+          workspaceId={params.workspaceId} 
+          onFoldersUpdate={updateFoldersData} 
+        />
+        <main className="flex-1 overflow-y-auto">
+      
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
-            <div className="w-full mt-8 ">
+          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
+            <div className="w-full mt-11">
               <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
             </div>
-            <div className="flex items-center w-full mt-2">
+            <div className="flex items-center w-full mt-2 ">
               {!isSettingsPage && (
                 <>
                   <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
                     <span>{emoji}</span>
                   </button>
-                  {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
+                  {pageTitle && (
+                    <h1 className="text-4xl font-bold line-clamp-2">
+                      {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                    </h1>
+                  )}
                 </>
               )}
             </div>
@@ -234,6 +245,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         </div>
         </div>
       </main>
+      </div>
     </FolderProvider>
   );
 };

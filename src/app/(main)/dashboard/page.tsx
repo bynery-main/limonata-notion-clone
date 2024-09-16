@@ -79,42 +79,49 @@ const Dashboard = () => {
     ...collaboratorWorkspaces.map(w => ({ ...w, type: 'Collaborator' as const }))
   ];
 
+
   return (
-    <div className="p-4 md:p-8 lg:p-20 w-full">
+    <div className="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 w-full">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">
-          <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-bold text-black h-auto">
-            Workspaces
+            <FancyText
+              gradient={{ from: '#FE7EF4', to: '#F6B144' }}
+              className="min-h-16 sm:min-h-20 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black h-auto"
+            >
+              Workspaces
             </FancyText>
-            </h1>
-          <p className="text-gray-600">
-            Here you&apos;ll find the list of all your workspaces,<br />
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base">
+            Here you&apos;ll find the list of all your workspaces,
+            <br className="hidden sm:inline" />
             some of them are private and others are shared.
-          </p>  
+          </p>
         </div>
         
         <div className="w-full">
           {allWorkspaces.length > 0 ? (
             <ExpandableCardDemo cards={allWorkspaces} onAddWorkspace={handleAddWorkspace} />
           ) : (
-          <div className="h-[50vh] flex justify-center items-center">
-            <button 
-              onClick={() => setShowDashboardSetup(true)}
-              className="p-[3px] relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                Create Workspace
-              </div>
-            </button>
-          </div>
-        )}
-      </div>
+            <div className="h-[50vh] flex justify-center items-center">
+              <button 
+                onClick={() => setShowDashboardSetup(true)}
+                className="p-[3px] relative"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                  Create Workspace
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       {showDashboardSetup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOverlayClick}>
-          <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" onClick={handleOverlayClick}>
+          <div className="w-full max-w-md">
+            <DashboardSetup onCancel={handleCancel} onSuccess={handleSuccess} />
+          </div>
         </div>
       )}
     </div>
