@@ -119,7 +119,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
         <div className="text-center mb-6">
           <h2 className="font-semibold text-gray-900 text-2xl mb-2">Create a Workspace</h2>
           <p className="text-gray-600 text-sm">
-            A workspace is a place where you can invite others to upload their notes, videos, recordings, and more.
+            A workspace is a place where you can invite others to upload their notes, recordings, and more.
           </p>
         </div>
         <form onSubmit={handleFormSubmit} className="space-y-4">
