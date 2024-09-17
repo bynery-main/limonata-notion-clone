@@ -74,14 +74,14 @@ export default function CTAComponent() {
   return (
     <div className="flex flex-col items-center justify-center text-center px-4 sm:px-6 md:px-8 my-16 sm:my-30 md:my-40 lg:my-50 mx-auto max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-3xl">
       <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight text-black">
-        Make{' '}
+        Study with your own {' '}
         <FancyText 
           gradient={{ from: '#F6B144', to: '#FE7EF4' }}
           className="font-extrabold"
         >
           AI
         </FancyText>
-        {' '}be at the service of your learning.
+        {' '}Professor.
       </h2> 
       <div className=" mt-7 space-y-4 md:space-y-0 md:space-x-4 ">
 

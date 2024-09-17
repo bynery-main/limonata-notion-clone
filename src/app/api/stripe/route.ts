@@ -76,6 +76,7 @@ export async function POST(req: Request) {
         },
       ],
       mode: "subscription",
+      allow_promotion_codes: true,
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/canceled`,
       customer: customerId,
