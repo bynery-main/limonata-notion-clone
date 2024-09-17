@@ -105,7 +105,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
                 onClick={syncWorkspace}
                 disabled={isLoading}
                 className={`${className} flex items-center justify-center`}
-                title='All notes will now be added as context for the AI models'
+                title='Sync all the current material in this workspace with your AI knowledge base'
                 whileHover="hover"
                 whileTap="tap"
             >
