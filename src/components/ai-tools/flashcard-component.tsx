@@ -8,7 +8,8 @@ import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import Flashcards from "./flashcards";
 import { BookOpen, Loader2, StarsIcon } from "lucide-react";
 import { Checkbox } from "@chakra-ui/checkbox";
-import { Button, useToast } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
+import ReactToast from "react-hot-toast";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
@@ -48,10 +49,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
   const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
   const [creditCost] = useState(20); // Assuming credit cost is 20
   const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
-  const toast = useToast();
   const isDisabled = loading || selectedNotes.length === 0;
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
-
+  var generatedName = ""; // Initialize generatedName
   useEffect(() => {
     const fetchNotesAndFiles = async () => {
       try {
@@ -147,7 +147,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       setFlashcards(parsedFlashcards);
 
       const nameGenerationResult = await generateName({ content: raw });
-      const generatedName = (nameGenerationResult.data as NameGenerationResult)
+      generatedName = (nameGenerationResult.data as NameGenerationResult)
         .answer;
 
       const deckRef = doc(
@@ -164,23 +164,15 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       }
     } catch (error) {
       console.error("Error creating flashcards:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred while creating flashcards",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      
     } finally {
       setLoading(false);
       onClose();
-      toast({
-        title: "Flashcards Created",
-        description: "Your flashcards have been created successfully.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+      ReactToast.success(
+        <>
+          Flashcard deck <strong>{generatedName}</strong> created successfully!
+        </>
+      );
     }
   };
   const getFileEmoji = (fileName: string): string => {
