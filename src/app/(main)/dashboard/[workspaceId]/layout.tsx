@@ -87,7 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
       }
 
       setFoldersData(data.folders || []);
-      setPageDescription(data.description || "Welcome to your workspace dashboard");
+      setPageDescription(data.description || "");
 
     };
 
@@ -221,8 +221,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 </>
               )}
             </div>
-            <p className="text-sm text-gray-600 mt-2 font-light">{pageDescription}</p>
-
+            <p className="text-sm text-gray-600 mt-2 font-light">
+              {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
+            </p>
           </div>
           {children}
 
