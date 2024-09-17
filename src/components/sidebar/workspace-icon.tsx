@@ -17,6 +17,7 @@ const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         layout
+        title={workspace.name}
       >
         <motion.div
           className={`absolute inset-0 ${isActive ? 'bg-black' : 'bg-[#666666]'}`}

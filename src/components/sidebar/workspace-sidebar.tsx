@@ -415,7 +415,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   onClick={handleSettingsClick}
                 >
                   <SettingsIcon className="h-4 w-4" />
-                  Settings
+                  Workspace Settings
                 </div>
               </div>
             </div>

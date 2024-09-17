@@ -19,7 +19,7 @@ export default function IntroductionComponent() {
             {' '}to your learning.
           </h2>
           <p className="text-base sm:text-lg md:text-lg lg:text-lg">
-            You can add study notes as images, links, notes, videos, quotes,
+            You can add study notes as images, links, notes, quotes,
             PDFs, articles, any study resource from the web, or your computer.
           </p>
           <p className="text-base sm:text-lg md:text-lg lg:text-lg">
