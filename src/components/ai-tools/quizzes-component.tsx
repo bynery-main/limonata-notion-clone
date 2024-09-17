@@ -5,7 +5,8 @@ import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { Button, Checkbox, useToast } from "@chakra-ui/react";
+import { Button, Checkbox } from "@chakra-ui/react";
+import ReactToast from "react-hot-toast";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
@@ -33,7 +34,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [showCreditModal, setShowCreditModal] = useState(false);
   const [creditCost] = useState(10);
   const [remainingCredits, setRemainingCredits] = useState(0);
-  const toast = useToast();
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
   const isDisabled = loading || selectedNotes.length === 0;
 
@@ -158,22 +158,18 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         await addDoc(quizzesCollectionRef, { question: quiz.question });
       }
 
-      toast({
-        title: "Success",
-        description: "Quizzes created successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+      ReactToast.success(
+        <>
+          Quiz <strong>{generatedName}</strong> created successfully!
+        </>, {
+        duration: 3000,
+        icon: '🎉',
       });
+
     } catch (error) {
       console.error("Error creating quizzes:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred while creating quizzes",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      ReactToast.error("An error occurred while creating quizzes. Try again or contact support.");
+
     } finally {
       setLoading(false);
       onClose();

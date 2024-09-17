@@ -6,7 +6,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import ReactMarkdown from "react-markdown";
-import { Button, Checkbox, useToast as useChakraToast, useToast } from "@chakra-ui/react";
+import { Button, Checkbox } from "@chakra-ui/react";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import reacttoast from 'react-hot-toast';
 import { useRouter } from 'next/navigation'
@@ -38,8 +38,6 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
   const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
   const [creditCost] = useState(20); // Assuming credit cost is 20
   const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
-  const toast = useToast();
-  const chakraToast = useChakraToast();
   const router = useRouter();
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
   const isDisabled = loading || selectedNotes.length === 0;
@@ -166,18 +164,13 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         notes: selectedNotes,
       });
 
-      reacttoast.success("Study guides created successfully", {
+      reacttoast.success(        <>
+        StudyGide <strong>{generatedName}</strong> created successfully!
+      </>, {
         duration: 3000,
         icon: '🎉',
       });
-      chakraToast({
-        title: "Success",
-        description: "Study guides created successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-
+      
       // Redirect to dashboard/workspaceid after a short delay
       setTimeout(() => {
         router.push(`/dashboard/${workspaceId}`);
@@ -185,17 +178,11 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
 
     } catch (error) {
       console.error("Error creating study guides:", error);
-      reacttoast.error("An error occurred while creating study guides", {
+      reacttoast.error("An error occurred while creating study guides. Try again or contact support.", {
         duration: 3000,
         icon: '❌',
       });
-      chakraToast({
-        title: "Error",
-        description: "An error occurred while creating study guides",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      
     } finally {
       setLoading(false);
       onClose();

@@ -167,15 +167,20 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       }
     } catch (error) {
       console.error("Error creating flashcards:", error);
-      
+      ReactToast.error("An error occurred while creating flashcards. Try again or contact support.", {
+        duration: 3000,
+        icon: '❌',
+      });
     } finally {
       setLoading(false);
       onClose();
       ReactToast.success(
         <>
           Flashcard deck <strong>{generatedName}</strong> created successfully!
-        </>
-      );
+        </>, {
+        duration: 3000,
+        icon: '🎉',
+      });
     }
   };
   const getFileEmoji = (fileName: string): string => {
