@@ -5,7 +5,8 @@ import { fetchAllNotes, fetchAllFiles, FolderNotes } from "@/lib/utils";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app, db } from "@/firebase/firebaseConfig";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { Button, Checkbox, useToast } from "@chakra-ui/react";
+import { Button, Checkbox } from "@chakra-ui/react";
+import ReactToast from "react-hot-toast";
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import FancyText from '@carefully-coded/react-text-gradient';
 import CostButton from "./cost-button";
@@ -33,8 +34,9 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
   const [showCreditModal, setShowCreditModal] = useState(false);
   const [creditCost] = useState(10);
   const [remainingCredits, setRemainingCredits] = useState(0);
-  const toast = useToast();
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
+  const isDisabled = loading || selectedNotes.length === 0;
+
   interface Note {
     id: string;
     name: string;
@@ -156,24 +158,21 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
         await addDoc(quizzesCollectionRef, { question: quiz.question });
       }
 
-      toast({
-        title: "Success",
-        description: "Quizzes created successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+      ReactToast.success(
+        <>
+          Quiz <strong>{generatedName}</strong> created successfully!
+        </>, {
+        duration: 3000,
+        icon: '🎉',
       });
+
     } catch (error) {
       console.error("Error creating quizzes:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred while creating quizzes",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      ReactToast.error("An error occurred while creating quizzes. Try again or contact support.");
+
     } finally {
       setLoading(false);
+      onClose();
     }
   };
 
@@ -332,48 +331,49 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               ? 'p-[1px] relative'
               : 'p-[1px] relative cursor-not-allowed'
               }`}>
-                  <Button
+                 <Button
       onClick={handleCreateQuizzes}
       className="p-[1px] relative"
       title={
         selectedNotes.length > 0
-          ? ''
-          : 'Click on a note first to create quiz'
+          ? 'Create Flashcards'
+          : 'Click on a note first to create Flashcards'
       }
-      disabled={loading || selectedNotes.length === 0}
+      disabled={isDisabled}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-        <motion.div
-          className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white"
-          whileHover="hover"
-          whileTap="tap"
+      <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+      <motion.div
+        className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${
+          isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
+        }`}
+        whileHover={isDisabled ? {} : "hover"}
+        whileTap={isDisabled ? {} : "tap"}
+      >
+        <motion.span
+          className="font-bold inline-block"
+          variants={{
+            hover: { x: -20, opacity: 0 },
+            tap: { scale: 0.95 }
+          }}
         >
-          <motion.span
-            className="font-bold inline-block"
-            variants={{
-              hover: { x: -20, opacity: 0 },
-              tap: { scale: 0.95 }
-            }}
-          >
-            {loading ? "Creating..." : "Create Quiz"}
-          </motion.span>
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ x: 20, opacity: 0 }}
-            variants={{
-              hover: { x: 0, opacity: 1 },
-              tap: { scale: 0.95 }
-            }}
-          >
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <span className="whitespace-nowrap">10 Credits</span>
-            )}
-          </motion.div>
-          
+          {loading ? "Creating..." : "Create Flashcards"}
+        </motion.span>
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ x: 20, opacity: 0 }}
+          variants={{
+            hover: { x: 0, opacity: 1 },
+            tap: { scale: 0.95 }
+          }}
+        >
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <span className="whitespace-nowrap">{creditCost} Credits</span>
+          )}
         </motion.div>
-      </Button>
+      </motion.div>
+    </Button>
             </div>
           </div>
           {/*  
