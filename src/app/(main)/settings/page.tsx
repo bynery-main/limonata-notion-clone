@@ -13,7 +13,7 @@ import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { Settings, CreditCard, Calendar, Trash2, AlertTriangle, LogOut } from 'lucide-react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
-
+import ResponsiveSidebar from '@/components/sidebar/responsive-sidebars';
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -23,10 +23,16 @@ const SettingsPage = () => {
   const [tier, setTier] = useState<string>('free');
   const [credits, setCredits] = useState<number | null>(null);
   const [subscriptionCurrentPeriodEnd, setSubscriptionCurrentPeriodEnd] = useState<string | null>(null);
+  const [showDashboardSetup, setShowDashboardSetup] = useState(false);
+  const [isClient, setIsClient] = useState(false); // New state to check if it's client-side
 
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
   const currentUserEmail = user?.email || "";
+
+  useEffect(() => {
+    setIsClient(true); // Set the flag indicating this is client-side
+  }, []);
 
   useEffect(() => {
     if (!currentUserUid) return;
@@ -99,9 +105,14 @@ const SettingsPage = () => {
     }
   };
 
+  // Ensure that we only render the component on the client side
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <div className="flex">
-      <MainSidebar user={user}/>
+      <MainSidebar setShowDashboardSetup={setShowDashboardSetup} user={user}/>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -143,8 +154,6 @@ const SettingsPage = () => {
             </motion.div>
           )}
         </motion.div>
-
-
 
         <motion.div 
           className="mt-10"

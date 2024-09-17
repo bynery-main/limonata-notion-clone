@@ -165,13 +165,13 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
             className="w-full p-4 flex flex-col md:flex-row justify-between items-center hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-xl cursor-pointer transition-colors duration-200"
           >
             <div className="flex gap-4 flex-col md:flex-row items-center md:items-start">
-              <motion.div layoutId={`image-${card.id}-${id}`} className="h-40 w-40 md:h-14 md:w-14 rounded-lg overflow-hidden">
+              <motion.div layoutId={`image-${card.id}-${id}`} className="h-20 w-20 md:h-14 md:w-14 rounded-lg overflow-hidden">
                 {renderEmoji(card.id)}
               </motion.div>
               <div className="text-center md:text-left">
                 <motion.h3
                   layoutId={`title-${card.id}-${id}`}
-                  className="font-medium text-neutral-800 dark:text-neutral-200"
+                  className="font-bold text-neutral-800 dark:text-neutral-200"
                 >
                   {card.name}
                 </motion.h3>

@@ -1,20 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/firebase/firebaseConfig";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import { Button } from "../ui/button";
 import Picker from '@emoji-mart/react';
 import { workerData } from "worker_threads";
 import { set } from "zod";
 
+interface Collaborator {
+  uid: string;
+  email: string;
+}
 
 interface InitializeWorkspaceResponse {
   message: string;
   workspaceId: string;
 }
-
+interface DashboardSetupProps {
+  onCancel: () => void;
+  user: { uid: string } | null;
+  existingCollaborators: Collaborator[];
+  workspaceId: string;
+}
 const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) => {
   const user = auth.currentUser;
   const [selectedCollaborators, setSelectedCollaborators] = useState<{ uid: string; email: string }[]>([]);
@@ -29,6 +38,23 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const functions = getFunctions();
   const initializeWorkspace = httpsCallable(functions, "initializeWorkspace");
   const [workspaceId, setWorkspaceId] = useState("");
+
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null)
+  
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node) &&
+          emojiButtonRef.current && !emojiButtonRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const addCollaborator = (collaborator: { uid: string; email: string }) => {
     setSelectedCollaborators(prev => [...prev, collaborator]);
@@ -85,27 +111,36 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
     e.stopPropagation();
   };
 
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onCancel}>
-      <div className="absolute inset-0 bg-black backdrop-blur-lg z-[9980]"></div>
-      <div className="relative bg-white rounded-[53px] shadow-[0_15px_60px_-15px_rgba(0,0,0,1)] p-10 w-[606px] z-[10000]" onClick={handlePopupClick}>
-        <div className="text-center mb-8">
-          <h2 className="font-medium text-black text-3xl mb-2">Create a Workspace</h2>
-          <p className="font-light text-black text-[15px]">
-            A workspace is a place where you can invite others to upload their notes, videos, recordings, and more.
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[9980]"></div>
+      <div className="relative bg-white rounded-[32px] shadow-2xl p-8 w-[480px] max-w-[90vw] z-[10000]" onClick={handlePopupClick}>
+        <div className="text-center mb-6">
+          <h2 className="font-semibold text-gray-900 text-2xl mb-2">Create a Workspace</h2>
+          <p className="text-gray-600 text-sm">
+            A workspace is a place where you can take notes, upload all your study resources, integrate them with our AI features all while collaborating with your friends.
           </p>
         </div>
-        <form onSubmit={handleFormSubmit} className="flex flex-col items-center">
-          <div className="w-full flex items-center mb-2 relative">
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          <div className="flex items-center space-x-2">
             <button
-              type="button" // Add this to prevent form submission
+              type="button"
               onClick={toggleEmojiPicker}
-              className="flex items-center gap-2 font-semibold mr-2"
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
             >
-              <span>{emoji}</span>
+              <span className="text-2xl">{emoji}</span>
             </button>
             {showEmojiPicker && (
-              <div className="absolute left-0 top-full mt-2 z-20">
+              <div 
+                ref={emojiPickerRef}
+                className="absolute left-12 top-0 z-20"
+                style={{
+                  boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+                  borderRadius: '8px',
+                  overflow: 'hidden'
+                }}
+              >
                 <Picker onEmojiSelect={handleEmojiSelect} />
               </div>
             )}
@@ -114,7 +149,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
               placeholder="Workspace Name"
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
-              className="flex-grow bg-[#e4e4e4] rounded-[29px] px-4 py-2 font-light text-[#8a8a8a] text-[15px] focus:outline-none"
+              className="flex-grow bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
           <input
@@ -122,67 +157,79 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             placeholder="Workspace Description"
             value={workspaceDescription}
             onChange={(e) => setWorkspaceDescription(e.target.value)}
-            className="w-full bg-[#e4e4e4] rounded-[29px] px-4 py-2 mb-4 font-light text-[#8a8a8a] text-[15px] focus:outline-none"
+            className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
-          <div className="mb-4">
-            <label className="mr-4 font-medium text-black">Type:</label>
-            <label>
+          <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-gray-700">Type:</span>
+            <label className="inline-flex items-center">
               <input
                 type="radio"
+                className="form-radio text-orange-500"
+                name="workspaceType"
                 value="private"
                 checked={workspaceType === 'private'}
                 onChange={() => setWorkspaceType('private')}
-              /> Private
+              />
+              <span className="ml-2 text-sm text-gray-700">Private</span>
             </label>
-            <label className="ml-6">
+            <label className="inline-flex items-center">
               <input
                 type="radio"
+                className="form-radio text-orange-500"
+                name="workspaceType"
                 value="shared"
                 checked={workspaceType === 'shared'}
                 onChange={() => setWorkspaceType('shared')}
-              /> Shared
+              />
+              <span className="ml-2 text-sm text-gray-700">Shared</span>
             </label>
           </div>
           {workspaceType === 'shared' && (
-            <div className="mb-4 w-full">
+            <div className="space-y-2">
               <CollaboratorSearch
-                existingCollaborators={existingCollaborators.map(c => c.uid)} // This line assumes existingCollaborators is already of correct object structure.
-                currentUserUid={user!.uid}
+                existingCollaborators={existingCollaborators.map(c => c.uid)}
+                currentUserUid={user?.uid ?? ''}
                 onAddCollaborator={addCollaborator}
-                onOpen={() => {}} // Add this line to pass a default function or your specific logic
+                onOpen={() => {}}
                 style={{ zIndex: 10010 }}
-                workspaceId={workspaceId} // This line assumes workerData is already defined.
+                workspaceId={workspaceId}
               >
-                <Button type="button" className="text-sm mt-4">
-                  <Plus />
+                <Button type="button" variant="outline" size="sm" className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
                   Add Collaborators
                 </Button>
               </CollaboratorSearch>
               {selectedCollaborators.length > 0 && (
-                <div>
-                  <h3>Selected Collaborators:</h3>
-                  {selectedCollaborators.map(collab => (
-                    <p key={collab.uid}>{collab.email}</p>
-                  ))}
+                <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                  <h3 className="text-sm font-medium text-gray-700">Selected Collaborators:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCollaborators.map(collab => (
+                      <div key={collab.uid} className="flex items-center bg-white rounded-full px-3 py-1 text-sm text-gray-700 shadow-sm">
+                        <span>{collab.email}</span>
+
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
-          <div className="flex space-x-4">
-            <button
+          <div className="flex space-x-3 pt-4">
+            <Button
               type="submit"
-              className={`bg-[#ff5924] text-white font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#e54e1f]'}`}
+              className="flex-1 bg-orange-500 text-white hover:bg-orange-600"
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Create Workspace'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
               onClick={onCancel}
-              className="bg-gray-300 text-gray-700 font-normal text-[15px] rounded-[50px] px-6 py-3 shadow-md hover:bg-gray-400 transition-colors"
+              className="flex-1"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </div>

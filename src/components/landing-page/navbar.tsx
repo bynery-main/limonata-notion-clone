@@ -66,7 +66,7 @@ const Navbar = () => {
 
     return (
         <header className="relative z-20 my-5 mx-10">
-            <div className="max-w-7xl px-8 sm:px-30 lg:px-30">
+            <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
                 <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
                     <div className="flex justify-start lg:w-0 lg:flex-1">
                         <span className="sr-only">Limonata</span>
@@ -78,7 +78,7 @@ const Navbar = () => {
                             {isMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
                         </Button>
                     </div>
-                    <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+                    <div className="hidden md:flex items-end justify-end md:flex-1 lg:w-0">
                         {!loading && (
                             user ? (
                                 <AnimatedButton variant="default" onClick={handleSignOut}>

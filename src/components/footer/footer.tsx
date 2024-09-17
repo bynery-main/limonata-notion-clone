@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
   const gradientHoverClass = "hover:bg-gradient-to-r hover:from-[#FE7EF4] hover:to-[#F6B144] hover:text-transparent hover:bg-clip-text transition-all duration-300";
 
   const footerLinks = [
-    { text: "Contact", href: "#" },
+    { text: "Contact", href: "/contact" },
     { text: "Privacy Policy", href: "/privacy-policy/privacy-policy.pdf" },
     { text: "Terms of Service", href: "#" },
   ];

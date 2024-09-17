@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Picker from "@emoji-mart/react";
 import { BentoGrid } from "@/components/BentoGrid/bento-grid";
 import Image from "next/image";
@@ -13,6 +13,8 @@ import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
+import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
+import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
 
 interface FileData {
   id: string;
@@ -46,9 +48,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [fullBentoGrid, setFullBentoGrid] = useState(false);
   const [isChatVisible, setIsChatVisible] = useState(false);
   const db = getFirestore();
-
+  const [uploadedFiles, setUploadedFiles] = useState<FileData[]>([]);
+  const [dragCounter, setDragCounter] = useState(0);
   const { user, loading } = useAuth();
   const currentUserId = user?.uid ?? "";
+  const [isFileUploaderVisible, setIsFileUploaderVisible] = useState(false);
+  const bentoGridRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
 
@@ -139,42 +144,108 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setIsChatVisible(true);
   };
 
+  const handleDragEnter = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer?.types.includes('Files')) {
+      setIsFileUploaderVisible(true);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFileUploaderVisible(false);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setIsFileUploaderVisible(false);
+  }, []);
+
+  useEffect(() => {
+    const bentoGridElement = bentoGridRef.current;
+    if (bentoGridElement) {
+      bentoGridElement.addEventListener('dragenter', handleDragEnter);
+      bentoGridElement.addEventListener('dragover', handleDragOver);
+      bentoGridElement.addEventListener('drop', handleDrop);
+      document.addEventListener('dragend', handleDragEnd);
+
+      return () => {
+        bentoGridElement.removeEventListener('dragenter', handleDragEnter);
+        bentoGridElement.removeEventListener('dragover', handleDragOver);
+        bentoGridElement.removeEventListener('drop', handleDrop);
+        document.removeEventListener('dragend', handleDragEnd);
+      };
+    }
+  }, [handleDragEnter, handleDragOver, handleDrop, handleDragEnd]);
+
+  const handleFileUpload = (file: FileData) => {
+    setUploadedFiles(prevFiles => [...prevFiles, file]);
+    setIsFileUploaderVisible(false);
+  };
+
   return (
     <FolderProvider>
-      <main className="flex w-full h-full z-10">
-        <WorkspaceSidebar params={params} onFoldersUpdate={updateFoldersData} />
+      <div className="flex h-screen overflow-hidden">
+        <ResponsiveSidebar 
+          user={user} 
+          workspaceId={params.workspaceId} 
+          onFoldersUpdate={updateFoldersData} 
+        />
+        <main className="flex-1 overflow-y-auto">
+      
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl">
-            <div className="w-full mt-8 ">
+          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
+            <div className="w-full mt-11">
               <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
             </div>
-            <div className="flex items-center w-full mt-2">
+            <div className="flex items-center w-full mt-2 ">
               {!isSettingsPage && (
                 <>
                   <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
                     <span>{emoji}</span>
                   </button>
-                  {pageTitle && <h1 className="text-4xl font-bold">{pageTitle}</h1>}
+                  {pageTitle && (
+                    <h1 className="text-4xl font-bold line-clamp-2">
+                      {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                    </h1>
+                  )}
                 </>
               )}
             </div>
           </div>
           {children}
 
-          {showBentoGrid && folderId && (
-            <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
-          )}
+          <div ref={bentoGridRef}>
+            {showBentoGrid && folderId && (
+              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
+            )}
 
-          {showBentoGrid && !folderId && (
-            <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
-          )}
+            {showBentoGrid && !folderId && (
+              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
+            )}
+          </div>
 
-        </div>
+          <FileUploader
+            workspaceId={params.workspaceId}
+            db={db}
+            onFileUpload={handleFileUpload}
+            isVisible={isFileUploaderVisible}
+            onClose={() => setIsFileUploaderVisible(false)}
+          />
+
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
-          <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor} />
+          <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
           <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
         </div>
+        </div>
       </main>
+      </div>
     </FolderProvider>
   );
 };
