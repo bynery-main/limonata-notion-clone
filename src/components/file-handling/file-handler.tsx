@@ -48,7 +48,6 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
         ) : fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' || fileExtension === 'webp' ? (
           <>
             <ImageDisplay fileUrl={fileUrl} fileName={fileName} />
-            {renderSummariseButton()}
           </>
         ) : (
           <div>
