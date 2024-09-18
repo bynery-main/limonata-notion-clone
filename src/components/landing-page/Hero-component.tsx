@@ -116,7 +116,7 @@ export default function HeroComponent() {
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
         <Typewriter
             words={['Create flashcards in seconds', 'Generate study guides in seconds', 'Make and grade your quizzes','Compare notes with your peers', 'Answer questions on all your notes']}
-            loop={5}
+            loop={true}
             cursor
             cursorStyle='_'
             typeSpeed={70}
