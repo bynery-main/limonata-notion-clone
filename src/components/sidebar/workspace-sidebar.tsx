@@ -150,8 +150,13 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const handleFolderSelect = (folder: Folder) => {
     console.log("Folder selected:", folder.id);
     setCurrentFolderId(folder.id);
-    router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
+    //router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
+
+  const HandleFolderNavigate = (folderId: string) => {
+    console.log("Navigating to folder:", folderId);
+    router.push(`/dashboard/${params.workspaceId}/folders/${folderId}`);
+  }
 
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
     console.log("Flashcard deck selected:", deck.id);

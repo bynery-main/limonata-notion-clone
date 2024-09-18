@@ -18,10 +18,10 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   setFolders,
   deleteFolder,
   deleteFile,
-  isActive,
   onSelect,
   openFolderId,
-  setOpenFolderId
+  setOpenFolderId,
+  isActive,
 }) => {
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
   const router = useRouter();
@@ -89,17 +89,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       unsubscribeNotes();
     };
   }, [workspaceId, folder.id]);
-
-  const toggleFolder = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isOpen) {
-      setOpenFolderId(null);
-      router.push(`/dashboard/${workspaceId}`);
-    } else {
-      setOpenFolderId(folder.id);
-    }
-    onSelect();
-  };
 
   const handleFileClick = (file: FileData) => {
     router.push(`/dashboard/${workspaceId}/${folder.id}/${file.id}`);
@@ -241,24 +230,52 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     if (videoExtensions.includes(fileExtension || "")) return "🎥";
     return "📝";
   };
+  const toggleFolder = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isOpen) {
+      setOpenFolderId(null);
+    } else {
+      setOpenFolderId(folder.id);
+    }
+  };
+
+  const handleFolderClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isOpen) {
+      setOpenFolderId(null);
+      router.push(`/dashboard/${workspaceId}`);
+    } else {
+      setOpenFolderId(folder.id);
+      router.push(`/dashboard/${workspaceId}/${folder.id}`);
+      onSelect();
+    }
+  };
 
   return (
     <div className="relative w-64">
-      <div className={`overflow-visible break-words border border-gray-300 rounded-lg ${isActive ? 'bg-gray-100' : ''}`}>
+      <div className={`overflow-visible break-words border border-gray-300 rounded-lg hover:bg-gray-100 ${isActive ? 'bg-gray-100 border-[#F6B144]' : 'bg-white border-gray-300'}`}>
         <Accordion.Item value={folder.id}>
           <Accordion.Trigger
             className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
-            onClick={toggleFolder}
+            onClick={handleFolderClick}
           >
             <div className="flex items-center justify-between overflow-visible">
               <div className="flex items-center gap-2 flex-grow min-w-0">
-                <ChevronRightIcon
-                  className="h-4 w-4 cursor-pointer flex-shrink-0"
-                  style={{ 
-                    transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
-                    transition: "transform 0.3s ease" 
-                  }}
-                />
+              <div className="flex items-starts max-w-10 h-full hover:bg-gray-200 rounded-sm"
+                onClick={(e) => {
+                  {/* CLiking this Icon  only should expand and close the folder but not activate it */}
+                  e.stopPropagation();
+                  toggleFolder(e);
+                }}>
+                  
+                  <ChevronRightIcon
+                    className="h-4 w-4 cursor-pointer flex-shrink-0"
+                    style={{ 
+                      transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
+                      transition: "transform 0.3s ease" 
+                    }}
+                  />
+                </div>
                 <span className="truncate w-full flex-grow overflow-visible break-words">{folder.name}</span> 
               </div>
               <div 
