@@ -242,8 +242,8 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const handleFolderClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isOpen) {
-      setOpenFolderId(null);
-      router.push(`/dashboard/${workspaceId}`);
+      // setOpenFolderId(null);
+      router.push(`/dashboard/${workspaceId}/${folder.id}`);
     } else {
       setOpenFolderId(folder.id);
       router.push(`/dashboard/${workspaceId}/${folder.id}`);
