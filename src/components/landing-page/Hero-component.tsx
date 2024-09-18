@@ -11,7 +11,7 @@ import CircleGradients from "./Circle-Gradients.svg";
 import FancyText from "@carefully-coded/react-text-gradient";
 import { RotatingCircle } from "./rotating-circle";
 import styled, { keyframes } from "styled-components";
-
+import {Typewriter} from "react-simple-typewriter";
 const gradientAnimation = keyframes`
   0% {
       background-position: 0% 50%;
@@ -41,6 +41,27 @@ const AnimatedButton = styled(Button)`
     cursor: not-allowed;
   }
 `;
+
+
+  const words = [
+    {
+      text: "Build",
+    },
+    {
+      text: "awesome",
+    },
+    {
+      text: "apps",
+    },
+    {
+      text: "with",
+    },
+    {
+      text: "Aceternity.",
+      className: "text-blue-500 dark:text-blue-500",
+    },
+  ];
+
 
 export default function HeroComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -89,12 +110,22 @@ export default function HeroComponent() {
             gradient={{ from: "#FE7EF4", to: "#F6B144" }}
             className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-semibold text-black h-auto"
           >
-            Study together.
+            With our AI you can
           </FancyText>
         </h1>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
-          Study smarter
+        <Typewriter
+            words={['Create flashcards in seconds', 'Generate study guides in seconds', 'Make and grade your quizzes','Compare notes with your peers', 'Answer questions on all your notes']}
+            loop={5}
+            cursor
+            cursorStyle='_'
+            typeSpeed={70}
+            deleteSpeed={50}
+            delaySpeed={1000}
+          />
+
         </h2>
+
         <div className="mt-4">
           {!isSignedIn ? (
             <AnimatedButton
