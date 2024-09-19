@@ -41,16 +41,15 @@ export const BentoGrid = ({
   const [currentFolder, setCurrentFolder] = useState<Folder | undefined>(undefined);
 
   useEffect(() => {
-    const fetchFolderDetails = async () => {
-      if (folderId) {
-        console.log("Fetching folder details for:", folderId);
-        const folderRef = doc(db, "workspaces", workspaceId, "folders", folderId);
-        const folderSnap = await getDoc(folderRef);
-        if (folderSnap.exists()) {
-          const folderData = folderSnap.data() as Folder;
-          console.log("Folder data fetched:", folderData);
+    const fetchFolderDetails = async (fId: string) => {
+      const folderRef = doc(db, "workspaces", workspaceId, "folders", fId);
+      const folderSnap = await getDoc(folderRef);
+      if (folderSnap.exists()) {
+        const folderData = folderSnap.data() as Folder;
+        setFolderNames(prev => ({ ...prev, [fId]: folderData.name }));
+        if (fId === folderId) {
           setCurrentFolder({
-            id: folderId,
+            id: fId,
             name: folderData.name,
             contents: folderData.contents,
             filests: folderData.filests
@@ -64,8 +63,73 @@ export const BentoGrid = ({
         setCurrentFolder(undefined);
       }
     };
+    const fetchItems = async () => {
+      if (folderId) {
+        // Fetch items for a specific folder
+        const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
+        const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+        
+        const [filesSnapshot, notesSnapshot] = await Promise.all([
+          getDocs(filesRef),
+          getDocs(notesRef)
+        ]);
 
-    fetchFolderDetails();
+        const files = filesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          type: "file",
+          folderId: folderId
+        })) as FileData[];
+
+        const notes = notesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          type: "note",
+          folderId: folderId
+        })) as FileData[];
+
+        setItems([...files, ...notes]);
+        fetchFolderDetails(folderId);
+      } else {
+        // Fetch items from all folders
+        const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+        const foldersSnapshot = await getDocs(foldersRef);
+
+        const itemPromises = foldersSnapshot.docs.map(async (folderDoc) => {
+          const fId = folderDoc.id;
+          const filesRef = collection(db, "workspaces", workspaceId, "folders", fId, "files");
+          const notesRef = collection(db, "workspaces", workspaceId, "folders", fId, "notes");
+
+          const [filesSnapshot, notesSnapshot] = await Promise.all([
+            getDocs(filesRef),
+            getDocs(notesRef)
+          ]);
+
+          const files = filesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            type: "file",
+            folderId: fId
+          })) as FileData[];
+
+          const notes = notesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            type: "note",
+            folderId: fId
+          })) as FileData[];
+
+          fetchFolderDetails(fId);
+
+          return [...files, ...notes];
+        });
+
+        const allItems = (await Promise.all(itemPromises)).flat();
+        setItems(allItems);
+      }
+    };
+
+    fetchItems();
   }, [workspaceId, folderId]);
 
   useEffect(() => {
