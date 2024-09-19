@@ -95,6 +95,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
             }
         } catch (error) {
             console.error("Error syncing workspace:", error);
+            toast.error("Error syncing workspace. Please try again.");
         } finally {
             setIsLoading(false);
             toast.success("Workspace synced successfully!");
