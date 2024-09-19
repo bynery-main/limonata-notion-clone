@@ -111,7 +111,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
       setErrorMessage("No folder selected for upload.");
       return;
     }
-    const storageRef = ref(storage, `${workspaceId}/${uploadFolder!.id}/${file.name}`);
+    const storageRef = ref(storage, `workspaces/${workspaceId}/folders/${uploadFolder!.id}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
