@@ -116,7 +116,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
                         tap: { scale: 0.95 }
                     }}
                 >
-                    {isLoading ? 'Syncing...' : 'Sync Workspace'}
+                    {isLoading ? 'Syncing... Plsss hang tight!' : 'Sync Workspace'}
                 </motion.span>
                 <motion.div
                     className="absolute inset-0 flex items-center justify-center"
