@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import FileThumbnail from "./get-thumbnails";
-
+import {FileUpload} from "../ui/file-upload";
 interface FileData {
   id: string;
   name: string;
@@ -143,21 +143,27 @@ export const BentoGrid = ({
 
 
   return (
-    <div className={cn("grid grid-cols-3 gap-4 max-w-7xl mx-auto p-4", className)}>
-      {items.map((item, index) => (
-        <BentoGridItem
-          key={item.id}
-          workspaceId={workspaceId}
-          folderId={item.folderId || ''}
-          fileId={item.id}
-          title={item.name}
-          header={<FileThumbnail fileName={item.name} fileUrl={item.url} />}
-          description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
-          href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
-          type={item.type}
-          className={getItemClass(index)}
-        />
-      ))}
+    <div className={cn("max-w-7xl mx-auto p-4", className)}>
+      {items.length === 0 ? (
+        <div className="flex items-center justify-center mt-30"><FileUpload/></div>
+      ) : (
+        <div className="grid grid-cols-3 gap-4">
+          {items.map((item, index) => (
+            <BentoGridItem
+              key={item.id}
+              workspaceId={workspaceId}
+              folderId={item.folderId || ''}
+              fileId={item.id}
+              title={item.name}
+              header={<FileThumbnail fileName={item.name} fileUrl={item.url} />}
+              description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
+              href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
+              type={item.type}
+              className={getItemClass(index)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
