@@ -19,7 +19,7 @@ export default function IntroductionComponent() {
             {' '}to your learning.
           </h2>
           <p className="text-base sm:text-lg md:text-lg lg:text-lg -mr-20">
-            Don't  waste time creating study resources or <b>prompting ChatGPT. </b>
+            Don&apos;t  waste time creating study resources or <b>prompting ChatGPT. </b>
             <br /> <br />
             In Limonata, you can add your own and your peer&apos;s study notes. All
             of this will be by your AI used to generate  <b>personalized study materials.</b>
