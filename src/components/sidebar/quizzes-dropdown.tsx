@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, deleteDoc, updateDoc, onSnapshot, getDocs, query, DocumentReference, CollectionReference } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
@@ -60,12 +60,36 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
     setDropdownVisible(false);
   };
 
+  const deleteCollection = async (collectionRef: CollectionReference) => {
+    const querySnapshot = await getDocs(query(collectionRef));
+    const deleteOps = querySnapshot.docs.map(async (doc) => {
+      await deleteDocument(doc.ref);
+    });
+    await Promise.all(deleteOps);
+  };
+
+  const deleteDocument = async (docRef: DocumentReference) => {
+    // Delete subcollections
+    const subcollections = ['quizzes', 'evaluationCollections', 'evaluations']; // Add all known subcollection names
+    for (const subcollectionName of subcollections) {
+      const subcollectionRef = collection(docRef, subcollectionName);
+      await deleteCollection(subcollectionRef);
+    }
+    // Delete the document itself
+    await deleteDoc(docRef);
+  };
+
   const handleDeleteQuiz = async () => {
     if (selectedQuizSet) {
       const confirmDelete = confirm(`Are you sure you want to delete ${selectedQuizSet.name}?`);
       if (confirmDelete) {
-        const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", selectedQuizSet.id);
-        await deleteDoc(quizSetRef);
+        try {
+          const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", selectedQuizSet.id);
+          await deleteDocument(quizSetRef);
+          console.log("Quiz set and all nested documents deleted successfully");
+        } catch (error) {
+          console.error("Error deleting quiz set:", error);
+        }
       }
     }
     setDropdownVisible(false);

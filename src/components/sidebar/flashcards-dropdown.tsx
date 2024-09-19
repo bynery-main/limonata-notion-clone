@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { collection, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, deleteDoc, updateDoc, onSnapshot, getDocs, query, CollectionReference } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
@@ -69,13 +69,33 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
     setDropdownVisible(false);
   };
 
+  const deleteCollection = async (collectionRef: CollectionReference) => {
+    const querySnapshot = await getDocs(query(collectionRef));
+    const deleteOps = querySnapshot.docs.map(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+    await Promise.all(deleteOps);
+  };
+
   const handleDeleteDeck = async () => {
     if (selectedDeck) {
       const confirmDelete = confirm(`Are you sure you want to delete ${selectedDeck.name}?`);
       if (confirmDelete) {
-        console.log("Deleting deck:", selectedDeck.id);
-        const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
-        await deleteDoc(deckRef);
+        try {
+          console.log("Deleting deck:", selectedDeck.id);
+          const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
+          
+          // Delete the flashcards subcollection
+          const flashcardsCollectionRef = collection(deckRef, "flashcards");
+          await deleteCollection(flashcardsCollectionRef);
+          
+          // Delete the main deck document
+          await deleteDoc(deckRef);
+          
+          console.log("Flashcard deck and all nested flashcards deleted successfully");
+        } catch (error) {
+          console.error("Error deleting flashcard deck:", error);
+        }
       }
     }
     setDropdownVisible(false);
