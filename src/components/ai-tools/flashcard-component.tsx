@@ -112,7 +112,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
 
   const handleCreateFlashcards = async () => {
     const functions = getFunctions(app);
-    const createFlashcards = httpsCallable(functions, "flashcardAgent");
+    const createFlashcards = httpsCallable(functions, "flashcardAgent", {timeout: 240000});
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
     setLoading(true);

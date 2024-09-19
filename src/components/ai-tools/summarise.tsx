@@ -36,7 +36,7 @@ const Summarise: React.FC<SummariseProps> = ({ refString, type, userId }) => {
 
     const functions = getFunctions(app);
     const creditValidation = httpsCallable<{ uid: string; cost: number }, CreditUsageResult>(functions, "useCredits");
-    const summariseAgent = httpsCallable<{ ref: string; type: string }, SummariseResponse>(functions, "summariseAgent");
+    const summariseAgent = httpsCallable<{ ref: string; type: string }, SummariseResponse>(functions, "summariseAgent", {timeout: 240000});
 
     try {
       const creditUsageResult = await creditValidation({

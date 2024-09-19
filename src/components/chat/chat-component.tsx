@@ -151,7 +151,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
       setIsLoading(true);
 
       const functions = getFunctions(app);
-      const chatWithWorkspace = httpsCallable<{ workspaceId: string, query: string }, ChatResponse>(functions, 'chatWithWorkspace');
+      const chatWithWorkspace = httpsCallable<{ workspaceId: string, query: string }, ChatResponse>(functions, 'chatWithWorkspace', {timeout: 240000});
       const creditValidation = httpsCallable<{ uid: string, cost: number }, CreditUsageResult>(functions, 'useCredits');
 
       try {
