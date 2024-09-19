@@ -4,7 +4,8 @@ import AIImage from '../../../public/Images/AI.png';
 import FancyText from '@carefully-coded/react-text-gradient';
 import Lottie from 'lottie-react';
 import InputTypes from '../../../public/Images/Input-Types.json';
-import LottieAnimation from './lottie-animation';
+// import LottieAnimation from './lottie-animation';
+import LottieParent from './lottie-parent';
 
 
 export default function IntroductionComponent() {
@@ -53,7 +54,7 @@ export default function IntroductionComponent() {
                   className="min-w-[800px] h-[800px] -ml-20 "
                 /> */}
 
-                <LottieAnimation />
+                <LottieParent />
               </div>       
               </div>       
 
