@@ -169,10 +169,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  const handleMouseDown = () => {
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
 
   const handleEmojiSelect = async (emoji: any) => {
     console.log("Emoji selected:", emoji.native);
