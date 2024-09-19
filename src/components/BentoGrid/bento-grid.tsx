@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderIcon, FoldersIcon, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
+import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import FileThumbnail from "./get-thumbnails";
 import {FileUpload} from "../ui/file-upload";
