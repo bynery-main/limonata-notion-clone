@@ -388,7 +388,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             <UploadIcon className="h-4 w-4 mr-2" /> Upload File
           </button>
           <button onClick={() => { deleteFolder(workspaceId, folder.id, parentFolderId); setShowMenu(false); }} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
-            <TrashIcon className="h-4 w-4 mr-2" /> Delete Topic
+            <TrashIcon className="h-4 w-4 mr-2" /> Delete Folder
           </button>
         </div>
       )}

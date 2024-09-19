@@ -168,7 +168,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
           <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
-            Topics
+            Folders
           </h3>
         </div>
         <div className="flex items-center space-x-2"> {/* Added padding */}
@@ -176,7 +176,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
-            placeholder="New Topic name"
+            placeholder="New Folder name"
             className="border p-2 rounded flex-grow"
           />
           <motion.div
