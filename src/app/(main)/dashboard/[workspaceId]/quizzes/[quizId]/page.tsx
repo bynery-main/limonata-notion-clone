@@ -87,7 +87,6 @@ const QuizzesPage = () => {
   const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
   const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
   const [creditCost] = useState(20); // Assuming credit cost is 20
-  const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
 
