@@ -11,6 +11,9 @@ import CircleGradients from "./Circle-Gradients.svg";
 import FancyText from "@carefully-coded/react-text-gradient";
 import { RotatingCircle } from "./rotating-circle";
 import styled, { keyframes } from "styled-components";
+import {Typewriter} from "react-simple-typewriter";
+import TailwindConnectButton from "../ui/tc-button";
+
 
 const gradientAnimation = keyframes`
   0% {
@@ -41,6 +44,27 @@ const AnimatedButton = styled(Button)`
     cursor: not-allowed;
   }
 `;
+
+
+  const words = [
+    {
+      text: "Build",
+    },
+    {
+      text: "awesome",
+    },
+    {
+      text: "apps",
+    },
+    {
+      text: "with",
+    },
+    {
+      text: "Aceternity.",
+      className: "text-blue-500 dark:text-blue-500",
+    },
+  ];
+
 
 export default function HeroComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -76,8 +100,9 @@ export default function HeroComponent() {
   };
 
   return (
-    <div className="relative flex items-center overflow-x-clip">
-      <div className="flex items-center justify-center w-full">
+    <div className="relative flex items-center justify-center overflow-x-clip">
+      <div></div>
+      <div className="w-[50vw] relative flex items-center justify-center mr-[20vw]">
         <RotatingCircle>
           <CircleGradients className="circle" />
         </RotatingCircle>
@@ -89,29 +114,37 @@ export default function HeroComponent() {
             gradient={{ from: "#FE7EF4", to: "#F6B144" }}
             className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-semibold text-black h-auto"
           >
-            Study together.
+            With our AI you can
           </FancyText>
         </h1>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
-          Study smarter
+        <Typewriter
+            words={['Create flashcards in seconds', 'Generate study guides in seconds', 'Make and grade your quizzes','Compare notes with your peers', 'Answer questions on all your notes']}
+            loop={true}
+            cursor
+            cursorStyle='_'
+            typeSpeed={70}
+            deleteSpeed={50}
+            delaySpeed={1000}
+          />
+
         </h2>
+
         <div className="mt-4">
           {!isSignedIn ? (
-            <AnimatedButton
-              variant="default"
+            <TailwindConnectButton
               onClick={login}
               className=" md:w-auto"
             >
               Start a Workspace
-            </AnimatedButton>
+            </TailwindConnectButton>
           ) : (
-            <AnimatedButton
-              variant="default"
+            <TailwindConnectButton
               onClick={goToDashboard}
               className=" md:w-auto"
             >
               Go to Your Dashboard
-            </AnimatedButton>
+            </TailwindConnectButton>
           )}
         </div>
       </div>

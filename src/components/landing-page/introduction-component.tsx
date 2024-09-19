@@ -20,17 +20,18 @@ export default function IntroductionComponent() {
         </div>
         <div className="w-full md:w-1/2 flex flex-col justify-center space-y-4 sm:space-y-6">
           <h2 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl leading-tight">
-            Don&apos;t only take notes.{' '}
+          
+            Study together, with your friends and {' '}
             <FancyText 
               gradient={{ from: '#FE7EF4', to: '#F6B144' }}
               className="font-extrabold"
             >
-              Learn.
+              your AI
             </FancyText>
           </h2>
           <p className="text-base sm:text-lg md:text-lg lg:text-xl">
-            You can add study notes as images, links, notes, quotes,
-            PDFs, articles, any study resource from the web, or your computer.
+            You can add study notes  as images, notes, quotes,
+            videos, voice recordings, PDFs, articles and any study resource from the web, or your computer
           </p>
           <p className="text-base sm:text-lg md:text-lg lg:text-xl">
             And don&apos;t forget,{" "}
