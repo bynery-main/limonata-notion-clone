@@ -7,9 +7,9 @@ const LottieAnimation: React.FC = () => {
 
   useEffect(() => {
     // Set the speed when the component mounts
-    if (lottieRef.current) {
-      lottieRef.current.setSpeed(0.6); // Adjust this value to change the speed (1 is normal speed)
-    }
+    if (typeof window !== 'undefined' && lottieRef.current) {
+        lottieRef.current.setSpeed(0.5); // Adjust this value to change the speed (1 is normal speed)
+      }
   }, []);
 
   const lottieProps: LottieComponentProps = {
