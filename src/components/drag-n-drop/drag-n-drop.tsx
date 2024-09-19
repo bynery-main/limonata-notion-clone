@@ -1,12 +1,18 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState, useCallback, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, collection, getDocs } from "firebase/firestore";
 import { storage } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { UploadIcon, CheckCircle, AlertCircle, FileIcon, X } from "lucide-react";
+import {
+  UploadIcon,
+  CheckCircle,
+  AlertCircle,
+  FileIcon,
+  X,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Select from 'react-select';
+import Select from "react-select";
 import FancyText from "@carefully-coded/react-text-gradient";
 
 interface FileData {
@@ -46,7 +52,15 @@ const allowedFileTypes: { [key: string]: string } = {
   webp: "image",
 };
 
-const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUpload, isVisible, onClose, initialFile, folder }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({
+  workspaceId,
+  db,
+  onFileUpload,
+  isVisible,
+  onClose,
+  initialFile,
+  folder,
+}) => {
   console.log("Received folder prop:", folder); // Add this line
   const [file, setFile] = useState<File | null>(initialFile || null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -60,13 +74,18 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
     console.log("Setting selected folder:", folder);
     const fetchFolders = async () => {
       if (!folder) {
-        const foldersCollectionRef = collection(db, 'workspaces', workspaceId, 'folders');
+        const foldersCollectionRef = collection(
+          db,
+          "workspaces",
+          workspaceId,
+          "folders"
+        );
         const folderSnapshot = await getDocs(foldersCollectionRef);
-        const folderList = folderSnapshot.docs.map(doc => ({
+        const folderList = folderSnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
           contents: doc.data().contents,
-          filests: doc.data().filests
+          filests: doc.data().filests,
         }));
         setFolders(folderList);
       }
@@ -111,13 +130,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
       setErrorMessage("No folder selected for upload.");
       return;
     }
-    const storageRef = ref(storage, `workspaces/${workspaceId}/folders/${uploadFolder!.id}/${file.name}`);
+    const storageRef = ref(
+      storage,
+      `workspaces/${workspaceId}/folders/${uploadFolder!.id}/${file.name}`
+    );
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
       },
       (error) => {
@@ -129,7 +152,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
 
-        const filesCollectionRef = collection(db, 'workspaces', workspaceId, 'folders', selectedFolder.id, 'files');
+        const filesCollectionRef = collection(
+          db,
+          "workspaces",
+          workspaceId,
+          "folders",
+          selectedFolder.id,
+          "files"
+        );
         const newFileRef = doc(filesCollectionRef);
         const fileId = newFileRef.id;
 
@@ -168,20 +198,29 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
     return allowedFileTypes[extension] || "other";
   };
 
-  const triggerAudioTranscription = async (audioUrl: string, fileRef: string) => {
+  const triggerAudioTranscription = async (
+    audioUrl: string,
+    fileRef: string
+  ) => {
     try {
       const functions = getFunctions();
-      const handleAudioUpload = httpsCallable(functions, 'handleAudioUpload');
+      const handleAudioUpload = httpsCallable(functions, "handleAudioUpload");
       await handleAudioUpload({ audioUrl, fileRef });
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
     }
   };
 
-  const triggerDocumentProcessing = async (documentUrl: string, fileRef: string) => {
+  const triggerDocumentProcessing = async (
+    documentUrl: string,
+    fileRef: string
+  ) => {
     try {
       const functions = getFunctions();
-      const handleDocumentUpload = httpsCallable(functions, 'handleDocumentUpload');
+      const handleDocumentUpload = httpsCallable(
+        functions,
+        "handleDocumentUpload"
+      );
       await handleDocumentUpload({ documentUrl, fileRef });
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
@@ -207,16 +246,39 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
 
   const truncateFileName = (name: string, maxLength: number) => {
     if (name.length <= maxLength) return name;
-    const extension = name.split('.').pop();
-    const nameWithoutExtension = name.slice(0, name.lastIndexOf('.'));
+    const extension = name.split(".").pop();
+    const nameWithoutExtension = name.slice(0, name.lastIndexOf("."));
     return `${nameWithoutExtension.slice(0, maxLength - 3)}...${extension}`;
   };
 
-  const GradientButton = ({ onClick, children, disabled = false }: { onClick?: () => void, children: React.ReactNode, disabled?: boolean }) => (
-    <div className={`p-[1px] relative block ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`} onClick={disabled ? undefined : onClick}>
+  const GradientButton = ({
+    onClick,
+    children,
+    disabled = false,
+  }: {
+    onClick?: () => void;
+    children: React.ReactNode;
+    disabled?: boolean;
+  }) => (
+    <div
+      className={`p-[1px] relative block ${
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      }`}
+      onClick={disabled ? undefined : onClick}
+    >
       <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-      <div className={`px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black ${disabled ? '' : 'hover:bg-transparent hover:text-white'}`}>
-        <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+      <div
+        className={`px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black ${
+          disabled ? "" : "hover:bg-transparent hover:text-white"
+        }`}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+          }}
+        >
           {children}
         </div>
       </div>
@@ -229,20 +291,44 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold"> <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}> Upload File</FancyText> </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <h2 className="text-xl font-bold">
+            {" "}
+            <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
+              {" "}
+              Upload File
+            </FancyText>{" "}
+          </h2>
+          <button
+            
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X size={24} />
           </button>
         </div>
-        <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}>
+        <div
+          {...getRootProps()}
+          className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${
+            isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+          }`}
+        >
           <input {...getInputProps()} />
-          {
-            isDragActive ?
-              <p className="text-center">Drop the file here ...</p> :
-              <p className="text-center text-md">Drag and drop a file here, or click to select a file</p>
-          }
+          {isDragActive ? (
+            <p className="text-center">Drop the file here ...</p>
+          ) : (
+            <div>
+              <p className="text-center text-md mb-2">
+                Drag and drop a file here, or click to select a file
+              </p>
+              <p className="text-center text-sm text-gray-500 italic">
+                (Psst! If you're new here, make sure to create a folder first.
+                It's like making a comfy bed for your files before tucking them
+                in!)
+              </p>
+            </div>
+          )}
         </div>
-        
+
         {file && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -256,21 +342,39 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
           </motion.div>
         )}
 
-          {folder === undefined && (
-            <div className="mt-4">
-              <Select
-                options={folders.map(folder => ({ value: folder.id, label: folder.name }))}
-                onChange={(option) => setSelectedFolder(option ? folders.find(f => f.id === option.value) || null : null)}
-                value={selectedFolder ? { value: selectedFolder.id, label: selectedFolder.name } : null}
-                placeholder="Select a folder"
-                className="basic-select"
-                classNamePrefix="select"
-              />
-            </div>
-          )}
+        {folder === undefined && (
+          <div className="mt-4">
+            <Select
+              options={folders.map((folder) => ({
+                value: folder.id,
+                label: folder.name,
+              }))}
+              onChange={(option) =>
+                setSelectedFolder(
+                  option
+                    ? folders.find((f) => f.id === option.value) || null
+                    : null
+                )
+              }
+              value={
+                selectedFolder
+                  ? { value: selectedFolder.id, label: selectedFolder.name }
+                  : null
+              }
+              placeholder="Select a folder"
+              className="basic-select"
+              classNamePrefix="select"
+            />
+          </div>
+        )}
         <div className="mt-4 flex justify-center items-center">
-          <GradientButton onClick={handleUpload}  disabled={!file || (folder === undefined && !selectedFolder) || isUploading}>
-          {isUploading ? (
+          <GradientButton
+            onClick={handleUpload}
+            disabled={
+              !file || (folder === undefined && !selectedFolder) || isUploading
+            }
+          >
+            {isUploading ? (
               <>
                 <motion.div
                   className="w-5 h-5 mr-2 border-t-2 border-current rounded-full animate-spin"
