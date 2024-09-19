@@ -320,10 +320,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               <p className="text-center text-md mb-2">
                 Drag and drop a file here, or click to select a file
               </p>
-              <p className="text-center text-sm text-gray-500 italic">
-                (Psst! If you&apos;re new here, make sure to create a folder
+              <p className="text-center text-md text-gray-500 italic">
+                Psst! If you&apos;re new here, make sure to create a folder
                 first. It&apos;s like making a comfy bed for your files before
-                tucking them in!)
+                tucking them in!
               </p>
             </div>
           )}
