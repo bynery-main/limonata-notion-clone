@@ -117,47 +117,61 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
     const creditValidation = httpsCallable(functions, "useCredits");
     setLoading(true);
     try {
-      // First, attempt to use credits
+      // Separate notes and files from selectedNotes
+      const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
+      const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
+  
+      // Attempt flashcard creation first
+      const result = await createFlashcards({
+        workspaceId,
+        notes,
+        files,
+      });
+  
+      if (!result || !result.data) {
+        throw new Error("No data returned from flashcard creation");
+      }
+  
+      const data = result.data as { flashcards?: { raw?: string } };
+      if (!data.flashcards || !data.flashcards.raw) {
+        throw new Error("Invalid flashcard data returned");
+      }
+  
+      const raw = data.flashcards.raw;
+      const parsedFlashcards = parseRawDataToFlashcards(raw);
+      
+      if (parsedFlashcards.length === 0) {
+        throw new Error("No flashcards could be created from the provided content");
+      }
+  
+      // If flashcards were successfully created, proceed with credit check
       const creditUsageResult = (await creditValidation({
         uid: userId,
         cost: creditCost,
       })) as { data: CreditUsageResult };
-
+  
       console.log("Credit usage result:", creditUsageResult.data);
-
+  
       if (!creditUsageResult.data.success) {
         setRemainingCredits(creditUsageResult.data.remainingCredits);
         setShowCreditModal(true);
-        setLoading(false);
         return;
       }
-
-      // Separate notes and files from selectedNotes
-      const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
-      const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
-
-      // If credit usage was successful, proceed with flashcard creation
-      const result = await createFlashcards({
-        workspaceId,
-        notes,
-        files, // Add files to the payload
-      });
-
-      const data = result.data as { flashcards: { raw: string } };
-      const raw = data.flashcards.raw || "";
-
-      const parsedFlashcards = parseRawDataToFlashcards(raw);
+  
+      // If credit check passes, continue with the rest of the process
       setFlashcards(parsedFlashcards);
-
+  
       const nameGenerationResult = await generateName({ content: raw });
-      generatedName = (nameGenerationResult.data as NameGenerationResult)
-        .answer;
-
+      if (!nameGenerationResult.data) {
+        throw new Error("Failed to generate name for flashcard deck");
+      }
+      generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
+  
       const deckRef = doc(
         collection(db, "workspaces", workspaceId, "flashcardsDecks")
       );
       await setDoc(deckRef, { name: generatedName });
-
+  
       const flashcardsCollectionRef = collection(deckRef, "flashcards");
       for (const flashcard of parsedFlashcards) {
         await addDoc(flashcardsCollectionRef, {
@@ -165,24 +179,44 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
           answer: flashcard.answer,
         });
       }
-    } catch (error) {
-      console.error("Error creating flashcards:", error);
-      ReactToast.error("An error occurred while creating flashcards. Try again or contact support.", {
-        duration: 3000,
-        icon: '❌',
-      });
-    } finally {
-      setLoading(false);
-      onClose();
+  
+      // Success toast
       ReactToast.success(
         <>
           Flashcard deck <strong>{generatedName}</strong> created successfully!
-        </>, {
-        duration: 3000,
-        icon: '🎉',
-      });
+        </>,
+        {
+          duration: 3000,
+          icon: '🎉',
+        }
+      );
+  
+      onClose();
+  
+    } catch (error: any) {
+      console.error("Error creating flashcards:", error);
+  
+      if (error.code === 'functions/invalid-argument' && error.message.includes('The concatenated text is too long')) {
+        ReactToast.error("The selected content is too long. Please select fewer or shorter notes.", {
+          duration: 5000,
+          icon: '❌',
+        });
+      } else if (error.message === "No flashcards could be created from the provided content") {
+        ReactToast.error("Unable to create flashcards from the selected content. Please try different notes or contact support.", {
+          duration: 5000,
+          icon: '❌',
+        });
+      } else {
+        ReactToast.error("An error occurred while creating flashcards. Please try again or contact support.", {
+          duration: 3000,
+          icon: '❌',
+        });
+      }
+    } finally {
+      setLoading(false);
     }
   };
+
   const getFileEmoji = (fileName: string): string => {
     const extension = fileName.split('.').pop()?.toLowerCase() || '';
     const pdfExtensions = ['pdf'];
@@ -301,52 +335,51 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
 
           <div className="mt-4 flex justify-center">
             <div className={`${selectedNotes.length > 0
-                ? 'p-[1px] relative'
-                : 'p-[1px] relative cursor-not-allowed'
+              ? 'p-[1px] relative'
+              : 'p-[1px] relative cursor-not-allowed'
               }`}>
-                  <Button
-      onClick={handleCreateFlashcards}
-      className="p-[1px] relative"
-      title={
-        selectedNotes.length > 0
-          ? 'Create Flashcards'
-          : 'Click on a note first to create Flashcards'
-      }
-      disabled={isDisabled}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
-      <motion.div
-        className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${
-          isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
-        }`}
-        whileHover={isDisabled ? {} : "hover"}
-        whileTap={isDisabled ? {} : "tap"}
-      >
-        <motion.span
-          className="font-bold inline-block"
-          variants={{
-            hover: { x: -20, opacity: 0 },
-            tap: { scale: 0.95 }
-          }}
-        >
-          {loading ? "Creating..." : "Create Flashcards"}
-        </motion.span>
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          initial={{ x: 20, opacity: 0 }}
-          variants={{
-            hover: { x: 0, opacity: 1 },
-            tap: { scale: 0.95 }
-          }}
-        >
-          {loading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <span className="whitespace-nowrap">{creditCost} Credits</span>
-          )}
-        </motion.div>
-      </motion.div>
-    </Button>
+              <Button
+                onClick={handleCreateFlashcards}
+                className="p-[1px] relative"
+                title={
+                  selectedNotes.length > 0
+                    ? 'Create Flashcards'
+                    : 'Click on a note first to create Flashcards'
+                }
+                disabled={isDisabled}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+                <motion.div
+                  className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
+                    }`}
+                  whileHover={isDisabled ? {} : "hover"}
+                  whileTap={isDisabled ? {} : "tap"}
+                >
+                  <motion.span
+                    className="font-bold inline-block"
+                    variants={{
+                      hover: { x: -20, opacity: 0 },
+                      tap: { scale: 0.95 }
+                    }}
+                  >
+                    {loading ? "Creating..." : "Create Flashcards"}
+                  </motion.span>
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ x: 20, opacity: 0 }}
+                    variants={{
+                      hover: { x: 0, opacity: 1 },
+                      tap: { scale: 0.95 }
+                    }}
+                  >
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <span className="whitespace-nowrap">{creditCost} Credits</span>
+                    )}
+                  </motion.div>
+                </motion.div>
+              </Button>
             </div>
           </div>
           {flashcards.length > 0 && <Flashcards flashcards={flashcards} />}
