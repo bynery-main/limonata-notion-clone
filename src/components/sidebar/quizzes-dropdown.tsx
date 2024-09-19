@@ -26,6 +26,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
   const [selectedQuizSet, setSelectedQuizSet] = useState<QuizSet | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuIconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const quizSetsRef = collection(db, "workspaces", workspaceId, "quizSets");
@@ -149,15 +150,15 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                 onClick={() => onQuizSetSelect(quizSet)}
               >
                 <span>{quizSet.name}</span>
-                <MoreHorizontalIcon
-                  className="h-4 w-4 cursor-pointer"
-                  onClick={(event) => handleDropdownToggle(event, quizSet)}
-                />
+                <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                  <MoreHorizontalIcon
+                    className="h-4 w-4 cursor-pointer"
+                    onClick={(event) => handleDropdownToggle(event, quizSet)}
+                  />
                 {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
                   <div
                     ref={dropdownRef}
-                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
-                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
                   >
                     <button
                       onClick={handleRenameQuiz}
@@ -178,6 +179,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                     </button>
                   </div>
                 )}
+              </div>
               </div>
             ))}
           </Accordion.Content>
