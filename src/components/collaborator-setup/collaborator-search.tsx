@@ -41,10 +41,23 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [newCollaborators, setNewCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [existingCollaboratorsWithEmail, setExistingCollaboratorsWithEmail] = useState<{ uid: string; email: string }[]>([]);
+  const [workspaceOwners, setWorkspaceOwners] = useState<string[]>([]);
 
   const functions = getFunctions();
   const db = getFirestore();
   const manageCollaborators = httpsCallable(functions, "manageCollaborators");
+
+  useEffect(() => {
+    const fetchWorkspaceOwners = async () => {
+      const workspaceRef = doc(db, "workspaces", workspaceId);
+      const workspaceDoc = await getDoc(workspaceRef);
+      if (workspaceDoc.exists()) {
+        const owners = workspaceDoc.data()?.owners || [];
+        setWorkspaceOwners(owners);
+      }
+    };
+    fetchWorkspaceOwners();
+  }, [workspaceId]);
 
   useEffect(() => {
     fetchExistingCollaborators();
@@ -53,16 +66,24 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   useEffect(() => {
     const loadUsers = async () => {
       const fetchedUsers = await fetchUsers();
+      const ownersEmails = await Promise.all(
+        workspaceOwners.map(async (uid) => {
+          const email = await fetchUserEmailById(uid);
+          return email;
+        })
+      );
       const filtered = fetchedUsers.filter(
         (user) =>
           user.uid !== currentUserUid &&
           !existingCollaborators.includes(user.uid) &&
-          !newCollaborators.some(nc => nc.uid === user.uid)
+          !newCollaborators.some(nc => nc.uid === user.uid) &&
+          !workspaceOwners.includes(user.uid) &&
+          !ownersEmails.includes(user.email)
       );
       setUsers(filtered);
     };
     loadUsers();
-  }, [existingCollaborators, currentUserUid, newCollaborators]);
+  }, [existingCollaborators, currentUserUid, newCollaborators, workspaceOwners]);
 
   useEffect(() => {
     const query = searchQuery.toLowerCase();
