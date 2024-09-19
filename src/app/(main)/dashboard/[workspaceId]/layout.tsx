@@ -195,13 +195,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   return (
     <FolderProvider>
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-show z-100">
         <ResponsiveSidebar 
           user={user} 
           workspaceId={params.workspaceId} 
           onFoldersUpdate={updateFoldersData} 
         />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto -z-10">
       
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
           <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
@@ -230,11 +230,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
           <div ref={bentoGridRef}>
             {showBentoGrid && folderId && (
-              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
+              <BentoGrid className="max-w-7xl mx-auto p-4 z-0" workspaceId={params.workspaceId} folderId={folderId}/>
             )}
 
             {showBentoGrid && !folderId && (
-              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
+              <BentoGrid className="max-w-7xl mx-auto p-4 z-0" workspaceId={params.workspaceId} />
             )}
           </div>
 

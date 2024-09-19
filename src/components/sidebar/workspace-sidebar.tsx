@@ -257,8 +257,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
-        <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
+      <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 overflow-show flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
+        <div className="flex h-20 shrink-0 items-center border-b px-6 relative  ">
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="flex items-center gap-2 font-semibold"
@@ -267,7 +267,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             {workspaceName}
           </button>
           {showEmojiPicker && (
-            <div className="absolute top-full left-0 mt-2 z-20">
+            <div className="absolute top-full max-w-[20h] ml-4 left-0 z-20">
               <Picker onEmojiSelect={handleEmojiSelect} />
             </div>
           )
@@ -289,7 +289,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             </Button>
             <div className="mx-4 mt-2">
               <motion.div
-                className="bg-gray-200 rounded-full overflow-hidden"
+                className="bg-gray-200 rounded-full overflow-show"
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
               >
@@ -319,7 +319,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             )}
             <div className="mx-4 mt-2">
               <motion.div
-                className="bg-gray-200 rounded-full overflow-hidden"
+                className="bg-gray-200 rounded-full overflow-show"
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
               >
@@ -337,7 +337,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </>
         )}        
         <div className="flex-1 overflow-y-auto px-4 py-6">
-          <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066]">
+          <h3 className="mb-2 mt-4 px-3 text-xs font-medium uppercase tracking-wider text-[#24222066] overflow-show">
             AI Study Resources
           </h3>
           <div className="grid gap-4">
