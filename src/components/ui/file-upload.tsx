@@ -67,8 +67,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
             <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-base">
               Upload file
             </p>
-            <p className="relative z-20 font-sans font-normal text-neutral-400 dark:text-neutral-400 text-base mt-2">
-              Click to select a file
+            <p className="relative z-20 font-sans font-normal text-center text-neutral-400 dark:text-neutral-400 text-base mt-2">
+              Click or drag and drop it here!
             </p>
             <div className="relative w-full mt-10 max-w-xl mx-auto">
               <motion.div
@@ -80,7 +80,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
                   "shadow-[0px_10px_50px_rgba(0,0,0,0.1)]"
                 )}
               >
-                <IconUpload className="w-5 h-5 text-pink-400" />
+                <IconUpload className="w-5 h-5 text-gray-400" />
               </motion.div>
               <motion.div
                 variants={secondaryVariant}
