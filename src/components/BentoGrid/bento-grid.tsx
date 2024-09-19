@@ -38,6 +38,7 @@ export const BentoGrid = ({
   const [items, setItems] = useState<FileData[]>([]);
   const [folderNames, setFolderNames] = useState<{ [key: string]: string }>({});
   const [currentFolder, setCurrentFolder] = useState<Folder | undefined>(undefined);
+  const [isBentoGridEmpty, setIsBentoGridEmpty] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchFolderDetails = async (fId: string) => {
@@ -60,6 +61,7 @@ export const BentoGrid = ({
       } else {
         console.log("No folderId provided, setting currentFolder to undefined");
         setCurrentFolder(undefined);
+        setIsBentoGridEmpty(true);
       }
     };
     const fetchItems = async () => {
@@ -280,6 +282,7 @@ export const BentoGrid = ({
             db={db} 
             onFileUpload={() => {}} 
             folder={currentFolder}
+            isBentoGridEmpty={true}
           />
         </div>
       ) : (
@@ -305,6 +308,7 @@ export const BentoGrid = ({
               db={db} 
               onFileUpload={() => {}} 
               folder={currentFolder}
+              isBentoGridEmpty={false}
             />
           </div>
         </div>

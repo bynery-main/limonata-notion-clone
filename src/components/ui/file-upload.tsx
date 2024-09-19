@@ -17,6 +17,7 @@ interface FileUploadProps {
   db: any;
   onFileUpload: (file: FileData) => void;
   folder?: Folder;  
+  isBentoGridEmpty: boolean;
 }
 
 const mainVariant = {
@@ -29,10 +30,11 @@ const secondaryVariant = {
   animate: { opacity: 1 },
 };
 
-export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileUpload, folder }) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileUpload, folder, isBentoGridEmpty }) => {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploaderVisible, setIsUploaderVisible] = useState(false);
+  const showHelp = isBentoGridEmpty;
 
 
   const handleClick = () => {
@@ -66,6 +68,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
             <p className="relative z-20 font-sans font-normal text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
               Click or drag and drop it here!
             </p>
+            {showHelp && (
+              <p className="text-center text-sm text-gray-500 italic z-50">
+                Psst! If you&apos;re new here, make sure to create a folder
+                first. It&apos;s like making a comfy bed for your files before
+                tucking them in! (Check out the Workspace Sidebar)
+              </p>
+            )}
             <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto">
               <motion.div
                 layoutId="file-upload"
