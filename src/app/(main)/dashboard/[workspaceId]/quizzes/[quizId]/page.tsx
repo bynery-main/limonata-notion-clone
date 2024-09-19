@@ -248,7 +248,7 @@ const QuizzesPage = () => {
     const quizEvalAgent = httpsCallable<
       { workspaceId: string; notes: NoteReference[]; qa: QA[] },
       QuizEvalResult
-    >(functions, "quizEvalAgent");
+    >(functions, "quizEvalAgent", {timeout: 240000});
     const creditValidation = httpsCallable<
       { uid: string; cost: number },
       CreditUsageResult

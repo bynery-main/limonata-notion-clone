@@ -68,7 +68,7 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
         setIsLoading(true);
         const functions = getFunctions();
         const creditValidation = httpsCallable(functions, 'useCredits');
-        const syncWorkspaceNotesFunction = httpsCallable(functions, 'syncWorkspaceNotes');
+        const syncWorkspaceNotesFunction = httpsCallable(functions, 'syncWorkspaceNotes', {timeout: 240000});
 
         if (!workspaceId) {
             console.error("No workspace selected");

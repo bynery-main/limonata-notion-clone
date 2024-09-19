@@ -102,7 +102,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
 
   const handleCreateQuizzes = async () => {
     const functions = getFunctions(app);
-    const createQuizzes = httpsCallable(functions, "quizGenAgent");
+    const createQuizzes = httpsCallable(functions, "quizGenAgent", {timeout: 240000});
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
 

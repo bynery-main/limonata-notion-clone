@@ -11,8 +11,6 @@ import NoCreditsModal from "../subscribe/no-credits-modal";
 import reacttoast from 'react-hot-toast';
 import { useRouter } from 'next/navigation'
 import FancyText from '@carefully-coded/react-text-gradient';
-import { title } from "process";
-import CostButton from "./cost-button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -102,7 +100,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
 
   const handleCreateStudyGuides = async () => {
     const functions = getFunctions(app);
-    const createStudyGuides = httpsCallable(functions, "studyGuideAgent");
+    const createStudyGuides = httpsCallable(functions, "studyGuideAgent", {timeout: 240000});
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
 
