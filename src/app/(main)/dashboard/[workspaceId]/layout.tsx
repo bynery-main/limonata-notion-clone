@@ -120,6 +120,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   }, [pathname]);
 
   const folderId = getFolderId(pathname || "");
+  console.log("Extracted folderId:", folderId);
 
   const handleEmojiSelect = (emoji: any) => {
     setEmoji(emoji.native);

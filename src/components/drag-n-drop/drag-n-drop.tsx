@@ -14,7 +14,7 @@ interface FileData {
   url: string;
   type: string;
   fileType: string;
-  folderId: string;
+  folderId?: string;
 }
 
 interface Folder {
@@ -28,6 +28,8 @@ interface FileUploaderProps {
   onFileUpload: (file: FileData) => void;
   isVisible: boolean;
   onClose: () => void;
+  initialFile?: File;
+  folder?: Folder;
 }
 
 const allowedFileTypes: { [key: string]: string } = {
@@ -43,8 +45,9 @@ const allowedFileTypes: { [key: string]: string } = {
   webp: "image",
 };
 
-const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUpload, isVisible, onClose }) => {
-  const [file, setFile] = useState<File | null>(null);
+const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUpload, isVisible, onClose, initialFile, folder }) => {
+  console.log("Received folder prop:", folder); // Add this line
+  const [file, setFile] = useState<File | null>(initialFile || null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -53,17 +56,30 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
 
   useEffect(() => {
+    console.log("Setting selected folder:", folder);
     const fetchFolders = async () => {
-      const foldersCollectionRef = collection(db, 'workspaces', workspaceId, 'folders');
-      const folderSnapshot = await getDocs(foldersCollectionRef);
-      const folderList = folderSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
-      setFolders(folderList);
+      if (!folder) {
+        const foldersCollectionRef = collection(db, 'workspaces', workspaceId, 'folders');
+        const folderSnapshot = await getDocs(foldersCollectionRef);
+        const folderList = folderSnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name,
+          contents: doc.data().contents,
+          filests: doc.data().filests
+        }));
+        setFolders(folderList);
+      }
     };
 
     if (isVisible) {
       fetchFolders();
     }
-  }, [db, workspaceId, isVisible]);
+  }, [db, workspaceId, isVisible, folder]);
+  useEffect(() => {
+    if (folder) {
+      setSelectedFolder(folder);
+    }
+  }, [folder]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -89,7 +105,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
     }
 
     setIsUploading(true);
-    const storageRef = ref(storage, `${workspaceId}/${selectedFolder.id}/${file.name}`);
+    const uploadFolder = folder || selectedFolder;
+    if (!uploadFolder) {
+      setErrorMessage("No folder selected for upload.");
+      return;
+    }
+    const storageRef = ref(storage, `${workspaceId}/${uploadFolder!.id}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -234,20 +255,21 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
           </motion.div>
         )}
 
+          {folder === undefined && (
+            <div className="mt-4">
+              <Select
+                options={folders.map(folder => ({ value: folder.id, label: folder.name }))}
+                onChange={(option) => setSelectedFolder(option ? folders.find(f => f.id === option.value) || null : null)}
+                value={selectedFolder ? { value: selectedFolder.id, label: selectedFolder.name } : null}
+                placeholder="Select a folder"
+                className="basic-select"
+                classNamePrefix="select"
+              />
+            </div>
+          )}
         <div className="mt-4">
-          <Select
-            options={folders.map(folder => ({ value: folder.id, label: folder.name }))}
-            onChange={(option) => setSelectedFolder(option ? { id: option.value, name: option.label } : null)}
-            value={selectedFolder ? { value: selectedFolder.id, label: selectedFolder.name } : null}
-            placeholder="Select a folder"
-            className="basic-select"
-            classNamePrefix="select"
-          />
-        </div>
-
-        <div className="mt-4">
-          <GradientButton onClick={handleUpload} disabled={!file || !selectedFolder || isUploading}>
-            {isUploading ? (
+        <GradientButton onClick={handleUpload}  disabled={!file || (folder === undefined && !selectedFolder) || isUploading}>
+          {isUploading ? (
               <>
                 <motion.div
                   className="w-5 h-5 mr-2 border-t-2 border-current rounded-full"
