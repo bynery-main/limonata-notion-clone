@@ -1,10 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
-import AIImage from '../../../public/Images/AI.png';
 import FancyText from '@carefully-coded/react-text-gradient';
-import Lottie from 'lottie-react';
-import InputTypes from '../../../public/Images/Input-Types.json';
-// import LottieAnimation from './lottie-animation';
 import LottieParent from './lottie-parent';
 
 
