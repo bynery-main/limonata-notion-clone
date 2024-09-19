@@ -185,17 +185,26 @@ export const BentoGrid = ({
     };
   }, [workspaceId, folderId]);
 
-  const getItemClass = (index: number) => {
-    // This pattern repeats every 8 items
-    switch (index % 9) {
+  
+  const getItemClass = (index: number, totalItems: number) => {
+    // This pattern repeats every 9 items (8 items + FileUpload)
+    const adjustedIndex = index % 9;
+    const isLastItem = index === totalItems - 1;
+    
+    if (isLastItem && items.length > 0) {
+      return "col-span-1"; // FileUpload takes one column when there are other items
+    }
+    
+    switch (adjustedIndex) {
       case 0: // 1st item
       case 3: // 4th item
       case 7: // 8th item
         return "col-span-2";
       default:
-        return "";
+        return "col-span-1";
     }
   };
+
 
 
 
@@ -203,13 +212,13 @@ export const BentoGrid = ({
     <div className={cn("max-w-7xl mx-auto p-4", className)}>
       {items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
-          
           <FileUpload 
-          workspaceId={workspaceId} 
-          db={db} 
-          onFileUpload={() => {} } 
-          folder={currentFolder}
-        /></div>
+            workspaceId={workspaceId} 
+            db={db} 
+            onFileUpload={() => {}} 
+            folder={currentFolder}
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-3 gap-4">
           {items.map((item, index) => (
@@ -223,9 +232,18 @@ export const BentoGrid = ({
               description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
               href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
               type={item.type}
-              className={getItemClass(index)}
+              className={getItemClass(index, items.length + 1)}
             />
           ))}
+          {/* Add FileUpload as the last item */}
+          <div className={cn("p-4 flex items-center justify-center", getItemClass(items.length, items.length + 1))}>
+            <FileUpload 
+              workspaceId={workspaceId} 
+              db={db} 
+              onFileUpload={() => {}} 
+              folder={currentFolder}
+            />
+          </div>
         </div>
       )}
     </div>
