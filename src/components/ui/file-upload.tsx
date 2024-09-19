@@ -32,7 +32,6 @@ const secondaryVariant = {
 
 export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileUpload, folder, isBentoGridEmpty }) => {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploaderVisible, setIsUploaderVisible] = useState(false);
   const showHelp = isBentoGridEmpty;
 
