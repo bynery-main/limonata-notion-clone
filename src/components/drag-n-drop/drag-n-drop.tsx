@@ -233,12 +233,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
             <X size={24} />
           </button>
         </div>
-        <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-8 ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}>
+        <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-8 ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}>
           <input {...getInputProps()} />
           {
             isDragActive ?
               <p className="text-center">Drop the file here ...</p> :
-              <p className="text-center">Drag &aposn&apos drop a file here, or click to select a file</p>
+              <p className="text-center text-md">Drag and drop a file here, or click to select a file</p>
           }
         </div>
         
