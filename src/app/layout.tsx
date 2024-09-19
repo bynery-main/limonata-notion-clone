@@ -9,7 +9,7 @@ const urbanist = Urbanist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Welcome to limonata",
-  description: "Created by the sexiest motherfuckers alive",
+  description: "Study together with education brought to your fingertips",
 };
 
 export default function RootLayout({
