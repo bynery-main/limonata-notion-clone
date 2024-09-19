@@ -50,7 +50,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-  const showProgressBar = tier === "free" || subscriptionStatus === "active_pending_cancellation";
   const [maxCredits, setMaxCredits] = useState<number>(100); // Assuming a default max of 100 credits per day
   const progressValue = credits !== null ? (credits / maxCredits) * 100 : 0;
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
