@@ -5,6 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import { useAuth } from '../auth-provider/AuthProvider';
+import toast from 'react-hot-toast';
 
 interface SyncWorkspaceButtonProps {
     workspaceId: string;
@@ -94,8 +95,11 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
             }
         } catch (error) {
             console.error("Error syncing workspace:", error);
+            toast.error("Error syncing workspace. Please try again.");
         } finally {
             setIsLoading(false);
+            toast.success("Workspace synced successfully!");
+
         }
     };
 
