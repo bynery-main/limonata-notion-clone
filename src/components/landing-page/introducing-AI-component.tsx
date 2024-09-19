@@ -4,6 +4,9 @@ import AIImage from '../../../public/Images/AI.png';
 import FancyText from '@carefully-coded/react-text-gradient';
 import Lottie from 'lottie-react';
 import InputTypes from '../../../public/Images/Input-Types.json';
+import LottieAnimation from './lottie-animation';
+
+
 export default function IntroductionComponent() {
   return (
     <div className="w-full max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1400px] mx-auto my-16 sm:my-24 md:my-20 lg:my-28 px-4 sm:px-10 md:px-40 lg:px-40">
@@ -44,11 +47,13 @@ export default function IntroductionComponent() {
             />
             */}
               <div className="relative w-full h-full flex items-center justify-center pl-20 mt-20">
-                <Lottie 
+                {/* <Lottie 
                   animationData={InputTypes} 
                   loop={true} 
                   className="min-w-[800px] h-[800px] -ml-20 "
-                />
+                /> */}
+
+                <LottieAnimation />
               </div>       
               </div>       
 
