@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="items-center justify-center">
 
-      <div className="mt-[7vw] min-h-[40vw] ml-auto">
+      <div className="mt-[7vw] min-h-[40vw]">
         <HeroComponent />
       </div>
 

@@ -97,8 +97,9 @@ export default function HeroComponent() {
   };
 
   return (
-    <div className="relative flex items-center overflow-x-clip">
-      <div className="flex items-center justify-center w-full">
+    <div className="relative flex items-center justify-center overflow-x-clip">
+      <div></div>
+      <div className="w-[50vw] relative flex items-center justify-center mr-[20vw]">
         <RotatingCircle>
           <CircleGradients className="circle" />
         </RotatingCircle>
