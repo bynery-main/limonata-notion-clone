@@ -28,7 +28,7 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+const menuIconRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     console.log("Subscribing to flashcards decks updates for workspace:", workspaceId);
     const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
@@ -161,15 +161,15 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                 }}
               >
                 <span>{deck.name}</span>
-                <MoreHorizontalIcon
-                  className="h-4 w-4 cursor-pointer"
-                  onClick={(event) => handleDropdownToggle(event, deck)}
-                />
+                <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                  <MoreHorizontalIcon
+                    className="h-4 w-4 cursor-pointer"
+                    onClick={(event) => handleDropdownToggle(event, deck)}
+                  />
                 {dropdownVisible && selectedDeck?.id === deck.id && (
                   <div
                     ref={dropdownRef}
-                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
-                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
                   >
                     <button
                       onClick={handleRenameDeck}
@@ -191,6 +191,8 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
                   </div>
                 )}
               </div>
+            </div>
+
             ))}
           </Accordion.Content>
         </Accordion.Item>

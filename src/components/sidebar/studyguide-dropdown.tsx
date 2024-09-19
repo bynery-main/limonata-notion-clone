@@ -28,6 +28,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
   const [selectedStudyGuide, setSelectedStudyGuide] = useState<StudyGuide | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuIconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const studyGuidesRef = collection(db, "workspaces", workspaceId, "studyGuides");
@@ -127,16 +128,15 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                 onClick={() => onStudyGuideSelect(studyGuide)}
               >
                 <span>{studyGuide.name}</span>
-                <MoreHorizontalIcon
-                  className="h-4 w-4 cursor-pointer"
-                  onClick={(event) => handleDropdownToggle(event, studyGuide)}
-                />
+                <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                  <MoreHorizontalIcon
+                    className="h-4 w-4 cursor-pointer"
+                    onClick={(event) => handleDropdownToggle(event, studyGuide)}
+                  />
                 {dropdownVisible && selectedStudyGuide?.id === studyGuide.id && (
                   <div
                     ref={dropdownRef}
-                    className="absolute mt-2 w-48 bg-white border rounded-lg shadow-lg"
-                    style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
-                  >
+                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"                  >
                     <button
                       onClick={handleRenameStudyGuide}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
@@ -156,6 +156,8 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                   </div>
                 )}
               </div>
+              </div>
+
             ))}
           </Accordion.Content>
         </Accordion.Item>
