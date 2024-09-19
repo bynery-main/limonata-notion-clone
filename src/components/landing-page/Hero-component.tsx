@@ -12,6 +12,9 @@ import FancyText from "@carefully-coded/react-text-gradient";
 import { RotatingCircle } from "./rotating-circle";
 import styled, { keyframes } from "styled-components";
 import {Typewriter} from "react-simple-typewriter";
+import TailwindConnectButton from "../ui/tc-button";
+
+
 const gradientAnimation = keyframes`
   0% {
       background-position: 0% 50%;
@@ -129,21 +132,19 @@ export default function HeroComponent() {
 
         <div className="mt-4">
           {!isSignedIn ? (
-            <AnimatedButton
-              variant="default"
+            <TailwindConnectButton
               onClick={login}
               className=" md:w-auto"
             >
               Start a Workspace
-            </AnimatedButton>
+            </TailwindConnectButton>
           ) : (
-            <AnimatedButton
-              variant="default"
+            <TailwindConnectButton
               onClick={goToDashboard}
               className=" md:w-auto"
             >
               Go to Your Dashboard
-            </AnimatedButton>
+            </TailwindConnectButton>
           )}
         </div>
       </div>
