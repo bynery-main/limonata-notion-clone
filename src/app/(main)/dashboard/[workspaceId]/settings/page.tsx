@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 import Picker from '@emoji-mart/react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Save, Trash2, RefreshCw, X } from 'lucide-react';
 import { db } from "@/firebase/firebaseConfig";
@@ -26,8 +25,6 @@ const SettingsPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const { user } = useAuth();
-  const currentUserUid = user?.uid || "";
 
   useEffect(() => {
     if (pathname) {
