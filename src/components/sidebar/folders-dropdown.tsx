@@ -145,9 +145,6 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
     }
   };
 
-  const handleFileClick = (file: FileData) => {
-    router.push(`/dashboard/${workspaceId}/upload/${file.id}`);
-  };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -160,6 +157,12 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleFolderSelect = (folder: Folder) => {
+    onFolderSelect(folder);
+    setOpenFolderId(folder.id);
+  };
+
   return (
     <div className="w-full max-w-xs " ref={dropdownRef}> {/* Added max-width and full width */}
       <div className="space-y-2">
@@ -194,17 +197,17 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
         >
           {folders.map((folder) => (
             <FolderComponent
-              key={folder.id}
-              folder={folder}
-              workspaceId={workspaceId}
-              setFolders={setFolders}
-              deleteFolder={handleDeleteFolder}
-              deleteFile={handleDeleteFolder}
-              isActive={folder.id === currentFolderId}
-              onSelect={() => onFolderSelect(folder)}
-              openFolderId={openFolderId}
-              setOpenFolderId={setOpenFolderId}
-            />
+            key={folder.id}
+            folder={folder}
+            workspaceId={workspaceId}
+            setFolders={setFolders}
+            deleteFolder={handleDeleteFolder}
+            deleteFile={handleDeleteFolder}
+            isActive={folder.id === currentFolderId}
+            onSelect={() => handleFolderSelect(folder)}
+            openFolderId={openFolderId}
+            setOpenFolderId={setOpenFolderId}
+          />
           ))}
         </Accordion.Root>
       </div>

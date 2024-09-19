@@ -336,8 +336,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       className="p-[1px] relative"
       title={
         selectedNotes.length > 0
-          ? 'Create Flashcards'
-          : 'Click on a note first to create Flashcards'
+          ? 'Create Quizzes'
+          : 'Click on a note first to create a Quiz'
       }
       disabled={isDisabled}
     >
@@ -356,7 +356,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
             tap: { scale: 0.95 }
           }}
         >
-          {loading ? "Creating..." : "Create Flashcards"}
+          {loading ? "Creating..." : "Create Quizzes"}
         </motion.span>
         <motion.div
           className="absolute inset-0 flex items-center justify-center"

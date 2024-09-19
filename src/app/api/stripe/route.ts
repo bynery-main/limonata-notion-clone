@@ -53,12 +53,26 @@ export async function POST(req: Request) {
           cancel_at_period_end: false,
         });
 
+        let setNewCredits = false;
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.credits < 100) {
+            setNewCredits = true;
+          }
+        }
+
         // Update Firestore to reflect the change
         await updateDoc(userRef, {
           subscriptionStatus: 'active',
           subscriptionCancelAtPeriodEnd: false,
-          credits: 1000,
         });
+
+        if (setNewCredits) {
+          await updateDoc(userRef, {
+            credits: 1000,
+          });
+        }
 
         return NextResponse.json({ message: "Subscription reactivated successfully" });
       } else {

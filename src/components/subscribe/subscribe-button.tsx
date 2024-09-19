@@ -41,7 +41,7 @@ export const GoProButton: React.FC<SubscribeButtonProps> = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        priceId: "price_1PrgSWHfxCOA3TIs0sPIkmn7",
+        priceId: "price_1Q0ib8HfxCOA3TIsebmMFejg",
         userId: userId,
         userEmail: userEmail,
         userName: userData.name || "",
