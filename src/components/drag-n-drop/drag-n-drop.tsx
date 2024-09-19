@@ -7,6 +7,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { UploadIcon, CheckCircle, AlertCircle, FileIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Select from 'react-select';
+import FancyText from "@carefully-coded/react-text-gradient";
 
 interface FileData {
   id: string;
@@ -228,12 +229,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Upload File</h2>
+          <h2 className="text-xl font-bold"> <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}> Upload File</FancyText> </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X size={24} />
           </button>
         </div>
-        <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-8 ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}>
+        <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}>
           <input {...getInputProps()} />
           {
             isDragActive ?
@@ -267,12 +268,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ workspaceId, db, onFileUplo
               />
             </div>
           )}
-        <div className="mt-4">
-        <GradientButton onClick={handleUpload}  disabled={!file || (folder === undefined && !selectedFolder) || isUploading}>
+        <div className="mt-4 flex justify-center items-center">
+          <GradientButton onClick={handleUpload}  disabled={!file || (folder === undefined && !selectedFolder) || isUploading}>
           {isUploading ? (
               <>
                 <motion.div
-                  className="w-5 h-5 mr-2 border-t-2 border-current rounded-full"
+                  className="w-5 h-5 mr-2 border-t-2 border-current rounded-full animate-spin"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 />
