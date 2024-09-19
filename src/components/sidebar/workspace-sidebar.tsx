@@ -127,30 +127,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     }
   };
 
-  const fetchEmoji = async () => {
-    console.log("Fetching emoji for workspace:", params.workspaceId);
-    const workspaceRef = doc(db, "workspaces", params.workspaceId);
-    const workspaceSnap = await getDoc(workspaceRef);
-
-    if (workspaceSnap.exists()) {
-      const data = workspaceSnap.data();
-      if (data.emoji) {
-        console.log("Emoji found:", data.emoji);
-        setEmoji(data.emoji);
-      }
-    }
-  };
 
   const handleFolderSelect = (folder: Folder) => {
     console.log("Folder selected:", folder.id);
     setCurrentFolderId(folder.id);
     //router.push(`/dashboard/${params.workspaceId}/${folder.id}`);
   };
-
-  const HandleFolderNavigate = (folderId: string) => {
-    console.log("Navigating to folder:", folderId);
-    router.push(`/dashboard/${params.workspaceId}/folders/${folderId}`);
-  }
 
   const handleFlashcardDeckSelect = (deck: { id: string }) => {
     console.log("Flashcard deck selected:", deck.id);
