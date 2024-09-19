@@ -299,7 +299,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             </FancyText>{" "}
           </h2>
           <button
-            
+            title="Close"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
           >
