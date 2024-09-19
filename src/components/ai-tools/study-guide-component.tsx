@@ -327,8 +327,8 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       className="p-[1px] relative"
       title={
         selectedNotes.length > 0
-          ? 'Create Flashcards'
-          : 'Click on a note first to create Flashcards'
+          ? 'Create Study Guides'
+          : 'Click on a note first to create a Study Guide'
       }
       disabled={isDisabled}
     >
@@ -347,7 +347,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
             tap: { scale: 0.95 }
           }}
         >
-          {loading ? "Creating..." : "Create Flashcards"}
+          {loading ? "Creating..." : "Create Study Guide"}
         </motion.span>
         <motion.div
           className="absolute inset-0 flex items-center justify-center"

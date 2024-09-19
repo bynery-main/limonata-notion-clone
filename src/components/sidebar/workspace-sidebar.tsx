@@ -1,12 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import Picker from "@emoji-mart/react";
 import {
   SettingsIcon,
   UserPlusIcon,
-  UsersIcon,
-  CreditCard,
-  LogOut,
+  MessageSquare,
 } from "lucide-react";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
@@ -22,15 +19,13 @@ import {
   getFirestore,
   updateDoc,
 } from "firebase/firestore";
-import { db } from '@/firebase/firebaseConfig';
 import { useAuth } from "../auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
 import { motion } from "framer-motion";
-import { Progress } from "@chakra-ui/react";
-import { set } from "zod";
+import FeedbackForm from "../feedback/feedback-form";
 
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
@@ -55,7 +50,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-  const showProgressBar = tier === "free" || subscriptionStatus === "active_pending_cancellation";
   const [maxCredits, setMaxCredits] = useState<number>(100); // Assuming a default max of 100 credits per day
   const progressValue = credits !== null ? (credits / maxCredits) * 100 : 0;
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
@@ -421,6 +415,14 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                 >
                   <SettingsIcon className="h-4 w-4" />
                   Workspace Settings
+                </div>
+                <div>
+                <div
+                  className="flex items-center gap-3 px-5 py-4 text-[#2422208f] transition-colors hover:bg-[#2422200a] cursor-pointer"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <FeedbackForm />
+                </div>
                 </div>
               </div>
             </div>

@@ -7,7 +7,7 @@ import React from "react";
 const HomePageLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main>
-      <div>
+      <div className="max-h-[10vw]">
         <Navbar />
       </div>
 

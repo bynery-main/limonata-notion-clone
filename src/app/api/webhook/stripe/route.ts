@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, updateDoc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { set } from "zod";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20", // Use the latest supported version
@@ -50,6 +51,15 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
   const userRef = doc(db, "users", userId);
   const userDoc = await getDoc(userRef);
 
+  let setNewCredits = false;
+
+  if (userDoc.exists()) {
+    const userData = userDoc.data();
+    if (userData.credits < 100) {
+      setNewCredits = true;
+    }
+  }
+
   if (userDoc.exists()) {
     await updateDoc(userRef, {
       tier: "pro",
@@ -59,6 +69,11 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
       subscriptionStartDate: new Date(subscription.current_period_start * 1000),
       subscriptionEndDate: new Date(subscription.current_period_end * 1000),
     });
+    if (setNewCredits) {
+      await updateDoc(userRef, {
+        credits: 1000,
+      });
+    }
   } else {
     console.error(`User document not found for userId: ${userId}`);
   }
