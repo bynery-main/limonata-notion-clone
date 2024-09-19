@@ -41,7 +41,20 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      const fileType = determineFileType(selectedFile.name);
+      
+      // Check file size
+      if (fileType === "document" && selectedFile.size > 2 * 1024 * 1024) {
+        setErrorMessage("Document files must be under 2MB.");
+        return;
+      }
+      if (fileType === "audio" && selectedFile.size > 50 * 1024 * 1024) {
+        setErrorMessage("Audio files must be under 50MB.");
+        return;
+      }
+
+      setFile(selectedFile);
       setErrorMessage(null);
       setIsUploadComplete(false);
     }
@@ -59,6 +72,16 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
 
     if (fileType === "other") {
       setErrorMessage("This file type is not allowed for upload.");
+      return;
+    }
+
+    // Double-check file size before upload
+    if (fileType === "document" && file.size > 2 * 1024 * 1024) {
+      setErrorMessage("Document files must be under 2MB.");
+      return;
+    }
+    if (fileType === "audio" && file.size > 50 * 1024 * 1024) {
+      setErrorMessage("Audio files must be under 50MB.");
       return;
     }
 
