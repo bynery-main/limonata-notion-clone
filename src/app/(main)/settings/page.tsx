@@ -20,7 +20,7 @@ export interface SettingsPageProps {
   onGoProClick: () => void;
 };
 
-const SettingsPage: React.FC<SettingsPageProps> = ({ onGoProClick }) => {
+const SettingsPage = () => {
   const router = useRouter();
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showGoProModal, setShowGoProModal] = useState(false);
