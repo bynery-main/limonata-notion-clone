@@ -69,7 +69,7 @@ const Navbar = () => {
     return (
         <header className="relative z-20 my-3 mx-8">
             <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
-                <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
+                <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
                     <div className="flex justify-start lg:w-0 lg:flex-1">
                         <span className="sr-only">Limonata</span>
                         <Image src={logo} alt="Limonata" width={150} height={50} className="h-[7vw] w-auto mx-45 sm:h-10" />
