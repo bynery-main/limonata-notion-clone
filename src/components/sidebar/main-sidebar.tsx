@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Workspace } from "@/lib/db/workspaces/get-workspaces";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { FaPlus, FaCog } from "react-icons/fa";
 import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 import Link from "next/link";
@@ -37,6 +37,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
   const [showDS, setShowDS] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
+  const pathname = usePathname();
   const [workspaceEmojis, setWorkspaceEmojis] = useState<{
     [key: string]: string;
   }>({});
@@ -125,16 +126,6 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
     };
   }, [user]);
 
-  const handleWorkspaceClick = (workspaceId: string) => {
-    if (workspaceId === "home") {
-      setActiveIcon("home");
-      router.push("/dashboard");
-    } else {
-      router.push(`/dashboard/${workspaceId}`);
-    }
-    setActiveIcon(workspaceId);
-  };
-
   const handleSettingsClick = () => {
     router.push(`/settings`);
   };
@@ -149,6 +140,20 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
   const renderDashboardSetupModal = () => {
     const portalElement = document.getElementById('dashboard-setup-portal');
     if (!portalElement) return null;
+    useEffect(() => {
+      if (pathname) {
+        if (pathname === '/dashboard') {
+          setActiveIcon('home');
+        } else {
+          const segments = pathname.split('/');
+          if (segments.length > 2) {
+            const workspaceId = segments[2]; // This will be the workspaceId in /dashboard/:workspaceId
+            setActiveIcon(workspaceId);
+          }
+        }
+      }
+    }, [pathname]);
+  
 
     return createPortal(
       <AnimatePresence>
@@ -179,7 +184,28 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
       portalElement
     );
   };
+  useEffect(() => {
+    if (pathname) {
+      if (pathname === '/dashboard') {
+        setActiveIcon('home');
+      } else {
+        const segments = pathname.split('/');
+        if (segments.length > 2) {
+          const workspaceId = segments[2]; // This will be the workspaceId in /dashboard/:workspaceId
+          setActiveIcon(workspaceId);
+        }
+      }
+    }
+  }, [pathname]);
 
+  const handleWorkspaceClick = (workspaceId: string) => {
+    if (workspaceId === "home") {
+      router.push("/dashboard");
+    } else {
+      router.push(`/dashboard/${workspaceId}`);
+    }
+    setActiveIcon(workspaceId);
+  };
   return (
     <div className="relative w-[50px] h-screen bg-[#272727] flex flex-col justify-between">
       <div className="mt-3 bg-[#272727] flex flex-col items-center">
