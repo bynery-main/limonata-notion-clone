@@ -12,7 +12,7 @@ const PowerpointDisplay: React.FC<PowerpointDisplayProps> = ({ fileUrl, fileName
   return (
     <div className="powerpoint-display mb-2">
       <p className="mb-2">
-        PowerPoint files are not supported for in-browser viewing.
+        Sorry! We can't handle powerpoints right now but you can download the file below. You can upload this as a pdf though!
       </p>
       <a 
         href={fileUrl} 
