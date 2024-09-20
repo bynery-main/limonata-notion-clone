@@ -195,7 +195,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   return (
     <FolderProvider>
-      <div className="flex h-screen overflow-show">
+      <div className="flex h-screen overflow-show z-1000">
         <ResponsiveSidebar 
           user={user} 
           workspaceId={params.workspaceId} 
@@ -208,25 +208,30 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             <div className="w-full mt-11">
               <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
             </div>
-            <div className="flex items-center w-full mt-2 ">
-              {!isSettingsPage && (
-                <>
-                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
-                    <span>{emoji}</span>
-                  </button>
-                  {pageTitle && (
-                    <h1 className="text-4xl font-bold line-clamp-2">
-                      {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                    </h1>
-                  )}
-                </>
-              )}
-            </div>
+            {!isSettingsPage && (
+              <>
+              <div className="flex items-center w-full mt-2 ">
+
+                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
+                      <span>{emoji}</span>
+                    </button>
+                    {pageTitle && (
+                      <h1 className="text-4xl font-bold line-clamp-2">
+                        {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                      </h1>
+                    )}
+              </div>
+
             <p className="text-sm text-gray-600 mt-2 font-light">
               {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
             </p>
-          </div>
+                      </>
+            )}
+                         </div>
+ 
           {children}
+          {!isSettingsPage && (
+            <>
 
           <div ref={bentoGridRef}>
             {showBentoGrid && folderId && (
@@ -238,14 +243,15 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             )}
           </div>
 
-          <FileUploader
-            workspaceId={params.workspaceId}
-            db={db}
-            onFileUpload={handleFileUpload}
-            isVisible={isFileUploaderVisible}
-            onClose={() => setIsFileUploaderVisible(false)}
-          />
-
+            <FileUploader
+              workspaceId={params.workspaceId}
+              db={db}
+              onFileUpload={handleFileUpload}
+              isVisible={isFileUploaderVisible}
+              onClose={() => setIsFileUploaderVisible(false)}
+            />
+            </>
+          )}
         <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
           <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
           <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
