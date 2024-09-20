@@ -112,7 +112,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
 
   const handleCreateFlashcards = async () => {
     const functions = getFunctions(app);
-    const createFlashcards = httpsCallable(functions, "flashcardAgent", {timeout: 240000});
+    const createFlashcards = httpsCallable(functions, "flashcardAgent", { timeout: 240000 });
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
     setLoading(true);
@@ -120,58 +120,58 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       // Separate notes and files from selectedNotes
       const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
       const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
-  
+
       // Attempt flashcard creation first
       const result = await createFlashcards({
         workspaceId,
         notes,
         files,
       });
-  
+
       if (!result || !result.data) {
         throw new Error("No data returned from flashcard creation");
       }
-  
+
       const data = result.data as { flashcards?: { raw?: string } };
       if (!data.flashcards || !data.flashcards.raw) {
         throw new Error("Invalid flashcard data returned");
       }
-  
+
       const raw = data.flashcards.raw;
       const parsedFlashcards = parseRawDataToFlashcards(raw);
-      
+
       if (parsedFlashcards.length === 0) {
         throw new Error("No flashcards could be created from the provided content");
       }
-  
+
       // If flashcards were successfully created, proceed with credit check
       const creditUsageResult = (await creditValidation({
         uid: userId,
         cost: creditCost,
       })) as { data: CreditUsageResult };
-  
+
       console.log("Credit usage result:", creditUsageResult.data);
-  
+
       if (!creditUsageResult.data.success) {
         setRemainingCredits(creditUsageResult.data.remainingCredits);
         setShowCreditModal(true);
         return;
       }
-  
+
       // If credit check passes, continue with the rest of the process
       setFlashcards(parsedFlashcards);
-  
+
       const nameGenerationResult = await generateName({ content: raw });
       if (!nameGenerationResult.data) {
         throw new Error("Failed to generate name for flashcard deck");
       }
       generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
-  
+
       const deckRef = doc(
         collection(db, "workspaces", workspaceId, "flashcardsDecks")
       );
       await setDoc(deckRef, { name: generatedName });
-  
+
       const flashcardsCollectionRef = collection(deckRef, "flashcards");
       for (const flashcard of parsedFlashcards) {
         await addDoc(flashcardsCollectionRef, {
@@ -179,7 +179,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
           answer: flashcard.answer,
         });
       }
-  
+
       // Success toast
       ReactToast.success(
         <>
@@ -190,12 +190,12 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
           icon: '🎉',
         }
       );
-  
+
       onClose();
-  
+
     } catch (error: any) {
       console.error("Error creating flashcards:", error);
-  
+
       if (error.code === 'functions/invalid-argument' && error.message.includes('The concatenated text is too long')) {
         ReactToast.error("The selected content is too long. Please select fewer or shorter notes.", {
           duration: 5000,
@@ -292,42 +292,44 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
               >
                 <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
                 <ul className="space-y-2">
-                  {folder.notes.map((note) => {
-                    const emoji = getFileEmoji(note.name);
-                    const isSelected = selectedNoteIds.has(note.id);
+                  {folder.notes
+                    .filter(note => !note.name.toLowerCase().endsWith('.pptx'))
+                    .map((note) => {
+                      const emoji = getFileEmoji(note.name);
+                      const isSelected = selectedNoteIds.has(note.id);
 
-                    return (
-                      <li key={note.id} className="flex items-start">
-                        <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
-                          <Checkbox
-                            id={`note-${note.id}`}
-                            isChecked={isSelected}
-                            onChange={(e) =>
-                              toggleNoteSelection(
-                                folder.folderId,
-                                note.id,
-                                e.target.checked,
-                                note.type
-                              )
-                            }
-                            className="z-10"
-                          />
-                          <span
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
-                              }`}
+                      return (
+                        <li key={note.id} className="flex items-start">
+                          <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
+                            <Checkbox
+                              id={`note-${note.id}`}
+                              isChecked={isSelected}
+                              onChange={(e) =>
+                                toggleNoteSelection(
+                                  folder.folderId,
+                                  note.id,
+                                  e.target.checked,
+                                  note.type
+                                )
+                              }
+                              className="z-10"
+                            />
+                            <span
+                              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
+                                }`}
+                            >
+                              {emoji}
+                            </span>
+                          </div>
+                          <label
+                            htmlFor={`note-${note.id}`}
+                            className="text-sm break-words cursor-pointer hover:text-[#F6B144] transition-colors duration-200 flex items-center"
                           >
-                            {emoji}
-                          </span>
-                        </div>
-                        <label
-                          htmlFor={`note-${note.id}`}
-                          className="text-sm break-words cursor-pointer hover:text-[#F6B144] transition-colors duration-200 flex items-center"
-                        >
-                          {note.name}
-                        </label>
-                      </li>
-                    );
-                  })}
+                            {note.name}
+                          </label>
+                        </li>
+                      );
+                    })}
                 </ul>
               </div>
             ))}

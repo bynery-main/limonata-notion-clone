@@ -102,7 +102,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
 
   const handleCreateQuizzes = async () => {
     const functions = getFunctions(app);
-    const createQuizzes = httpsCallable(functions, "quizGenAgent", {timeout: 240000});
+    const createQuizzes = httpsCallable(functions, "quizGenAgent", { timeout: 240000 });
     const generateName = httpsCallable(functions, "nameResource");
     const creditValidation = httpsCallable(functions, "useCredits");
 
@@ -246,7 +246,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
     e.preventDefault(); // Prevent the default link behavior
     onClose(); // Close the current modal
     onBack();
-    
+
   };
 
   return (
@@ -254,8 +254,8 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="relative flex justify-center items-center mb-4">
-                        {/* Add back arrow */}
-                        <button
+            {/* Add back arrow */}
+            <button
               onClick={handleBackClick}
               className="absolute left-0 top-1/2 transform -translate-y-1/2 text-xl font-bold"
             >
@@ -285,42 +285,44 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               >
                 <h3 className="font-bold mb-2 break-words">{folder.folderName}</h3>
                 <ul className="space-y-2">
-                  {folder.notes.map((note) => {
-                    const emoji = getFileEmoji(note.name);
-                    const isSelected = selectedNoteIds.has(note.id);
+                  {folder.notes
+                    .filter(note => !note.name.toLowerCase().endsWith('.pptx'))
+                    .map((note) => {
+                      const emoji = getFileEmoji(note.name);
+                      const isSelected = selectedNoteIds.has(note.id);
 
-                    return (
-                      <li key={note.id} className="flex items-start">
-                        <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
-                          <Checkbox
-                            id={`note-${note.id}`}
-                            isChecked={isSelected}
-                            onChange={(e) =>
-                              toggleNoteSelection(
-                                folder.folderId,
-                                note.id,
-                                e.target.checked,
-                                note.type
-                              )
-                            }
-                            className="z-10"
-                          />
-                          <span
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
-                              }`}
+                      return (
+                        <li key={note.id} className="flex items-start">
+                          <div className="mr-2 mt-1 w-5 h-5 flex items-center justify-center relative">
+                            <Checkbox
+                              id={`note-${note.id}`}
+                              isChecked={isSelected}
+                              onChange={(e) =>
+                                toggleNoteSelection(
+                                  folder.folderId,
+                                  note.id,
+                                  e.target.checked,
+                                  note.type
+                                )
+                              }
+                              className="z-10"
+                            />
+                            <span
+                              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isSelected ? 'opacity-0' : 'opacity-100'
+                                }`}
+                            >
+                              {emoji}
+                            </span>
+                          </div>
+                          <label
+                            htmlFor={`note-${note.id}`}
+                            className="text-sm break-words cursor-pointer hover:text-[#F6B144] transition-colors duration-200 flex items-center"
                           >
-                            {emoji}
-                          </span>
-                        </div>
-                        <label
-                          htmlFor={`note-${note.id}`}
-                          className="text-sm break-words cursor-pointer hover:text-[#F6B144] transition-colors duration-200 flex items-center"
-                        >
-                          {note.name}
-                        </label>
-                      </li>
-                    );
-                  })}
+                            {note.name}
+                          </label>
+                        </li>
+                      );
+                    })}
                 </ul>
               </div>
             ))}
@@ -331,49 +333,48 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
               ? 'p-[1px] relative'
               : 'p-[1px] relative cursor-not-allowed'
               }`}>
-                 <Button
-      onClick={handleCreateQuizzes}
-      className="p-[1px] relative"
-      title={
-        selectedNotes.length > 0
-          ? 'Create Quizzes'
-          : 'Click on a note first to create a Quiz'
-      }
-      disabled={isDisabled}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
-      <motion.div
-        className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${
-          isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
-        }`}
-        whileHover={isDisabled ? {} : "hover"}
-        whileTap={isDisabled ? {} : "tap"}
-      >
-        <motion.span
-          className="font-bold inline-block"
-          variants={{
-            hover: { x: -20, opacity: 0 },
-            tap: { scale: 0.95 }
-          }}
-        >
-          {loading ? "Creating..." : "Create Quizzes"}
-        </motion.span>
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          initial={{ x: 20, opacity: 0 }}
-          variants={{
-            hover: { x: 0, opacity: 1 },
-            tap: { scale: 0.95 }
-          }}
-        >
-          {loading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <span className="whitespace-nowrap">{creditCost} Credits</span>
-          )}
-        </motion.div>
-      </motion.div>
-    </Button>
+              <Button
+                onClick={handleCreateQuizzes}
+                className="p-[1px] relative"
+                title={
+                  selectedNotes.length > 0
+                    ? 'Create Quizzes'
+                    : 'Click on a note first to create a Quiz'
+                }
+                disabled={isDisabled}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+                <motion.div
+                  className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
+                    }`}
+                  whileHover={isDisabled ? {} : "hover"}
+                  whileTap={isDisabled ? {} : "tap"}
+                >
+                  <motion.span
+                    className="font-bold inline-block"
+                    variants={{
+                      hover: { x: -20, opacity: 0 },
+                      tap: { scale: 0.95 }
+                    }}
+                  >
+                    {loading ? "Creating..." : "Create Quizzes"}
+                  </motion.span>
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ x: 20, opacity: 0 }}
+                    variants={{
+                      hover: { x: 0, opacity: 1 },
+                      tap: { scale: 0.95 }
+                    }}
+                  >
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <span className="whitespace-nowrap">{creditCost} Credits</span>
+                    )}
+                  </motion.div>
+                </motion.div>
+              </Button>
             </div>
           </div>
           {/*  
