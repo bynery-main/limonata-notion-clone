@@ -21,20 +21,20 @@ export function PricingPage() {
           </span>
           Get Limonata Pro
         </h1>
-        <p className="text-gray-600">No ads. No trials. No commitments.</p>
+        <p className="text-gray-600">No trials. No commitments. <b>10x </b>the amount of credits.</p>
       </div>
 
       <Card className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="grid md:grid-cols-2 gap-6 p-6">
           <div className="space-y-4">
             <Feature icon={<CloudIcon />} title="Massive Storage" description="Up to 50GB per Workspace" />
-            <Feature icon={<BookOpenIcon />} title="Unlimited Flashcards" description="Create as many as you want" />
-            <Feature icon={<MessageCircleIcon />} title="Unlimited Chat" description="Chat with your AI tutor without limits" />
+            <Feature icon={<BookOpenIcon />} title="Unlimited Flashcards" description="Create ten times more!" />
+            <Feature icon={<MessageCircleIcon />} title="10x Chats" description="Many more chats with your AI tutor" />
           </div>
           <div className="space-y-4">
-            <Feature icon={<BookIcon />} title="Unlimited Studyguides" description="Create as many study guides as you want" />
-            <Feature icon={<PencilIcon />} title="Unlimited Quizzes" description="Test yourself and improve over and over" />
-            <Feature icon={<FoldersIcon />} title="Unlimited Workspaces" description="Create and join as many as you want" />
+            <Feature icon={<BookIcon />} title="10x Studyguides" description="Create many more study guides" />
+            <Feature icon={<PencilIcon />} title="10x Quizzes" description="Test yourself and improve over and over" />
+            <Feature icon={<FoldersIcon />} title="10x Workspaces" description="Create and join as many as you want" />
           </div>
         </div>
       </Card>
