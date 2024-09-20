@@ -1,9 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { IconUpload } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import FileUploader from '../drag-n-drop/drag-n-drop';
 import FancyText from "@carefully-coded/react-text-gradient";
+import { usePathname } from "next/navigation";
 
 interface Folder {
   id: string;
@@ -44,6 +45,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
     setIsUploaderVisible(false);
     setSelectedFile(undefined);
   };
+
+  const pathname = usePathname();
+
+  // Check if the pathname ends with 'settings'
+  if (pathname?.endsWith('/settings')) {
+    return null; // Don't render the component
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">

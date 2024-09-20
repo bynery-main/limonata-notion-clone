@@ -1,10 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Picker from "@emoji-mart/react";
 import { BentoGrid } from "@/components/BentoGrid/bento-grid";
-import Image from "next/image";
-
-import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { FolderProvider } from "@/contexts/FolderContext";
 import ChatComponent from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
@@ -211,7 +207,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             {!isSettingsPage && (
               <>
               <div className="flex items-center w-full mt-2 ">
-
                     <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
                       <span>{emoji}</span>
                     </button>

@@ -44,7 +44,6 @@ const allowedFileTypes: { [key: string]: string } = {
   wav: "audio",
   pdf: "document",
   docx: "document",
-  ppt: "powerpoint",
   pptx: "powerpoint",
   jpg: "image",
   jpeg: "image",
@@ -69,6 +68,21 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const [isUploadComplete, setIsUploadComplete] = useState<boolean>(false);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
+
+  const FILE_SIZE_LIMITS = {
+    document: 2 * 1024 * 1024, // 2MB
+    audio: 50 * 1024 * 1024, // 50MB
+    powerpoint: 50 * 1024 * 1024, // 50MB
+  };
+
+  const checkFileSize = (file: File, fileType: string): string | null => {
+    const limit = FILE_SIZE_LIMITS[fileType as keyof typeof FILE_SIZE_LIMITS];
+    if (limit && file.size > limit) {
+      const limitInMB = limit / (1024 * 1024);
+      return `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} files must be under ${limitInMB}MB.`;
+    }
+    return null;
+  };
 
   useEffect(() => {
     console.log("Setting selected folder:", folder);
@@ -95,6 +109,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       fetchFolders();
     }
   }, [db, workspaceId, isVisible, folder]);
+
   useEffect(() => {
     if (folder) {
       setSelectedFolder(folder);
@@ -103,9 +118,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0]);
-      setErrorMessage(null);
-      setIsUploadComplete(false);
+      const selectedFile = acceptedFiles[0];
+      const fileType = determineFileType(selectedFile.name);
+      const sizeError = checkFileSize(selectedFile, fileType);
+
+      if (sizeError) {
+        setErrorMessage(sizeError);
+      } else {
+        setFile(selectedFile);
+        setErrorMessage(null);
+        setIsUploadComplete(false);
+      }
     }
   }, []);
 
@@ -124,12 +147,19 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       return;
     }
 
+    const sizeError = checkFileSize(file, fileType);
+    if (sizeError) {
+      setErrorMessage(sizeError);
+      return;
+    }
+
     setIsUploading(true);
     const uploadFolder = folder || selectedFolder;
     if (!uploadFolder) {
       setErrorMessage("No folder selected for upload.");
       return;
     }
+
     const storageRef = ref(
       storage,
       `workspaces/${workspaceId}/folders/${uploadFolder!.id}/${file.name}`
@@ -139,8 +169,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
       },
       (error) => {
@@ -149,46 +178,52 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         setIsUploading(false);
       },
       async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
 
-        const filesCollectionRef = collection(
-          db,
-          "workspaces",
-          workspaceId,
-          "folders",
-          selectedFolder.id,
-          "files"
-        );
-        const newFileRef = doc(filesCollectionRef);
-        const fileId = newFileRef.id;
+          const filesCollectionRef = collection(
+            db,
+            "workspaces",
+            workspaceId,
+            "folders",
+            uploadFolder.id,
+            "files"
+          );
+          const newFileRef = doc(filesCollectionRef);
+          const fileId = newFileRef.id;
 
-        const fileData: FileData = {
-          id: fileId,
-          name: file.name,
-          url: downloadURL,
-          type: fileType,
-          fileType: fileExtension,
-          folderId: selectedFolder.id,
-        };
+          const fileData: FileData = {
+            id: fileId,
+            name: file.name,
+            url: downloadURL,
+            type: fileType,
+            fileType: fileExtension,
+            folderId: uploadFolder.id,
+          };
 
-        await setDoc(newFileRef, fileData);
+          await setDoc(newFileRef, fileData);
 
-        onFileUpload(fileData);
+          onFileUpload(fileData);
 
-        if (fileType === "audio") {
-          await triggerAudioTranscription(downloadURL, newFileRef.path);
+          if (fileType === "audio") {
+            await triggerAudioTranscription(downloadURL, newFileRef.path);
+          }
+
+          if (fileType === "document" || fileType === "powerpoint") {
+            await triggerDocumentProcessing(downloadURL, newFileRef.path);
+          }
+
+          setIsUploading(false);
+          setIsUploadComplete(true);
+          setUploadProgress(0);
+          setFile(null);
+          setSelectedFolder(null);
+        } catch (error) {
+          console.error("Error in file upload process:", error);
+          setErrorMessage("An error occurred during the upload process. Please try again.");
+          setIsUploading(false);
         }
-
-        if (fileType === "document") {
-          await triggerDocumentProcessing(downloadURL, newFileRef.path);
-        }
-
-        setIsUploading(false);
-        setIsUploadComplete(true);
-        setUploadProgress(0);
-        setFile(null);
-        setSelectedFolder(null);
       }
     );
   };
@@ -217,10 +252,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   ) => {
     try {
       const functions = getFunctions();
-      const handleDocumentUpload = httpsCallable(
-        functions,
-        "handleDocumentUpload"
-      );
+      const handleDocumentUpload = httpsCallable(functions, "handleDocumentUpload");
       await handleDocumentUpload({ documentUrl, fileRef });
     } catch (error) {
       console.error("Error calling Cloud Function:", error);
@@ -261,16 +293,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     disabled?: boolean;
   }) => (
     <div
-      className={`p-[1px] relative block ${
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      }`}
+      className={`p-[1px] relative block ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
       onClick={disabled ? undefined : onClick}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
       <div
-        className={`px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black ${
-          disabled ? "" : "hover:bg-transparent hover:text-white"
-        }`}
+        className={`px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black ${disabled ? "" : "hover:bg-transparent hover:text-white"
+          }`}
       >
         <div
           style={{
@@ -308,9 +338,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${
-            isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
-          }`}
+          className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+            }`}
         >
           <input {...getInputProps()} />
           {isDragActive ? (

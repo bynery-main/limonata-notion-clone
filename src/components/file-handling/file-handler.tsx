@@ -38,7 +38,6 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
         ) : fileExtension === 'ppt' || fileExtension === 'pptx' ? (
           <>
             <PowerpointDisplay fileUrl={fileUrl} />
-            {renderSummariseButton()}
           </>
         ) : fileExtension === 'mp3' || fileExtension === 'wav' ? (
           <>

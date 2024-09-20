@@ -8,6 +8,8 @@ import { auth } from '@/firebase/firebaseConfig'; // Adjust this import based on
 import Image from 'next/image';
 import logo from '../../../public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
+import BMButton from '../ui/bm-button';
+import NavbarAuthButton from '../ui/bm-button';
 
 const gradientAnimation = keyframes`
   0% {
@@ -67,7 +69,7 @@ const Navbar = () => {
     return (
         <header className="relative z-20 my-3 mx-8">
             <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
-                <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
+                <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
                     <div className="flex justify-start lg:w-0 lg:flex-1">
                         <span className="sr-only">Limonata</span>
                         <Image src={logo} alt="Limonata" width={150} height={50} className="h-[7vw] w-auto mx-45 sm:h-10" />
@@ -81,14 +83,15 @@ const Navbar = () => {
                     <div className="hidden md:flex items-end justify-end md:flex-1 lg:w-0">
                         {!loading && (
                             user ? (
-                                <AnimatedButton variant="default" onClick={handleSignOut}>
+                                <NavbarAuthButton onClick={handleSignOut}>
                                     SIGN OUT
-                                </AnimatedButton>
+                                </NavbarAuthButton>
+                                
                             ) : (
                                 <>
-                                    <AnimatedButton variant="ghost" onClick={handleLogin} className="mr-2">
+                                    <NavbarAuthButton onClick={handleLogin}>
                                         LOG IN
-                                    </AnimatedButton>
+                                    </NavbarAuthButton>
                                     {/* Sign up for email implement later */}
                                     {/* <AnimatedButton variant="default" onClick={handleSignUp}>
                                         SIGN UP
