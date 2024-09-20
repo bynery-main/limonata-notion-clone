@@ -8,6 +8,8 @@ import { auth } from '@/firebase/firebaseConfig'; // Adjust this import based on
 import Image from 'next/image';
 import logo from '../../../public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
+import BMButton from '../ui/bm-button';
+import NavbarAuthButton from '../ui/bm-button';
 
 const gradientAnimation = keyframes`
   0% {
@@ -81,14 +83,15 @@ const Navbar = () => {
                     <div className="hidden md:flex items-end justify-end md:flex-1 lg:w-0">
                         {!loading && (
                             user ? (
-                                <AnimatedButton variant="default" onClick={handleSignOut}>
+                                <NavbarAuthButton onClick={handleSignOut}>
                                     SIGN OUT
-                                </AnimatedButton>
+                                </NavbarAuthButton>
+                                
                             ) : (
                                 <>
-                                    <AnimatedButton variant="ghost" onClick={handleLogin} className="mr-2">
+                                    <NavbarAuthButton onClick={handleLogin}>
                                         LOG IN
-                                    </AnimatedButton>
+                                    </NavbarAuthButton>
                                     {/* Sign up for email implement later */}
                                     {/* <AnimatedButton variant="default" onClick={handleSignUp}>
                                         SIGN UP

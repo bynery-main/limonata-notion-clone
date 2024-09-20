@@ -65,7 +65,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
             );
             const folderName = folderDoc.exists()
               ? folderDoc.data()?.name
-              : "Folder";
+              : "Settings";
             console.log("Folder Name:", folderName);
 
             items.push({

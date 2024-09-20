@@ -1,10 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Picker from "@emoji-mart/react";
 import { BentoGrid } from "@/components/BentoGrid/bento-grid";
-import Image from "next/image";
-
-import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { FolderProvider } from "@/contexts/FolderContext";
 import ChatComponent from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
@@ -195,63 +191,62 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   return (
     <FolderProvider>
-      <div className="flex h-screen overflow-hidden">
-        <ResponsiveSidebar 
-          user={user} 
-          workspaceId={params.workspaceId} 
-          onFoldersUpdate={updateFoldersData} 
+      <div className="flex h-screen overflow-show z-100">
+        <ResponsiveSidebar
+          user={user}
+          workspaceId={params.workspaceId}
+          onFoldersUpdate={updateFoldersData}
         />
-        <main className="flex-1 overflow-y-auto">
-      
-        <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
-            <div className="w-full mt-11">
-              <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
-            </div>
-            <div className="flex items-center w-full mt-2 ">
+        <main className="flex-1 overflow-y-auto -z-10">
+
+          <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
+            <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
+              <div className="w-full mt-11">
+                <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+              </div>
               {!isSettingsPage && (
-                <>
-                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
-                    <span>{emoji}</span>
-                  </button>
-                  {pageTitle && (
-                    <h1 className="text-4xl font-bold line-clamp-2">
-                      {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                    </h1>
-                  )}
-                </>
+                <><div className="flex items-center w-full mt-2 ">
+                  <>
+                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
+                      <span>{emoji}</span>
+                    </button>
+                    {pageTitle && (
+                      <h1 className="text-4xl font-bold line-clamp-2">
+                        {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                      </h1>
+                    )}
+                  </>
+                </div><p className="text-sm text-gray-600 mt-2 font-light">
+                    {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
+                  </p></>
               )}
             </div>
-            <p className="text-sm text-gray-600 mt-2 font-light">
-              {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
-            </p>
+            {children}
+
+            <div ref={bentoGridRef}>
+              {showBentoGrid && folderId && (
+                <BentoGrid className="max-w-7xl mx-auto p-4 z-0" workspaceId={params.workspaceId} folderId={folderId} />
+              )}
+
+              {showBentoGrid && !folderId && (
+                <BentoGrid className="max-w-7xl mx-auto p-4 z-0" workspaceId={params.workspaceId} />
+              )}
+            </div>
+
+            <FileUploader
+              workspaceId={params.workspaceId}
+              db={db}
+              onFileUpload={handleFileUpload}
+              isVisible={isFileUploaderVisible}
+              onClose={() => setIsFileUploaderVisible(false)}
+            />
+
+            <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
+              <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor} />
+              <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
+            </div>
           </div>
-          {children}
-
-          <div ref={bentoGridRef}>
-            {showBentoGrid && folderId && (
-              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
-            )}
-
-            {showBentoGrid && !folderId && (
-              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
-            )}
-          </div>
-
-          <FileUploader
-            workspaceId={params.workspaceId}
-            db={db}
-            onFileUpload={handleFileUpload}
-            isVisible={isFileUploaderVisible}
-            onClose={() => setIsFileUploaderVisible(false)}
-          />
-
-        <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
-          <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
-          <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
-        </div>
-        </div>
-      </main>
+        </main>
       </div>
     </FolderProvider>
   );

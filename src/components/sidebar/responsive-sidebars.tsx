@@ -56,7 +56,7 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
   };
 
   return (
-    <div className="flex h-screen overflow-hidden"> {/* Ensure parent takes full screen height and hides overflow */}
+    <div className="flex h-screen overflow-show z-100"> {/* Ensure parent takes full screen height and hides overflow */}
       {/* Main Sidebar */}
       <div
         className={`h-full ${
