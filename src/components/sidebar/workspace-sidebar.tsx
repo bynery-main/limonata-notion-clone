@@ -303,10 +303,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <>
             <Button
               onClick={onGoProClick}
-              className="mx-4 mt-4 shadow-lg"
+              className="mx-4 mt-4 shadow-lg inline-flex h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
             >
               Go Pro
             </Button>
+
+
             <div className="mx-4 mt-2">
               <motion.div
                 className="bg-gray-200 rounded-full overflow-show"
@@ -332,7 +334,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             {subscriptionStatus === "active_pending_cancellation" && (
               <Button
                 onClick={onGoProClick}
-                className="mx-4 mt-4 shadow-lg"
+                className="mx-4 mt-4 shadow-lg inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
               >
                 Resubscribe
               </Button>
@@ -428,21 +430,20 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         </div>
       </aside>
 
-      {/* Modal for Go Pro */}
       {showGoProModal && (
         <div className="fixed inset-0  flex items-center justify-center z-50">
           <div className=" bg-gradient-to-br from-green-50 via-blue-50 to-pink-50 w-full h-full overflow-y-auto">
             <button 
-              onClick={onGoProClick}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
+              onClick={close}
+              className="mx-4 mt-4 shadow-lg inline-flex text-white h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+            >      
               Close
             </button>
             <PricingPage />
             <div className="flex justify-center items-center mt-8 mb-16">
               <GoProButton
-                className="bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors"
-                userEmail={currentUserEmail!}
+              className="mx-4 mt-4 shadow-lg inline-flex text-white h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+              userEmail={currentUserEmail!}
                 userId={currentUserUid!}
                 subscriptionStatus={subscriptionStatus}
               />

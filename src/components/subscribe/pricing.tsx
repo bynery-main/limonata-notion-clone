@@ -39,10 +39,10 @@ export function PricingPage() {
         </div>
       </Card>
 
-      <p className="text-gray-600 mt-6 mb-8">All our features are available to all users</p>
+      <p className=" text-gray-600 mt-6 mb-8 text-center">All our features are available to all users</p>
 
       <div className="text-center">
-        <h2 className="text-6xl font-bold mb-2">$15<span className="text-2xl font-normal text-gray-600">/month</span></h2>
+        <h2 className="text-6xl font-bold mb-2">$4,99<span className="text-2xl font-normal text-gray-600">/month</span></h2>
 
       </div>
     </div>
