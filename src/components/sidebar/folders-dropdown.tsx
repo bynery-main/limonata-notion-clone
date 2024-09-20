@@ -63,7 +63,16 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
               (change) => change.type === "removed" && change.doc.id === folder.id
             )
         );
-        return [...newFolders, ...updatedFolders];
+        updatedFolders.forEach((updatedFolder) => {
+          const index = newFolders.findIndex((f) => f.id === updatedFolder.id);
+          if (index !== -1) {
+            newFolders[index] = updatedFolder;
+          } else {
+            newFolders.push(updatedFolder);
+          }
+        });
+        
+        return newFolders;
       });
     });
 
