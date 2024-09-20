@@ -168,7 +168,7 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
                   &times;
                 </button>
                 <div className="flex justify-center items-center mb-8 space-x-4">
-                  <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className="min-h-20 text-3xl sm:text-4xl md:text-5xl font-bold text-black font-extrabold h-auto">
+                  <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className="min-h-20 text-3xl sm:text-4xl md:text-5xl font-bold text-black h-auto">
                     Learn using AI
                   </FancyText>
                 </div>
