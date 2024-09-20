@@ -430,8 +430,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
       {/* Modal for Go Pro */}
       {showGoProModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white w-full h-full overflow-y-auto">
+        <div className="fixed inset-0  flex items-center justify-center z-50">
+          <div className=" bg-gradient-to-br from-green-50 via-blue-50 to-pink-50 w-full h-full overflow-y-auto">
             <button 
               onClick={onGoProClick}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"

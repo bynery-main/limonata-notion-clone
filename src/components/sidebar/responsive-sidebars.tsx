@@ -135,10 +135,9 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Darkened and blurred background */}
             <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowGoProModal(false)} />
             
-            {/* Modal window */}
+            {/* GoPro window */}
             <motion.div 
               className="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto relative z-10"
               initial={{ scale: 0.9, opacity: 0 }}

@@ -52,7 +52,7 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       
-      <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-96">
+      <div className=" bg-gradient-to-br from-green-50 via-blue-50 to-pink-50  dark:bg-neutral-800 rounded-lg p-6 w-200">
         {/* 
         <h2 className="text-xl font-bold mb-4">Not Enough Credits</h2>
         <p className="mb-2">{getNoCreditsText()}</p>
@@ -67,6 +67,8 @@ const NoCreditsModal: React.FC<NoCreditsModalProps> = ({
           <li>Advanced analytics and insights</li>
         </ul>
         */}
+        <h2 className="flex text-xl font-bold mb-4 justify-center">It seems like you run out of credits!</h2>
+        
         <PricingPage />
         {/* Conditionally render the GoProButton only if user is on the free tier */}
         {subscriptionStatus === "free" && resolvedUserId && resolvedUserEmail && (

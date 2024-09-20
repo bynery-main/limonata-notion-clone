@@ -13,7 +13,7 @@ interface FeatureProps {
 
 export function PricingPage() {
   return (
-    <div className=" bg-gradient-to-br from-green-50 via-blue-50 to-pink-50 flex flex-col items-center justify-center p-4">
+    <div className="min-w-1000flex flex-col items-center justify-center p-4 overflow-show">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center">
           <span className="bg-black text-white rounded-full p-2 mr-2">
