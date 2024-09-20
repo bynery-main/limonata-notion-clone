@@ -83,12 +83,9 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       setErrorMessage("Document files must be under 2MB.");
       return;
     }
+    
     if (fileType === "audio" && file.size > 50 * 1024 * 1024) {
       setErrorMessage("Audio files must be under 50MB.");
-      return;
-    }
-    if (fileType === "powerpoint" && file.size > 50 * 1024 * 1024) {
-      setErrorMessage("Powerpoint files must be under 50MB.");
       return;
     }
 
@@ -128,7 +125,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
           await triggerAudioTranscription(downloadURL, newFileRef.path);
         }
 
-        if (fileType === "document" || fileType === "powerpoint") {
+        if (fileType === "document") {
           await triggerDocumentProcessing(downloadURL, newFileRef.path);
         }
 
