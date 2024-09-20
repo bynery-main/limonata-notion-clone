@@ -24,7 +24,6 @@ const allowedFileTypes: { [key: string]: string } = {
   wav: "audio",
   pdf: "document",
   docx: "document",
-  ppt: "powerpoint",
   pptx: "powerpoint",
   jpg: "image",
   jpeg: "image",
@@ -51,6 +50,10 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       }
       if (fileType === "audio" && selectedFile.size > 50 * 1024 * 1024) {
         setErrorMessage("Audio files must be under 50MB.");
+        return;
+      }
+      if (fileType === "powerpoint" && selectedFile.size > 50 * 1024 * 1024) {
+        setErrorMessage("Powerpoint files must be under 50MB.");
         return;
       }
 
@@ -82,6 +85,10 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     }
     if (fileType === "audio" && file.size > 50 * 1024 * 1024) {
       setErrorMessage("Audio files must be under 50MB.");
+      return;
+    }
+    if (fileType === "powerpoint" && file.size > 50 * 1024 * 1024) {
+      setErrorMessage("Powerpoint files must be under 50MB.");
       return;
     }
 
@@ -121,7 +128,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
           await triggerAudioTranscription(downloadURL, newFileRef.path);
         }
 
-        if (fileType === "document") {
+        if (fileType === "document" || fileType === "powerpoint") {
           await triggerDocumentProcessing(downloadURL, newFileRef.path);
         }
 
