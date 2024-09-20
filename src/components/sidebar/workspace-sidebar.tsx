@@ -26,17 +26,21 @@ import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
 import { motion } from "framer-motion";
 import FeedbackForm from "../feedback/feedback-form";
+import {PricingPage} from "../subscribe/pricing";
+
 
 export interface WorkspaceSidebarProps {
   params: { workspaceId: string };
   className?: string;
   onFoldersUpdate: (folders: Folder[]) => void;
+  onGoProClick: () => void;
 }
 
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   params,
   className,
   onFoldersUpdate,
+  onGoProClick, 
 }) => {
   const router = useRouter();
   const [width, setWidth] = useState(0);
@@ -70,6 +74,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const functions = getFunctions();
   const db = getFirestore();
   const manageCollaborators = httpsCallable(functions, "manageCollaborators");
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -254,6 +259,21 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
 
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setShowGoProModal(false);
+      }
+    };
+
+    if (showGoProModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showGoProModal]);
 
   return (
     <>
@@ -282,7 +302,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         {tier === "free" && (
           <>
             <Button
-              onClick={() => setShowGoProModal(true)}
+              onClick={onGoProClick}
               className="mx-4 mt-4 shadow-lg"
             >
               Go Pro
@@ -311,7 +331,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <>
             {subscriptionStatus === "active_pending_cancellation" && (
               <Button
-                onClick={() => setShowGoProModal(true)}
+                onClick={onGoProClick}
                 className="mx-4 mt-4 shadow-lg"
               >
                 Resubscribe
@@ -411,29 +431,22 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       {/* Modal for Go Pro */}
       {showGoProModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Go Pro</h2>
-            <ul className="list-disc list-inside mb-6">
-              <li>Access to premium features</li>
-              <li>Priority support</li>
-              <li>More storage for your workspaces</li>
-              <li>Collaborate with more team members</li>
-              <li>Advanced analytics and insights</li>
-            </ul>
-            <GoProButton
-              className="w-full"
-              userEmail={currentUserEmail!}
-              userId={currentUserUid!}
-              subscriptionStatus={subscriptionStatus}
-            />
-                        <Button
-              onClick={() => setShowGoProModal(false)}
-              variant="outline"
-              className="mt-2 ml-2"
-
+          <div className="bg-white w-full h-full overflow-y-auto">
+            <button 
+              onClick={onGoProClick}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
-              Cancel
-            </Button>
+              Close
+            </button>
+            <PricingPage />
+            <div className="flex justify-center items-center mt-8 mb-16">
+              <GoProButton
+                className="bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors"
+                userEmail={currentUserEmail!}
+                userId={currentUserUid!}
+                subscriptionStatus={subscriptionStatus}
+              />
+            </div>
           </div>
         </div>
       )}
