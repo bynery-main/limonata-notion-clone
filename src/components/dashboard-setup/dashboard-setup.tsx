@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/firebase/firebaseConfig";
-import { Plus, X } from "lucide-react";
+import { Plus, SmileIcon, X } from "lucide-react";
 import CollaboratorSearch from "../collaborator-setup/collaborator-search";
 import { Button } from "../ui/button";
 import Picker from '@emoji-mart/react';
@@ -29,7 +29,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const [selectedCollaborators, setSelectedCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [workspaceName, setWorkspaceName] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emoji, setEmoji] = useState<string>('🍋'); // Default emoji
+  const [emoji, setEmoji] = useState(<SmileIcon className="opacity-50"/>); // Default emoji
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const [workspaceType, setWorkspaceType] = useState("private");
   const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
