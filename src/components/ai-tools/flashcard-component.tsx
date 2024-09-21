@@ -109,6 +109,15 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       );
     }
   };
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
+    handleCreateFlashcards();
+  };
+
+
 
   const handleCreateFlashcards = async () => {
     const functions = getFunctions(app);
@@ -335,27 +344,26 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
             ))}
           </div>
 
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-center ">
             <div className={`${selectedNotes.length > 0
-              ? 'p-[1px] relative'
-              : 'p-[1px] relative cursor-not-allowed'
+                ? 'p-[1px] relative'
+                : 'p-[1px] relative cursor-not-allowed'
               }`}>
-              <Button
-                onClick={handleCreateFlashcards}
-                className="p-[1px] relative"
-                title={
-                  selectedNotes.length > 0
-                    ? 'Create Flashcards'
-                    : 'Click on a note first to create Flashcards'
-                }
-                disabled={isDisabled}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+            <Button
+              onClick={handleClick}
+              className="p-[1px] relative"
+              title={
+                selectedNotes.length > 0
+                  ? ''
+                  : 'Click on a note first to create flashcard'
+              }
+              disabled={loading || selectedNotes.length === 0}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                 <motion.div
-                  className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
-                    }`}
-                  whileHover={isDisabled ? {} : "hover"}
-                  whileTap={isDisabled ? {} : "tap"}
+                  className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white pointer-disabled"
+                  whileHover="hover"
+                  whileTap="tap"
                 >
                   <motion.span
                     className="font-bold inline-block"
@@ -364,7 +372,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                       tap: { scale: 0.95 }
                     }}
                   >
-                    {loading ? "Creating..." : "Create Flashcards"}
+                  {loading ? "Creating..." : (selectedNotes.length > 0 ? 'Create Flashcards' : 'Select Notes First')}
+
+                    
                   </motion.span>
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
@@ -380,6 +390,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                       <span className="whitespace-nowrap">{creditCost} Credits</span>
                     )}
                   </motion.div>
+                  
                 </motion.div>
               </Button>
             </div>

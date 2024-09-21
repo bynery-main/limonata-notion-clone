@@ -13,7 +13,6 @@ import { Timestamp } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Settings, CreditCard, Calendar, Trash2, AlertTriangle, LogOut, X } from 'lucide-react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
-import ResponsiveSidebar from '@/components/sidebar/responsive-sidebars';
 import { PricingPage } from '@/components/subscribe/pricing';
 
 export interface SettingsPageProps {
