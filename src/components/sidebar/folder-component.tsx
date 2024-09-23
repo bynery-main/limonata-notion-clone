@@ -222,12 +222,14 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     const docExtensions = ["doc", "docx"];
     const audioExtensions = ["mp3", "wav", "ogg", "flac"];
     const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+    const presentationExtensions = ["ppt", "pptx"];
 
     if (imageExtensions.includes(fileExtension || "")) return "🖼️";
     if (pdfExtensions.includes(fileExtension || "")) return "📕";
     if (docExtensions.includes(fileExtension || "")) return "📘";
     if (audioExtensions.includes(fileExtension || "")) return "🎵";
     if (videoExtensions.includes(fileExtension || "")) return "🎥";
+    if (presentationExtensions.includes(fileExtension || "")) return "📊";
     return "📝";
   };
   const toggleFolder = (e: React.MouseEvent) => {

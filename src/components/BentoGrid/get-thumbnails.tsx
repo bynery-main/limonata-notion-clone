@@ -44,6 +44,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ fileName, fileUrl, classN
   const docExtensions = ["doc", "docx"];
   const audioExtensions = ["mp3", "wav", "ogg", "flac"];
   const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+  const presentationExtensions = ["ppt", "pptx"];
 
   if (imageExtensions.includes(fileExtension || "")) {
     return (
@@ -55,9 +56,12 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ fileName, fileUrl, classN
 
   let emoji = "📝";
   if (pdfExtensions.includes(fileExtension || "")) emoji = "📕";
-  else if (docExtensions.includes(fileExtension || "")) emoji = "📘";
-  else if (audioExtensions.includes(fileExtension || "")) emoji = "🎵";
-  else if (videoExtensions.includes(fileExtension || "")) emoji = "🎥";
+  else if (imageExtensions.includes(fileExtension || "")) emoji =  "🖼️";
+  else if (pdfExtensions.includes(fileExtension || "")) emoji =  "📕";
+  else if (docExtensions.includes(fileExtension || "")) emoji =  "📘";
+  else if (audioExtensions.includes(fileExtension || "")) emoji =  "🎵";
+  else if (videoExtensions.includes(fileExtension || "")) emoji =  "🎥";
+  else if (presentationExtensions.includes(fileExtension || "")) emoji =  "📊";
 
   return (
     <div className={`w-full h-48 relative overflow-hidden bg-gray-100 ${className}`}>
