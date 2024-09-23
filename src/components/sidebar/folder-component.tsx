@@ -250,9 +250,21 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       onSelect();
     }
   };
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setShowMenu(false);
+      setShowFileMenu({});
+    }
+  };
 
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
   return (
-    <div className="relative w-64">
+    <div className="relative w-64" ref={menuRef}>
       <div className={`overflow-visible break-words border border-gray-300 rounded-lg hover:bg-gray-100 ${isActive ? 'bg-gray-100 border-[#F6B144]' : 'bg-white border-gray-300'}`}>
         <Accordion.Item value={folder.id}>
           <Accordion.Trigger
@@ -334,11 +346,11 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                       <MoreVerticalIcon className="h-4 w-4" />
                     </div>
                     {showFileMenu[file.id] && (
-                      <div className="absolute right-0 mt-8 bg-white border rounded shadow-md z-50">
-                        <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+                      <div className="absolute right-0 mt-8 bg-white border rounded-md shadow-md z-50 mr-2" ref={menuRef}>
+                        <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-100 w-full text-left flex items-center">
                           <PencilIcon className="h-4 w-4 mr-2" /> Rename
                         </button>
-                        <button onClick={() => handleDeleteFile(file.id)} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
+                        <button onClick={() => handleDeleteFile(file.id)} className="p-2 text-red-600 hover:bg-gray-100 w-full text-left flex items-center">
                           <TrashIcon className="h-4 w-4 mr-2" /> Delete
                         </button>
                       </div>
