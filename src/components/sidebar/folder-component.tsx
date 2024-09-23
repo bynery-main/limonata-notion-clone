@@ -297,8 +297,8 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                 {files.map((file) => (
                   <div 
                     key={file.id}
-                    className={`flex items-center p-2 rounded cursor-pointer transition-colors duration-200 ${
-                      hoveredFileId === file.id ? 'bg-gray-100' : ''
+                    className={`flex items-center p-2 rounded cursor-pointer rounded-lg ${
+                      hoveredFileId === file.id ? 'bg-gray-200' : ''
                     }`}
                     onMouseEnter={() => setHoveredFileId(file.id)}
                     onMouseLeave={() => setHoveredFileId(null)}
