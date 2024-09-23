@@ -121,44 +121,56 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
           <Accordion.Content
             className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
           >
-            {studyGuides.map((studyGuide) => (
-              <div
-                key={studyGuide.id}
-                className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
-                onClick={() => onStudyGuideSelect(studyGuide)}
-              >
-                <span>{studyGuide.name}</span>
-                <div className="flex-shrink-0 relative" ref={menuIconRef}>
-                  <MoreHorizontalIcon
-                    className="h-4 w-4 cursor-pointer"
-                    onClick={(event) => handleDropdownToggle(event, studyGuide)}
-                  />
-                {dropdownVisible && selectedStudyGuide?.id === studyGuide.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"                  >
-                    <button
-                      onClick={handleRenameStudyGuide}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
-                      </div>
-                    </button>
-                    <button
-                      onClick={handleDeleteStudyGuide}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
-                      </div>
-                    </button>
-                  </div>
-                )}
-              </div>
-              </div>
+            {studyGuides.length === 0 ? (
+              <div className="p-2 text-sm font-light text-gray-500">
+                Create your first Study Guide by pressing the
+                <img
+                    src="/favicon.ico"
+                    alt="LemonGPT"
+                    className="inline-block mx-1 w-4 h-4"
+                  />                                
+                     on the <b className="font-bold">bottom right</b>!
+                     </div>
+            ) : (
+              studyGuides.map((studyGuide) => (
+                <div
+                  key={studyGuide.id}
+                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
+                  onClick={() => onStudyGuideSelect(studyGuide)}
+                >
+                  <span>{studyGuide.name}</span>
+                  <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                    <MoreHorizontalIcon
+                      className="h-4 w-4 cursor-pointer"
+                      onClick={(event) => handleDropdownToggle(event, studyGuide)}
+                    />
+                  {dropdownVisible && selectedStudyGuide?.id === studyGuide.id && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"                  >
+                      <button
+                        onClick={handleRenameStudyGuide}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <div className="flex items-center">
+                          <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                        </div>
+                      </button>
+                      <button
+                        onClick={handleDeleteStudyGuide}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <div className="flex items-center">
+                          <TrashIcon className="h-3.5 w-3.5 mr-2"/> Delete
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
+                </div>
 
-            ))}
+              ))
+            )}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>

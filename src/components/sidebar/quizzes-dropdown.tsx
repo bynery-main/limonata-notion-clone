@@ -145,9 +145,15 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
             className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
           >
  {quizSets.length === 0 ? (
-              <div className="p-2 text-sm text-gray-500">
-                Create your first Quiz by pressing the <img src="src/app/favicon.ico" alt="Add icon" className="inline-block mx-1" /> icon on the bottom right of your screen!
-              </div>
+              <div className="p-2 text-sm font-light text-gray-500">
+                Create your first Quiz by pressing the
+                <img
+                    src="/favicon.ico"
+                    alt="LemonGPT"
+                    className="inline-block mx-1 w-4 h-4"
+                  />                                
+                     on the <b className="font-bold">bottom right</b>!
+                     </div>
             ) : (
               quizSets.map((quizSet) => (
                 <div
