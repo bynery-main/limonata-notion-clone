@@ -7,6 +7,9 @@ import { LightbulbIcon, MessageCircleIcon, BookIcon, PencilIcon, BookOpenIcon } 
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig"; // Ensure this import path is correct
 import { motion } from "framer-motion";
+import { Header } from '@/components/landing-page/header';
+import Navbar from '@/components/landing-page/navbar';
+import Footer from '@/components/footer/footer';
 
 interface PlanFeatureProps {
   icon: React.ReactNode;
@@ -102,9 +105,11 @@ const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
   }, [currentUserUid]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="flex flex-col items-center justify-center min-h-screen  min-w-screen bg-gradient-to-br from-purple-50 to-blue-50">
+          <Navbar/>
+
       <motion.div 
-        className="text-center mb-8"
+        className="text-center mb-8 mt-16"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -120,10 +125,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
 
       <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8">
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          whileHover={{ scale: 1.03 }}
+
         >
           <Card className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
             <h2 className="text-2xl font-bold mb-4">Free Plan</h2>
@@ -159,10 +161,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          whileHover={{ scale: 1.03 }}
         >
           <Card className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
             <h2 className="text-2xl font-bold mb-4">Pro Plan</h2>
@@ -204,6 +202,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
           </Card>
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };
