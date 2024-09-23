@@ -144,7 +144,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
           <Accordion.Content
             className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
           >
- {quizSets.length === 0 ? (
+          {quizSets.length === 0 ? (
               <div className="p-2 text-sm font-light text-gray-500">
                 Create your first Quiz by pressing the
                 <img
@@ -158,7 +158,7 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
               quizSets.map((quizSet) => (
                 <div
                   key={quizSet.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
+                  className={`p-2 text-sm w-full text-left flex items-center justify-between hover:bg-gray-100 rounded-lg cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
                   onClick={() => onQuizSetSelect(quizSet)}
                 >
                   <span>{quizSet.name}</span>

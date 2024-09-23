@@ -135,7 +135,7 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
               studyGuides.map((studyGuide) => (
                 <div
                   key={studyGuide.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
+                  className={`p-2 text-sm w-full text-left flex items-center hover:bg-gray-100 rounded-lg justify-between cursor-pointer ${studyGuide.id === currentStudyGuideId ? 'bg-gray-100' : ''}`}
                   onClick={() => onStudyGuideSelect(studyGuide)}
                 >
                   <span>{studyGuide.name}</span>
