@@ -11,26 +11,27 @@ import { motion } from "framer-motion";
 interface PlanFeatureProps {
   icon: React.ReactNode;
   title: string;
-  freeAmount: number;
-  proAmount: number;
+  freeDescription: string;
+  proDescription: string;
 }
 
-const PlanFeature: React.FC<PlanFeatureProps> = ({ icon, title, freeAmount, proAmount }) => {
+const PlanFeature: React.FC<PlanFeatureProps> = ({ icon, title, freeDescription, proDescription }) => {
   return (
     <motion.div 
-      className="flex items-center mb-4"
+      className="flex items-start mb-6"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      whileHover={{ scale: 1.05 }}
     >
-      <div className="bg-gray-100 rounded-full p-2 mr-3">
+      <div className="bg-gray-100 rounded-full p-2 mr-3 mt-1">
         {icon}
       </div>
       <div className="flex-grow">
         <h3 className="font-semibold">{title}</h3>
-        <div className="flex justify-between mt-1">
-          <span className="text-sm text-gray-600">{freeAmount}</span>
-          <span className="text-sm text-gray-600">{proAmount}</span>
+        <div className="grid grid-cols-2 gap-4 mt-1">
+          <p className="text-sm text-gray-600">{freeDescription}</p>
+          <p className="text-sm text-gray-600">{proDescription}</p>
         </div>
       </div>
     </motion.div>
@@ -66,20 +67,21 @@ const GoProButton: React.FC<SubscribeButtonProps> = ({ userId, userEmail, subscr
   );
 };
 
-const PricingPage: React.FC = () => {
+interface PricingPageProps {
+  user: {
+    uid: string;
+    email: string;
+  } | null;
+}
+
+const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
   const [credits, setCredits] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState("inactive");
   const [tier, setTier] = useState("free");
   const [maxCredits, setMaxCredits] = useState(100);
-  const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState("");
 
-  useEffect(() => {
-    // Simulating getting the current user UID
-    // In a real app, you'd get this from your auth system
-    setCurrentUserUid("someUserUid");
-    setUserEmail("user@example.com");
-  }, []);
+  const currentUserUid = user?.uid || "";
+  const currentUserEmail = user?.email || "";
 
   useEffect(() => {
     if (!currentUserUid) return;
@@ -121,14 +123,35 @@ const PricingPage: React.FC = () => {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          whileHover={{ scale: 1.03 }}
         >
-          <Card className="bg-white rounded-xl shadow-lg overflow-hidden p-6">
+          <Card className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
             <h2 className="text-2xl font-bold mb-4">Free Plan</h2>
             <p className="text-gray-600 mb-6">100 credits per month</p>
-            <PlanFeature icon={<BookOpenIcon />} title="Flashcards" freeAmount={6} proAmount={60} />
-            <PlanFeature icon={<MessageCircleIcon />} title="AI Chat Messages" freeAmount={20} proAmount={200} />
-            <PlanFeature icon={<PencilIcon />} title="Quizzes" freeAmount={5} proAmount={50} />
-            <PlanFeature icon={<BookIcon />} title="Study Guides" freeAmount={6} proAmount={60} />
+            <PlanFeature 
+              icon={<BookOpenIcon />} 
+              title="Flashcards" 
+              freeDescription="Up to 6 flashcard decks per month" 
+              proDescription="Up to 60 flashcard decks per month" 
+            />
+            <PlanFeature 
+              icon={<MessageCircleIcon />} 
+              title="AI Chat Messages" 
+              freeDescription="Up to 20 AI chat sessions per month" 
+              proDescription="Up to 200 AI chat sessions per month" 
+            />
+            <PlanFeature 
+              icon={<PencilIcon />} 
+              title="Quizzes" 
+              freeDescription="Create up to 5 quizzes per month" 
+              proDescription="Create up to 50 quizzes per month" 
+            />
+            <PlanFeature 
+              icon={<BookIcon />} 
+              title="Study Guides" 
+              freeDescription="Generate up to 6 study guides per month" 
+              proDescription="Generate up to 60 study guides per month" 
+            />
             <div className="mt-6">
               <p className="text-xl font-bold">$0 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
@@ -139,21 +162,42 @@ const PricingPage: React.FC = () => {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
+          whileHover={{ scale: 1.03 }}
         >
-          <Card className="bg-white rounded-xl shadow-lg overflow-hidden p-6">
+          <Card className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
             <h2 className="text-2xl font-bold mb-4">Pro Plan</h2>
             <p className="text-gray-600 mb-6">1000 credits per month</p>
-            <PlanFeature icon={<BookOpenIcon />} title="Flashcards" freeAmount={6} proAmount={60} />
-            <PlanFeature icon={<MessageCircleIcon />} title="AI Chat Messages" freeAmount={20} proAmount={200} />
-            <PlanFeature icon={<PencilIcon />} title="Quizzes" freeAmount={5} proAmount={50} />
-            <PlanFeature icon={<BookIcon />} title="Study Guides" freeAmount={6} proAmount={60} />
+            <PlanFeature 
+              icon={<BookOpenIcon />} 
+              title="Flashcards" 
+              freeDescription="Up to 6 flashcard decks per month" 
+              proDescription="Up to 60 flashcard decks per month" 
+            />
+            <PlanFeature 
+              icon={<MessageCircleIcon />} 
+              title="AI Chat Messages" 
+              freeDescription="Up to 20 AI chat sessions per month" 
+              proDescription="Up to 200 AI chat sessions per month" 
+            />
+            <PlanFeature 
+              icon={<PencilIcon />} 
+              title="Quizzes" 
+              freeDescription="Create up to 5 quizzes per month" 
+              proDescription="Create up to 50 quizzes per month" 
+            />
+            <PlanFeature 
+              icon={<BookIcon />} 
+              title="Study Guides" 
+              freeDescription="Generate up to 6 study guides per month" 
+              proDescription="Generate up to 60 study guides per month" 
+            />
             <div className="mt-6">
               <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
             <div className="mt-6">
               <GoProButton 
-                userId={currentUserUid || ""}
-                userEmail={userEmail}
+                userId={currentUserUid}
+                userEmail={currentUserEmail}
                 subscriptionStatus={subscriptionStatus}
               />
             </div>
