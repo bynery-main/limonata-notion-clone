@@ -155,18 +155,24 @@ const Navbar = () => {
             </div>
 
             {/* Mobile menu, show/hide based on menu state */}
-            <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                    <NavItem as={Link} href="/pricing" className="block">Pricing</NavItem>
-                    <NavItem as={Link} href="/contact" className="block">Contact</NavItem>
-                    <NavItem onClick={scrollToFeatures} className="block">AI Features</NavItem>
+            <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
+                <div className="absolute inset-0 bg-white bg-opacity-75 backdrop-blur-sm" onClick={toggleMenu}></div>
+                <div className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col items-end p-4">
+                    <Button variant="ghost" onClick={toggleMenu} className="self-end mb-4">
+                        <X className="h-6 w-6" aria-hidden="true" />
+                    </Button>
+                    <NavItem onClick={scrollToFeatures} className="block mb-2">AI Features</NavItem>
+                    <NavItem as={Link} href="/pricing" className="block mb-2">Pricing</NavItem>
+
+                    <NavItem as={Link} href="/contact" className="block mb-2">Contact</NavItem>
+
                     {!loading && (
                         user ? (
                             <>
-                                <AnimatedButton variant="default" onClick={handleSignOut} className="w-full">
+                                <AnimatedButton variant="default" onClick={handleSignOut} className="w-full mb-2">
                                     SIGN OUT
                                 </AnimatedButton>
-                                <ProfilePicContainer className="mx-auto mt-4">
+                                <ProfilePicContainer className="self-end mt-2">
                                     {user.photoURL ? (
                                         <ProfilePicImage src={user.photoURL} alt="Profile" />
                                     ) : (
