@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeftCircleIcon, Menu, X } from 'lucide-react';
 import { PricingPage } from "@/components/subscribe/pricing";
 import { GoProButton } from "@/components/subscribe/subscribe-button";
+import NoCreditsModal from '../subscribe/no-credits-modal';
 
 interface Folder {
   id: string;
@@ -27,7 +28,8 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
   const [isMobile, setIsMobile] = useState(false);
   const [showGoProModal, setShowGoProModal] = useState(false);
   const pathname = usePathname();
-
+  const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
+  const [noCreditsModalData, setNoCreditsModalData] = useState({ remainingCredits: 0, creditCost: 0 });
   const isDashboardRoot = pathname === '/dashboard';
 
   useEffect(() => {
@@ -60,6 +62,11 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
   const handleGoProClick = () => {
     setShowGoProModal(true);
   };
+  
+  const handleShowNoCreditsModal = (remainingCredits: number, creditCost: number) => {
+    setNoCreditsModalData({ remainingCredits, creditCost });
+    setShowNoCreditsModal(true);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden z-100">
@@ -90,6 +97,7 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
             params={{ workspaceId: workspaceId }}
             onFoldersUpdate={handleFoldersUpdate}
             onGoProClick={handleGoProClick}
+            onShowNoCreditsModal={handleShowNoCreditsModal}
           />
         </div>
       )}
@@ -160,6 +168,42 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
                     subscriptionStatus={user.subscriptionStatus}
                   />
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+       {/* No Credits Modal */}
+       <AnimatePresence>
+        {showNoCreditsModal && (
+          <motion.div 
+            className="fixed inset-0 z-[60] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowNoCreditsModal(false)} />
+            
+            <motion.div 
+              className="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto relative z-10"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <button 
+                onClick={() => setShowNoCreditsModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+              <div className="p-8">
+                <NoCreditsModal
+                  remainingCredits={noCreditsModalData.remainingCredits}
+                  creditCost={noCreditsModalData.creditCost}
+                  onClose={() => setShowNoCreditsModal(false)}
+                  userId={user.uid}
+                  userEmail={user.email}
+                />
               </div>
             </motion.div>
           </motion.div>

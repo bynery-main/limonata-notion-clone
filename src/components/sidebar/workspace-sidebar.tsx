@@ -34,13 +34,16 @@ export interface WorkspaceSidebarProps {
   className?: string;
   onFoldersUpdate: (folders: Folder[]) => void;
   onGoProClick: () => void;
+  onShowNoCreditsModal: (remainingCredits: number, creditCost: number) => void;
 }
+
 
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   params,
   className,
   onFoldersUpdate,
   onGoProClick, 
+  onShowNoCreditsModal,
 }) => {
   const router = useRouter();
   const [width, setWidth] = useState(0);
@@ -295,7 +298,11 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <span className="sr-only">Limonata</span>
         </div>
 
-        <SyncWorkspaceButton className="mx-4 shadow-lg" workspaceId={params.workspaceId} />
+        <SyncWorkspaceButton
+        className="mx-4 shadow-lg"
+        workspaceId={params.workspaceId}
+        onShowNoCreditsModal={onShowNoCreditsModal}
+      />
 
 
 
