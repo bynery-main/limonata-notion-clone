@@ -131,7 +131,8 @@ const Navbar = () => {
                                     <NavbarAuthButton onClick={handleSignOut}>
                                         SIGN OUT
                                     </NavbarAuthButton>
-                                    <ProfilePicContainer>
+                                    <ProfilePicContainer
+                                    onClick={() => router.push('/settings')}>
                                         {user.photoURL ? (
                                             <ProfilePicImage src={user.photoURL} alt="Profile" />
                                         ) : (
