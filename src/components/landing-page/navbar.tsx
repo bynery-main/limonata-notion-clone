@@ -106,7 +106,7 @@ const Navbar = () => {
     };
 
     return (
-        <header className="relative z-20 my-3 mx-8 mb-10">
+        <header className="relative z-20 my-3 mx-8 mb-5">
             <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
                 <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
                     <div className="flex justify-start lg:w-0 lg:flex-1">

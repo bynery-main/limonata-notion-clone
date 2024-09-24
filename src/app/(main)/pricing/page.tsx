@@ -13,6 +13,7 @@ import Footer from '@/components/footer/footer';
 import { GoProButton } from "@/components/subscribe/subscribe-button";
 import { WavyBackground } from "@/components/ui/wavy-background";
 import { useAuth } from '@/components/auth-provider/AuthProvider';
+import FancyText from "@carefully-coded/react-text-gradient";
 
 interface PlanFeatureProps {
   icon: React.ReactNode;
@@ -87,7 +88,7 @@ const PricingPage: React.FC = () => {
           waveOpacity={0.3}
           blur={20}>
       <motion.div 
-        className="text-center mb-8 mt-16  mt-20 md:mt-24"
+        className="text-center mb-8 "
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -96,6 +97,7 @@ const PricingPage: React.FC = () => {
           <span className="bg-black text-white rounded-full p-2 mr-2">
             <LightbulbIcon className="h-6 w-6" />
           </span>
+          
           Get Limonata Pro
         </h1>
         <p className="text-gray-600">No trials. No commitments. <b>10x</b> the amount of credits.</p>
@@ -137,7 +139,10 @@ const PricingPage: React.FC = () => {
         <motion.div
         >
           <Card className="bg-white bg-opacity-40 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
-            <h2 className="text-2xl font-bold mb-4">Pro Plan</h2>
+          <FancyText
+            gradient={{ from: "#FE7EF4", to: "#F6B144" }}
+            className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
+          >Pro Plan</FancyText>
             <p className="text-gray-600 mb-6">1000 credits per month</p>
             <PlanFeature 
               icon={<BookOpenIcon />} 
@@ -162,8 +167,9 @@ const PricingPage: React.FC = () => {
             <div className="mt-6">
               <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col items-center justify-center">
                 <GoProButton 
+                className='w-full'
                   userId={user?.uid || ""}
                   userEmail={user?.email || ""}
                   subscriptionStatus={subscriptionStatus}
