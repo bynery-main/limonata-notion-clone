@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X, User } from 'lucide-react';
 import { Button } from '../ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig';
@@ -74,8 +74,10 @@ const ProfilePicImage = styled.img`
 
 const Navbar = () => {
     const router = useRouter();
+    const pathname = usePathname();
     const { user, loading } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [shouldScrollToFeatures, setShouldScrollToFeatures] = useState(false);
 
     const handleLogin = () => {
         router.push('/login');
@@ -98,13 +100,27 @@ const Navbar = () => {
     };
 
     const scrollToFeatures = () => {
-        const featuresSection = document.getElementById('features-section');
-        if (featuresSection) {
-            featuresSection.scrollIntoView({ behavior: 'smooth' });
+        if (pathname !== '/') {
+            router.push('/');
+            setShouldScrollToFeatures(true);
+        } else {
+            const featuresSection = document.getElementById('features-section');
+            if (featuresSection) {
+                featuresSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
         setIsMenuOpen(false);
     };
 
+    useEffect(() => {
+        if (shouldScrollToFeatures && pathname === '/') {
+            const featuresSection = document.getElementById('features-section');
+            if (featuresSection) {
+                featuresSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            setShouldScrollToFeatures(false);
+        }
+    }, [pathname, shouldScrollToFeatures]);
     return (
         <header className="relative z-20 my-3 mx-8 mb-5">
             <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
@@ -120,9 +136,9 @@ const Navbar = () => {
                         </Button>
                     </div>
                     <nav className="hidden md:flex space-x-10">
+                        <NavItem onClick={scrollToFeatures}>AI Features</NavItem>
                         <NavItem as={Link} href="/pricing">Pricing</NavItem>
                         <NavItem as={Link} href="/contact">Contact</NavItem>
-                        <NavItem onClick={scrollToFeatures}>AI Features</NavItem>
                     </nav>
                     <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
                         {!loading && (
