@@ -115,7 +115,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onCancel}>
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[9980]"></div>
-      <div className="relative bg-white rounded-[32px] shadow-2xl p-8 w-[480px] max-w-[90vw] z-[10000]" onClick={handlePopupClick}>
+      <div className="relative bg-white rounded-[32px] shadow-2xl p-8 w-[480px] max-w-[90vw] z-[10000] border-[2px] border-orange-500" onClick={handlePopupClick}>
         <div className="text-center mb-6">
           <h2 className="font-semibold text-gray-900 text-2xl mb-2">Create a Workspace</h2>
           <p className="text-gray-600 text-sm">
@@ -127,7 +127,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             <button
               type="button"
               onClick={toggleEmojiPicker}
-              className="p-2 px-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px]"
+              className="h-10 w-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px]"
             >
               <span className="text-xl ">{emoji}</span>
             </button>
@@ -149,7 +149,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
               placeholder="Workspace Name"
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
-              className="flex-grow bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="flex-grow bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"
             />
           </div>
           <input
@@ -157,7 +157,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             placeholder="Workspace Description"
             value={workspaceDescription}
             onChange={(e) => setWorkspaceDescription(e.target.value)}
-            className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"
           />
           <div className="flex items-center space-x-4">
             <span className="text-sm font-medium text-gray-700">Type:</span>
