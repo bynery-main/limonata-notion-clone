@@ -29,7 +29,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
   const [selectedCollaborators, setSelectedCollaborators] = useState<{ uid: string; email: string }[]>([]);
   const [workspaceName, setWorkspaceName] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emoji, setEmoji] = useState(<SmileIcon className="opacity-50"/>); // Default emoji
+  const [emoji, setEmoji] = useState("🍋"); // Default emoji
   const [workspaceDescription, setWorkspaceDescription] = useState("");
   const [workspaceType, setWorkspaceType] = useState("private");
   const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
@@ -127,9 +127,9 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             <button
               type="button"
               onClick={toggleEmojiPicker}
-              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              className="p-2 px-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px]"
             >
-              <span className="text-2xl">{emoji}</span>
+              <span className="text-xl ">{emoji}</span>
             </button>
             {showEmojiPicker && (
               <div 
