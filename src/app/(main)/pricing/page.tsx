@@ -12,6 +12,8 @@ import Navbar from '@/components/landing-page/navbar';
 import Footer from '@/components/footer/footer';
 import { GoProButton } from "@/components/subscribe/subscribe-button";
 import { WavyBackground } from "@/components/ui/wavy-background";
+import { useAuth } from '@/components/auth-provider/AuthProvider';
+
 interface PlanFeatureProps {
   icon: React.ReactNode;
   title: string;
@@ -40,12 +42,6 @@ const PlanFeature: React.FC<PlanFeatureProps> = ({ icon, title, description }) =
   );
 };
 
-interface SubscribeButtonProps {
-  userId: string;
-  userEmail: string;
-  subscriptionStatus: string;
-}
-
 
 interface PricingPageProps {
   user: {
@@ -54,19 +50,17 @@ interface PricingPageProps {
   } | null;
 }
 
-const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
+const PricingPage: React.FC = () => {
+  const { user } = useAuth();
   const [credits, setCredits] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState("inactive");
   const [tier, setTier] = useState("free");
   const [maxCredits, setMaxCredits] = useState(100);
 
-  const currentUserUid = user?.uid || "";
-  const currentUserEmail = user?.email || "";
-
   useEffect(() => {
-    if (!currentUserUid) return;
+    if (!user?.uid) return;
 
-    const userDocRef = doc(db, "users", currentUserUid);
+    const userDocRef = doc(db, "users", user.uid);
 
     const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -79,7 +73,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
     });
 
     return () => unsubscribe();
-  }, [currentUserUid]);
+  }, [user?.uid]);
 
   return (
     <div className="flex flex-col items-centerjustify-center min-h-screen  min-w-screen bg-gradient-to-br from-purple-50 to-blue-50">
@@ -169,11 +163,11 @@ const PricingPage: React.FC<PricingPageProps> = ({ user }) => {
               <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
             <div className="mt-6">
-              <GoProButton 
-                userId={currentUserUid}
-                userEmail={currentUserEmail}
-                subscriptionStatus={subscriptionStatus}
-              />
+                <GoProButton 
+                  userId={user?.uid || ""}
+                  userEmail={user?.email || ""}
+                  subscriptionStatus={subscriptionStatus}
+                />
             </div>
           </Card>
         </motion.div>
