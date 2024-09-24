@@ -126,11 +126,25 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
     const creditValidation = httpsCallable(functions, "useCredits");
     setLoading(true);
     try {
+      const creditUsageResult = await creditValidation({
+        uid: userId,
+        cost: creditCost,
+      }) as { data: CreditUsageResult };
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        setRemainingCredits(creditUsageResult.data.remainingCredits);
+        setShowCreditModal(true);
+        setLoading(false);
+        return;
+      }
+
       // Separate notes and files from selectedNotes
       const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
       const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
 
-      // Attempt flashcard creation first
+      // Attempt flashcard creation
       const result = await createFlashcards({
         workspaceId,
         notes,
@@ -153,21 +167,6 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         throw new Error("No flashcards could be created from the provided content");
       }
 
-      // If flashcards were successfully created, proceed with credit check
-      const creditUsageResult = (await creditValidation({
-        uid: userId,
-        cost: creditCost,
-      })) as { data: CreditUsageResult };
-
-      console.log("Credit usage result:", creditUsageResult.data);
-
-      if (!creditUsageResult.data.success) {
-        setRemainingCredits(creditUsageResult.data.remainingCredits);
-        setShowCreditModal(true);
-        return;
-      }
-
-      // If credit check passes, continue with the rest of the process
       setFlashcards(parsedFlashcards);
 
       const nameGenerationResult = await generateName({ content: raw });
@@ -225,6 +224,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       setLoading(false);
     }
   };
+
 
   const getFileEmoji = (fileName: string): string => {
     const extension = fileName.split('.').pop()?.toLowerCase() || '';

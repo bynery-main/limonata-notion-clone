@@ -172,7 +172,6 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
 
     } finally {
       setLoading(false);
-      onClose();
     }
   };
 

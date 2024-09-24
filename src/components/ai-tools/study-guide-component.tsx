@@ -107,10 +107,10 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     setLoading(true);
     try {
       // First, attempt to use credits
-      const creditUsageResult = (await creditValidation({
+      const creditUsageResult = await creditValidation({
         uid: userId,
         cost: creditCost,
-      })) as { data: CreditUsageResult };
+      }) as { data: CreditUsageResult };
 
       console.log("Credit usage result:", creditUsageResult.data);
 
@@ -118,7 +118,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         setRemainingCredits(creditUsageResult.data.remainingCredits);
         setShowCreditModal(true);
         setLoading(false);
-        return;
+        return; // Exit the function here, keeping the AI chat modal open
       }
 
       // Separate notes and files from selectedNotes
@@ -129,7 +129,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       const result = await createStudyGuides({
         workspaceId,
         notes,
-        files, // Add files to the payload
+        files,
       });
       console.log("Study guides created successfully:", result.data);
 
@@ -143,8 +143,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
 
       // Generate a name for the study guide using the nameResource function
       const nameGenerationResult = await generateName({ content: raw });
-      const generatedName = (nameGenerationResult.data as NameGenerationResult)
-        .answer;
+      const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
 
       console.log("Generated name for study guide:", generatedName);
 
@@ -163,16 +162,19 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       });
 
       reacttoast.success(<>
-        StudyGide <strong>{generatedName}</strong> created successfully!
+        Study Guide <strong>{generatedName}</strong> created successfully!
       </>, {
         duration: 3000,
         icon: '🎉',
       });
 
+      // Close the modal only after successful creation
+      onClose();
+
       // Redirect to dashboard/workspaceid after a short delay
       setTimeout(() => {
         router.push(`/dashboard/${workspaceId}`);
-      });
+      }, 3000);
 
     } catch (error) {
       console.error("Error creating study guides:", error);
@@ -180,10 +182,9 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         duration: 3000,
         icon: '❌',
       });
-
+      // Don't close the modal on error, allow the user to try again
     } finally {
       setLoading(false);
-      onClose();
     }
   };
 
@@ -354,7 +355,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                       tap: { scale: 0.95 }
                     }}
                   >
-                  {loading ? "Creating..." : (selectedNotes.length > 0 ? 'Create Flashcards' : 'Select Notes First')}
+                  {loading ? "Creating..." : (selectedNotes.length > 0 ? 'Create Study Guide' : 'Select Notes First')}
 
                     
                   </motion.span>
