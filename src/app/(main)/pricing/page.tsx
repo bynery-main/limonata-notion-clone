@@ -131,7 +131,7 @@ const PricingPage: React.FC = () => {
               description="Generate up to 6 study guides per day" 
             />
             <div className="mt-6">
-              <p className="text-xl font-bold">$0 <span className="text-sm font-normal text-gray-600">/day</span></p>
+              <p className="text-xl font-bold">$0 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
           </Card>
         </motion.div>
@@ -165,7 +165,7 @@ const PricingPage: React.FC = () => {
               description="Generate up to 60 study guides per day" 
             />
             <div className="mt-6">
-              <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/day</span></p>
+              <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
             <div className="mt-6 flex flex-col items-center justify-center">
                 <GoProButton 
