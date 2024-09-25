@@ -6,6 +6,9 @@ import FancyText from "@carefully-coded/react-text-gradient";
 import toast from 'react-hot-toast';
 import { FilloutStandardEmbed } from "@fillout/react";
 import "@fillout/react/style.css";
+import { Header } from '../landing-page/header';
+import Footer from '../footer/footer';
+import Navbar from '../landing-page/navbar';
 
 const FirebaseContactForm = () => {
   const [name, setName] = useState('');
@@ -44,7 +47,11 @@ const FirebaseContactForm = () => {
   };
 
   return (
+    <div className='flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500'>
+        <Navbar />
+
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+      
       <div className="bg-white p-8 rounded-lg justify-center shadow-2xl w-full max-w-lg  mb-8 w-400 h-auto">
         <div className="text-center">
           <FancyText
@@ -73,6 +80,8 @@ const FirebaseContactForm = () => {
           </div>
         </div>
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 };

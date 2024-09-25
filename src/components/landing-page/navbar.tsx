@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Home, MessageCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
@@ -10,6 +10,7 @@ import logo from '../../../public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
 import NavbarAuthButton from '../ui/bm-button';
 import Link from 'next/link';
+import { FloatingNav } from '../ui/floating-navbar';
 
 const gradientAnimation = keyframes`
   0% {
@@ -111,6 +112,9 @@ const Navbar = () => {
         }
         setIsMenuOpen(false);
     };
+    const handleLogoClick = () => {
+        router.push('/');
+    }
 
     useEffect(() => {
         if (shouldScrollToFeatures && pathname === '/') {
@@ -121,11 +125,43 @@ const Navbar = () => {
             setShouldScrollToFeatures(false);
         }
     }, [pathname, shouldScrollToFeatures]);
+
+    const navItems = [
+        {
+            name: "Home",
+            link: "/",
+            icon: <Home className="h-4 w-4 text-neutral-500 dark:text-white" />,
+        },
+        {
+            name: "AI Features",
+            link: "/#features-section",
+            icon: <MessageCircle className="h-4 w-4 text-neutral-500 dark:text-white" />,
+        },
+        {
+            name: "Pricing",
+            link: "/pricing",
+            icon: <User className="h-4 w-4 text-neutral-500 dark:text-white" />,
+        },
+        {
+            name: "Contact",
+            link: "/contact",
+            icon: <MessageCircle className="h-4 w-4 text-neutral-500 dark:text-white" />,
+        },
+    ];
+
+
     return (
-        <header className="relative z-20 my-3 mx-8 mb-5">
-            <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
+        <>
+       <FloatingNav 
+                navItems={navItems} 
+                user={user} 
+                onLogin={handleLogin} 
+                onLogout={handleSignOut}
+            />
+        <header className="relative z-20 my-3 mx-8 mb-5 ">
+            <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]  bg-white bg-opacity-75  backdrop-blur-sm rounded-xl">
                 <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
-                    <div className="flex justify-start lg:w-0 lg:flex-1">
+                    <div className="flex justify-start lg:w-0 lg:flex-1 cursor-pointer" onClick={handleLogoClick}>
                         <span className="sr-only">Limonata</span>
                         <Image src={logo} alt="Limonata" width={150} height={50} className="h-[7vw] w-auto mx-45 sm:h-10" />
                     </div>
@@ -211,6 +247,7 @@ const Navbar = () => {
                 </div>
             </div>
         </header>
+        </>
     );
 };
 

@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white py-8  min-w-screen w-[100vw] mt-10">
+    <footer className="bg-gray-900 text-white py-8  min-w-screen w-[100vw] ">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex gap-4">
