@@ -196,9 +196,12 @@ const Navbar = () => {
                             {!loading && (
                                 user ? (
                                     <>
-                                        <AnimatedButton onClick={handleSignOut}>
-                                            SIGN OUT
-                                        </AnimatedButton>
+                                       <button onClick={handleSignOut} className="p-[1px] relative block">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                                        <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                                            Sign Out
+                                        </div>
+                                        </button>
                                         <ProfilePicContainer onClick={() => router.push('/settings')}>
                                             {user.photoURL ? (
                                                 <ProfilePicImage src={user.photoURL} alt="Profile" />
@@ -209,15 +212,14 @@ const Navbar = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <Button
-                                            variant="ghost"
-                                            onClick={handleLogin}
-                                            className="relative text-sm font-medium text-black dark:text-white px-4 py-2 rounded-full overflow-hidden mr-2"
-                                        >
-                                            <span className="relative z-10">LOG IN</span>
-                                            <span className="absolute inset-0 bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] opacity-20" />
-                                            <span className="absolute inset-0 border border-transparent dark:border-white/[0.2] rounded-full bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] opacity-50" style={{ padding: '1px' }} />
-                                        </Button>
+                                    <button onClick={handleLogin} className="p-[1px] relative block">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                                        <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                                            <div className="flex items-center whitespace-nowrap">
+                                            Log In
+                                            </div>
+                                        </div>
+                                        </button>
                                         {/* 
                                         <AnimatedButton onClick={handleSignUp}>
                                             SIGN UP
