@@ -44,8 +44,8 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       const fileType = determineFileType(selectedFile.name);
       
       // Check file size
-      if (fileType === "document" && selectedFile.size > 2 * 1024 * 1024) {
-        setErrorMessage("Document files must be under 2MB.");
+      if (fileType === "document" && selectedFile.size > 5 * 1024 * 1024) {
+        setErrorMessage("Document files must be under 5MB.");
         return;
       }
       if (fileType === "audio" && selectedFile.size > 50 * 1024 * 1024) {

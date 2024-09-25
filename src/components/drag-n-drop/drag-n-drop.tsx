@@ -70,7 +70,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
 
   const FILE_SIZE_LIMITS = {
-    document: 2 * 1024 * 1024, // 2MB
+    document: 5 * 1024 * 1024, // 5MB
     audio: 50 * 1024 * 1024, // 50MB
     powerpoint: 50 * 1024 * 1024, // 50MB
   };
