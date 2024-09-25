@@ -80,16 +80,17 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [shouldScrollToFeatures, setShouldScrollToFeatures] = useState(false);
 
+
     const handleLogin = () => {
         router.push('/login');
         setIsMenuOpen(false);
     };
 
-    const handleSignUp = () => {
+  /*  const handleSignUp = () => {
         router.push('/sign-up');
         setIsMenuOpen(false);
     };
-
+*/
     const handleSignOut = () => {
         signOut(auth);
         router.push('/login');
@@ -149,101 +150,106 @@ const Navbar = () => {
         },
     ];
 
+    const isActive = (path: string | null) => {
+        if (path === "/#features-section") {
+            return false;
+        }
+        return pathname === path;
+    };
+
 
     return (
         <>
-       <FloatingNav 
+            <FloatingNav 
                 navItems={navItems} 
                 user={user} 
                 onLogin={handleLogin} 
                 onLogout={handleSignOut}
             />
-        <header className="relative z-20 my-3 mx-8 mb-5 ">
-            <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]  bg-white bg-opacity-75  backdrop-blur-sm rounded-xl">
-                <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
-                    <div className="flex justify-start lg:w-0 lg:flex-1 cursor-pointer" onClick={handleLogoClick}>
-                        <span className="sr-only">Limonata</span>
-                        <Image src={logo} alt="Limonata" width={150} height={50} className="h-[7vw] w-auto mx-45 sm:h-10" />
-                    </div>
-                    <div className="-mr-2 -my-2 md:hidden">
-                        <Button variant="ghost" onClick={toggleMenu}>
-                            <span className="sr-only">Open menu</span>
-                            {isMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
-                        </Button>
-                    </div>
-                    <nav className="hidden md:flex space-x-10">
-                        <NavItem onClick={scrollToFeatures}>AI Features</NavItem>
-                        <NavItem as={Link} href="/pricing">Pricing</NavItem>
-                        <NavItem as={Link} href="/contact">Contact</NavItem>
-                    </nav>
-                    <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
-                        {!loading && (
-                            user ? (
-                                <>
-                                    <NavbarAuthButton onClick={handleSignOut}>
-                                        SIGN OUT
-                                    </NavbarAuthButton>
-                                    <ProfilePicContainer
-                                    onClick={() => router.push('/settings')}>
-                                        {user.photoURL ? (
-                                            <ProfilePicImage src={user.photoURL} alt="Profile" />
-                                        ) : (
-                                            <User size={24} color="#fff" />
-                                        )}
-                                    </ProfilePicContainer>
-                                </>
-                            ) : (
-                                <>
-                                    <NavbarAuthButton onClick={handleLogin}>
-                                        LOG IN
-                                    </NavbarAuthButton>
-                                    <AnimatedButton variant="default" onClick={handleSignUp}>
-                                        SIGN UP
-                                    </AnimatedButton>
-                                </>
-                            )
-                        )}
+            <header className="relative z-20 my-3 mx-8 mb-5">
+                <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
+                    <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
+                        <div className="flex justify-start lg:w-0 lg:flex-1">
+                            <Link href="/">
+                                <Image src={logo} alt="Limonata" width={150} height={50} className="h-[7vw] w-auto mx-45 sm:h-10" />
+                            </Link>
+                        </div>
+                        <div className="-mr-2 -my-2 md:hidden">
+                            <Button variant="ghost" onClick={toggleMenu}>
+                                <span className="sr-only">Open menu</span>
+                                {isMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
+                            </Button>
+                        </div>
+                        <nav className="hidden md:flex space-x-10">
+                            {navItems.map((item, index) => (
+                                 <NavItem
+                                 key={index}
+                                 as={Link}
+                                 href={item.link}
+                                 className={isActive(item.link) ? "text-transparent bg-clip-text bg-gradient-to-r from-[#FE7EF4] to-[#F6B144]" : ""}
+                             >
+                                    {item.name}
+                                </NavItem>
+                            ))}
+                        </nav>
+                        <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+                            {!loading && (
+                                user ? (
+                                    <>
+                                        <AnimatedButton onClick={handleSignOut}>
+                                            SIGN OUT
+                                        </AnimatedButton>
+                                        <ProfilePicContainer onClick={() => router.push('/settings')}>
+                                            {user.photoURL ? (
+                                                <ProfilePicImage src={user.photoURL} alt="Profile" />
+                                            ) : (
+                                                <User size={24} color="#fff" />
+                                            )}
+                                        </ProfilePicContainer>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={handleLogin}
+                                            className="relative text-sm font-medium text-black dark:text-white px-4 py-2 rounded-full overflow-hidden mr-2"
+                                        >
+                                            <span className="relative z-10">LOG IN</span>
+                                            <span className="absolute inset-0 bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] opacity-20" />
+                                            <span className="absolute inset-0 border border-transparent dark:border-white/[0.2] rounded-full bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] opacity-50" style={{ padding: '1px' }} />
+                                        </Button>
+                                        {/* 
+                                        <AnimatedButton onClick={handleSignUp}>
+                                            SIGN UP
+                                        </AnimatedButton>
+                                        */}
+                                    </>
+                                )
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Mobile menu, show/hide based on menu state */}
-            <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
-                <div className="absolute inset-0 bg-white bg-opacity-75 backdrop-blur-sm" onClick={toggleMenu}></div>
-                <div className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col items-end p-4">
-                    <Button variant="ghost" onClick={toggleMenu} className="self-end mb-4">
-                        <X className="h-6 w-6" aria-hidden="true" />
-                    </Button>
-                    <NavItem onClick={scrollToFeatures} className="block mb-2">AI Features</NavItem>
-                    <NavItem as={Link} href="/pricing" className="block mb-2">Pricing</NavItem>
-
-                    <NavItem as={Link} href="/contact" className="block mb-2">Contact</NavItem>
-
-                    {!loading && (
-                        user ? (
-                            <>
-                                <AnimatedButton variant="default" onClick={handleSignOut} className="w-full mb-2">
-                                    SIGN OUT
-                                </AnimatedButton>
-                                <ProfilePicContainer className="self-end mt-2">
-                                    {user.photoURL ? (
-                                        <ProfilePicImage src={user.photoURL} alt="Profile" />
-                                    ) : (
-                                        <User size={24} color="#fff" />
-                                    )}
-                                </ProfilePicContainer>
-                            </>
-                        ) : (
-                            <>
-                                <AnimatedButton variant="ghost" onClick={handleLogin} className="w-full mb-2">
-                                    LOG IN
-                                </AnimatedButton>
-                                <AnimatedButton variant="default" onClick={handleSignUp} className="w-full">
-                                    SIGN UP
-                                </AnimatedButton>
-                            </>
-                        )
-                    )}
+                           {/* Mobile menu */}
+                           <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
+                    <div className="absolute inset-0 bg-white bg-opacity-75 backdrop-blur-sm" onClick={toggleMenu}></div>
+                    <div className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col items-end p-4">
+                        <Button variant="ghost" onClick={toggleMenu} className="self-end mb-4">
+                            <X className="h-6 w-6" aria-hidden="true" />
+                        </Button>
+                        {navItems.map((item, index) => (
+                                               <NavItem
+                                               key={index}
+                                               as={Link}
+                                               href={item.link}
+                                               onClick={toggleMenu}
+                                               className={`block mb-2 ${
+                                                   isActive(item.link) ? "text-transparent bg-clip-text bg-gradient-to-r from-[#FE7EF4] to-[#F6B144]" : ""
+                                               }`}
+                                           >
+                                {item.name}
+                            </NavItem>
+                        ))}
                 </div>
             </div>
         </header>

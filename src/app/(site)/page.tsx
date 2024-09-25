@@ -14,10 +14,10 @@ export default function Home() {
 
   return (
     <div className="items-center justify-center">
-      <div className="max-h-[10vw]">
+      <div>
         <Navbar />
       </div>
-      <div className="mt-[7vw] min-h-[40vw]">
+      <div className="mt-[7vw] min-h-[40vw] mt-20">
         <HeroComponent />
       </div>
 
