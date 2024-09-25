@@ -47,10 +47,10 @@ const FirebaseContactForm = () => {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500'>
+    <div className='flex flex-col items-center justify-center min-h-screen'>
         <Navbar />
 
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+    <div className="min-h-screen flex items-center justify-center">
       
       <div className="bg-white p-8 rounded-lg justify-center shadow-2xl w-full max-w-lg  mb-8 w-400 h-auto">
         <div className="text-center">
