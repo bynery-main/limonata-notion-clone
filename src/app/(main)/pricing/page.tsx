@@ -109,29 +109,29 @@ const PricingPage: React.FC = () => {
         >
           <Card className="bg-white bg-opacity-40 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
             <h2 className="text-2xl font-bold mb-4">Free Plan</h2>
-            <p className="text-gray-600 mb-6">100 credits per month</p>
+            <p className="text-gray-600 mb-6">100 credits per day</p>
             <PlanFeature 
               icon={<BookOpenIcon />} 
               title="Flashcards" 
-              description="Up to 6 flashcard decks per month" 
+              description="Up to 6 flashcard decks per day" 
             />
             <PlanFeature 
               icon={<MessageCircleIcon />} 
               title="AI Chat Messages" 
-              description="Up to 20 AI chat sessions per month" 
+              description="Up to 20 AI chat sessions per day" 
             />
             <PlanFeature 
               icon={<PencilIcon />} 
               title="Quizzes" 
-              description="Create up to 5 quizzes per month" 
+              description="Create up to 5 quizzes per day" 
             />
             <PlanFeature 
               icon={<BookIcon />} 
               title="Study Guides" 
-              description="Generate up to 6 study guides per month" 
+              description="Generate up to 6 study guides per day" 
             />
             <div className="mt-6">
-              <p className="text-xl font-bold">$0 <span className="text-sm font-normal text-gray-600">/month</span></p>
+              <p className="text-xl font-bold">$0 <span className="text-sm font-normal text-gray-600">/day</span></p>
             </div>
           </Card>
         </motion.div>
@@ -143,29 +143,29 @@ const PricingPage: React.FC = () => {
             gradient={{ from: "#FE7EF4", to: "#F6B144" }}
             className="text-2xl sm:text-3xl md:text-3xl font-bold text-black"
           >Pro Plan</FancyText>
-            <p className="text-gray-600 mb-6">1000 credits per month</p>
+            <p className="text-gray-600 mb-6">1000 credits per day</p>
             <PlanFeature 
               icon={<BookOpenIcon />} 
               title="Flashcards" 
-              description="Up to 60 flashcard decks per month" 
+              description="Up to 60 flashcard decks per day" 
             />
             <PlanFeature 
               icon={<MessageCircleIcon />} 
               title="AI Chat Messages" 
-              description="Up to 200 AI chat sessions per month" 
+              description="Up to 200 AI chat sessions per day" 
             />
             <PlanFeature 
               icon={<PencilIcon />} 
               title="Quizzes" 
-              description="Create up to 50 quizzes per month" 
+              description="Create up to 50 quizzes per day" 
             />
             <PlanFeature 
               icon={<BookIcon />} 
               title="Study Guides" 
-              description="Generate up to 60 study guides per month" 
+              description="Generate up to 60 study guides per day" 
             />
             <div className="mt-6">
-              <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/month</span></p>
+              <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/day</span></p>
             </div>
             <div className="mt-6 flex flex-col items-center justify-center">
                 <GoProButton 
