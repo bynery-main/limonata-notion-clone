@@ -28,11 +28,16 @@ const allowedFileExtensions = ["pdf", "docx", "ppt", "pptx", "mp3", "wav"]; // A
 const parseRawDataToFlashcards = (rawData: string): Flashcard[] => {
   console.log("Data received by parser:", rawData);
   const flashcards: Flashcard[] = [];
-  const flashcardRegex =
-    /Flashcard \d+: Question: ([\s\S]+?) Answer: ([\s\S]+?)(?=\nFlashcard \d+:|$)/g;
+  const flashcardRegex = /Flashcard \d+:\s*Question:\s*([\s\S]+?)\s*Answer:\s*([\s\S]+?)(?=(?:\n|^)Flashcard \d+:|$)/gi;
+  
   let match;
   while ((match = flashcardRegex.exec(rawData)) !== null) {
-    flashcards.push({ question: match[1].trim(), answer: match[2].trim() });
+    if (match[1] && match[2]) {
+      flashcards.push({
+        question: match[1].trim(),
+        answer: match[2].trim()
+      });
+    }
   }
 
   console.log("Flashcards parsed:", flashcards);
@@ -155,12 +160,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         throw new Error("No data returned from flashcard creation");
       }
 
-      const data = result.data as { flashcards?: { raw?: string } };
-      if (!data.flashcards || !data.flashcards.raw) {
-        throw new Error("Invalid flashcard data returned");
-      }
+      const data = result.data as { answer: string };
+      const raw = data.answer || "";
 
-      const raw = data.flashcards.raw;
       const parsedFlashcards = parseRawDataToFlashcards(raw);
 
       if (parsedFlashcards.length === 0) {

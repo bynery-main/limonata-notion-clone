@@ -151,10 +151,22 @@ const menuIconRef = useRef<HTMLDivElement>(null);
           <Accordion.Content
             className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
           >
-            {decks.map((deck) => (
+          {decks.length === 0 ? (
+              <div className="p-2 text-sm font-light text-gray-500">
+                Create your first Flashcard Deck by pressing the
+                <img
+                    src="/favicon.ico"
+                    alt="LemonGPT"
+                    className="inline-block mx-1 w-4 h-4"
+                  />                                
+                     on the <b className="font-bold">bottom right</b>!
+              </div>
+            ) : (
+            
+          decks.map((deck) => (
               <div
                 key={deck.id}
-                className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
+                className={`p-2 text-sm w-full text-left flex items-center hover:bg-gray-100 rounded-lg justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
                 onClick={() => {
                   console.log("Selected deck:", deck);
                   onFlashcardDeckSelect(deck);
@@ -193,7 +205,8 @@ const menuIconRef = useRef<HTMLDivElement>(null);
               </div>
             </div>
 
-            ))}
+            ))
+          )}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>

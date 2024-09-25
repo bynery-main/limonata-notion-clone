@@ -20,9 +20,7 @@ interface ExpandableCardDemoProps {
 export default function ExpandableCardDemo({ cards, onAddWorkspace }: ExpandableCardDemoProps) {
   const [active, setActive] = useState<WorkspaceCard | null>(null);
   const [workspaceDetails, setWorkspaceDetails] = useState<Record<string, { emoji: string; description: string }>>({});
-  const ref = useRef<HTMLDivElement>(null);
-  const id = useId();
-
+  const modalRef = useRef<HTMLDivElement | null>(null);  const id = useId();
   const getWorkspaceDetails = async (workspaceId: string) => {
     const workspaceRef = doc(db, "workspaces", workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
@@ -63,15 +61,27 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [active]);
 
-  useOutsideClick(ref, () => setActive(null));
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setActive(null);
+      }
+    };
 
-  const renderEmoji = (workspaceId: string) => {
-    return (
-      <div className="h-full w-full flex items-center justify-center bg-white text-4xl">
-        {workspaceDetails[workspaceId]?.emoji || '🏢'}
-      </div>
-    );
-  };
+    if (active) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [active, setActive]);
+
+  const renderEmoji = (cardId: string) => (
+    <div className="h-full w-full flex items-center justify-center text-4xl">
+      {workspaceDetails[cardId]?.emoji || '🚀'}
+    </div>
+  );
 
   return (
     <div className="w-full">
@@ -101,12 +111,15 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
             </motion.button>
             <motion.div
               layoutId={`card-${active.id}-${id}`}
-              ref={ref}
+              ref={modalRef}
               className="w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl overflow-hidden"
             >
-            <motion.div layoutId={`image-${active.id}-${id}`} className="min-h-80 w-full">
-              {renderEmoji(active.id)}
-            </motion.div>
+              <motion.div 
+                layoutId={`image-${active.id}-${id}`} 
+                className="min-h-80 w-full flex items-center justify-center"
+              >
+                {renderEmoji(active.id)}
+              </motion.div>
 
               <div>
                 <div className="flex justify-between items-start p-4">
@@ -129,7 +142,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
                     <a href={`/dashboard/${active.id}`} className="p-[1px] relative block">
                       <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                       <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                        <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                        <div className="flex items-center whitespace-nowrap">
                           <span>Open</span>
                         </div>
                       </div>
@@ -145,9 +158,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
                     className="text-neutral-600 text-xs md:text-sm lg:text-base h-40 md:h-fit pb-10 flex flex-col items-start gap-4 overflow-auto dark:text-neutral-400 [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch]"
                   >
                     <p>
-                     
                       {active.type} Workspace<br />
-                      
                     </p>
                   </motion.div>
                 </div>
@@ -164,11 +175,14 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
             onClick={() => setActive(card)}
             className="w-full p-4 flex flex-col md:flex-row justify-between items-center hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-xl cursor-pointer transition-colors duration-200"
           >
-            <div className="flex gap-4 flex-col md:flex-row items-center md:items-start">
-              <motion.div layoutId={`image-${card.id}-${id}`} className="h-20 w-20 md:h-14 md:w-14 rounded-lg overflow-hidden flexshrink-0">
+            <div className="flex items-center">
+              <motion.div 
+                layoutId={`image-${card.id}-${id}`} 
+                className="h-20 w-20 md:h-14 md:w-14 rounded-lg overflow-hidden flex items-center justify-center"
+              >
                 {renderEmoji(card.id)}
               </motion.div>
-              <div className="text-center md:text-left">
+              <div className="text-center md:text-left ml-4">
                 <motion.h3
                   layoutId={`title-${card.id}-${id}`}
                   className="font-bold text-neutral-800 dark:text-neutral-200"
@@ -185,7 +199,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
             </div>
             <div className="flex items-center gap-2 mt-4 md:mt-0">
               {card.type === 'Owned' ? (
-                <div title="This is a private workspace"><UserIcon  className="w-5 h-5 text-gray-500" /></div>
+                <div title="This is a private workspace"><UserIcon className="w-5 h-5 text-gray-500" /></div>
               ) : (
                 <div title="This is a shared workspace"><UsersIcon className="w-5 h-5 text-gray-500" /></div>
               )}
@@ -193,7 +207,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
                 <a href={`/dashboard/${card.id}`} className="p-[1px] relative block">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                   <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                    <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                    <div className="flex items-center whitespace-nowrap">
                       <span>Open</span>
                     </div>
                   </div>
