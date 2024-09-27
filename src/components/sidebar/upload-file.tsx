@@ -44,8 +44,8 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
       const fileType = determineFileType(selectedFile.name);
       
       // Check file size
-      if (fileType === "document" && selectedFile.size > 2 * 1024 * 1024) {
-        setErrorMessage("Document files must be under 2MB.");
+      if (fileType === "document" && selectedFile.size > 5 * 1024 * 1024) {
+        setErrorMessage("Document files must be under 5MB.");
         return;
       }
       if (fileType === "audio" && selectedFile.size > 50 * 1024 * 1024) {
@@ -177,12 +177,14 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderRef, onFileUpload }) => {
     const docExtensions = ["doc", "docx"];
     const audioExtensions = ["mp3", "wav", "ogg", "flac"];
     const videoExtensions = ["mp4", "avi", "mov", "wmv"];
+    const presentationExtensions = ["ppt", "pptx"];
 
     if (imageExtensions.includes(fileExtension || "")) return "🖼️";
     if (pdfExtensions.includes(fileExtension || "")) return "📕";
     if (docExtensions.includes(fileExtension || "")) return "📘";
     if (audioExtensions.includes(fileExtension || "")) return "🎵";
     if (videoExtensions.includes(fileExtension || "")) return "🎥";
+    if (presentationExtensions.includes(fileExtension || "")) return "📊";
     return "📝";
   };
   const GradientButton = ({ onClick, children, disabled = false }: { onClick?: () => void, children: React.ReactNode, disabled?: boolean }) => (

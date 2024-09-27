@@ -258,7 +258,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 overflow-show flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
-        <div className="flex h-20 shrink-0 items-center border-b px-6 relative  ">
+                <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="flex items-center gap-2 font-semibold"
@@ -267,11 +267,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             {workspaceName}
           </button>
           {showEmojiPicker && (
-            <div className="absolute top-full max-w-[20h] ml-4 left-0 z-20">
+            <div className="fixed top-20 left-72 z-50">
+            {/* I'll disable the Emoji Picker for now due to layout issues
               <Picker onEmojiSelect={handleEmojiSelect} />
+              */}
             </div>
-          )
-          }
+          )}
           <span className="sr-only">Limonata</span>
         </div>
 

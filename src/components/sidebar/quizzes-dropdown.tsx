@@ -3,6 +3,7 @@ import { collection, doc, deleteDoc, updateDoc, onSnapshot, getDocs, query, Docu
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import exp from "constants";
 
 interface QuizSet {
   id: string;
@@ -143,50 +144,61 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
           <Accordion.Content
             className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
           >
-            {quizSets.map((quizSet) => (
-              <div
-                key={quizSet.id}
-                className={`p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
-                onClick={() => onQuizSetSelect(quizSet)}
-              >
-                <span>{quizSet.name}</span>
-                <div className="flex-shrink-0 relative" ref={menuIconRef}>
-                  <MoreHorizontalIcon
-                    className="h-4 w-4 cursor-pointer"
-                    onClick={(event) => handleDropdownToggle(event, quizSet)}
-                  />
-                {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
-                  >
-                    <button
-                      onClick={handleRenameQuiz}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                      <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+          {quizSets.length === 0 ? (
+              <div className="p-2 text-sm font-light text-gray-500">
+                Create your first Quiz by pressing the
+                <img
+                    src="/favicon.ico"
+                    alt="LemonGPT"
+                    className="inline-block mx-1 w-4 h-4"
+                  />                                
+                     on the <b className="font-bold">bottom right</b>!
+                     </div>
+            ) : (
+              quizSets.map((quizSet) => (
+                <div
+                  key={quizSet.id}
+                  className={`p-2 text-sm w-full text-left flex items-center justify-between hover:bg-gray-100 rounded-lg cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
+                  onClick={() => onQuizSetSelect(quizSet)}
+                >
+                  <span>{quizSet.name}</span>
+                  <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                    <MoreHorizontalIcon
+                      className="h-4 w-4 cursor-pointer"
+                      onClick={(event) => handleDropdownToggle(event, quizSet)}
+                    />
+                    {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+                      >
+                        <button
+                          onClick={handleRenameQuiz}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          <div className="flex items-center">
+                            <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                          </div>
+                        </button>
+                        <button
+                          onClick={handleDeleteQuiz}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          <div className="flex items-center">
+                            <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+                            Delete
+                          </div>
+                        </button>
                       </div>
-                    </button>
-                    <button
-                      onClick={handleDeleteQuiz}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                      <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-                      Delete
-                      </div>
-                    </button>
+                    )}
                   </div>
-                )}
-              </div>
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>
     </div>
   );
 };
-
 export default QuizzesDropdown;
