@@ -221,24 +221,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   return (
     <FolderProvider>
       <div className="flex h-screen overflow-hidden">
-        {isMobile ? (
-          <DynamicResponsiveSidebar 
-            user={memoizedUser} 
-            workspaceId={params.workspaceId} 
-            onFoldersUpdate={updateFoldersData} 
-          />
-        ) : (
-          <div className="flex">
-            {memoizedMainSidebar}
-            {params.workspaceId && (
-              <WorkspaceSidebar
-                params={{ workspaceId: params.workspaceId }}
-                onFoldersUpdate={updateFoldersData}
-                
-              />
-            )}
-          </div>
-        )}
           <main className="flex-1 overflow-y-auto">
       
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">

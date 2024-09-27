@@ -6,6 +6,7 @@ import DashboardSetup from '@/components/dashboard-setup/dashboard-setup';
 import { motion } from 'framer-motion'; // Import Framer Motion
 import { IconArrowsLeft, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
 import { ArrowLeftCircleIcon, LucideSidebarClose, Menu, MoveLeftIcon, SidebarCloseIcon } from 'lucide-react';
+import { User } from 'firebase/auth';
 
 interface Folder {
   id: string;
@@ -15,27 +16,19 @@ interface Folder {
 }
 
 interface ResponsiveSidebarProps {
-  user: any;
-  workspaceId?: string;
-  onFoldersUpdate?: (newFoldersData: Folder[]) => void;
+  user: User;
+  workspaceId: string | null;
 }
 
-const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId, onFoldersUpdate }) => {
+const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId }) => {
+  const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showDashboardSetup, setShowDashboardSetup] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const pathname = usePathname();
-
-  const isDashboardRoot = pathname === '/dashboard';
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setIsSidebarOpen(true); // Ensure sidebars are open on larger screens
-      } else {
-        setIsSidebarOpen(false); // Ensure sidebars are closed on smaller screens
-      }
+      setIsSidebarOpen(window.innerWidth >= 768);
     };
 
     checkMobile();
@@ -43,16 +36,9 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen(!isSidebarOpen);
   }, [isSidebarOpen]);
-
-  const handleFoldersUpdate = useCallback((folders: Folder[]) => {
-    if (onFoldersUpdate) {
-      onFoldersUpdate(folders);
-    }
-  }, [onFoldersUpdate]);
 
   const memoizedMainSidebar = useMemo(() => (
     <MainSidebar
@@ -61,26 +47,25 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
     />
   ), [user, setShowDashboardSetup]);
 
-
   return (
     <>
       <div
-        className={`fixed inset-y-0 left-0 z-20 transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`${isMobile ? 'fixed inset-y-0 left-0 z-20' : 'relative'} 
+        ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+        transition-transform duration-300 ease-in-out`}
       >
         {memoizedMainSidebar}
       </div>
 
-      {!isDashboardRoot && workspaceId && (
+      {workspaceId && (
         <div
-          className={`fixed inset-y-0 left-[50px] z-30 transition-transform duration-300 ease-in-out ${
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+          className={`${isMobile ? 'fixed inset-y-0 left-[50px] z-30' : 'relative'} 
+          ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+          transition-transform duration-300 ease-in-out flex`}
         >
           <WorkspaceSidebar
             params={{ workspaceId: workspaceId }}
-            onFoldersUpdate={handleFoldersUpdate}
+            onFoldersUpdate={(folders: Folder[]) => console.log(folders)}
           />
         </div>
       )}
