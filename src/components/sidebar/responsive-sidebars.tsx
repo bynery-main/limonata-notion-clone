@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 import { usePathname } from 'next/navigation';
@@ -43,42 +43,40 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
 
-  const handleFoldersUpdate = (folders: Folder[]) => {
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen(!isSidebarOpen);
+  }, [isSidebarOpen]);
+
+  const handleFoldersUpdate = useCallback((folders: Folder[]) => {
     if (onFoldersUpdate) {
       onFoldersUpdate(folders);
-    } else {
-      console.log('Folders updated:', folders);
     }
-  };
+  }, [onFoldersUpdate]);
+
+  const memoizedMainSidebar = useMemo(() => (
+    <MainSidebar
+      user={user}
+      setShowDashboardSetup={setShowDashboardSetup}
+    />
+  ), [user, setShowDashboardSetup]);
+
 
   return (
-    <div className="flex h-screen overflow-show z-100"> {/* Ensure parent takes full screen height and hides overflow */}
-      {/* Main Sidebar */}
+    <>
       <div
-        className={`h-full ${
-          isMobile ? 'fixed inset-y-0 left-0 z-20' : 'relative'
-        } ${
-          isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
-        } transition-transform duration-300 ease-in-out`}
+        className={`fixed inset-y-0 left-0 z-20 transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
-        <MainSidebar
-          user={user}
-          setShowDashboardSetup={setShowDashboardSetup}
-        />
+        {memoizedMainSidebar}
       </div>
 
-      {/* Workspace Sidebar */}
-      {!isDashboardRoot && workspaceId && (!isMobile || isSidebarOpen) && (
+      {!isDashboardRoot && workspaceId && (
         <div
-          className={`h-full ${
-            isMobile ? 'fixed inset-y-0 left-[50px] z-30' : 'relative'
-          } ${
-            isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
-          } transition-transform duration-300 ease-in-out flex`}
+          className={`fixed inset-y-0 left-[50px] z-30 transition-transform duration-300 ease-in-out ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
         >
           <WorkspaceSidebar
             params={{ workspaceId: workspaceId }}
@@ -118,8 +116,7 @@ const ResponsiveSidebar: React.FC<ResponsiveSidebarProps> = ({ user, workspaceId
           </div>
         </div>
       )}
-    </div>
+    </>
   );
-};
-
+}
 export default ResponsiveSidebar;

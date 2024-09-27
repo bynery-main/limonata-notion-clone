@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BentoGrid } from "@/components/BentoGrid/bento-grid";
 import { FolderProvider } from "@/contexts/FolderContext";
 import ChatComponent from "@/components/chat/chat-component";
@@ -11,6 +11,14 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
+import MainSidebar from "@/components/sidebar/main-sidebar";
+import dynamic from "next/dynamic";
+import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
+
+const DynamicResponsiveSidebar = dynamic(
+  () => import("@/components/sidebar/responsive-sidebars"),
+  { ssr: false }
+);
 
 interface FileData {
   id: string;
@@ -51,9 +59,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const currentUserId = user?.uid ?? "";
   const [isFileUploaderVisible, setIsFileUploaderVisible] = useState(false);
   const bentoGridRef = useRef<HTMLDivElement>(null);
-
+  const [showDashboardSetup, setShowDashboardSetup] = useState(false);
   const router = useRouter();
-
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const getWorkspaceData = async () => {
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
@@ -123,9 +131,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setShowEmojiPicker(false);
   };
 
-  const updateFoldersData = (newFoldersData: Folder[]) => {
-    setFoldersData(newFoldersData);
-  };
 
   const updatePageTitle = (breadcrumbItems: BreadcrumbItem[]) => {
     if (breadcrumbItems.length > 0) {
@@ -189,15 +194,52 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setIsFileUploaderVisible(false);
   };
 
+  const updateFoldersData = useCallback((newFoldersData: Folder[]) => {
+    setFoldersData(newFoldersData);
+  }, []);
+
+
+  const memoizedUser = useMemo(() => user, [user]);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const memoizedMainSidebar = useMemo(() => (
+    <MainSidebar
+      user={memoizedUser}
+      setShowDashboardSetup={setShowDashboardSetup}
+    />
+  ), [memoizedUser, setShowDashboardSetup]);
+
   return (
     <FolderProvider>
-      <div className="flex h-screen overflow-show z-1000">
-        <ResponsiveSidebar 
-          user={user} 
-          workspaceId={params.workspaceId} 
-          onFoldersUpdate={updateFoldersData} 
-        />
-        <main className="flex-1 overflow-y-auto">
+      <div className="flex h-screen overflow-hidden">
+        {isMobile ? (
+          <DynamicResponsiveSidebar 
+            user={memoizedUser} 
+            workspaceId={params.workspaceId} 
+            onFoldersUpdate={updateFoldersData} 
+          />
+        ) : (
+          <div className="flex">
+            {memoizedMainSidebar}
+            {params.workspaceId && (
+              <WorkspaceSidebar
+                params={{ workspaceId: params.workspaceId }}
+                onFoldersUpdate={updateFoldersData}
+                
+              />
+            )}
+          </div>
+        )}
+          <main className="flex-1 overflow-y-auto">
       
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
           <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">

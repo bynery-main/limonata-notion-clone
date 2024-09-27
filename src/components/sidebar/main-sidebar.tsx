@@ -28,7 +28,7 @@ interface MainSidebarProps {
   setShowDashboardSetup: (show: boolean) => void;
 }
 
-export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboardSetup }) => {
+export const MainSidebar: React.FC<MainSidebarProps> = React.memo(({ user, setShowDashboardSetup }) => {
   const [ownedWorkspaces, setOwnedWorkspaces] = useState<Workspace[]>([]);
   const [collaborativeWorkspaces, setCollaborativeWorkspaces] = useState<
     Workspace[]
@@ -304,4 +304,5 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
     </div>
   );
 }
+);
 export default MainSidebar;
