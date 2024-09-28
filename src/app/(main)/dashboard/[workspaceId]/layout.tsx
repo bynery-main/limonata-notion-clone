@@ -11,6 +11,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
+import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
 
 interface FileData {
   id: string;
@@ -189,14 +190,34 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setIsFileUploaderVisible(false);
   };
 
+  const [isPhone, setIsPhone] = useState(false);
+
+  useEffect(() => {
+    const checkIfPhone = () => {
+      setIsPhone(window.innerWidth < 768);
+    };
+
+    checkIfPhone();
+    window.addEventListener('resize', checkIfPhone);
+
+    return () => window.removeEventListener('resize', checkIfPhone);
+  }, []);
+
   return (
     <FolderProvider>
       <div className="flex h-screen overflow-show z-1000">
-        <ResponsiveSidebar 
-          user={user} 
-          workspaceId={params.workspaceId} 
-          onFoldersUpdate={updateFoldersData} 
-        />
+        {isPhone ? (
+          <ResponsiveSidebar 
+            user={user} 
+            workspaceId={params.workspaceId} 
+            onFoldersUpdate={updateFoldersData} 
+          />
+        ) : (
+          <WorkspaceSidebar 
+            params={{ workspaceId: params.workspaceId }}
+            onFoldersUpdate={updateFoldersData} 
+          />
+        )}
         <main className="flex-1 overflow-y-auto">
       
         <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
