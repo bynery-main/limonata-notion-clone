@@ -11,7 +11,9 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
-import { Share, Share2 } from "lucide-react";
+import { Link, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon } from "lucide-react";
+import CollaboratorSearch from "@/components/collaborator-setup/collaborator-search";
+import { fetchUserEmailById } from "@/lib/db/users/get-users";
 
 interface FileData {
   id: string;
@@ -190,9 +192,63 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setIsFileUploaderVisible(false);
   };
 
+
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
+  const [newCollaborators, setNewCollaborators] = useState<{ uid: string; email: string }[]>([]);
+  const currentUserUid = user?.uid || "";
+  const collaboratorSearchRef = useRef<HTMLDivElement>(null);
+  const shareMenuRef = useRef<HTMLDivElement>(null);
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
+
+  /*
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (shareButtonRef.current && 
+          !shareButtonRef.current.contains(event.target as Node) &&
+          shareMenuRef.current && 
+          !shareMenuRef.current.contains(event.target as Node)) {
+        setShowShareMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+*/
+  const fetchExistingCollaborators = async () => {
+    const workspaceRef = doc(db, "workspaces", params.workspaceId);
+    const workspaceSnap = await getDoc(workspaceRef);
+
+    if (workspaceSnap.exists()) {
+      const data = workspaceSnap.data();
+      const collaborators = data.collaborators || [];
+
+      const collaboratorsWithEmails = await Promise.all(
+        collaborators.map(async (uid: string) => {
+          const email = await fetchUserEmailById(uid);
+          return { uid, email };
+        })
+      );
+
+      setExistingCollaborators(collaboratorsWithEmails);
+    }
+  };
+
+  const handleAddCollaborator = (user: { uid: string; email: string }) => {
+    setNewCollaborators((prev) => [...prev, user]);
+  };
+
   const handleShare = () => {
-    
-    console.log("Share button clicked");
+    setShowShareMenu(!showShareMenu);
+  };
+
+  const handleCopyLink = () => {
+
+    // Logic to copy link
   };
 
   return (
@@ -222,53 +278,81 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         </h1>
                       )}
                     </div>
-                    <button onClick={handleShare} className="p-[1px] relative block" title="Invite other people to collaborate in your Workspace">
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                      <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Invite Collaborators
-                      </div>
-                    </button>
+                    <div className="relative">
+                      <button 
+                        ref={shareButtonRef}
+                        onClick={handleShare} 
+                        className="p-[1px] relative block"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                        <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Invite Collaborators
+                        </div>
+                      </button>
+                      {showShareMenu && (
+                        <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <CollaboratorSearch
+                              existingCollaborators={existingCollaborators.map(c => c.uid)}
+                              currentUserUid={currentUserUid}
+                              onAddCollaborator={handleAddCollaborator}
+                              onOpen={fetchExistingCollaborators}
+                              workspaceId={params.workspaceId}
+                            >
+                              <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
+                                <Search className="mr-3 h-5 w-5"/>
+                                Search Collaborators
+                              </div>
+                            </CollaboratorSearch>
+                            <div
+                              className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
+                              onClick={handleCopyLink}
+                              title="Soon..."
+                            >
+                              <Link className="mr-3 h-5 w-5" />
+                              Copy link
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm text-gray-600 mt-2 font-light">
                     {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
                   </p>
                 </>
               )}
-                         </div>
- 
-          {children}
-          {!isSettingsPage && (
-            <>
-
-          <div ref={bentoGridRef}>
-            {showBentoGrid && folderId && (
-              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
+            </div>
+   
+            {children}
+            {!isSettingsPage && (
+              <>
+                <div ref={bentoGridRef}>
+                  {showBentoGrid && folderId && (
+                    <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
+                  )}
+                  {showBentoGrid && !folderId && (
+                    <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
+                  )}
+                </div>
+                <FileUploader
+                  workspaceId={params.workspaceId}
+                  db={db}
+                  onFileUpload={handleFileUpload}
+                  isVisible={isFileUploaderVisible}
+                  onClose={() => setIsFileUploaderVisible(false)}
+                />
+              </>
             )}
-
-            {showBentoGrid && !folderId && (
-              <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
-            )}
+            <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
+              <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
+              <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
+            </div>
           </div>
-
-            <FileUploader
-              workspaceId={params.workspaceId}
-              db={db}
-              onFileUpload={handleFileUpload}
-              isVisible={isFileUploaderVisible}
-              onClose={() => setIsFileUploaderVisible(false)}
-            />
-            </>
-          )}
-        <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
-          <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
-          <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible} />
-        </div>
-        </div>
-      </main>
+        </main>
       </div>
     </FolderProvider>
   );
-};
-
+}
 export default Layout;
