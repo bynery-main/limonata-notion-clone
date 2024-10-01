@@ -107,10 +107,10 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     setLoading(true);
     try {
       // First, attempt to use credits
-      const creditUsageResult = (await creditValidation({
+      const creditUsageResult = await creditValidation({
         uid: userId,
         cost: creditCost,
-      })) as { data: CreditUsageResult };
+      }) as { data: CreditUsageResult };
 
       console.log("Credit usage result:", creditUsageResult.data);
 
@@ -118,7 +118,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         setRemainingCredits(creditUsageResult.data.remainingCredits);
         setShowCreditModal(true);
         setLoading(false);
-        return;
+        return; // Exit the function here, keeping the AI chat modal open
       }
 
       // Separate notes and files from selectedNotes
@@ -129,7 +129,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       const result = await createStudyGuides({
         workspaceId,
         notes,
-        files, // Add files to the payload
+        files,
       });
       console.log("Study guides created successfully:", result.data);
 
@@ -143,8 +143,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
 
       // Generate a name for the study guide using the nameResource function
       const nameGenerationResult = await generateName({ content: raw });
-      const generatedName = (nameGenerationResult.data as NameGenerationResult)
-        .answer;
+      const generatedName = (nameGenerationResult.data as NameGenerationResult).answer;
 
       console.log("Generated name for study guide:", generatedName);
 
@@ -163,16 +162,19 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
       });
 
       reacttoast.success(<>
-        StudyGide <strong>{generatedName}</strong> created successfully!
+        Study Guide <strong>{generatedName}</strong> created successfully!
       </>, {
         duration: 3000,
         icon: '🎉',
       });
 
+      // Close the modal only after successful creation
+      onClose();
+
       // Redirect to dashboard/workspaceid after a short delay
       setTimeout(() => {
         router.push(`/dashboard/${workspaceId}`);
-      });
+      }, 3000);
 
     } catch (error) {
       console.error("Error creating study guides:", error);
@@ -180,10 +182,9 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
         duration: 3000,
         icon: '❌',
       });
-
+      // Don't close the modal on error, allow the user to try again
     } finally {
       setLoading(false);
-      onClose();
     }
   };
 
@@ -238,6 +239,15 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
     onClose(); // Close the current modal
     onBack();
   };
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
+    handleCreateStudyGuides();
+  };
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -317,27 +327,26 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
             ))}
           </div>
 
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-center ">
             <div className={`${selectedNotes.length > 0
-              ? 'p-[1px] relative'
-              : 'p-[1px] relative cursor-not-allowed'
+                ? 'p-[1px] relative'
+                : 'p-[1px] relative cursor-not-allowed'
               }`}>
-              <Button
-                onClick={handleCreateStudyGuides}
-                className="p-[1px] relative"
-                title={
-                  selectedNotes.length > 0
-                    ? 'Create Study Guides'
-                    : 'Click on a note first to create a Study Guide'
-                }
-                disabled={isDisabled}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+            <Button
+              onClick={handleClick}
+              className="p-[1px] relative"
+              title={
+                selectedNotes.length > 0
+                  ? ''
+                  : 'Click on a note first to create Study Guide'
+              }
+              disabled={loading || selectedNotes.length === 0}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                 <motion.div
-                  className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
-                    }`}
-                  whileHover={isDisabled ? {} : "hover"}
-                  whileTap={isDisabled ? {} : "tap"}
+                  className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white pointer-disabled"
+                  whileHover="hover"
+                  whileTap="tap"
                 >
                   <motion.span
                     className="font-bold inline-block"
@@ -346,7 +355,9 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                       tap: { scale: 0.95 }
                     }}
                   >
-                    {loading ? "Creating..." : "Create Study Guide"}
+                  {loading ? "Creating..." : (selectedNotes.length > 0 ? 'Create Study Guide' : 'Select Notes First')}
+
+                    
                   </motion.span>
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
@@ -362,6 +373,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
                       <span className="whitespace-nowrap">{creditCost} Credits</span>
                     )}
                   </motion.div>
+                  
                 </motion.div>
               </Button>
             </div>

@@ -114,6 +114,15 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       );
     }
   };
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
+    handleCreateFlashcards();
+  };
+
+
 
   const handleCreateFlashcards = async () => {
     const functions = getFunctions(app);
@@ -122,11 +131,25 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
     const creditValidation = httpsCallable(functions, "useCredits");
     setLoading(true);
     try {
+      const creditUsageResult = await creditValidation({
+        uid: userId,
+        cost: creditCost,
+      }) as { data: CreditUsageResult };
+
+      console.log("Credit usage result:", creditUsageResult.data);
+
+      if (!creditUsageResult.data.success) {
+        setRemainingCredits(creditUsageResult.data.remainingCredits);
+        setShowCreditModal(true);
+        setLoading(false);
+        return;
+      }
+
       // Separate notes and files from selectedNotes
       const notes = selectedNotes.filter(note => note.type === 'note').map(note => ({ folderId: note.folderId, noteId: note.noteId }));
       const files = selectedNotes.filter(note => note.type === 'file').map(note => ({ folderId: note.folderId, fileId: note.noteId }));
 
-      // Attempt flashcard creation first
+      // Attempt flashcard creation
       const result = await createFlashcards({
         workspaceId,
         notes,
@@ -146,21 +169,6 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         throw new Error("No flashcards could be created from the provided content");
       }
 
-      // If flashcards were successfully created, proceed with credit check
-      const creditUsageResult = (await creditValidation({
-        uid: userId,
-        cost: creditCost,
-      })) as { data: CreditUsageResult };
-
-      console.log("Credit usage result:", creditUsageResult.data);
-
-      if (!creditUsageResult.data.success) {
-        setRemainingCredits(creditUsageResult.data.remainingCredits);
-        setShowCreditModal(true);
-        return;
-      }
-
-      // If credit check passes, continue with the rest of the process
       setFlashcards(parsedFlashcards);
 
       const nameGenerationResult = await generateName({ content: raw });
@@ -218,6 +226,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       setLoading(false);
     }
   };
+
 
   const getFileEmoji = (fileName: string): string => {
     const extension = fileName.split('.').pop()?.toLowerCase() || '';
@@ -337,27 +346,26 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
             ))}
           </div>
 
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-center ">
             <div className={`${selectedNotes.length > 0
-              ? 'p-[1px] relative'
-              : 'p-[1px] relative cursor-not-allowed'
+                ? 'p-[1px] relative'
+                : 'p-[1px] relative cursor-not-allowed'
               }`}>
-              <Button
-                onClick={handleCreateFlashcards}
-                className="p-[1px] relative"
-                title={
-                  selectedNotes.length > 0
-                    ? 'Create Flashcards'
-                    : 'Click on a note first to create Flashcards'
-                }
-                disabled={isDisabled}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full ${isDisabled ? 'opacity-50' : ''}`} />
+            <Button
+              onClick={handleClick}
+              className="p-[1px] relative"
+              title={
+                selectedNotes.length > 0
+                  ? ''
+                  : 'Click on a note first to create flashcard'
+              }
+              disabled={loading || selectedNotes.length === 0}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                 <motion.div
-                  className={`px-3 py-2 relative rounded-full group transition duration-200 text-sm ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white text-black hover:bg-transparent hover:text-white'
-                    }`}
-                  whileHover={isDisabled ? {} : "hover"}
-                  whileTap={isDisabled ? {} : "tap"}
+                  className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white pointer-disabled"
+                  whileHover="hover"
+                  whileTap="tap"
                 >
                   <motion.span
                     className="font-bold inline-block"
@@ -366,7 +374,9 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                       tap: { scale: 0.95 }
                     }}
                   >
-                    {loading ? "Creating..." : "Create Flashcards"}
+                  {loading ? "Creating..." : (selectedNotes.length > 0 ? 'Create Flashcards' : 'Select Notes First')}
+
+                    
                   </motion.span>
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
@@ -382,6 +392,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                       <span className="whitespace-nowrap">{creditCost} Credits</span>
                     )}
                   </motion.div>
+                  
                 </motion.div>
               </Button>
             </div>
