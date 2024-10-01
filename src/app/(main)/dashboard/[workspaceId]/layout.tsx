@@ -11,6 +11,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
+import { Share, Share2 } from "lucide-react";
 
 interface FileData {
   id: string;
@@ -189,6 +190,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setIsFileUploaderVisible(false);
   };
 
+  const handleShare = () => {
+    
+    console.log("Share button clicked");
+  };
+
   return (
     <FolderProvider>
       <div className="flex h-screen overflow-show z-1000">
@@ -198,30 +204,37 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           onFoldersUpdate={updateFoldersData} 
         />
         <main className="flex-1 overflow-y-auto">
-      
-        <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-          <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
-            <div className="w-full mt-11">
-              <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
-            </div>
-            {!isSettingsPage && (
-              <>
-              <div className="flex items-center w-full mt-2 ">
-                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
-                      <span>{emoji}</span>
-                    </button>
-                    {pageTitle && (
-                      <h1 className="text-4xl font-bold line-clamp-2">
-                        {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                      </h1>
-                    )}
+          <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
+            <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
+              <div className="w-full mt-11">
+                <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
               </div>
-
-            <p className="text-sm text-gray-600 mt-2 font-light">
-              {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
-            </p>
-                      </>
-            )}
+              {!isSettingsPage && (
+                <>
+                  <div className="flex items-center justify-between w-full mt-2">
+                    <div className="flex items-center">
+                      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
+                        <span>{emoji}</span>
+                      </button>
+                      {pageTitle && (
+                        <h1 className="text-4xl font-bold line-clamp-2">
+                          {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                        </h1>
+                      )}
+                    </div>
+                    <button onClick={handleShare} className="p-[1px] relative block" title="Invite other people to collaborate in your Workspace">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                      <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Invite Collaborators
+                      </div>
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 font-light">
+                    {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
+                  </p>
+                </>
+              )}
                          </div>
  
           {children}
