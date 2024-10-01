@@ -76,13 +76,20 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
               Click or drag and drop it here!
             </p>
             {showHelp && (
-              <p className="text-center text-sm text-gray-500 italic z-50">
-                Psst! If you&apos;re new here, make sure to create a folder
-                first. It&apos;s like making a comfy bed for your files before
-                tucking them in! (Check out the Workspace Sidebar)
+              <p className="text-center text-sm text-gray-500 z-50 font-light">
+                <br />
+                Psst! If you&apos;re new here
+                <b className="font-bold">
+                , make sure to create a folder
+                first  
+                </b>
+                . It&apos;s like making a comfy bed for your files before
+                tucking them in! 
+                <br/>
+                (Check out the Workspace Sidebar)
               </p>
             )}
-            <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto">
+            <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto font-light">
               <motion.div
                 layoutId="file-upload"
                 variants={mainVariant}
