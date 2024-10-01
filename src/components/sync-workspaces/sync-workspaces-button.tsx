@@ -11,8 +11,9 @@ interface SyncWorkspaceButtonProps {
     workspaceId: string;
     onSyncComplete?: () => void;
     className?: string;
-}
-
+    onShowNoCreditsModal: (remainingCredits: number, creditCost: number) => void;
+  }
+  
 const gradientAnimation = keyframes`
     0% {
         background-position: 0% 50%;
@@ -52,7 +53,12 @@ const AnimatedButton = styled(motion.button)`
     }
 `;
 
-const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, onSyncComplete, className }) => {
+const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({
+    workspaceId,
+    onSyncComplete,
+    className,
+    onShowNoCreditsModal
+  }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [remainingCredits, setRemainingCredits] = useState(0);
@@ -80,27 +86,24 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
         try {
             const creditUsageResult = await creditValidation({ uid: user.uid, cost: creditCost });
             const creditResponse = creditUsageResult.data as { success: boolean; remainingCredits: number };
-
+      
             if (!creditResponse.success) {
-                setRemainingCredits(creditResponse.remainingCredits);
-                setShowCreditModal(true);
-                setIsLoading(false);
-                return;
+              onShowNoCreditsModal(creditResponse.remainingCredits, creditCost);
+              return;
             }
-
+      
             const result = await syncWorkspaceNotesFunction({ workspaceId });
             console.log(result.data);
             if (onSyncComplete) {
-                onSyncComplete();
+              onSyncComplete();
             }
-        } catch (error) {
+            toast.success("Workspace synced successfully!");
+          } catch (error) {
             console.error("Error syncing workspace:", error);
             toast.error("Error syncing workspace. Please try again.");
-        } finally {
+          } finally {
             setIsLoading(false);
-            toast.success("Workspace synced successfully!");
-
-        }
+          }
     };
 
     return (
@@ -144,14 +147,6 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({ workspaceId, 
                     )}
                 </motion.div>
             </AnimatedButton>
-
-            {showCreditModal && (
-                <NoCreditsModal
-                    remainingCredits={remainingCredits}
-                    creditCost={creditCost}
-                    onClose={() => setShowCreditModal(false)}
-                />
-            )}
         </>
     );
 };

@@ -14,6 +14,8 @@ import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the n
 import { Link, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon } from "lucide-react";
 import CollaboratorSearch from "@/components/collaborator-setup/collaborator-search";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
+import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
+import NoCreditsModal from '../subscribe/no-credits-modal';
 
 interface FileData {
   id: string;
@@ -54,7 +56,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const currentUserId = user?.uid ?? "";
   const [isFileUploaderVisible, setIsFileUploaderVisible] = useState(false);
   const bentoGridRef = useRef<HTMLDivElement>(null);
-
+  const [showGoProModal, setShowGoProModal] = useState(false);
+  const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
+  const [noCreditsModalData, setNoCreditsModalData] = useState({ remainingCredits: 0, creditCost: 0 });
   const router = useRouter();
 
   useEffect(() => {
@@ -251,14 +255,45 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     // Logic to copy link
   };
 
+  const [isPhone, setIsPhone] = useState(false);
+
+  useEffect(() => {
+    const checkIfPhone = () => {
+      setIsPhone(window.innerWidth < 768);
+    };
+
+    checkIfPhone();
+    window.addEventListener('resize', checkIfPhone);
+
+    return () => window.removeEventListener('resize', checkIfPhone);
+  }, []);
+
+  const handleGoProClick = () => {
+    setShowGoProModal(true);
+  };
+  
+  const handleShowNoCreditsModal = (remainingCredits: number, creditCost: number) => {
+    setNoCreditsModalData({ remainingCredits, creditCost });
+    setShowNoCreditsModal(true);
+  };
+
   return (
     <FolderProvider>
       <div className="flex h-screen overflow-show z-1000">
-        <ResponsiveSidebar 
-          user={user} 
-          workspaceId={params.workspaceId} 
-          onFoldersUpdate={updateFoldersData} 
-        />
+        {isPhone ? (
+          <ResponsiveSidebar 
+            user={user} 
+            workspaceId={params.workspaceId} 
+            onFoldersUpdate={updateFoldersData} 
+          />
+        ) : (
+          <WorkspaceSidebar 
+            params={{ workspaceId: params.workspaceId }}
+            onFoldersUpdate={updateFoldersData} 
+            onGoProClick={handleGoProClick}
+            onShowNoCreditsModal={handleShowNoCreditsModal}
+          />
+        )}
         <main className="flex-1 overflow-y-auto">
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
             <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">

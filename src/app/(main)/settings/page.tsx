@@ -10,10 +10,14 @@ import { GoProButton } from '@/components/subscribe/subscribe-button';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { Timestamp } from 'firebase/firestore';
-import { motion } from 'framer-motion';
-import { Settings, CreditCard, Calendar, Trash2, AlertTriangle, LogOut } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Settings, CreditCard, Calendar, Trash2, AlertTriangle, LogOut, X } from 'lucide-react';
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
-import ResponsiveSidebar from '@/components/sidebar/responsive-sidebars';
+import { PricingPage } from '@/components/subscribe/pricing';
+
+export interface SettingsPageProps {
+  onGoProClick: () => void;
+};
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -25,7 +29,6 @@ const SettingsPage = () => {
   const [subscriptionCurrentPeriodEnd, setSubscriptionCurrentPeriodEnd] = useState<string | null>(null);
   const [showDashboardSetup, setShowDashboardSetup] = useState(false);
   const [isClient, setIsClient] = useState(false); // New state to check if it's client-side
-
   const { user } = useAuth();
   const currentUserUid = user?.uid || "";
   const currentUserEmail = user?.email || "";
@@ -164,8 +167,8 @@ const SettingsPage = () => {
           {tier === 'free' || subscriptionStatus === 'active_pending_cancellation' ? (
             <Button 
               onClick={() => setShowGoProModal(true)} 
-              className="bg-black hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300"
-            >
+              className="shadow-lg inline-flex h-10 animate-shimmer items-center justify-center rounded-full border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+              >
               {subscriptionStatus === "active_pending_cancellation" ? "Resubscribe" : "Go Pro"}
             </Button>
           ) : (
@@ -214,34 +217,46 @@ const SettingsPage = () => {
           </motion.div>
         )}
 
-        {/* Go Pro Modal */}
-        {showGoProModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg w-96">
-              <h2 className="text-xl font-bold mb-4">Go Pro</h2>
-              <ul className="list-disc list-inside mb-6">
-                <li>Access to premium features</li>
-                <li>Priority support</li>
-                <li>More storage for your workspaces</li>
-                <li>Collaborate with more team members</li>
-                <li>Advanced analytics and insights</li>
-              </ul>
-              <GoProButton
-                className="w-full"
-                userEmail={currentUserEmail}
-                userId={currentUserUid}
-                subscriptionStatus={subscriptionStatus}
-              />
-              <Button
-                onClick={() => setShowGoProModal(false)}
-                variant="outline"
-                className="mt-2 w-full"
+<AnimatePresence>
+          {showGoProModal && (
+            <motion.div 
+              className="fixed inset-0 z-[60] flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {/* Darkened and blurred background */}
+              <div className="absolute inset-0 -mt-20 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowGoProModal(false)} />
+              
+              {/* Modal window */}
+              <motion.div 
+                className="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[100vh] overflow-y-auto relative z-10"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
               >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
+                <button 
+                  onClick={() => setShowGoProModal(false)}
+                  className="absolute top-4 right-4 text-gray-600 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+                <div className="p-8">
+                  <PricingPage />
+                  <div className="flex justify-center items-center mt-8">
+                    <GoProButton
+                      className="mx-4 mt-4 shadow-lg inline-flex text-white h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+                      userEmail={currentUserEmail!}
+                      userId={currentUserUid!}
+                      subscriptionStatus={subscriptionStatus}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
 
         {/* Sign Out Button */}
         <motion.div
