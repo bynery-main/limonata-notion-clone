@@ -11,11 +11,14 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
-import { Link, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon } from "lucide-react";
+import { Link, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X } from "lucide-react";
 import CollaboratorSearch from "@/components/collaborator-setup/collaborator-search";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
-import NoCreditsModal from '../subscribe/no-credits-modal';
+import NoCreditsModal from '@/components/subscribe/no-credits-modal';
+import { PricingPage } from "@/components/subscribe/pricing";
+import GoProButton from "@/components/subscribe/subscribe-button";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface FileData {
   id: string;
@@ -60,7 +63,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
   const [noCreditsModalData, setNoCreditsModalData] = useState({ remainingCredits: 0, creditCost: 0 });
   const router = useRouter();
-
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  
   useEffect(() => {
     const getWorkspaceData = async () => {
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
@@ -268,6 +272,31 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     return () => window.removeEventListener('resize', checkIfPhone);
   }, []);
 
+
+  useEffect(() => {
+    const fetchSubscriptionStatus = async () => {
+      if (user && user.uid) {
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            setSubscriptionStatus(userData.subscriptionStatus || 'free');
+          } else {
+            console.log('No such user document!');
+            setSubscriptionStatus('free');
+          }
+        } catch (error) {
+          console.error('Error fetching subscription status:', error);
+          setSubscriptionStatus('free');
+        }
+      }
+    };
+
+    fetchSubscriptionStatus();
+  }, [user, db]);
+
   const handleGoProClick = () => {
     setShowGoProModal(true);
   };
@@ -386,8 +415,84 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             </div>
           </div>
         </main>
+                {/* Go Pro Modal */}
+                <AnimatePresence>
+          {showGoProModal && user && (
+            <motion.div 
+              className="fixed inset-0 z-[60] flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowGoProModal(false)} />
+              
+              <motion.div 
+                className="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto relative z-10"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+              >
+                <button 
+                  onClick={() => setShowGoProModal(false)}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+                <div className="p-8">
+                  <PricingPage />
+                  <div className="flex justify-center items-center mt-8">
+                    <GoProButton
+                      className="bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors"
+                      userEmail={user.email || ''}
+                      userId={user.uid}
+                      subscriptionStatus={subscriptionStatus || 'free'}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* No Credits Modal */}
+        <AnimatePresence>
+          {showNoCreditsModal && user && (
+            <motion.div 
+              className="fixed inset-0 z-[60] flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowNoCreditsModal(false)} />
+              
+              <motion.div 
+                className="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto relative z-10"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+              >
+                <button 
+                  onClick={() => setShowNoCreditsModal(false)}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+                <div className="p-8">
+                  <NoCreditsModal
+                    remainingCredits={noCreditsModalData.remainingCredits}
+                    creditCost={noCreditsModalData.creditCost}
+                    onClose={() => setShowNoCreditsModal(false)}
+                    userId={user.uid}
+                    userEmail={user.email || undefined}
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </FolderProvider>
   );
 }
+
 export default Layout;
