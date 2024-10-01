@@ -54,7 +54,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto z-0">
       {!isUploaderVisible ? (
         <motion.div
           onClick={handleClick}

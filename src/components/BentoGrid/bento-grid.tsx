@@ -302,7 +302,7 @@ export const BentoGrid = ({
             />
           ))}
           {/* Add FileUpload as the last item */}
-          <div className={cn("p-4 flex items-center justify-center", getItemClass(items.length, items.length + 1))}>
+          <div className={cn("p-4 flex items-center justify-center z-0", getItemClass(items.length, items.length + 1))}>
             <FileUpload 
               workspaceId={workspaceId} 
               db={db} 
