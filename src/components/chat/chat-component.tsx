@@ -233,6 +233,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
                         workspaceId={workspaceId}
                         className="w-full"
                         onSyncComplete={handleSyncComplete}
+                        onShowNoCreditsModal={() => setShowCreditModal(true)}
                       />
                     </motion.div>
                   )}
