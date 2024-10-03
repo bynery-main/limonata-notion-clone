@@ -11,7 +11,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
-import { Link, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X } from "lucide-react";
+import { Link, Pencil, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X } from "lucide-react";
 import CollaboratorSearch from "@/components/collaborator-setup/collaborator-search";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
@@ -19,6 +19,7 @@ import NoCreditsModal from '@/components/subscribe/no-credits-modal';
 import { PricingPage } from "@/components/subscribe/pricing";
 import GoProButton from "@/components/subscribe/subscribe-button";
 import { AnimatePresence, motion } from "framer-motion";
+import NewNoteModal from "@/components/create-note-modal/create-note-modal";
 
 interface FileData {
   id: string;
@@ -64,7 +65,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [noCreditsModalData, setNoCreditsModalData] = useState({ remainingCredits: 0, creditCost: 0 });
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
-  
+  const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
+
   useEffect(() => {
     const getWorkspaceData = async () => {
       const workspaceRef = doc(db, "workspaces", params.workspaceId);
@@ -305,7 +307,15 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setNoCreditsModalData({ remainingCredits, creditCost });
     setShowNoCreditsModal(true);
   };
+  const handleNewNoteClick = () => {
+    setIsNewNoteModalOpen(true);
+  };
 
+  const handleCreateNote = (name: string, folderId: string) => {
+    // Implement the logic to create a new note
+    console.log(`Creating new note: ${name} in folder: ${folderId}`);
+    // You would typically make an API call or update your state here
+  };
   return (
     <FolderProvider>
       <div className="flex h-screen overflow-show z-1000">
@@ -342,11 +352,20 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         </h1>
                       )}
                     </div>
-                    <div className="relative">
+                    <div className="flex items-end ml-auto">
+                    <button 
+                      onClick={handleNewNoteClick} 
+                      className="p-[1px] relative block mx-2">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
+                      <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                        <Pencil className="w-4 h-4 mr-2" />
+                        New Note
+                      </div>
+                    </button>
                       <button 
                         ref={shareButtonRef}
                         onClick={handleShare} 
-                        className="p-[1px] relative block"
+                        className="p-[1px] relative block mx-2"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                         <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
@@ -381,12 +400,16 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         </div>
                       )}
                     </div>
+
                   </div>
+                  
                   <p className="text-sm text-gray-600 mt-2 font-light">
                     {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
                   </p>
                 </>
+                
               )}
+              
             </div>
    
             {children}
@@ -452,6 +475,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               </motion.div>
             </motion.div>
           )}
+        <NewNoteModal
+          isOpen={isNewNoteModalOpen}
+          onClose={() => setIsNewNoteModalOpen(false)}
+          workspaceId={params.workspaceId}
+          folders={foldersData}
+        />
         </AnimatePresence>
 
         {/* No Credits Modal */}
