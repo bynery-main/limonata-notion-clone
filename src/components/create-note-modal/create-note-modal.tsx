@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, CirclePlus, CirclePlusIcon, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { useRouter } from 'next/navigation';
+import FancyText from "@carefully-coded/react-text-gradient";
 
 interface Folder {
   id: string;
@@ -83,7 +84,10 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({ isOpen, onClose, workspaceI
         >
           <X size={24} />
         </button>
+        <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
+
         <h2 className="text-2xl font-bold mb-4">Create New Note</h2>
+        </FancyText>
         <form onSubmit={handleCreateNote}>
           <div className="mb-4">
             <label htmlFor="noteName" className="block text-sm font-medium text-gray-700">Note Name</label>
@@ -92,7 +96,7 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({ isOpen, onClose, workspaceI
               id="noteName"
               value={noteName}
               onChange={(e) => setNoteName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              className="mt-1 pl-2 h-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               required
             />
           </div>
@@ -102,7 +106,7 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({ isOpen, onClose, workspaceI
               id="folder"
               value={selectedFolder}
               onChange={(e) => setSelectedFolder(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              className="mt-1 block w-full h-7 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               required
             >
               <option value="">Select a folder</option>
@@ -114,16 +118,21 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({ isOpen, onClose, workspaceI
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center"
+            className={`w-full px-4 py-2 rounded-lg bg-gradient-to-r from-[#C66EC5] to-[#FC608D] text-white font-semibold transition-opacity duration-200 ${
+              isLoading ? 'opacity-70 cursor-not-allowed' : ''
+            }`}
             disabled={isLoading}
           >
             {isLoading ? (
-              <>
+              <span className="flex items-center justify-center">
                 <Loader2 className="animate-spin mr-2" size={20} />
                 Creating...
-              </>
+              </span>
             ) : (
-              'Create Note'
+                <div className='flex items-center justify-center'>
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Create Note
+                    </div>
             )}
           </button>
         </form>
