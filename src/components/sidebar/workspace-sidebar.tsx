@@ -135,7 +135,10 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     }
   };
 
-
+  const handleWorkspaceNameClick = () => {
+    console.log("Navigating to Workspace root path");
+    router.push(`/dashboard/${params.workspaceId}`);
+  };
   const handleFolderSelect = (folder: Folder) => {
     console.log("Folder selected:", folder.id);
     setCurrentFolderId(folder.id);
@@ -287,7 +290,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
             className="flex items-center gap-2 font-semibold"
           >
             <span>{emoji}</span>
-            {workspaceName}
+            <div onClick={handleWorkspaceNameClick}> {workspaceName} </div>
           </button>
           {showEmojiPicker && (
             <div className="fixed top-20 left-72 z-50">
