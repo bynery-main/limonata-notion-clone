@@ -65,9 +65,14 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isVisible, onClos
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 text-white font-semibold hover:from-pink-600 hover:to-yellow-600 transition-colors"
+              className="p-[1px] relative block"
             >
-              Create Folder
+              <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
+              <div className="px-4 py-3 relative bg-white dark:bg-neutral-800 rounded-xl group transition duration-200 text-sm text-black dark:text-white hover:bg-transparent hover:text-white">
+                <div className="flex items-center whitespace-nowrap">
+                  Create Folder
+                </div>
+              </div>
             </button>
           </div>
         </form>
