@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import { MainSidebar } from "@/components/sidebar/main-sidebar";
+import DashboardSetup from "@/components/dashboard-setup/dashboard-setup";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const [isPhone, setIsPhone] = useState(false);
+  const [showDashboardSetup, setShowDashboardSetup] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,17 +40,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   const isRootDashboard = pathname === '/dashboard';
 
+  const handleDashboardSetupSuccess = () => {
+    setShowDashboardSetup(false);
+    // You might want to add additional logic here, such as refreshing the workspace list
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       {isPhone ? 
         isRootDashboard ? <ResponsiveSidebar user={user} /> : null 
-        : <MainSidebar user={user} setShowDashboardSetup={function (show: boolean): void {
-          throw new Error("Function not implemented.");
-        } } />
+        : <MainSidebar user={user} setShowDashboardSetup={setShowDashboardSetup} />
       }
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
+      {showDashboardSetup && (
+        <DashboardSetup
+          onCancel={() => setShowDashboardSetup(false)}
+          onSuccess={handleDashboardSetupSuccess}
+        />
+      )}
     </div>
   );
 };
