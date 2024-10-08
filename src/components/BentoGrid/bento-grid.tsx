@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
+import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { addDoc } from "firebase/firestore";
@@ -313,12 +313,18 @@ export const BentoGrid = ({
   return (
     <div className={cn("max-w-7xl mx-auto p-4", className)}>
       {folders.length === 0 ? (
-        <div className="flex items-center justify-center mt-30">
+        <div className="flex items-center justify-center h-[calc(100vh-200px)]">
           <button
             onClick={() => setIsCreateFolderModalVisible(true)}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 text-white font-semibold hover:from-pink-600 hover:to-yellow-600 transition-colors"
+            className="p-[1px] relative block "
           >
-            Create Your First Folder
+            <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
+            <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
+              <FolderPlus className="w-5 h-5 mr-3 text-regular" />
+              <div className="flex items-center whitespace-nowrap text-xl ">
+                Create Your First Folder
+              </div>
+            </div>
           </button>
         </div>
       ) : items.length === 0 ? (
