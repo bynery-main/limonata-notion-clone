@@ -76,6 +76,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
               Click or drag and drop it here!
             </p>
             {showHelp && (
+              <>  
+              
+              {/* Add a paragraph with a message
               <p className="text-center text-sm text-gray-500 z-50 font-light">
                 <br />
                 Psst! If you&apos;re new here
@@ -88,6 +91,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
                 <br/>
                 (Check out the Workspace Sidebar)
               </p>
+              */}
+              </>
+              
             )}
             <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto font-light">
               <motion.div

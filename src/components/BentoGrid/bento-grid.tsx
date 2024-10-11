@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
+import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
+import { addDoc } from "firebase/firestore";
 import { cn } from "@/lib/utils";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import FileThumbnail from "./get-thumbnails";
 import {FileUpload} from "../ui/file-upload";
+import CreateFolderModal from '../create-folder-modal/create-folder-modal';
+import router from "next/router";
 
 interface FileData {
   id: string;
@@ -39,6 +42,38 @@ export const BentoGrid = ({
   const [folderNames, setFolderNames] = useState<{ [key: string]: string }>({});
   const [currentFolder, setCurrentFolder] = useState<Folder | undefined>(undefined);
   const [isBentoGridEmpty, setIsBentoGridEmpty] = useState<boolean>(false);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [isCreateFolderModalVisible, setIsCreateFolderModalVisible] = useState(false);
+
+
+  useEffect(() => {
+    const fetchFolders = async () => {
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const foldersSnapshot = await getDocs(foldersRef);
+      const fetchedFolders = foldersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Folder));
+      setFolders(fetchedFolders);
+      setIsBentoGridEmpty(fetchedFolders.length === 0);
+    };
+
+    fetchFolders();
+  }, [workspaceId]);
+
+  const handleCreateFolder = async (folderName: string) => {
+    try {
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const newFolderRef = await addDoc(foldersRef, {
+        name: folderName,
+        contents: [],
+        filests: []
+      });
+      console.log("New folder created with ID: ", newFolderRef.id);
+      setFolders(prevFolders => [...prevFolders, { id: newFolderRef.id, name: folderName, contents: [], filests: [] }]);
+      setIsBentoGridEmpty(false);
+      router.push(`/dashboard/${workspaceId}/${newFolderRef.id}`);
+    } catch (error) {
+      console.error("Error creating new folder: ", error);
+    }
+  };
 
   useEffect(() => {
     const fetchFolderDetails = async (fId: string) => {
@@ -64,6 +99,7 @@ export const BentoGrid = ({
         setIsBentoGridEmpty(true);
       }
     };
+    
     const fetchItems = async () => {
       if (folderId) {
         // Fetch items for a specific folder
@@ -273,9 +309,25 @@ export const BentoGrid = ({
 
 
 
+
   return (
     <div className={cn("max-w-7xl mx-auto p-4", className)}>
-      {items.length === 0 ? (
+      {folders.length === 0 ? (
+        <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+          <button
+            onClick={() => setIsCreateFolderModalVisible(true)}
+            className="p-[1px] relative block "
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
+            <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
+              <FolderPlus className="w-5 h-5 mr-3 text-regular" />
+              <div className="flex items-center whitespace-nowrap text-xl ">
+                Create Your First Folder
+              </div>
+            </div>
+          </button>
+        </div>
+      ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
           <FileUpload 
             workspaceId={workspaceId} 
@@ -301,7 +353,6 @@ export const BentoGrid = ({
               className={getItemClass(index, items.length + 1)}
             />
           ))}
-          {/* Add FileUpload as the last item */}
           <div className={cn("p-4 flex items-center justify-center z-0", getItemClass(items.length, items.length + 1))}>
             <FileUpload 
               workspaceId={workspaceId} 
@@ -313,6 +364,11 @@ export const BentoGrid = ({
           </div>
         </div>
       )}
+      <CreateFolderModal
+        isVisible={isCreateFolderModalVisible}
+        onClose={() => setIsCreateFolderModalVisible(false)}
+        onCreateFolder={handleCreateFolder}
+      />
     </div>
   );
 };
