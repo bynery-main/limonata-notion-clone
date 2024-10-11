@@ -41,7 +41,7 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isVisible, onClos
             Create a New Folder
           </FancyText>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Your workspace is empty. Let's create your first folder!
+            Your workspace is empty. Let&apos;s create your first folder!
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
