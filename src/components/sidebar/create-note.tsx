@@ -38,7 +38,7 @@ const CreateNote: React.FC<CreateNoteProps> = ({ workspaceId, folderId, onNoteCr
             className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]" 
             whileHover={{ scale: 1.1, rotate: 180 }}
             whileTap={{ scale: 0.9 }}
-            aria-label="Add new folder"
+            aria-label="Add new note"
           >
             <CirclePlusIcon className="h-4 w-4 " />
           </motion.div>
