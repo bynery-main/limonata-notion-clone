@@ -417,6 +417,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               )}
               
             </div>
+            <LiveCursors />
             {children}
             {!isSettingsPage && (
               <>
@@ -525,7 +526,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           )}
         </AnimatePresence>
       </div>
-      <LiveCursors />
       </AblySpacesProvider>
     </FolderProvider>
   );
