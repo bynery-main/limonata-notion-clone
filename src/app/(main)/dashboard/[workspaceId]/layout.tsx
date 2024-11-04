@@ -20,6 +20,9 @@ import { PricingPage } from "@/components/subscribe/pricing";
 import GoProButton from "@/components/subscribe/subscribe-button";
 import { AnimatePresence, motion } from "framer-motion";
 import NewNoteModal from "@/components/create-note-modal/create-note-modal";
+import AblySpacesProvider from "@/components/ably/spaces-provider";
+import LiveCursors from "@/components/ably/live-cursors";
+import OnlineCollaborators from "@/components/ably/online-collaborators";
 
 interface FileData {
   id: string;
@@ -318,6 +321,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   };
   return (
     <FolderProvider>
+       <AblySpacesProvider workspaceId={params.workspaceId}>
       <div className="flex h-screen overflow-show z-1000">
         {isPhone ? (
           <ResponsiveSidebar 
@@ -399,6 +403,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                           </div>
                         </div>
                       )}
+                      <OnlineCollaborators />
                     </div>
 
                   </div>
@@ -411,7 +416,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               )}
               
             </div>
-   
+            <LiveCursors />
             {children}
             {!isSettingsPage && (
               <>
@@ -520,6 +525,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           )}
         </AnimatePresence>
       </div>
+      </AblySpacesProvider>
     </FolderProvider>
   );
 }
