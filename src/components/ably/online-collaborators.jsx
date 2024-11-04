@@ -1,8 +1,37 @@
-import { useMembers } from "@ably/spaces/react";
+import { useMembers, useSpace } from "@ably/spaces/react";
+import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 
 const OnlineCollaborators = () => {
-  const { others } = useMembers();
+  const { space } = useSpace();
+  const [isEntered, setIsEntered] = useState(false);
+  const { self, others } = useMembers();
+
+  useEffect(() => {
+    if (!space || isEntered) return;
+
+    const enterSpace = async () => {
+      try {
+        await space.enter({
+          username: self?.connectionId || 'Anonymous',
+          avatar: self?.profileData?.avatar
+        });
+        setIsEntered(true);
+      } catch (error) {
+        console.error('Error entering space:', error);
+      }
+    };
+
+    enterSpace();
+
+    return () => {
+      if (space && isEntered) {
+        space.leave().catch(console.error);
+      }
+    };
+  }, [space, self, isEntered]);
+
+  if (!isEntered) return null;
 
   return (
     <div className="flex items-center space-x-1">

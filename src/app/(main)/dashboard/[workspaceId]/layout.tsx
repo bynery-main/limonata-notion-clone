@@ -357,6 +357,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                       )}
                     </div>
                     <div className="flex items-end ml-auto">
+                    <OnlineCollaborators />
                     <button 
                       onClick={handleNewNoteClick} 
                       className="p-[1px] relative block mx-2">
@@ -403,7 +404,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                           </div>
                         </div>
                       )}
-                      <OnlineCollaborators />
+                     
                     </div>
 
                   </div>
@@ -416,7 +417,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               )}
               
             </div>
-            <LiveCursors />
             {children}
             {!isSettingsPage && (
               <>
@@ -525,6 +525,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           )}
         </AnimatePresence>
       </div>
+      <LiveCursors />
       </AblySpacesProvider>
     </FolderProvider>
   );

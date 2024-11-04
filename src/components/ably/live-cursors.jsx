@@ -1,22 +1,51 @@
 import { useCursors, useMembers, useSpace } from "@ably/spaces/react";
 import { useEffect, useState } from "react";
+import { User } from "lucide-react";
 
 const LiveCursors = () => {
-  const { cursors } = useCursors((cursorUpdate) => {
+  const { space } = useSpace();
+  const { self } = useMembers();
+  const [isEntered, setIsEntered] = useState(false);
+  
+  // Handle entering the space
+  useEffect(() => {
+    if (!space || isEntered) return;
+
+    const enterSpace = async () => {
+      try {
+        await space.enter({
+          username: self?.connectionId || 'Anonymous',
+          avatar: self?.profileData?.avatar
+        });
+        setIsEntered(true);
+      } catch (error) {
+        console.error('Error entering space:', error);
+      }
+    };
+
+    enterSpace();
+
+    return () => {
+      if (space && isEntered) {
+        space.leave().catch(console.error);
+      }
+    };
+  }, [space, self, isEntered]);
+
+  // Only set up cursors after entering the space
+  const { cursors, set: setCursor } = useCursors((cursorUpdate) => {
     console.log("Cursor update:", cursorUpdate);
   }, { returnCursors: true });
 
-  const { self, others } = useMembers();
-  const { space } = useSpace();
-
+  // Handle mouse movements
   useEffect(() => {
-    if (!space) return;
+    if (!space || !isEntered) return;
 
     const handleMouseMove = (event) => {
       const { clientX, clientY } = event;
       const { scrollX, scrollY } = window;
       
-      space.cursors.set({
+      setCursor({
         position: {
           x: clientX + scrollX,
           y: clientY + scrollY
@@ -26,12 +55,14 @@ const LiveCursors = () => {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [space]);
+  }, [space, isEntered, setCursor]);
+
+  if (!isEntered) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none">
       {Object.entries(cursors || {}).map(([connectionId, cursor]) => {
-        if (!cursor.position) return null;
+        if (!cursor.position || connectionId === self?.connectionId) return null;
         
         return (
           <div
@@ -40,6 +71,7 @@ const LiveCursors = () => {
             style={{
               left: cursor.position.x,
               top: cursor.position.y,
+              zIndex: 50,
             }}
           >
             <div className="relative">
@@ -56,7 +88,7 @@ const LiveCursors = () => {
                   fill="currentColor"
                 />
               </svg>
-              <div className="absolute left-5 top-2 px-3 py-1 bg-blue-500 text-white text-sm rounded whitespace-nowrap">
+              <div className="absolute left-5 top-2 px-3 py-1 bg-blue-500 text-white text-sm rounded whitespace-nowrap shadow-lg">
                 {cursor.clientId?.split('-')[1] || 'Anonymous'}
               </div>
             </div>
