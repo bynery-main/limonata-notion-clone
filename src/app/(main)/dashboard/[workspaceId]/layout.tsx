@@ -420,7 +420,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               )}
               
             </div>
-            <LiveCursors />
+            <LiveCursors user={user}/>
             {children}
             {!isSettingsPage && (
               <>

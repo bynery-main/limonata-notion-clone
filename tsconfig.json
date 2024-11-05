@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/ably/live-cursors.jsx", "src/components/ably/online-collaborators.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/ably/live-cursors.tsx", "src/components/ably/online-collaborators.tsx"],
   "exclude": ["node_modules"]
 }
