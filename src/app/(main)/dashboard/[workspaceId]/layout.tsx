@@ -356,8 +356,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         </h1>
                       )}
                     </div>
-                    <div className="flex items-end ml-auto">
+                    <div className="flex items-start mr-auto">
                     <OnlineCollaborators user={user}/>
+
+                        </div>
+                    <div className="flex items-end ml-auto">
                     <button 
                       onClick={handleNewNoteClick} 
                       className="p-[1px] relative block mx-2">

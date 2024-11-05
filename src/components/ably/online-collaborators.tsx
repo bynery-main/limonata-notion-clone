@@ -90,7 +90,7 @@ const OnlineCollaborators: React.FC<OnlineCollaboratorsProps> = ({ user }) => {
   };
 
   return (
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center space-x-1 mx-4">
       <div className="flex -space-x-3">
         {others.map((member, index) => {
           const memberName = (member.profileData as ProfileData)?.username as string || 
