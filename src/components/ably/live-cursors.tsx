@@ -111,12 +111,12 @@ const LiveCursors: React.FC<LiveCursorsProps> = ({ user }) => {
                 style={{ 
                   color: cursorData?.color || '#4F46E5',
                 }}
-                className="drop-shadow-md"
+                className="drop-shadow-xl"
               >
                 <path
                   d="M30 20L80 50L30 80Z"
-                  stroke="black"
-                  strokeWidth="0"
+                  stroke="currentColor"
+                  strokeWidth="8"
                   strokeLinejoin="round"
                   fill="currentColor"
                 />
