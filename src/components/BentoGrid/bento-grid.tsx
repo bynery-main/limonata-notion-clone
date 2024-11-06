@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon } from "lucide-react";
+import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { addDoc } from "firebase/firestore";
@@ -10,6 +10,9 @@ import FileThumbnail from "./get-thumbnails";
 import {FileUpload} from "../ui/file-upload";
 import CreateFolderModal from '../create-folder-modal/create-folder-modal';
 import router from "next/router";
+import { useLocations, useMembers, useSpace } from "@ably/spaces/react";
+import type { ProfileData, SpaceMember } from "@ably/spaces";
+
 
 interface FileData {
   id: string;
@@ -37,6 +40,7 @@ export const BentoGrid = ({
   folderId?: string;
   className?: string;
 }) => {
+  
   console.log("BentoGrid rendered with folderId:", folderId);
   const [items, setItems] = useState<FileData[]>([]);
   const [folderNames, setFolderNames] = useState<{ [key: string]: string }>({});
@@ -44,7 +48,30 @@ export const BentoGrid = ({
   const [isBentoGridEmpty, setIsBentoGridEmpty] = useState<boolean>(false);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [isCreateFolderModalVisible, setIsCreateFolderModalVisible] = useState(false);
+  const { space } = useSpace();
+  const { self } = useMembers();
+  const [isEntered, setIsEntered] = useState(false);
 
+  useEffect(() => {
+    if (!space || isEntered) return;
+
+    const enterSpace = async () => {
+      try {
+        await space.enter();
+        setIsEntered(true);
+      } catch (error) {
+        console.error('Error entering space:', error);
+      }
+    };
+
+    enterSpace();
+
+    return () => {
+      if (space && isEntered) {
+        space.leave().catch(console.error);
+      }
+    };
+  }, [space, isEntered]);
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -373,6 +400,28 @@ export const BentoGrid = ({
   );
 };
 
+
+interface BentoLocation {
+  fileId: string;
+  folderId: string;
+  type: "file" | "note";
+}
+
+interface LocationUpdateEvent {
+  member: SpaceMember;
+  position?: {
+    x: number;
+    y: number;
+  };
+  data?: BentoLocation;
+}
+
+interface DisplayInfo {
+  name: string;
+  avatar?: string;
+}
+
+
 export const BentoGridItem = ({
   workspaceId,
   folderId,
@@ -400,6 +449,46 @@ export const BentoGridItem = ({
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [newName, setNewName] = useState(title);
+  const { others } = useMembers();
+  const { space } = useSpace();
+  const [activeMembers, setActiveMembers] = useState<SpaceMember[]>([]);
+
+  // Watch for location updates
+  const { update: updateLocation } = useLocations((update: LocationUpdateEvent) => {
+    if (update?.data?.fileId === fileId) {
+      setActiveMembers(prev => {
+        const existing = prev.find(m => m.connectionId === update.member.connectionId);
+        if (!existing) {
+          return [...prev, update.member];
+        }
+        return prev;
+      });
+    } else {
+      setActiveMembers(prev => 
+        prev.filter(m => m.connectionId !== update.member.connectionId)
+      );
+    }
+  });
+
+  const handleClick = async (event: React.MouseEvent) => {
+    if (!dropdownVisible && updateLocation) {
+      // Set location before navigating
+      try {
+        await updateLocation({
+          data: {
+            fileId,
+            folderId,
+            type
+          } as BentoLocation
+        });
+        router.push(href);
+      } catch (error) {
+        console.error('Error updating location:', error);
+        router.push(href);
+      }
+    }
+  };
+
 
   const handleRename = async (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -506,10 +595,42 @@ export const BentoGridItem = ({
     };
   }, [dropdownVisible]);
 
-  const handleClick = (event: React.MouseEvent) => {
-    if (!dropdownVisible) {
-      router.push(href); // Redirect only if the dropdown isn't visible
-    }
+
+  const getMemberDisplayInfo = (member: SpaceMember): DisplayInfo => {
+    const profileData = member.profileData as { username?: string; email?: string; avatar?: string } | null;
+    return {
+      name: profileData?.username || profileData?.email || 'Anonymous',
+      avatar: typeof profileData?.avatar === 'string' ? profileData.avatar : undefined
+    };
+  };
+
+  const renderMemberAvatar = (member: SpaceMember) => {
+    const { name, avatar } = getMemberDisplayInfo(member);
+    
+    return (
+      <div 
+        key={member.connectionId}
+        className="relative group"
+      >
+        {avatar ? (
+          <div className="relative">
+            <img
+              src={avatar}
+              alt={name}
+              className="w-8 h-8 rounded-full border-2 border-white bg-white object-cover"
+            />
+          </div>
+        ) : (
+          <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center">
+            <User className="w-4 h-4 text-gray-500" />
+          </div>
+        )}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          {name}
+        </div>
+        <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+      </div>
+    );
   };
 
   return (
@@ -520,6 +641,13 @@ export const BentoGridItem = ({
       )}
       onClick={handleClick}
     >
+      {/* Active members display */}
+      {activeMembers.length > 0 && (
+        <div className="absolute -top-2 -right-2 flex -space-x-2 z-10">
+          {activeMembers.map(renderMemberAvatar)}
+        </div>
+      )}
+
       <div className="aspect-w-16 aspect-h-9 relative rounded-lg overflow-hidden">
         {header}
       </div>
