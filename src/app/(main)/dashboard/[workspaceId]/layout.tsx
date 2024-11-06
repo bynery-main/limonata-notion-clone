@@ -69,6 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
+  
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -421,7 +422,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               )}
               
             </div>
-            <LiveCursors user={user}/>
+            <LiveCursors user={user} workspaceId={params.workspaceId} />
             {children}
             {!isSettingsPage && (
               <>

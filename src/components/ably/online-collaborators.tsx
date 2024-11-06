@@ -1,5 +1,3 @@
-// src/components/ably/online-collaborators.tsx
-
 import { useMembers, useSpace } from "@ably/spaces/react";
 import { useEffect, useState } from "react";
 import { User as LucideUser } from "lucide-react";
@@ -62,17 +60,18 @@ const OnlineCollaborators: React.FC<OnlineCollaboratorsProps> = ({ user }) => {
 
   if (!isEntered || !userProfile) return null;
 
-  // Rest of the component remains the same...
   const renderMemberAvatar = (member: SpaceMember, name: string) => {
     const avatarUrl = (member.profileData as ProfileData)?.avatar as string | undefined;
     
     return avatarUrl ? (
       <div className="relative">
-        <img
-          src={avatarUrl}
-          alt={name}
-          className="w-8 h-8 rounded-full border-2 border-white bg-white object-cover"
-        />
+        <div className="w-8 h-8 rounded-full border-2 border-white bg-white overflow-hidden flex items-center justify-center">
+          <img
+            src={avatarUrl}
+            alt={name}
+            className="w-full h-full object-cover min-w-full min-h-full"
+          />
+        </div>
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
           {name}
         </div>
@@ -110,19 +109,19 @@ const OnlineCollaborators: React.FC<OnlineCollaboratorsProps> = ({ user }) => {
         })}
       </div>
       {others.length > 0 && (
-        <span className="text-sm text-gray-500 ml-2">
-          {others.length} online
-        </span>
+          <span className="text-sm text-gray-500 ml-2 whitespace-nowrap">
+            {others.length} online
+          </span>
       )}
       
       {/* Current user avatar */}
       <div className="ml-4 relative group">
-        <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden">
+        <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden flex items-center justify-center">
           {userProfile.photoURL ? (
             <img
               src={userProfile.photoURL}
               alt={userProfile.displayName || 'Me'}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover min-w-full min-h-full"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
