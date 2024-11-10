@@ -20,6 +20,9 @@ import { PricingPage } from "@/components/subscribe/pricing";
 import GoProButton from "@/components/subscribe/subscribe-button";
 import { AnimatePresence, motion } from "framer-motion";
 import NewNoteModal from "@/components/create-note-modal/create-note-modal";
+import AblySpacesProvider from "@/components/ably/spaces-provider";
+import LiveCursors from "@/components/ably/live-cursors";
+import OnlineCollaborators from "@/components/ably/online-collaborators";
 
 interface FileData {
   id: string;
@@ -66,6 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
+  
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -318,6 +322,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   };
   return (
     <FolderProvider>
+       <AblySpacesProvider workspaceId={params.workspaceId}>
       <div className="flex h-screen overflow-show z-1000">
         {isPhone ? (
           <ResponsiveSidebar 
@@ -352,54 +357,60 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         </h1>
                       )}
                     </div>
-                    <div className="flex items-end ml-auto">
-                    <button 
-                      onClick={handleNewNoteClick} 
-                      className="p-[1px] relative block mx-2">
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
-                      <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                        <Pencil className="w-4 h-4 mr-2" />
-                        New Note
-                      </div>
-                    </button>
-                      <button 
-                        ref={shareButtonRef}
-                        onClick={handleShare} 
-                        className="p-[1px] relative block mx-2"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                        <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Invite Collaborators
+                    <div className="flex items-start mr-auto">
+                    <OnlineCollaborators user={user}/>
+
                         </div>
-                      </button>
-                      {showShareMenu && (
-                        <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                            <CollaboratorSearch
-                              existingCollaborators={existingCollaborators.map(c => c.uid)}
-                              currentUserUid={currentUserUid}
-                              onAddCollaborator={handleAddCollaborator}
-                              onOpen={fetchExistingCollaborators}
-                              workspaceId={params.workspaceId}
-                            >
-                              <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
-                                <Search className="mr-3 h-5 w-5"/>
-                                Search Collaborators
+                        <div className="flex items-end ml-auto">
+                        <button 
+                          onClick={handleNewNoteClick} 
+                          className="p-[1px] relative block mx-2">
+                          <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
+                          <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                            <Pencil className="w-4 h-4 md:mr-2" />
+                            <span className="hidden md:inline">New Note</span>
+                          </div>
+                        </button>
+                        <button 
+                          ref={shareButtonRef}
+                          onClick={handleShare} 
+                          className="p-[1px] relative block mx-2"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                          <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                            <Share2 className="w-4 h-4 md:mr-2" />
+                            <span className="hidden md:inline">Invite Collaborators</span>
+                          </div>
+                        </button>
+                        {showShareMenu && (
+                          <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                              <CollaboratorSearch
+                                existingCollaborators={existingCollaborators.map(c => c.uid)}
+                                currentUserUid={currentUserUid}
+                                onAddCollaborator={handleAddCollaborator}
+                                onOpen={fetchExistingCollaborators}
+                                workspaceId={params.workspaceId}
+                              >
+                                <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
+                                  <Search className="mr-3 h-5 w-5"/>
+                                  <span className="hidden md:inline">Search Collaborators</span>
+                                  <span className="md:hidden">Search</span>
+                                </div>
+                              </CollaboratorSearch>
+                              <div
+                                className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
+                                onClick={handleCopyLink}
+                                title="Soon..."
+                              >
+                                <Link className="mr-3 h-5 w-5" />
+                                <span className="hidden md:inline">Copy link</span>
+                                <span className="md:hidden">Copy</span>
                               </div>
-                            </CollaboratorSearch>
-                            <div
-                              className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
-                              onClick={handleCopyLink}
-                              title="Soon..."
-                            >
-                              <Link className="mr-3 h-5 w-5" />
-                              Copy link
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
 
                   </div>
                   
@@ -411,7 +422,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               )}
               
             </div>
-   
+            <LiveCursors user={user} workspaceId={params.workspaceId} />
             {children}
             {!isSettingsPage && (
               <>
@@ -520,6 +531,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           )}
         </AnimatePresence>
       </div>
+      </AblySpacesProvider>
     </FolderProvider>
   );
 }
