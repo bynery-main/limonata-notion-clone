@@ -1,8 +1,7 @@
-// src/app/api/ably-token/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Ably from 'ably';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<Response> {
   if (!process.env.ABLY_API_KEY) {
     return NextResponse.json(
       { error: 'Ably API key not configured' },
@@ -14,27 +13,21 @@ export async function GET(request: NextRequest) {
     const client = new Ably.Rest({
       key: process.env.ABLY_API_KEY
     });
-    
+
     const url = new URL(request.url);
     const clientId = url.searchParams.get('clientId') || 'anonymous';
 
-    return new Promise((resolve, reject) => {
-      const tokenParams: Ably.TokenParams = {
-        clientId,
-        capability: {
-          '*': ['*']
-        }
-      };
+    const tokenParams: Ably.TokenParams = {
+      clientId,
+      capability: {
+        '*': ['*']
+      }
+    };
 
-      // Use the promisified version of createTokenRequest
-      client.auth.createTokenRequest(tokenParams)
-        .then(tokenRequest => {
-          resolve(NextResponse.json(tokenRequest));
-        })
-        .catch(err => {
-          reject(err);
-        });
-    });
+    // Use async/await instead of raw Promise
+    const tokenRequest = await client.auth.createTokenRequest(tokenParams);
+    return NextResponse.json(tokenRequest);
+
   } catch (error) {
     console.error('Error creating Ably token request:', error);
     return NextResponse.json(
