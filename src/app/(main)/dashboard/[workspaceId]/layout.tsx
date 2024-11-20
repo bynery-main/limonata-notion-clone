@@ -424,6 +424,14 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             </div>
             <LiveCursors user={user} workspaceId={params.workspaceId} />
             {children}
+
+            <FileUploader
+                  workspaceId={params.workspaceId}
+                  db={db}
+                  onFileUpload={handleFileUpload}
+                  isVisible={isFileUploaderVisible}
+                  onClose={() => setIsFileUploaderVisible(false)}
+                />
             {!isSettingsPage && (
               <>
                 <div ref={bentoGridRef}>
@@ -434,13 +442,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                     <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
                   )}
                 </div>
-                <FileUploader
-                  workspaceId={params.workspaceId}
-                  db={db}
-                  onFileUpload={handleFileUpload}
-                  isVisible={isFileUploaderVisible}
-                  onClose={() => setIsFileUploaderVisible(false)}
-                />
+
               </>
             )}
             <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 my-12 z-50">
