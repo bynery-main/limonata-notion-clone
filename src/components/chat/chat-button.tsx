@@ -16,7 +16,7 @@ const ChatButton: React.FC<ChatButtonProps> = ({ toggleChat, isChatVisible }) =>
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="fixed bottom-4 right-4 z-50 group"
+          className="fixed bottom-8 right-4 z-50 group"
         >
           <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out transform translate-x-2 group-hover:translate-x-0">
             <div className="bg-primary text-primary-foreground px-3 py-1 rounded-full whitespace-nowrap text-md">

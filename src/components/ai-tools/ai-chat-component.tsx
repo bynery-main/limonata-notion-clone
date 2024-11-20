@@ -139,14 +139,12 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
     <>
       <div className="relative group">
         <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out transform translate-x-2 group-hover:translate-x-0">
-          <div className="bg-[#F6B144] text-white px-3 py-1 rounded-full whitespace-nowrap">
-            AI Tools
-          </div>
         </div>
       <button
-        className="relative mb-2 inline-flex h-12 bg-white overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+        className="relative shadow-xl inline-flex h-12 bg-white overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
         onClick={toggleModal}
       >
+
         <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#FE7EF4_0%,#FCFF8A_50%,#F6B144_100%)]" />
         <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-3 py-1 text-sm font-medium text-[#F6B144_50] backdrop-blur-2xl">
           <img
@@ -155,6 +153,10 @@ const AIChatComponent: React.FC<AIChatComponentProps> = ({ workspaceId, userId, 
             width={24}
             height={24}
           />
+          
+          <span className="mx-3">
+            AI Tools
+          </span>
         </span>
       </button>
       </div>

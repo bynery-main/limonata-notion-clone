@@ -204,7 +204,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/60 backdrop-blur-sm md:w-[400px] shadow-2xl"
       >
-        <div className="flex h-full w-full flex-col">
+        <div className="flex h-full w-full flex-col ">
           <div className="flex items-center justify-between border-b border-background/10 bg-background/40 px-4 py-3 backdrop-blur-sm">
             <div className="flex items-center gap-3">
            <Avatar className="h-8 w-8 border"> 
