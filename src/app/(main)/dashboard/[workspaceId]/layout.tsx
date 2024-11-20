@@ -445,8 +445,10 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
               </>
             )}
-            <div className="fixed inset-0 m-auto flex flex-col justify-end mb-4 items-center p-4 z-50 lg:left-80">
+            <div className="relative">
+              <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 lg:left-80 w-max">
                 <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
+              </div>
             </div>
             <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 mb-12 z-50">
               <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible}/>
