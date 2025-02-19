@@ -10,7 +10,6 @@ import logo from '../../../public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
 import NavbarAuthButton from '../ui/bm-button';
 import Link from 'next/link';
-import { FloatingNav } from '../ui/floating-navbar';
 
 const gradientAnimation = keyframes`
   0% {
@@ -45,7 +44,7 @@ const AnimatedButton = styled(Button)`
 const NavItem = styled.a`
   cursor: pointer;
   padding: 0.5rem 1rem;
-  font-size: 14px;
+  font-size: 16px;
   color: #1d1d1f;
   transition: color 0.2s ease;
   font-weight: 400;
@@ -92,11 +91,7 @@ const Navbar = () => {
         setIsMenuOpen(false);
     };
 
-  /*  const handleSignUp = () => {
-        router.push('/sign-up');
-        setIsMenuOpen(false);
-    };
-*/
+
     const handleSignOut = () => {
         signOut(auth);
         router.push('/login');
@@ -165,106 +160,98 @@ const Navbar = () => {
 
 
     return (
-        <>
-            <FloatingNav 
-                navItems={navItems} 
-                user={user} 
-                onLogin={handleLogin} 
-                onLogout={handleSignOut}
-            />
-            <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200/50 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex-shrink-0">
-                            <Link href="/">
-                                <Image src={logo} alt="Limonata" width={120} height={40} className="h-8 w-auto" />
-                            </Link>
-                        </div>
-                        
-                        <div className="-mr-2 -my-2 md:hidden">
-                            <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
-                                <span className="sr-only">Open menu</span>
-                                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                            </Button>
-                        </div>
-
-                        <nav className="hidden md:flex space-x-8">
-                            {navItems.map((item, index) => (
-                                <NavItem
-                                    key={index}
-                                    as={Link}
-                                    href={item.link}
-                                    className={isActive(item.link) ? "text-black font-medium" : ""}
-                                >
-                                    {item.name}
-                                </NavItem>
-                            ))}
-                        </nav>
-
-                        <div className="hidden md:flex items-center space-x-4">
-                            {!loading && (
-                                user ? (
-                                    <>
-                                        <button onClick={handleSignOut} 
-                                            className="text-sm text-gray-700 hover:text-gray-900 transition-colors">
-                                            Sign Out
-                                        </button>
-                                        <ProfilePicContainer onClick={() => router.push('/settings')}>
-                                            {user.photoURL ? (
-                                                <ProfilePicImage src={user.photoURL} alt="Profile" />
-                                            ) : (
-                                                <User size={20} className="text-gray-600" />
-                                            )}
-                                        </ProfilePicContainer>
-                                    </>
-                                ) : (
-                                    <button onClick={handleLogin} 
-                                        className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors">
-                                        Sign In
-                                    </button>
-                                )
-                            )}
-                        </div>
+        <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200/50 z-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-16">
+                    <div className="flex-shrink-0">
+                        <Link href="/">
+                            <Image src={logo} alt="Limonata" width={100} height={30} className="h-7 w-auto" />
+                        </Link>
                     </div>
-                </div>
+                    
+                    <div className="-mr-2 -my-2 md:hidden">
+                        <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
+                            <span className="sr-only">Open menu</span>
+                            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        </Button>
+                    </div>
 
-                {/* Mobile menu - with updated styling */}
-                <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
-                    <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu}></div>
-                    <div className="absolute right-0 top-0 h-full w-64 bg-white/95 shadow-lg p-6">
-                        <div className="flex justify-end mb-6">
-                            <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
-                                <X className="h-5 w-5" />
-                            </Button>
-                        </div>
-                        <div className="flex flex-col space-y-4">
-                            {navItems.map((item, index) => (
-                                <NavItem
-                                    key={index}
-                                    as={Link}
-                                    href={item.link}
-                                    onClick={toggleMenu}
-                                    className="text-gray-900"
-                                >
-                                    {item.name}
-                                </NavItem>
-                            ))}
-                            {user ? (
-                                <button onClick={handleSignOut} 
-                                    className="text-sm text-gray-700 hover:text-gray-900 transition-colors pt-4">
-                                    Sign Out
-                                </button>
+                    <nav className="hidden md:flex space-x-8">
+                        {navItems.map((item, index) => (
+                            <NavItem
+                                key={index}
+                                as={Link}
+                                href={item.link}
+                                className={isActive(item.link) ? "text-black font-medium" : ""}
+                            >
+                                {item.name}
+                            </NavItem>
+                        ))}
+                    </nav>
+
+                    <div className="hidden md:flex items-center space-x-4">
+                        {!loading && (
+                            user ? (
+                                <>
+                                    <button onClick={handleSignOut} 
+                                        className="text-sm text-gray-700 hover:text-gray-900 transition-colors">
+                                        Sign Out
+                                    </button>
+                                    <ProfilePicContainer onClick={() => router.push('/settings')}>
+                                        {user.photoURL ? (
+                                            <ProfilePicImage src={user.photoURL} alt="Profile" />
+                                        ) : (
+                                            <User size={20} className="text-gray-600" />
+                                        )}
+                                    </ProfilePicContainer>
+                                </>
                             ) : (
                                 <button onClick={handleLogin} 
-                                    className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors pt-4">
+                                    className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors">
                                     Sign In
                                 </button>
-                            )}
-                        </div>
+                            )
+                        )}
                     </div>
                 </div>
-            </header>
-        </>
+            </div>
+
+            {/* Mobile menu - with updated styling */}
+            <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
+                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu}></div>
+                <div className="absolute right-0 top-0 h-full w-64 bg-white/95 shadow-lg p-6">
+                    <div className="flex justify-end mb-6">
+                        <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
+                            <X className="h-5 w-5" />
+                        </Button>
+                    </div>
+                    <div className="flex flex-col space-y-4">
+                        {navItems.map((item, index) => (
+                            <NavItem
+                                key={index}
+                                as={Link}
+                                href={item.link}
+                                onClick={toggleMenu}
+                                className="text-gray-900"
+                            >
+                                {item.name}
+                            </NavItem>
+                        ))}
+                        {user ? (
+                            <button onClick={handleSignOut} 
+                                className="text-sm text-gray-700 hover:text-gray-900 transition-colors pt-4">
+                                Sign Out
+                            </button>
+                        ) : (
+                            <button onClick={handleLogin} 
+                                className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors pt-4">
+                                Sign In
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </header>
     );
 };
 
