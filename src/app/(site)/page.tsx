@@ -13,15 +13,9 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="items-center justify-center">
-      <div>
-        <Navbar />
-      </div>
-      <div className="mt-[7vw] min-h-[40vw] mt-20">
-        <HeroComponent />
-      </div>
-
-
+    <div className="relative">
+      <Navbar />
+      <HeroComponent />
       <div className="mx-8 border-t-2 mt-4 border-b-2">
         <AIIntro />
       </div>

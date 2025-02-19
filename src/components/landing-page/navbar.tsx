@@ -45,26 +45,32 @@ const AnimatedButton = styled(Button)`
 const NavItem = styled.a`
   cursor: pointer;
   padding: 0.5rem 1rem;
-  transition: background 0.3s ease;
+  font-size: 14px;
+  color: #1d1d1f;
+  transition: color 0.2s ease;
+  font-weight: 400;
 
   &:hover {
-    background: linear-gradient(to right, #FE7EF4, #F6B144);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #666;
   }
 `;
 
 const ProfilePicContainer = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   overflow: hidden;
   margin-left: 1rem;
   cursor: pointer;
-  background: linear-gradient(to right, #FE7EF4, #F6B144);
+  background: #f5f5f7;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 const ProfilePicImage = styled.img`
@@ -166,95 +172,98 @@ const Navbar = () => {
                 onLogin={handleLogin} 
                 onLogout={handleSignOut}
             />
-            <header className="relative z-20 my-3 mx-8 mb-5">
-                <div className="max-w-7xl px-8 sm:px-30 lg:px-30 min-w-[95vw]">
-                    <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
-                        <div className="flex justify-start lg:w-0 lg:flex-1">
+            <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200/50 z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex-shrink-0">
                             <Link href="/">
-                                <Image src={logo} alt="Limonata" width={150} height={50} className="h-[7vw] w-auto mx-45 sm:h-10" />
+                                <Image src={logo} alt="Limonata" width={120} height={40} className="h-8 w-auto" />
                             </Link>
                         </div>
+                        
                         <div className="-mr-2 -my-2 md:hidden">
-                            <Button variant="ghost" onClick={toggleMenu}>
+                            <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
                                 <span className="sr-only">Open menu</span>
-                                {isMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
+                                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                             </Button>
                         </div>
-                        <nav className="hidden md:flex space-x-10">
+
+                        <nav className="hidden md:flex space-x-8">
                             {navItems.map((item, index) => (
-                                 <NavItem
-                                 key={index}
-                                 as={Link}
-                                 href={item.link}
-                                 className={isActive(item.link) ? "text-transparent bg-clip-text bg-gradient-to-r from-[#FE7EF4] to-[#F6B144]" : ""}
-                             >
+                                <NavItem
+                                    key={index}
+                                    as={Link}
+                                    href={item.link}
+                                    className={isActive(item.link) ? "text-black font-medium" : ""}
+                                >
                                     {item.name}
                                 </NavItem>
                             ))}
                         </nav>
-                        <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+
+                        <div className="hidden md:flex items-center space-x-4">
                             {!loading && (
                                 user ? (
                                     <>
-                                       <button onClick={handleSignOut} className="p-[1px] relative block">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                                        <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
+                                        <button onClick={handleSignOut} 
+                                            className="text-sm text-gray-700 hover:text-gray-900 transition-colors">
                                             Sign Out
-                                        </div>
                                         </button>
                                         <ProfilePicContainer onClick={() => router.push('/settings')}>
                                             {user.photoURL ? (
                                                 <ProfilePicImage src={user.photoURL} alt="Profile" />
                                             ) : (
-                                                <User size={24} color="#fff" />
+                                                <User size={20} className="text-gray-600" />
                                             )}
                                         </ProfilePicContainer>
                                     </>
                                 ) : (
-                                    <>
-                                    <button onClick={handleLogin} className="p-[1px] relative block">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                                        <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
-                                            <div className="flex items-center whitespace-nowrap">
-                                            Log In
-                                            </div>
-                                        </div>
-                                        </button>
-                                        {/* 
-                                        <AnimatedButton onClick={handleSignUp}>
-                                            SIGN UP
-                                        </AnimatedButton>
-                                        */}
-                                    </>
+                                    <button onClick={handleLogin} 
+                                        className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors">
+                                        Sign In
+                                    </button>
                                 )
                             )}
                         </div>
                     </div>
                 </div>
 
-                           {/* Mobile menu */}
-                           <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
-                    <div className="absolute inset-0 bg-white bg-opacity-75 backdrop-blur-sm" onClick={toggleMenu}></div>
-                    <div className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col items-end p-4">
-                        <Button variant="ghost" onClick={toggleMenu} className="self-end mb-4">
-                            <X className="h-6 w-6" aria-hidden="true" />
-                        </Button>
-                        {navItems.map((item, index) => (
-                                               <NavItem
-                                               key={index}
-                                               as={Link}
-                                               href={item.link}
-                                               onClick={toggleMenu}
-                                               className={`block mb-2 ${
-                                                   isActive(item.link) ? "text-transparent bg-clip-text bg-gradient-to-r from-[#FE7EF4] to-[#F6B144]" : ""
-                                               }`}
-                                           >
-                                {item.name}
-                            </NavItem>
-                        ))}
+                {/* Mobile menu - with updated styling */}
+                <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
+                    <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu}></div>
+                    <div className="absolute right-0 top-0 h-full w-64 bg-white/95 shadow-lg p-6">
+                        <div className="flex justify-end mb-6">
+                            <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
+                        <div className="flex flex-col space-y-4">
+                            {navItems.map((item, index) => (
+                                <NavItem
+                                    key={index}
+                                    as={Link}
+                                    href={item.link}
+                                    onClick={toggleMenu}
+                                    className="text-gray-900"
+                                >
+                                    {item.name}
+                                </NavItem>
+                            ))}
+                            {user ? (
+                                <button onClick={handleSignOut} 
+                                    className="text-sm text-gray-700 hover:text-gray-900 transition-colors pt-4">
+                                    Sign Out
+                                </button>
+                            ) : (
+                                <button onClick={handleLogin} 
+                                    className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors pt-4">
+                                    Sign In
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
         </>
     );
 };

@@ -11,8 +11,7 @@ import CircleGradients from "./Circle-Gradients.svg";
 import FancyText from "@carefully-coded/react-text-gradient";
 import { RotatingCircle } from "./rotating-circle";
 import styled, { keyframes } from "styled-components";
-import {Typewriter} from "react-simple-typewriter";
-import TailwindConnectButton from "../ui/tc-button";
+import Image from 'next/image';
 
 
 const gradientAnimation = keyframes`
@@ -27,44 +26,101 @@ const gradientAnimation = keyframes`
   }
 `;
 
-const AnimatedButton = styled(Button)`
-  background: linear-gradient(-45deg,#FE7EF4, #F6B144);
-  background-size: 400% 400%;
-  animation: ${gradientAnimation} 15s ease infinite;
-  border: none;
-  color: white;
-  font-weight: normal;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+const SocialProofContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: 768px) {
+    justify-content: flex-start;
   }
 `;
 
+const AvatarGroup = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 0.75rem;
 
-  const words = [
-    {
-      text: "Build",
-    },
-    {
-      text: "awesome",
-    },
-    {
-      text: "apps",
-    },
-    {
-      text: "with",
-    },
-    {
-      text: "Aceternity.",
-      className: "text-blue-500 dark:text-blue-500",
-    },
-  ];
+  img {
+    border: 2px solid white;
+    border-radius: 50%;
+    margin-left: -0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
 
+const HeroContainer = styled.div`
+  position: relative;
+  display: flex;
+  min-height: calc(100vh - 100px);
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 1rem;
+`;
+
+const ContentContainer = styled.div`
+  position: relative;
+  max-width: 1200px;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+`;
+
+const TextContent = styled.div`
+  max-width: 720px;
+  text-align: center;
+  
+  @media (min-width: 768px) {
+    text-align: left;
+  }
+`;
+
+const GradientButton = styled(Button)`
+  min-width: 160px;
+  height: 48px;
+  font-weight: 500;
+  border-radius: 8px;
+  background: linear-gradient(-45deg, #FE7EF4, #F6B144);
+  background-size: 200% 200%;
+  animation: ${gradientAnimation} 15s ease infinite;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0px);
+  }
+`;
+
+const OutlineButton = styled(Button)`
+  min-width: 160px;
+  height: 48px;
+  font-weight: 500;
+  border-radius: 8px;
+  background: transparent;
+  color: #333;
+  border: 2px solid #e5e7eb;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+`;
 
 export default function HeroComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -100,54 +156,71 @@ export default function HeroComponent() {
   };
 
   return (
-    <div className="relative flex items-center justify-center overflow-x-clip">
-      <div></div>
-      <div className="w-[50vw] relative flex items-center justify-center mr-[20vw]">
+    <HeroContainer>
+      <div className="absolute right-0 w-[50vw] h-full">
         <RotatingCircle>
           <CircleGradients className="circle" />
         </RotatingCircle>
       </div>
 
-      <div className="absolute top-[8vw] px-15 sm:px-6 md:px-8 lg:px-20 text-center md:text-left">
-        <h1 className=" ">
-          <FancyText
-            gradient={{ from: "#FE7EF4", to: "#F6B144" }}
-            className=" min-h-20 text-4xl sm:text-5xl md:text-6xl font-semibold text-black h-auto"
-          >
-            With our AI you can
-          </FancyText>
-        </h1>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-black mb-6">
-        <Typewriter
-            words={['Create flashcards in seconds', 'Generate study guides in seconds', 'Make and grade your quizzes','Compare notes with your peers', 'Answer questions on all your notes']}
-            loop={true}
-            cursor
-            cursorStyle='_'
-            typeSpeed={70}
-            deleteSpeed={50}
-            delaySpeed={1000}
-          />
+      <ContentContainer>
+        <TextContent>
+          <SocialProofContainer>
+            <AvatarGroup>
+              {[1, 2, 3, 4].map((i) => (
+                <Image
+                  key={i}
+                  src={`/avatars/avatar${i}.jpg`}
+                  alt={`User ${i}`}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ))}
+            </AvatarGroup>
+            <span className="text-sm text-gray-600 font-medium">+20,000 students trust us</span>
+          </SocialProofContainer>
 
-        </h2>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            An AI-powered collaborative study platform built for the{' '}
+            <FancyText
+              gradient={{ from: "#FE7EF4", to: "#F6B144" }}
+              className="inline"
+            >
+              top 1% students
+            </FancyText>
+          </h1>
 
-        <div className="mt-4">
-          {!isSignedIn ? (
-            <TailwindConnectButton
-              onClick={login}
-              className=" md:w-auto"
-            >
-              Start a Workspace
-            </TailwindConnectButton>
-          ) : (
-            <TailwindConnectButton
-              onClick={goToDashboard}
-              className=" md:w-auto"
-            >
-              Go to Your Dashboard
-            </TailwindConnectButton>
-          )}
-        </div>
-      </div>
-    </div>
+          <h2 className="text-xl sm:text-2xl text-gray-600 mb-10 font-normal">
+            We help students create and organize ideas with AI
+          </h2>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            {!isSignedIn ? (
+              <>
+                <GradientButton
+                  onClick={login}
+                  className="shadow-md"
+                >
+                  Try it free
+                </GradientButton>
+                <OutlineButton
+                  onClick={login}
+                >
+                  Login
+                </OutlineButton>
+              </>
+            ) : (
+              <GradientButton
+                onClick={goToDashboard}
+                className="shadow-md"
+              >
+                Go to Dashboard
+              </GradientButton>
+            )}
+          </div>
+        </TextContent>
+      </ContentContainer>
+    </HeroContainer>
   );
 }
