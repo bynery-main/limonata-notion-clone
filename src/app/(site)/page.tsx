@@ -8,7 +8,7 @@ import { TabsDemo } from "@/components/landing-page/landing-page-tabs";
 import AIIntro from "@/components/landing-page/introducing-AI-component";
 import CTA from "@/components/landing-page/CTA-component";
 import Navbar from "@/components/landing-page/navbar";
-
+import UpgradeSection from "@/components/landing-page/UpgradeSection";
 export default function Home() {
   const router = useRouter();
 
@@ -16,13 +16,14 @@ export default function Home() {
     <div className="relative">
       <Navbar />
       <HeroComponent />
-      <div className="mx-8 border-t-2 mt-4 border-b-2">
+      <UpgradeSection />
+      <div className="mx-auto">
         <AIIntro />
       </div>
       <section id="features-section" className="py-16">
-      <div className="mt-8">
-        <TabsDemo />
-      </div>
+        <div className="mt-8">
+          <TabsDemo />
+        </div>
       </section>
       <div className="mt-32 border-t-2 mx-8 py-14 px-5">
         {/* <FollowerPointerCard> */}

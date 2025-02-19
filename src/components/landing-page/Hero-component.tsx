@@ -13,112 +13,79 @@ import { RotatingCircle } from "./rotating-circle";
 import styled, { keyframes } from "styled-components";
 import Image from 'next/image';
 
+const HeroContainer = styled.div`
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+`;
 
-const gradientAnimation = keyframes`
-  0% {
-      background-position: 0% 50%;
-  }
-  50% {
-      background-position: 100% 50%;
-  }
-  100% {
-      background-position: 0% 50%;
-  }
+const ContentContainer = styled.div`
+  max-width: 1200px;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+`;
+
+const TextContent = styled.div`
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const SocialProofContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
-  
-  @media (min-width: 768px) {
-    justify-content: flex-start;
-  }
 `;
 
 const AvatarGroup = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 0.75rem;
 
   img {
+    margin-right: -8px;
     border: 2px solid white;
-    border-radius: 50%;
-    margin-left: -0.75rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    &:first-child {
-      margin-left: 0;
+    
+    &:last-child {
+      margin-right: 0;
     }
   }
 `;
 
-const HeroContainer = styled.div`
-  position: relative;
-  display: flex;
-  min-height: calc(100vh - 100px);
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 0 1rem;
-`;
-
-const ContentContainer = styled.div`
-  position: relative;
-  max-width: 1200px;
-  width: 100%;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-`;
-
-const TextContent = styled.div`
-  max-width: 720px;
-  text-align: center;
-  
-  @media (min-width: 768px) {
-    text-align: left;
-  }
-`;
-
-const GradientButton = styled(Button)`
-  min-width: 160px;
-  height: 48px;
-  font-weight: 500;
-  border-radius: 8px;
-  background: linear-gradient(-45deg, #FE7EF4, #F6B144);
-  background-size: 200% 200%;
-  animation: ${gradientAnimation} 15s ease infinite;
+const GradientButton = styled.button`
+  background: linear-gradient(to right, #FE7EF4, #F6B144);
   color: white;
-  border: none;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: translateY(0px);
-  }
-`;
-
-const OutlineButton = styled(Button)`
-  min-width: 160px;
-  height: 48px;
-  font-weight: 500;
-  border-radius: 8px;
-  background: transparent;
-  color: #333;
-  border: 2px solid #e5e7eb;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f9fafb;
-    border-color: #d1d5db;
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+`;
+
+const OutlineButton = styled.button`
+  background: transparent;
+  color: #374151;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: 2px solid #E5E7EB;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #F3F4F6;
   }
 `;
 
@@ -157,12 +124,7 @@ export default function HeroComponent() {
 
   return (
     <HeroContainer>
-      <div className="absolute right-0 w-[50vw] h-full">
-        <RotatingCircle>
-          <CircleGradients className="circle" />
-        </RotatingCircle>
-      </div>
-
+    
       <ContentContainer>
         <TextContent>
           <SocialProofContainer>

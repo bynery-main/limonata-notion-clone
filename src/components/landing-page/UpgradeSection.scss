@@ -1,0 +1,97 @@
+.upgrade-section {
+    display: flex;
+    flex-direction: column;
+    padding: 10%;
+    gap: 2rem;
+
+    .upgrade-section__header{
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+        justify-content: left;
+        gap: 1rem;
+        width: 30%;
+
+        h2{
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #000;
+        }
+        p{
+            font-size: 1.2rem;
+            color: #000;
+        }
+        
+        
+    }
+
+    .upgrade-section__container{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+
+        .upgrade-left{
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            gap: 2rem;
+            width: 60%;
+
+            .upgrade-section__card--flashcards{
+                align-items: start;
+                width: 100%;
+                background: radial-gradient(circle at top right, #FF4F8B, #FF7A50);
+                color: white;
+            }
+
+            .upgrade-section__card--ai{
+                align-items: start;
+                width: 60%;
+                background: radial-gradient(circle at top right, #FF7A50, #FFD166);
+                color: white;
+            }
+            
+        }
+    
+        .upgrade-right{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            width: 40%;
+
+            .upgrade-section__card--tools{
+                align-items: start;
+                width: 100%;
+                min-height: 300px;
+                background: radial-gradient(circle at top right, #FFB4D9, #FFF5D1, #FFD166);
+                color: white;
+            }
+        }
+    }
+
+   
+
+    .upgrade-section__card{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+
+        h3{
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        
+        
+        
+    }
+}
