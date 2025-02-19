@@ -435,11 +435,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             {!isSettingsPage && (
               <>
                 <div ref={bentoGridRef}>
-                  {showBentoGrid && folderId && (
-                    <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} folderId={folderId}/>
-                  )}
+                    {showBentoGrid && folderId && (
+                    <BentoGrid className="max-w-7xl mx-auto p-4 z-10" workspaceId={params.workspaceId} folderId={folderId}/>
+                    )}
                   {showBentoGrid && !folderId && (
-                    <BentoGrid className="max-w-7xl mx-auto p-4" workspaceId={params.workspaceId} />
+                    <BentoGrid className="max-w-7xl mx-auto p-4  z-10" workspaceId={params.workspaceId} />
                   )}
                 </div>
 
