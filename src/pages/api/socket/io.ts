@@ -16,6 +16,11 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
     const io = new ServerIO(httpServer, {
       path,
       addTrailingSlash: false,
+      cors: {
+        origin: 'https://limonata.app',
+        methods: ['GET', 'POST'],
+
+      },
     });
     io.on('connection', (socket) => {
       socket.on('create-room', (fileId) => {
