@@ -66,7 +66,7 @@ const coursesList = (
 
 // Add this SVG path component
 const WavyUnderline = () => (
-  <svg className="wavy-underline" viewBox="0 0 300 20" width="300" height="20">
+  <svg className="wavy-underline" viewBox="0 0 300 30" width="300" height="30">
     <path 
       d="M 0 15 Q 25 0, 50 15 Q 75 30, 100 15 Q 125 0, 150 15 Q 175 30, 200 15 Q 225 0, 250 15 Q 275 30, 300 15" 
       fill="none" 
@@ -76,12 +76,25 @@ const WavyUnderline = () => (
   </svg>
 );
 
+// Add this constant for the floating emojis
+const floatingEmojis = (
+  <div className="floating-emojis">
+    <span className="floating-emoji" style={{"--delay": "0s"} as React.CSSProperties}>🎯</span>
+    <span className="floating-emoji" style={{"--delay": "2s"} as React.CSSProperties}>💡</span>
+    <span className="floating-emoji" style={{"--delay": "1s"} as React.CSSProperties}>🚀</span>
+    <span className="floating-emoji" style={{"--delay": "3s"} as React.CSSProperties}>⭐</span>
+  </div>
+);
+
 const UpgradeSection = () => {
   return (
     <section className="upgrade-section">
       <div className="upgrade-section__header">
         <h2>
-          Your notes just <span className="highlight">got an upgrade</span>
+          Your notes just <span className="highlight">
+            got an upgrade
+            <WavyUnderline />
+          </span>
         </h2>
         <p>
           Templates, tasks, and meeting tools make it effortless to supercharge
@@ -100,6 +113,7 @@ const UpgradeSection = () => {
                 making it No-Click™.
               </p>
             </div>
+            {floatingEmojis}
             {stackedCards}
           </div>
 
