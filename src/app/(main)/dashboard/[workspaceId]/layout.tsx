@@ -340,8 +340,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         )}
         <main className="flex-1 overflow-y-auto">
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-            <div className="flex flex-col h-40 shrink-0 items-start border-b px-6 relative text-xl ">
-              <div className="w-full mt-11">
+            <div className="flex flex-col h-50 shrink-0 items-start border-b pb-5 px-6 relative text-xl ">
+              <div className="w-full mt-8">
                 <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
               </div>
               {!isSettingsPage && (
@@ -414,7 +414,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
                   </div>
                   
-                  <p className="text-sm text-gray-600 mt-2 font-light">
+                  <p className="text-sm text-gray-600 mt-3 font-medium">
                     {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
                   </p>
                 </>
