@@ -10,12 +10,31 @@
         align-items: left;
         justify-content: left;
         gap: 1rem;
-        width: 30%;
+        width: 50%;
 
         h2{
             font-size: 2.5rem;
             font-weight: 600;
             color: #000;
+            
+            .highlight {
+                position: relative;
+                display: inline-block;
+                
+                .wavy-underline {
+                    position: absolute;
+                    bottom: -5px;
+                    left: 0;
+                    width: 100%;
+                    height: 20px;
+                    pointer-events: none;
+                    
+                    path {
+                        stroke-dasharray: 0;
+                        animation: draw 1s ease forwards;
+                    }
+                }
+            }
         }
         p{
             font-size: 1.2rem;
@@ -37,20 +56,24 @@
             flex-direction: column;
             align-items: end;
             gap: 2rem;
-            width: 60%;
+            width: 55%;
 
             .upgrade-section__card--flashcards{
                 align-items: start;
                 width: 100%;
-                background: radial-gradient(circle at top right, #FF4F8B, #FF7A50);
+                background: radial-gradient(circle at top right, #F8AB2F, #F44E18, #FC1AA6);
                 color: white;
+                padding: 2rem 2rem 0 2rem;
+
             }
 
             .upgrade-section__card--ai{
                 align-items: start;
-                width: 60%;
-                background: radial-gradient(circle at top right, #FF7A50, #FFD166);
+                width: 80%;
+                background: radial-gradient(circle at top right, #F44E18, #F8AB2F);
                 color: white;
+                padding: 2rem 2rem 0 2rem;
+
             }
             
         }
@@ -61,14 +84,64 @@
             align-items: center;
             justify-content: center;
             gap: 2rem;
-            width: 40%;
+            width: 45%;
 
             .upgrade-section__card--tools{
                 align-items: start;
                 width: 100%;
                 min-height: 300px;
-                background: radial-gradient(circle at top right, #FFB4D9, #FFF5D1, #FFD166);
+                background: radial-gradient(circle at top right, #FC1AA6, #F8AB2F, #FFF5D1);
+                color: black;
+                padding: 2rem;
+                overflow: hidden;
+
+                
+
+                .courses-list {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+
+                    .course-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        padding: 0.75rem;
+                        border-radius: 0.5rem;
+                        background: rgba(255, 255, 255, 0.3);
+                        backdrop-filter: blur(10px);
+                        transition: all 0.2s ease;
+                        cursor: pointer;
+
+                        &:hover {
+                            background: rgba(255, 255, 255, 0.5);
+                            transform: translateX(5px);
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .course-emoji {
+                            font-size: 1.5rem;
+                            min-width: 2rem;
+                            text-align: center;
+                        }
+
+                        .course-name {
+                            font-weight: 500;
+                            color: #333;
+                        }
+                    }
+                }
+            }
+
+            .upgrade-section__button{
+                background: #FD32AF;
                 color: white;
+                padding: 0.5rem 2rem;
+                border-radius: 0.5rem;
+                font-size: 16px ;
+                font-weight: 600;
+                cursor: pointer;
             }
         }
     }
@@ -81,7 +154,7 @@
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        padding: 2rem;
+        
         border-radius: 1.5rem;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
 
@@ -89,9 +162,124 @@
             font-size: 1.5rem;
             font-weight: 600;
         }
+
+       
+       
         
         
         
         
+        &--flashcards {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: stretch;
+
+            .card-content {
+                flex: 1;
+                align-self: flex-start;
+            }
+
+            .image-container {
+                width: 100%;
+                display: flex;
+                justify-content: flex-end;
+            }
+        }
     }
+}
+
+.stacked-cards {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+
+  .card {
+    position: absolute;
+    width: 300px;
+    height: 150px;
+    perspective: 1000px;
+    left: 50%;
+    bottom: 0;
+    
+    &.card-3 {
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    &.card-2 {
+      transform: rotate(5deg) translateY(-10px) translateX(-50%);
+      z-index: 2;
+    }
+
+    &.card-1 {
+      transform: rotate(10deg) translateY(-20px) translateX(-50%);
+      z-index: 3;
+    }
+
+    &:hover .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+      h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: #666;
+      }
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      background: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+// Update the flashcards card styles
+.upgrade-section__card--flashcards {
+  overflow: visible;
+  min-height: 400px;
+}
+
+@keyframes draw {
+  from {
+    stroke-dasharray: 0, 900;
+  }
+  to {
+    stroke-dasharray: 900, 0;
+  }
 }

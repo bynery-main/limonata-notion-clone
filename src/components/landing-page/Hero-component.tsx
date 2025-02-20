@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
-import CircleGradients from "./Circle-Gradients.svg";
 import FancyText from "@carefully-coded/react-text-gradient";
-import { RotatingCircle } from "./rotating-circle";
 import styled, { keyframes } from "styled-components";
 import Image from 'next/image';
 
@@ -140,7 +137,7 @@ export default function HeroComponent() {
                 />
               ))}
             </AvatarGroup>
-            <span className="text-sm text-gray-600 font-medium">+20,000 students trust us</span>
+            <span className="text-sm text-gray-600 font-medium">+20,000 students learn with us</span>
           </SocialProofContainer>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
