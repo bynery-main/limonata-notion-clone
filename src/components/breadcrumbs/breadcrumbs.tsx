@@ -197,12 +197,12 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ onBreadcrumbsUpdate }) => {
 
   return (
     <nav aria-label="breadcrumb" className="mb-4">
-      <ol className="flex items-center flex-wrap text-sm">
+      <ol className="flex items-center flex-wrap text-sm text-gray-400 font-medium">
         {breadcrumbItems.map((item, index) => (
-          <li key={item.href} className="flex items-center">
+          <li key={item.href} className="flex items-center ">
             {index !== 0 && <span className="mx-2 text-gray-400">/</span>}
             {index === breadcrumbItems.length - 1 ? (
-              <span className="flex items-center text-gray-700">
+              <span className="flex items-center text-gray-400">
                 {item.icon}
                 {item.label}
               </span>

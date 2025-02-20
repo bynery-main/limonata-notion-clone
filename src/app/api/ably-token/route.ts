@@ -24,10 +24,15 @@ export async function GET(request: NextRequest): Promise<Response> {
       }
     };
 
-    // Use async/await instead of raw Promise
     const tokenRequest = await client.auth.createTokenRequest(tokenParams);
-    return NextResponse.json(tokenRequest);
+    const response = NextResponse.json(tokenRequest);
+    
+    response.headers.set('Access-Control-Allow-Origin', 'https://limonata.app');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+    return response;
+    
   } catch (error) {
     console.error('Error creating Ably token request:', error);
     return NextResponse.json(
