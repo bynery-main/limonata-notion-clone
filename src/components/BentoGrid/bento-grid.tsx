@@ -322,12 +322,14 @@ export const BentoGrid = ({
     if (isLastItem && items.length > 0) {
       return "col-span-1"; // FileUpload takes one column when there are other items
     }
-    
+    if (window.innerWidth <= 740) {
+      return "col-span-1" // Apply getItemClass if screen width is at least 640px (sm breakpoint)
+    }
     switch (adjustedIndex) {
       case 0: // 1st item
-      case 3: // 4th item
-      case 7: // 8th item
-        return "col-span-2";
+      case 5: // 4th item
+      case 8: // 8th item
+        return "col-span-1";
       default:
         return "col-span-1";
     }
@@ -371,7 +373,7 @@ export const BentoGrid = ({
           />
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {items.map((item, index) => (
             <BentoGridItem
               key={item.id}
