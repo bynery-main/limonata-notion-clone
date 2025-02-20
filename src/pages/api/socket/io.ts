@@ -17,7 +17,7 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
       path,
       addTrailingSlash: false,
       cors: {
-        origin: 'https://limonata.app',
+        origin: '*',
         methods: ['GET', 'POST'],
 
       },
