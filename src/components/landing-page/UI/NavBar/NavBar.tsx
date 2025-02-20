@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X, User, Home, MessageCircle } from 'lucide-react';
-import { Button } from '../ui/button';
+import { GradientButton } from '../PrimaryButton/PrimaryButton';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig';
 import Image from 'next/image';
-import logo from '../../../public/Images/Black_Logo@4x.png';
+import logo from '../../../../../public/images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
-import NavbarAuthButton from '../ui/bm-button';
 import Link from 'next/link';
 
 const gradientAnimation = keyframes`
@@ -23,7 +22,7 @@ const gradientAnimation = keyframes`
   }
 `;
 
-const AnimatedButton = styled(Button)`
+const AnimatedButton = styled(GradientButton)`
   background: linear-gradient(-45deg, #FE7EF4, #F6B144);
   background-size: 400% 400%;
   animation: ${gradientAnimation} 15s ease infinite;
@@ -170,10 +169,10 @@ const Navbar = () => {
                     </div>
                     
                     <div className="-mr-2 -my-2 md:hidden">
-                        <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
+                        <GradientButton onClick={toggleMenu} className="text-gray-700">
                             <span className="sr-only">Open menu</span>
                             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                        </Button>
+                        </GradientButton>
                     </div>
 
                     <nav className="hidden md:flex space-x-8">
@@ -221,9 +220,9 @@ const Navbar = () => {
                 <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu}></div>
                 <div className="absolute right-0 top-0 h-full w-64 bg-white/95 shadow-lg p-6">
                     <div className="flex justify-end mb-6">
-                        <Button variant="ghost" onClick={toggleMenu} className="text-gray-700">
+                        <GradientButton onClick={toggleMenu} className="text-gray-700">
                             <X className="h-5 w-5" />
-                        </Button>
+                        </GradientButton>
                     </div>
                     <div className="flex flex-col space-y-4">
                         {navItems.map((item, index) => (

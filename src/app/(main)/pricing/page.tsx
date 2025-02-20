@@ -8,8 +8,8 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig"; // Ensure this import path is correct
 import { motion } from "framer-motion";
 import { Header } from '@/components/landing-page/header';
-import Navbar from '@/components/landing-page/navbar';
-import Footer from '@/components/landing-page/UI/footer/footer';
+import Navbar from '@/components/landing-page/UI/NavBar/NavBar';
+import Footer from '@/components/landing-page/UI/Footer/Footer';
 import { GoProButton } from "@/components/subscribe/subscribe-button";
 import { WavyBackground } from "@/components/ui/wavy-background";
 import { useAuth } from '@/components/auth-provider/AuthProvider';
