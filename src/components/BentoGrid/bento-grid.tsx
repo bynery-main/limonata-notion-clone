@@ -356,7 +356,7 @@ export const BentoGrid = ({
             </div>
           </button>
           <div className="mt-4 w-80 font-light text-sm text-center">
-        💡 A folder is a subsection of a workspace. Here's where you can store files and notes.
+        💡 A folder is a subsection of a workspace. Here&apos;s where you can store files and notes.
         </div>  
         </div>
         

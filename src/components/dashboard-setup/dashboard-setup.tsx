@@ -146,7 +146,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             )}
             <input
               type="text"
-              placeholder="Workspace Name (e.g. 'Math 101')"
+              placeholder="Workspace Name (e.g. Math 101)"
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               className="flex-grow bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"
