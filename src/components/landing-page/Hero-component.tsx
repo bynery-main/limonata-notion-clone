@@ -9,6 +9,8 @@ import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if nece
 import FancyText from "@carefully-coded/react-text-gradient";
 import styled, { keyframes } from "styled-components";
 import Image from 'next/image';
+import './Hero-component.scss';
+import { GradientButton } from './UI/PrimaryButton/PrimaryButton';
 
 const HeroContainer = styled.div`
   position: relative;
@@ -58,34 +60,6 @@ const AvatarGroup = styled.div`
   }
 `;
 
-const GradientButton = styled.button`
-  background: linear-gradient(to right, #FE7EF4, #F6B144);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-`;
-
-const OutlineButton = styled.button`
-  background: transparent;
-  color: #374151;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  border: 2px solid #E5E7EB;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #F3F4F6;
-  }
-`;
-
 export default function HeroComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const router = useRouter();
@@ -121,7 +95,6 @@ export default function HeroComponent() {
 
   return (
     <HeroContainer>
-    
       <ContentContainer>
         <TextContent>
           <SocialProofContainer>
@@ -133,14 +106,14 @@ export default function HeroComponent() {
                   alt={`User ${i}`}
                   width={32}
                   height={32}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="avatar"
                 />
               ))}
             </AvatarGroup>
-            <span className="text-sm text-gray-600 font-medium">+20,000 students learn with us</span>
+            <span className="social-proof__text">+20,000 students learn with us</span>
           </SocialProofContainer>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="hero__title">
             An AI-powered collaborative study platform built for the{' '}
             <FancyText
               gradient={{ from: "#FE7EF4", to: "#F6B144" }}
@@ -150,30 +123,25 @@ export default function HeroComponent() {
             </FancyText>
           </h1>
 
-          <h2 className="text-xl sm:text-2xl text-gray-600 mb-10 font-normal">
+          <h2 className="hero__subtitle">
             We help students create and organize ideas with AI
           </h2>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+          <div className="hero__buttons">
             {!isSignedIn ? (
               <>
-                <GradientButton
-                  onClick={login}
-                  className="shadow-md"
-                >
+                <GradientButton onClick={login}>
                   Try it free
                 </GradientButton>
-                <OutlineButton
+                <button 
                   onClick={login}
+                  className="outline-button"
                 >
                   Login
-                </OutlineButton>
+                </button>
               </>
             ) : (
-              <GradientButton
-                onClick={goToDashboard}
-                className="shadow-md"
-              >
+              <GradientButton onClick={goToDashboard}>
                 Go to Dashboard
               </GradientButton>
             )}

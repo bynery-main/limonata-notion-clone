@@ -5,7 +5,7 @@ import HeroComponent from "@/components/landing-page/Hero-component";
 import Intro from "@/components/landing-page/introduction-component";
 import { TabsDemo } from "@/components/landing-page/landing-page-tabs";
 import AIIntro from "@/components/landing-page/introducing-AI-component";
-import CTA from "@/components/landing-page/CTA-component";
+import CTA from "@/components/landing-page/UI/CTA/CTA";
 import Navbar from "@/components/landing-page/navbar";
 import UpgradeSection from "@/components/landing-page/UpgradeSection";
 
