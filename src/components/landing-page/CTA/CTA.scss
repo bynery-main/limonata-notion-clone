@@ -1,6 +1,7 @@
 .cta-container {
   position: relative;
   height: 70vh;
+  overflow: hidden;
 
   .background-container {
     position: absolute;
@@ -10,13 +11,16 @@
 
     img {
       object-fit: cover;
+      object-position: center 30%;
+      filter: brightness(0.95);
     }
   }
 
   .content-overlay {
     position: relative;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 
     .content-wrapper {
       position: absolute;
@@ -43,7 +47,9 @@
       h2 {
         font-size: clamp(1.875rem, 5vw, 3.75rem);
         line-height: 1.25;
-        color: black;
+        color: white;
+
+       
       }
 
       .button-container {
@@ -54,7 +60,7 @@
 
       .free-text {
         margin-top: 0.75rem;
-        color: #6b7280;
+        color: rgba(255, 255, 255, 0.795);
         font-size: clamp(0.75rem, 1.5vw, 1rem);
       }
     }

@@ -1,34 +1,11 @@
-import FancyText from '@carefully-coded/react-text-gradient';
-import { Button } from "@/components/ui/button";
-import styled, { keyframes } from 'styled-components';
 import React, { useEffect, useState } from "react";
-import { auth } from "../../../../firebase/firebaseConfig";
+import { auth } from "../../../firebase/firebaseConfig";
 import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import CTA from '../../../../../public/images/CTA/cta.png';
+import CTA from '../../../../public/images/CTA/cta.png';
 import Image from 'next/image';
 import './CTA.scss';
-import { GradientButton } from '../PrimaryButton/PrimaryButton';
-
-const gradientAnimation = keyframes`
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-`;
-
-const AnimatedButton = styled(Button)`
-  background: linear-gradient(-45deg, #FE7EF4, #F6B144);
-  background-size: 400% 400%;
-  animation: ${gradientAnimation} 15s ease infinite;
-  border: none;
-  color: white;
-  font-weight: bold;
-  
-  &:hover { opacity: 0.9; }
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-`;
+import { GradientButton } from '../UI/PrimaryButton/PrimaryButton';
 
 export default function CTAComponent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -69,14 +46,7 @@ export default function CTAComponent() {
       <div className="content-overlay">
         <div className="content-wrapper">
           <h2>
-            Study with your own{' '}
-            <FancyText 
-              gradient={{ from: '#F6B144', to: '#FE7EF4' }}
-              className="font-extrabold"
-            >
-              AI
-            </FancyText>
-            {' '}Professor.
+            Study with your own AI Professor.
           </h2> 
           <div className="button-container">
             <GradientButton onClick={handleAuth}>

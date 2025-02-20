@@ -5,12 +5,12 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig"; // Adjust the path if necessary
+import { auth } from "../../../firebase/firebaseConfig"; // Adjust the path if necessary
 import FancyText from "@carefully-coded/react-text-gradient";
 import styled, { keyframes } from "styled-components";
 import Image from 'next/image';
-import './Hero-component.scss';
-import { GradientButton } from './UI/PrimaryButton/PrimaryButton';
+import './Hero.scss';
+import { GradientButton } from '../UI/PrimaryButton/PrimaryButton';
 
 const HeroContainer = styled.div`
   position: relative;
@@ -116,7 +116,7 @@ export default function HeroComponent() {
           <h1 className="hero__title">
             An AI-powered collaborative study platform built for the{' '}
             <FancyText
-              gradient={{ from: "#FE7EF4", to: "#F6B144" }}
+              gradient={{ from: "#F8F401", to: "#FC1AA6" }}
               className="inline"
             >
               top 1% students
