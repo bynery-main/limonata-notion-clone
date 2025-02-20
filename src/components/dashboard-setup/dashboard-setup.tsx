@@ -146,7 +146,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             )}
             <input
               type="text"
-              placeholder="Workspace Name"
+              placeholder="Workspace Name (e.g. 'Math 101')"
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               className="flex-grow bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"
@@ -159,6 +159,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
             onChange={(e) => setWorkspaceDescription(e.target.value)}
             className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"
           />
+        {/* Add a radio button to select the workspace type        
           <div className="flex items-center space-x-4">
             <span className="text-sm font-medium text-gray-700">Type:</span>
             <label className="inline-flex items-center">
@@ -184,6 +185,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
               <span className="ml-2 text-sm text-gray-700">Shared</span>
             </label>
           </div>
+          -->
           {workspaceType === 'shared' && (
             <div className="space-y-2">
               <CollaboratorSearch
@@ -214,6 +216,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
               )}
             </div>
           )}
+            */}   
           <div className="flex space-x-3 pt-4">
             <Button
               type="submit"

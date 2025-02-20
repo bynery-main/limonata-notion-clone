@@ -340,11 +340,13 @@ export const BentoGrid = ({
   return (
     <div className={cn("max-w-7xl mx-auto p-4", className)}>
       {folders.length === 0 ? (
-        <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-          <button
+        
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
+        <button
             onClick={() => setIsCreateFolderModalVisible(true)}
             className="p-[1px] relative block "
           >
+
             <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
             <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
               <FolderPlus className="w-5 h-5 mr-3 text-regular" />
@@ -353,7 +355,11 @@ export const BentoGrid = ({
               </div>
             </div>
           </button>
+          <div className="mt-4 w-80 font-light text-sm text-center">
+        💡 A folder is a subsection of a workspace. Here's where you can store files and notes.
+        </div>  
         </div>
+        
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
           <FileUpload 

@@ -51,8 +51,8 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isVisible, onClos
               type="text"
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
-              placeholder="Enter folder name"
-              className="bg-transparent flex-grow focus:outline-none text-gray-800 dark:text-gray-200"
+              placeholder= "Enter folder name (e.g. 'Atoms')"
+              className="bg-transparent flex-grow focus:outline-none text-gray-800 dark:text-gray-200 font-medium"
             />
           </div>
           <div className="flex justify-end space-x-2">
