@@ -28,6 +28,27 @@ const courses = [
 
 ];
 
+const notifications = [
+  {
+    user: "📅 Andrea",
+    action: "changed the due date of",
+    item: "Project Homepage",
+    date: "Mar 15",
+  },
+  {
+    user: "✍️ Michael",
+    action: "added a new quiz to",
+    item: "Biology 101",
+    date: "Mar 14",
+  },
+  {
+    user: "📚 Sarah",
+    action: "shared notes for",
+    item: "Chemistry Final",
+    date: "Mar 14",
+  }
+];
+
 const coursesList = (
   <div className="courses-list">
   {courses.map((course, index) => (
@@ -49,6 +70,24 @@ const WavyUnderline = () => (
       strokeWidth="3"
     />
   </svg>
+);
+
+const GradeRing = () => (
+  <div className="grade-ring-container">
+    <div className="grade-ring">
+      <span className="grade">A+</span>
+    </div>
+    <div className="floating-notifications">
+      {notifications.map((notif, index) => (
+        <div className="notification-box" key={index}>
+          <div className="notification-content">
+            <p><strong>{notif.user}</strong> {notif.action} <strong>{notif.item}</strong></p>
+            <span className="notification-date">{notif.date}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
 );
 
 const ReadySection = () => {
@@ -98,14 +137,9 @@ const ReadySection = () => {
         <div className="ready-right">
           <div className="ready-section__card ready-section__card--tools">
             <div className="card-content">
-              <h3>Organize and share your course notes</h3>
-              <p>
-                Meeting spaces come loaded with a growing kit of meeting tools
-                that power-up your meetings in a few clicks.
-              </p>
+              <h3>Collaborate with your friends</h3>
             </div>
-            {coursesList}
-           
+            <GradeRing />
           </div>
 
           <button className="ready-section__button">
