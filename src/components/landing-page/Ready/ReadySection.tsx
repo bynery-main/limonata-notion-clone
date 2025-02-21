@@ -3,45 +3,20 @@ import "./ReadySection.scss";
 import Image from "next/image";
 import ai from "../../../../public/Images/upgrade/ai.png";
 
-const flashcardContent = [
+const studyFeatures = [
   {
-    question: "Biology: Exam 1",
-    questionDetail: "What is the powerhouse of the cell?",
-    answer: "The Mitochondria",
-    answerDetail: "It produces most of the cell's energy through ATP"
+    title: "Flash Cards",
+    icon: "📝"
   },
   {
-    question: "Biology: Exam 1",
-    questionDetail: "What is cell division called?",
-    answer: "Mitosis",
-    answerDetail: "The process where a cell divides into two identical cells"
+    title: "Practice Quizzes",
+    icon: "✍️"
   },
   {
-    question: "Biology: Exam 1",
-    questionDetail: "What is the cell membrane made of?",
-    answer: "Phospholipids",
-    answerDetail: "A double layer that controls what enters and exits the cell"
+    title: "Study Guides",
+    icon: "📚"
   }
 ];
-
-const stackedCards = (
-  <div className="stacked-cards">
-  {flashcardContent.map((content, index) => (
-    <div className={`card card-${index + 1}`} key={index}>
-      <div className="card-inner">
-        <div className="card-front">
-          <h4>{content.question}</h4>
-          <p>{content.questionDetail}</p>
-        </div>
-        <div className="card-back">
-          <h4>{content.answer}</h4>
-          <p>{content.answerDetail}</p>
-        </div>
-      </div>
-    </div>
-  ))}
-  </div>
-)
 
 const courses = [
   { name: "Literature", emoji: "📚" },
@@ -76,16 +51,6 @@ const WavyUnderline = () => (
   </svg>
 );
 
-// Add this constant for the floating emojis
-const floatingEmojis = (
-  <div className="floating-emojis">
-    <span className="floating-emoji" style={{"--delay": "0s"} as React.CSSProperties}>🎯</span>
-    <span className="floating-emoji" style={{"--delay": "2s"} as React.CSSProperties}>💡</span>
-    <span className="floating-emoji" style={{"--delay": "1s"} as React.CSSProperties}>🚀</span>
-    <span className="floating-emoji" style={{"--delay": "3s"} as React.CSSProperties}>⭐</span>
-  </div>
-);
-
 const ReadySection = () => {
   return (
     <section className="ready-section">
@@ -106,15 +71,19 @@ const ReadySection = () => {
         <div className="ready-left">
           <div className="ready-section__card ready-section__card--flashcards">
             <div className="card-content">
-              <h3>Create flashcards in seconds</h3>
+              <h3>Your study workflow in one place</h3>
               <p>
-                Templates allow you to recreate the perfect meeting in 1-click.
-                And Templates can be added automatically to your weekly meetings,
-                making it No-Click™.
+                 In Limonata, you'll find all your study essentials—from flashcards to quizzes and guides—designed to streamline your workflow and boost your learning efficiency.
               </p>
             </div>
-            {floatingEmojis}
-            {stackedCards}
+            <div className="features-grid">
+              {studyFeatures.map((feature, index) => (
+                <div className="feature-card" key={index}>
+                  <span className="feature-icon">{feature.icon}</span>
+                  <h3>{feature.title}</h3>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="ready-section__card ready-section__card--ai">
