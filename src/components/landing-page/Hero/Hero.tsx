@@ -20,6 +20,8 @@ const HeroContainer = styled.div`
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  overflow: hidden;
+  background: white;
 `;
 
 const ContentContainer = styled.div`
@@ -94,7 +96,8 @@ export default function HeroComponent() {
   };
 
   return (
-    <HeroContainer>
+    <HeroContainer className="hero">
+      <div className="hero__ray-overlay"></div>
       <ContentContainer>
         <TextContent>
           <SocialProofContainer>

@@ -19,15 +19,9 @@ export default function Home() {
       <HeroComponent />
       <UpgradeSection />
       <ReadySection />
-     
-      <section id="features-section" className="py-16">
-        <div className="mt-8">
-          <TabsDemo />
-        </div>
-      </section>
-      <div className="mt-32 border-t-2 mx-8 py-14 px-5">
+      <TabsDemo />
       
-      </div>
+      
 
       <div>
         <CTA />
