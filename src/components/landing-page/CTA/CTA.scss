@@ -23,8 +23,7 @@
   .content-overlay {
     position: relative;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0);
 
     .content-wrapper {
       position: absolute;
@@ -51,7 +50,7 @@
       h2 {
         font-size: clamp(1.875rem, 5vw, 3.75rem);
         line-height: 1.25;
-        color: #333;
+        color: whitesmoke;
         font-weight: 500;
 
        
@@ -65,7 +64,7 @@
 
       .free-text {
         margin-top: 0.75rem;
-        color: rgba(89, 89, 89, 0.795);
+        color: white;
         font-size: clamp(0.75rem, 1.5vw, 1rem);
       }
     }
