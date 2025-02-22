@@ -1,6 +1,6 @@
 .footer {
-  background-color: #F44E18; // bg-gray-900
-  color: white;
+  background-color: whitesmoke; // bg-gray-900
+  color: #4B5563 !important;
   padding: 2rem 0; // py-8
   min-width: 100vw;
   width: 100vw;
@@ -28,11 +28,11 @@
     gap: 1rem; // gap-4
 
     a {
-      color: white;
+      color: #4B5563;
       transition: color 0.2s;
 
       &:hover {
-        color: #4B5563; // text-gray-600
+        color: #1F2937;
       }
     }
   }
@@ -49,6 +49,7 @@
 
     a {
       font-size: 0.875rem; // text-sm
+      color: #4B5563;
       transition: all 0.3s;
 
       &:hover {
@@ -62,5 +63,6 @@
 
   &__copyright {
     font-size: 0.875rem; // text-sm
+    color: #4B5563;
   }
 } 
