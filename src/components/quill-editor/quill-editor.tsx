@@ -96,7 +96,10 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
               "notes",
               details.fileId
             );
-            await setDoc(fileDocRef, { text }, { merge: true });
+            await setDoc(fileDocRef, { 
+              text,
+              isSynced: false 
+            }, { merge: true });
             console.log("Document successfully updated!");
           } catch (error) {
             console.log("Error updating document: ", error);
