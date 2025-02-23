@@ -80,7 +80,7 @@ const StudyGuidePage = () => {
     <div className="container px-4 py-8 relative">
       <div className="absolute inset-0 " />
       {studyGuide ? (
-        <div className="relative max-w-full m-12 bg-white/60 backdrop-blur-lg rounded-3xl shadow-[0_0_20px_rgba(0,0,0,0.2)] p-8">
+        <div className="relative max-w-full m-12 bg-white/60 backdrop-blur-lg rounded-3xl shadow-[0_0_20px_rgba(0,0,0,0.15)] p-8">
           <div className="prose dark:prose-invert max-w-none mx-16 py-10">
             <ReactMarkdown components={components}>
               {studyGuide.content}

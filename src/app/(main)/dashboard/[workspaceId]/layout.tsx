@@ -219,13 +219,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
 
-  /*
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (shareButtonRef.current && 
-          !shareButtonRef.current.contains(event.target as Node) &&
-          shareMenuRef.current && 
-          !shareMenuRef.current.contains(event.target as Node)) {
+      // Check if click is outside both the share button and share menu
+      const isOutsideShareButton = shareButtonRef.current && !shareButtonRef.current.contains(event.target as Node);
+      const isOutsideShareMenu = shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node);
+      
+      if (isOutsideShareButton && isOutsideShareMenu) {
         setShowShareMenu(false);
       }
     };
@@ -236,7 +236,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     };
   }, []);
 
-*/
   const fetchExistingCollaborators = async () => {
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);

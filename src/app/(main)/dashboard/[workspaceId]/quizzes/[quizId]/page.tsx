@@ -20,6 +20,7 @@ import {
   Trash2,
   Pencil,
   PlusCircle,
+  MoreVertical,
 } from "lucide-react";
 import { Toast, useToast } from "@chakra-ui/react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
@@ -129,6 +130,25 @@ const QuizzesPage = () => {
 
     fetchQuizzesAndNotes();
   }, [workspaceId, quizId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const menus = document.querySelectorAll('[id^="menu-"]');
+      menus.forEach(menu => {
+        if (!menu.contains(event.target as Node) && !menu.classList.contains('hidden')) {
+          menu.classList.add('opacity-0', 'scale-75', 'translate-y-[-20px]', );
+          setTimeout(() => {
+            menu.classList.add('hidden');
+          }, 300);
+        }
+      });
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleAnswerChange = (index: number, value: string) => {
     const newAnswers = [...answers];
@@ -416,43 +436,103 @@ const QuizzesPage = () => {
       {quizzes.length > 0 ? (
         <div className="w-full max-w-3xl">
           {quizzes.map((quiz, index) => (
-            <div key={index} className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">
-                {quiz.question}
-              </h2>
-              <div className="flex items-start gap-2">
-                <div className="flex-grow">
-                  <AutoResizingTextArea
-                    value={answers[index]}
-                    onChange={handleAnswerChange}
-                    placeholder="Type your answer here"
-                    index={index}
-                  />
-                </div>
-                <div className="flex flex-col items-center gap-3 pt-4 ">
+            <div key={index} className="mb-6 relative">
+              <div className="flex justify-between items-start">
+                <h2 className="text-xl font-semibold mb-2">
+                  {quiz.question}
+                </h2>
+                <div className="relative">
                   <button
-                    onClick={() => handleUpdateQuiz(index)}
-                    className=" hover:text-yellow-600"
-                    title="Edit"
+                    onClick={() => {
+                      const menu = document.getElementById(`menu-${index}`);
+                      if (menu) {
+                        if (menu.classList.contains('hidden')) {
+                          menu.classList.remove('hidden');
+                          // Small delay to ensure the transition works
+                          requestAnimationFrame(() => {
+                            menu.classList.remove('opacity-0', 'scale-75', 'translate-y-[-20px]' );
+                          });
+                        } else {
+                          menu.classList.add('opacity-0', 'scale-75', 'translate-y-[-20px]');
+                          setTimeout(() => {
+                            menu.classList.add('hidden');
+                          }, 300);
+                        }
+                      }
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded-full"
                   >
-                    <Pencil className="w-5 h-5" />
+                    <MoreVertical className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={() => handleDeleteQuiz(index)}
-                    className="hover:text-red-500"
-                    title="Delete"
+                  <div
+                    id={`menu-${index}`}
+                    className="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg z-10 backdrop-blur-sm bg-white/60 border border-gray-200/60 
+                      transform origin-top-right transition-all duration-300 ease-out
+                      opacity-0 scale-75 translate-y-[-20px] 
+                      [&:not(.hidden)]:opacity-100 [&:not(.hidden)]:scale-100 [&:not(.hidden)]:translate-y-0"
                   >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={handleAddQuiz}
-                    className="hover:text-blue-500"
-                    title="Add Question"
-                  >
-                    <PlusCircle className="w-5 h-5" />
-                  </button>
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          const menu = document.getElementById(`menu-${index}`);
+                          if (menu) {
+                            menu.classList.add('opacity-0', 'scale-75', 'translate-y-[-20px]');
+                            setTimeout(() => {
+                              menu.classList.add('hidden');
+                            }, 300);
+                          }
+                          handleUpdateQuiz(index);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-white/40 flex items-center whitespace-nowrap overflow-hidden text-ellipsis
+                          transition-all duration-200 hover:translate-x-1"
+                      >
+                        <Pencil className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">Edit</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const menu = document.getElementById(`menu-${index}`);
+                          if (menu) {
+                            menu.classList.add('opacity-0', 'scale-75', 'translate-y-[-20px]');
+                            setTimeout(() => {
+                              menu.classList.add('hidden');
+                            }, 300);
+                          }
+                          handleDeleteQuiz(index);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-white/40 flex items-center whitespace-nowrap overflow-hidden text-ellipsis text-red-600
+                          transition-all duration-200 hover:translate-x-1"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">Delete </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const menu = document.getElementById(`menu-${index}`);
+                          if (menu) {
+                            menu.classList.add('opacity-0', 'scale-75', 'translate-y-[-20px]');
+                            setTimeout(() => {
+                              menu.classList.add('hidden');
+                            }, 300);
+                          }
+                          handleAddQuiz();
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-white/40 flex items-center whitespace-nowrap overflow-hidden text-ellipsis
+                          transition-all duration-200 hover:translate-x-1"
+                      >
+                        <PlusCircle className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">Add Question</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <AutoResizingTextArea
+                value={answers[index]}
+                onChange={handleAnswerChange}
+                placeholder="Type your answer here"
+                index={index}
+              />
             </div>
           ))}
           <div className="flex flex-wrap gap-4 items-center justify-center font-bold">
@@ -542,7 +622,7 @@ const QuizzesPage = () => {
           <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-sm">
             <h2 className="text-xl font-semibold mb-4">New Question</h2>
             <textarea
-              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-gray-500"
               placeholder="Write your question..."
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
@@ -571,7 +651,7 @@ const QuizzesPage = () => {
           <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-sm">
             <h2 className="text-xl font-semibold mb-4">Edit Question</h2>
             <textarea
-              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border rounded font-light focus:outline-none focus:ring-2 focus:ring-gray-500"
               placeholder="Edit your question..."
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
