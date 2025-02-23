@@ -69,8 +69,10 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
-  const [isDescriptionVisible, setIsDescriptionVisible] = useState(true);
-  
+  const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
+  const pathname = usePathname();
+  const isSettingsPage = pathname?.endsWith("/settings");
+  const isWorkspaceRoot = pathname === `/dashboard/${params.workspaceId}`;
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -102,14 +104,15 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
       setFoldersData(data.folders || []);
       setPageDescription(data.description || "");
-
+      if (isWorkspaceRoot) {
+        setPageTitle(data.name || "Workspace");
+      }
     };
 
     validateUserAndFetchData();
-  }, [params.workspaceId, db, currentUserId, loading, user, router]);
+  }, [params.workspaceId, db, currentUserId, loading, user, router, isWorkspaceRoot]);
 
-  const pathname = usePathname();
-  const isSettingsPage = pathname?.endsWith("/settings");
+
 
   const getFolderId = (path: string): string | null => {
     const segments = path.split("/").filter(Boolean);
@@ -341,20 +344,22 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         )}
         <main className="flex-1 overflow-y-auto">
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-            <div className="flex flex-col h-50 shrink-0 items-start border-b pb-5 px-6 relative text-xl ">
+            <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-12 relative text-xl ">
               <div className="w-full mt-8">
-                <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+                {!isWorkspaceRoot && !isSettingsPage && (
+                  <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+                )}
               </div>
               {!isSettingsPage && (
                 <>
                   <div className="flex items-center justify-between w-full mt-2">
-                    <div className="flex items-center group relative">
-                      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
+                    <div className={`flex items-center group relative ${!isDescriptionVisible ? 'border rounded-lg p-3' : ''} transition-all duration-200`}>
+                      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-3xl mr-3 focus:outline-none">
                         <span>{emoji}</span>
                       </button>
                       {pageTitle && (
                         <div className="flex items-center">
-                          <h1 className="text-4xl font-bold line-clamp-2">
+                          <h1 className="text-4xl font-light">
                             {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
                           </h1>
                           <button
@@ -363,7 +368,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                           >
                             <motion.div
                               initial={{ rotate: 0 }}
-                              animate={{ rotate: isDescriptionVisible ? 180 : 0 }}
+                              animate={{ rotate: isDescriptionVisible ? 0 : 180 }}
                               transition={{ duration: 0.2 }}
                             >
                               <svg
