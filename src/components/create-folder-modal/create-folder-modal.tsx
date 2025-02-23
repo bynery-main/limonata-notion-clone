@@ -38,10 +38,10 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isVisible, onClos
       >
         <div className="text-center mb-6">
           <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }} className="text-2xl font-bold">
-            Create a New Folder
+            Create a New Topic
           </FancyText>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Your workspace is empty. Let&apos;s create your first folder!
+            Your workspace is empty. Let&apos;s create your first topic!
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -51,7 +51,7 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isVisible, onClos
               type="text"
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
-              placeholder= "Enter folder name (e.g. 'Atoms')"
+              placeholder= "Enter Topic name (e.g. 'Exam 1')"
               className="bg-transparent flex-grow focus:outline-none text-gray-800 dark:text-gray-200 font-medium"
             />
           </div>
@@ -70,7 +70,7 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isVisible, onClos
               <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
               <div className="px-4 py-3 relative bg-white dark:bg-neutral-800 rounded-xl group transition duration-200 text-sm text-black dark:text-white hover:bg-transparent hover:text-white">
                 <div className="flex items-center whitespace-nowrap">
-                  Create Folder
+                  Create Topic
                 </div>
               </div>
             </button>

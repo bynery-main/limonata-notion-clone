@@ -402,7 +402,7 @@ useEffect(() => {
             <UploadIcon className="h-4 w-4 mr-2" /> Upload File
           </button>
           <button onClick={() => { deleteFolder(workspaceId, folder.id, parentFolderId); setShowMenu(false); }} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
-            <TrashIcon className="h-4 w-4 mr-2" /> Delete Folder
+            <TrashIcon className="h-4 w-4 mr-2" /> Delete Topic
           </button>
         </div>
       )}
@@ -416,7 +416,7 @@ useEffect(() => {
                zIndex: 1001,
              }}>
           <input
-            aria-label="Rename Folder"
+            aria-label="Rename Topic"
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}

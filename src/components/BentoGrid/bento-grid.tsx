@@ -353,12 +353,12 @@ export const BentoGrid = ({
             <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
               <FolderPlus className="w-5 h-5 mr-3 text-regular" />
               <div className="flex items-center whitespace-nowrap text-xl ">
-                Create Your First Folder
+                Create Your First Topic
               </div>
             </div>
           </button>
           <div className="mt-4 w-80 font-light text-sm text-center">
-        💡 A folder is a subsection of a workspace. Here&apos;s where you can store files and notes.
+        💡 A topic is a subsection of a workspace. Here&apos;s where you can store files and notes.
         </div>  
         </div>
         
