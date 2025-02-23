@@ -23,6 +23,8 @@ import NewNoteModal from "@/components/create-note-modal/create-note-modal";
 import AblySpacesProvider from "@/components/ably/spaces-provider";
 import LiveCursors from "@/components/ably/live-cursors";
 import OnlineCollaborators from "@/components/ably/online-collaborators";
+import { BookOpen, FileText, Layout as LayoutIcon, HelpCircle } from "lucide-react";
+import { IconLayout } from "@tabler/icons-react";
 
 interface FileData {
   id: string;
@@ -219,13 +221,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
 
+  /*
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Check if click is outside both the share button and share menu
-      const isOutsideShareButton = shareButtonRef.current && !shareButtonRef.current.contains(event.target as Node);
-      const isOutsideShareMenu = shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node);
-      
-      if (isOutsideShareButton && isOutsideShareMenu) {
+      if (shareButtonRef.current && 
+          !shareButtonRef.current.contains(event.target as Node) &&
+          shareMenuRef.current && 
+          !shareMenuRef.current.contains(event.target as Node)) {
         setShowShareMenu(false);
       }
     };
@@ -236,6 +238,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     };
   }, []);
 
+*/
   const fetchExistingCollaborators = async () => {
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
@@ -323,6 +326,32 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     console.log(`Creating new note: ${name} in folder: ${folderId}`);
     // You would typically make an API call or update your state here
   };
+
+  const tabs = [
+    {
+      id: "files",
+      label: "Files",
+      icon: <FileText className="w-4 h-4 mr-2" />,
+    },
+    {
+      id: "decks",
+      label: "Flashcards",
+      icon: <IconLayout className="w-4 h-4 mr-2" />,
+    },
+    {
+      id: "studyguides",
+      label: "Study Guides",
+      icon: <BookOpen className="w-4 h-4 mr-2" />,
+    },
+    {
+      id: "quizzes",
+      label: "Quizzes", 
+      icon: <HelpCircle className="w-4 h-4 mr-2" />,
+    }
+  ];
+
+  const [activeTab, setActiveTab] = useState("files");
+
   return (
     <FolderProvider>
        <AblySpacesProvider workspaceId={params.workspaceId}>
@@ -475,15 +504,39 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 />
             {!isSettingsPage && (
               <>
+                <div className="max-w-7xl mx-auto px-4 mb-6">
+                  <div className="flex space-x-1 rounded-xl bg-gray-100 p-1">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all relative rounded-lg ${
+                          activeTab === tab.id 
+                          ? "text-white" 
+                          : "hover:text-gray-900 text-gray-600"
+                        }`}
+                      >
+                        <div className={`absolute inset-0 rounded-lg ${
+                          activeTab === tab.id ? "bg-gradient-to-r from-[#F6B144] to-[#FE7EF4]" : ""
+                        }`} />
+                        <div className="relative flex items-center">
+                          {tab.icon}
+                          {tab.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div ref={bentoGridRef}>
-                    {showBentoGrid && folderId && (
-                    <BentoGrid className="max-w-7xl mx-auto p-4 z-10" workspaceId={params.workspaceId} folderId={folderId}/>
-                    )}
-                  {showBentoGrid && !folderId && (
-                    <BentoGrid className="max-w-7xl mx-auto p-4  z-10" workspaceId={params.workspaceId} />
+                  {showBentoGrid && (
+                    <BentoGrid 
+                      className="max-w-7xl mx-auto p-4 z-10" 
+                      workspaceId={params.workspaceId}
+                      folderId={folderId || undefined}
+                      type={activeTab}
+                    />
                   )}
                 </div>
-
               </>
             )}
             <div className="relative">
