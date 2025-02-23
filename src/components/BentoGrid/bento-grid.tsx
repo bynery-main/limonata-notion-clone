@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User } from "lucide-react";
+import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User, Folder } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { addDoc } from "firebase/firestore";
@@ -353,12 +353,12 @@ export const BentoGrid = ({
             <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
               <FolderPlus className="w-5 h-5 mr-3 text-regular" />
               <div className="flex items-center whitespace-nowrap text-xl ">
-                Create Your First Folder
+                Create Your First Topic
               </div>
             </div>
           </button>
           <div className="mt-4 w-80 font-light text-sm text-center">
-        💡 A folder is a subsection of a workspace. Here&apos;s where you can store files and notes.
+        💡 A topic is a subsection of a workspace. Here&apos;s where you can store files and notes.
         </div>  
         </div>
         
@@ -641,6 +641,11 @@ export const BentoGridItem = ({
     );
   };
 
+  const handleFolderClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the parent click handler
+    router.push(`/dashboard/${workspaceId}/${folderId}`);
+  };
+
   return (
     <div
       className={cn(
@@ -663,7 +668,11 @@ export const BentoGridItem = ({
         <h3 className="font-semibold text-lg mb-1 truncate" title={title}>
           {title}
         </h3>
-        <p className="text-sm text-gray-500 overflow-hidden text-ellipsis">
+        <p 
+          className="text-sm text-gray-500 overflow-hidden text-ellipsis flex items-center gap-1 hover:text-[#F6B144] cursor-pointer"
+          onClick={handleFolderClick}
+        >
+          <Folder className="h-4 w-4" />
           {description}
         </p>
       </div>

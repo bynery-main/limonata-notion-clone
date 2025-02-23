@@ -40,12 +40,12 @@ const StudyGuidePage = () => {
     ul: 'mb-6 list-disc pl-6',
     ol: 'mb-6 list-decimal pl-6',
     li: 'mb-3 font-light break-words',
-    h1: 'text-3xl font-bold mt-6 mb-4 break-words',
-    h2: 'text-2xl font-bold mt-6 mb-4 break-words',
-    h3: 'text-xl font-bold mt-6 mb-4 break-words',
-    h4: 'text-lg font-bold mt-6 mb-4 break-words',
-    h5: 'font-bold mt-6 mb-4 break-words',
-    h6: 'font-bold mt-6 mb-4 break-words',
+    h1: 'text-4xl font-bold mt-8 mb-6 break-words bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] inline-block text-transparent bg-clip-text',
+    h2: 'text-3xl font-bold mt-8 mb-6 break-words bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] inline-block text-transparent bg-clip-text opacity-90',
+    h3: 'text-2xl font-bold mt-8 mb-6 break-words bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] inline-block text-transparent bg-clip-text opacity-80',
+    h4: 'text-xl font-bold mt-8 mb-6 break-words bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] inline-block text-transparent bg-clip-text opacity-70',
+    h5: 'font-bold mt-8 mb-6 break-words bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] inline-block text-transparent bg-clip-text opacity-60',
+    h6: 'font-bold mt-8 mb-6 break-words bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] inline-block text-transparent bg-clip-text opacity-50',
     strong: 'font-bold',
     code: 'bg-gray-100 rounded px-1 py-0.5 font-mono text-sm break-words',
     pre: 'bg-gray-100 rounded p-4 whitespace-pre-wrap',
@@ -77,11 +77,11 @@ const StudyGuidePage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 font-['Inter',sans-serif]">
+    <div className="container px-4 py-8 relative">
+      <div className="absolute inset-0 " />
       {studyGuide ? (
-        <div className="max-w-full m-10">
-          <h1 className="text-3xl font-bold mb-6">Study Guide</h1>
-          <div className="prose dark:prose-invert max-w-none">
+        <div className="relative max-w-full m-12 bg-white/60 backdrop-blur-lg rounded-3xl shadow-[0_0_20px_rgba(0,0,0,0.15)] p-8">
+          <div className="prose dark:prose-invert max-w-none mx-16 py-10">
             <ReactMarkdown components={components}>
               {studyGuide.content}
             </ReactMarkdown>

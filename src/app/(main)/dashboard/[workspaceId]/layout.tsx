@@ -69,7 +69,10 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
-  
+  const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
+  const pathname = usePathname();
+  const isSettingsPage = pathname?.endsWith("/settings");
+  const isWorkspaceRoot = pathname === `/dashboard/${params.workspaceId}`;
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -101,14 +104,15 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
       setFoldersData(data.folders || []);
       setPageDescription(data.description || "");
-
+      if (isWorkspaceRoot) {
+        setPageTitle(data.name || "Workspace");
+      }
     };
 
     validateUserAndFetchData();
-  }, [params.workspaceId, db, currentUserId, loading, user, router]);
+  }, [params.workspaceId, db, currentUserId, loading, user, router, isWorkspaceRoot]);
 
-  const pathname = usePathname();
-  const isSettingsPage = pathname?.endsWith("/settings");
+
 
   const getFolderId = (path: string): string | null => {
     const segments = path.split("/").filter(Boolean);
@@ -215,13 +219,13 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
 
-  /*
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (shareButtonRef.current && 
-          !shareButtonRef.current.contains(event.target as Node) &&
-          shareMenuRef.current && 
-          !shareMenuRef.current.contains(event.target as Node)) {
+      // Check if click is outside both the share button and share menu
+      const isOutsideShareButton = shareButtonRef.current && !shareButtonRef.current.contains(event.target as Node);
+      const isOutsideShareMenu = shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node);
+      
+      if (isOutsideShareButton && isOutsideShareMenu) {
         setShowShareMenu(false);
       }
     };
@@ -232,7 +236,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     };
   }, []);
 
-*/
   const fetchExistingCollaborators = async () => {
     const workspaceRef = doc(db, "workspaces", params.workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
@@ -340,28 +343,94 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         )}
         <main className="flex-1 overflow-y-auto">
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-            <div className="flex flex-col h-50 shrink-0 items-start border-b pb-5 px-6 relative text-xl ">
+            <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-12 relative text-xl ">
               <div className="w-full mt-8">
-                <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+                {!isWorkspaceRoot && !isSettingsPage && (
+                  <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+                )}
               </div>
               {!isSettingsPage && (
                 <>
                   <div className="flex items-center justify-between w-full mt-2">
-                    <div className="flex items-center">
-                      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
+                    <div className={`flex items-center group relative ${!isDescriptionVisible ? 'border rounded-lg p-3' : ''} transition-all duration-200`}>
+                      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-3xl mr-3 focus:outline-none">
                         <span>{emoji}</span>
                       </button>
                       {pageTitle && (
-                        <h1 className="text-4xl font-bold line-clamp-2">
-                          {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                        </h1>
+                        <div className="flex items-center">
+                          <h1 className="text-4xl font-light">
+                            {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                          </h1>
+                          <button
+                            onClick={() => setIsDescriptionVisible(!isDescriptionVisible)}
+                            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          >
+                            <motion.div
+                              initial={{ rotate: 0 }}
+                              animate={{ rotate: isDescriptionVisible ? 0 : 180 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="m6 9 6 6 6-6"/>
+                              </svg>
+                            </motion.div>
+                          </button>
+                        </div>
                       )}
                     </div>
-                    <div className="flex items-start mr-auto">
-                    <OnlineCollaborators user={user}/>
+                    <div className="flex items-center ml-auto gap-2">
+                      <div className="flex items-center">
 
-                        </div>
-                        <div className="flex items-end ml-auto">
+                        <div className="flex items-center">
+                          <OnlineCollaborators user={user}/>
+                          <button 
+                            ref={shareButtonRef}
+                            onClick={handleShare} 
+                            className="p-[1px] relative block mx-2"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                            <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                              <Share2 className="w-4 h-4 md:mr-2" />
+                              <span className="hidden md:inline">Invite Collaborators</span>
+                            </div>
+                          </button>
+                          {showShareMenu && (
+                            <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                              <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                <CollaboratorSearch
+                                  existingCollaborators={existingCollaborators.map(c => c.uid)}
+                                  currentUserUid={currentUserUid}
+                                  onAddCollaborator={handleAddCollaborator}
+                                  onOpen={fetchExistingCollaborators}
+                                  workspaceId={params.workspaceId}
+                                >
+                                  <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
+                                    <Search className="mr-3 h-5 w-5"/>
+                                    <span className="hidden md:inline">Search Collaborators</span>
+                                    <span className="md:hidden">Search</span>
+                                  </div>
+                                </CollaboratorSearch>
+                                <div
+                                  className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
+                                  onClick={handleCopyLink}
+                                  title="Soon..."
+                                >
+                                  <Link className="mr-3 h-5 w-5" />
+                                  <span className="hidden md:inline">Copy link</span>
+                                  <span className="md:hidden">Copy</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         <button 
                           onClick={handleNewNoteClick} 
                           className="p-[1px] relative block mx-2">
@@ -371,52 +440,24 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                             <span className="hidden md:inline">New Note</span>
                           </div>
                         </button>
-                        <button 
-                          ref={shareButtonRef}
-                          onClick={handleShare} 
-                          className="p-[1px] relative block mx-2"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                          <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                            <Share2 className="w-4 h-4 md:mr-2" />
-                            <span className="hidden md:inline">Invite Collaborators</span>
-                          </div>
-                        </button>
-                        {showShareMenu && (
-                          <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                            <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                              <CollaboratorSearch
-                                existingCollaborators={existingCollaborators.map(c => c.uid)}
-                                currentUserUid={currentUserUid}
-                                onAddCollaborator={handleAddCollaborator}
-                                onOpen={fetchExistingCollaborators}
-                                workspaceId={params.workspaceId}
-                              >
-                                <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
-                                  <Search className="mr-3 h-5 w-5"/>
-                                  <span className="hidden md:inline">Search Collaborators</span>
-                                  <span className="md:hidden">Search</span>
-                                </div>
-                              </CollaboratorSearch>
-                              <div
-                                className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
-                                onClick={handleCopyLink}
-                                title="Soon..."
-                              >
-                                <Link className="mr-3 h-5 w-5" />
-                                <span className="hidden md:inline">Copy link</span>
-                                <span className="md:hidden">Copy</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        </div>
                       </div>
-
+                    </div>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mt-3 font-medium">
-                    {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
-                  </p>
+                  <AnimatePresence>
+                    {isDescriptionVisible && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-sm text-gray-600 mt-3 font-medium"
+                      >
+                        {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </>
                 
               )}
