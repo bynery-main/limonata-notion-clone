@@ -69,6 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
+  const [isDescriptionVisible, setIsDescriptionVisible] = useState(true);
   
 
   useEffect(() => {
@@ -347,14 +348,39 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               {!isSettingsPage && (
                 <>
                   <div className="flex items-center justify-between w-full mt-2">
-                    <div className="flex items-center">
+                    <div className="flex items-center group relative">
                       <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-4xl mr-3 focus:outline-none">
                         <span>{emoji}</span>
                       </button>
                       {pageTitle && (
-                        <h1 className="text-4xl font-bold line-clamp-2">
-                          {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                        </h1>
+                        <div className="flex items-center">
+                          <h1 className="text-4xl font-bold line-clamp-2">
+                            {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                          </h1>
+                          <button
+                            onClick={() => setIsDescriptionVisible(!isDescriptionVisible)}
+                            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          >
+                            <motion.div
+                              initial={{ rotate: 0 }}
+                              animate={{ rotate: isDescriptionVisible ? 180 : 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="m6 9 6 6 6-6"/>
+                              </svg>
+                            </motion.div>
+                          </button>
+                        </div>
                       )}
                     </div>
                     <div className="flex items-center ml-auto gap-2">
@@ -415,9 +441,19 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                     </div>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mt-3 font-medium">
-                    {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
-                  </p>
+                  <AnimatePresence>
+                    {isDescriptionVisible && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-sm text-gray-600 mt-3 font-medium"
+                      >
+                        {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </>
                 
               )}
