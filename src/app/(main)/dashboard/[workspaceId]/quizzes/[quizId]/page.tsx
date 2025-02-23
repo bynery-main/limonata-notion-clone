@@ -22,7 +22,6 @@ import {
   PlusCircle,
   MoreVertical,
 } from "lucide-react";
-import { Toast, useToast } from "@chakra-ui/react";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
 import NoCreditsModal from "@/components/subscribe/no-credits-modal";
 import AnimatedButton from "@/components/animated-button/animated-button";
@@ -85,9 +84,10 @@ const QuizzesPage = () => {
   const [selectedCollectionIndex, setSelectedCollectionIndex] = useState<
     number | null
   >(null);
-  const [showCreditModal, setShowCreditModal] = useState(false); // State for showing credit modal
-  const [remainingCredits, setRemainingCredits] = useState(0); // State to hold remaining credits
-  const [creditCost] = useState(20); // Assuming credit cost is 20
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [remainingCredits, setRemainingCredits] = useState(0);
+  const [creditCost] = useState(20);
+  const [hasEvaluationHistory, setHasEvaluationHistory] = useState(false);
   const params = useParams();
   const { user } = useAuth();
 
@@ -116,6 +116,17 @@ const QuizzesPage = () => {
       console.log("Fetched quizzes:", fetchedQuizzes);
       setQuizzes(fetchedQuizzes);
       setAnswers(new Array(fetchedQuizzes.length).fill(""));
+
+      const evaluationCollectionsRef = collection(
+        db,
+        "workspaces",
+        workspaceId,
+        "quizSets",
+        quizId,
+        "evaluationCollections"
+      );
+      const evaluationCollectionsSnapshot = await getDocs(evaluationCollectionsRef);
+      setHasEvaluationHistory(!evaluationCollectionsSnapshot.empty);
 
       const quizSetRef = doc(db, "workspaces", workspaceId, "quizSets", quizId);
       const quizSetSnapshot = await getDoc(quizSetRef);
@@ -252,13 +263,7 @@ const QuizzesPage = () => {
 
   const handleSubmit = async () => {
     if (!user) {
-      Toast({
-        title: "Error",
-        description: "You must be logged in to submit answers",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error("Error: User must be logged in to submit answers");
       return;
     }
 
@@ -289,7 +294,7 @@ const QuizzesPage = () => {
 
       if (!creditUsageResult.data.success) {
         setRemainingCredits(creditUsageResult.data.remainingCredits);
-        setShowCreditModal(true); // Show the credit modal if not enough credits
+        setShowCreditModal(true);
         setLoading(false);
         return;
       }
@@ -334,22 +339,9 @@ const QuizzesPage = () => {
 
       console.log("Quiz evaluation response:", result.data);
 
-      Toast({
-        title: "Success",
-        description: "Quiz evaluation completed successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+      console.log("Quiz evaluation completed successfully");
     } catch (error) {
       console.error("Error during quiz evaluation:", error);
-      Toast({
-        title: "Error",
-        description: "An error occurred during quiz evaluation",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
     } finally {
       setLoading(false);
     }
@@ -366,9 +358,7 @@ const QuizzesPage = () => {
         quizId,
         "evaluationCollections"
       );
-      const evaluationCollectionsSnapshot = await getDocs(
-        evaluationCollectionsRef
-      );
+      const evaluationCollectionsSnapshot = await getDocs(evaluationCollectionsRef);
 
       const collectionsData = await Promise.all(
         evaluationCollectionsSnapshot.docs.map(async (collectionDoc) => {
@@ -383,7 +373,7 @@ const QuizzesPage = () => {
       setEvaluationCollections(collectionsData);
       setSelectedCollectionIndex(0);
     } catch (error) {
-      console.error("Error fetching evaluation history:", error);
+      console.error("Error in handleEvaluationHistoryClick:", error);
     } finally {
       setLoading(false);
     }
@@ -567,20 +557,29 @@ const QuizzesPage = () => {
                 </motion.div>
               </motion.div>
             </AnimatedButton>
-            <button
-              onClick={handleEvaluationHistoryClick}
-              className="px-4 py-2 bg-transparent text-sm text-gray outline rounded-xl hover:bg-gray-400 hover:text-white transition-colors duration-200"
-              disabled={loading}
-            >
-              {loading ? (
-                "Loading..."
-              ) : (
-                <div className="flex items-center">
-                  <CalendarIcon className="mr-2" />
-                  Evaluation History
-                </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleEvaluationHistoryClick}
+                className={`px-4 py-2 bg-transparent text-sm text-gray-600 rounded-xl border transition-colors duration-200 ${
+                  loading || !hasEvaluationHistory ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400 hover:text-white'
+                }`}
+                disabled={loading || !hasEvaluationHistory}
+              >
+                {loading ? (
+                  "Loading..."
+                ) : (
+                  <div className="flex items-center">
+                    <CalendarIcon className="mr-2" />
+                    Evaluation History
+                  </div>
+                )}
+              </button>
+              {!hasEvaluationHistory && (
+                <span className="text-sm text-gray-500">
+                  No evaluation history available
+                </span>
               )}
-            </button>
+            </div>
           </div>
           {evaluationCollections.length > 0 &&
             selectedCollectionIndex !== null && (
