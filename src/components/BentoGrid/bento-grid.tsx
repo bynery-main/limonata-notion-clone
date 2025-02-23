@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User } from "lucide-react";
+import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User, Folder } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { addDoc } from "firebase/firestore";
@@ -641,6 +641,11 @@ export const BentoGridItem = ({
     );
   };
 
+  const handleFolderClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the parent click handler
+    router.push(`/dashboard/${workspaceId}/${folderId}`);
+  };
+
   return (
     <div
       className={cn(
@@ -663,7 +668,11 @@ export const BentoGridItem = ({
         <h3 className="font-semibold text-lg mb-1 truncate" title={title}>
           {title}
         </h3>
-        <p className="text-sm text-gray-500 overflow-hidden text-ellipsis">
+        <p 
+          className="text-sm text-gray-500 overflow-hidden text-ellipsis flex items-center gap-1 hover:text-[#F6B144] cursor-pointer"
+          onClick={handleFolderClick}
+        >
+          <Folder className="h-4 w-4" />
           {description}
         </p>
       </div>
