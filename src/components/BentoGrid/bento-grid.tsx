@@ -412,7 +412,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               folderId={item.folderId || ''}
               fileId={item.id}
               title={item.name}
-              header={<FileThumbnail fileName={item.name} fileUrl={item.url} />}
+              header={<FileThumbnail fileName={item.name} fileUrl={item.url} type={item.type} />}
               description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
               href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
               type={item.type}

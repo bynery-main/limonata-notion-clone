@@ -45,13 +45,17 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
             onClick={() => onChange(tab.id)}
             className={`flex items-center px-6 py-2.5 text-sm font-medium transition-all relative rounded-2xl flex-1 justify-center ${
               activeTab === tab.id 
-              ? "text-black" 
+              ? "" 
               : "hover:text-gray-900 text-gray-400"
             }`}
           >
             <div className="relative flex items-center z-10">
-              {tab.icon}
-              <span className="ml-2">{tab.label}</span>
+              <span className={`mr-2 ${activeTab === tab.id ? "text-[#C66EC5]" : ""}`}>
+                {tab.icon}
+              </span>
+              <span className={activeTab === tab.id ? "text-transparent bg-clip-text bg-gradient-to-r from-[#C66EC5] to-[#FC608D]" : ""}>
+                {tab.label}
+              </span>
             </div>
           </button>
         ))}
@@ -59,7 +63,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
           className="absolute inset-y-1 rounded-3xl"
           style={{
             boxShadow: "0 0 0 2px transparent",
-            backgroundImage: "linear-gradient(white, white), linear-gradient(to right, #F6B144, #FE7EF4)",
+            backgroundImage: "linear-gradient(white, white), linear-gradient(to right, #C66EC5, #FC608D)",
             backgroundOrigin: "border-box",
             backgroundClip: "content-box, border-box",
             border: "1px solid transparent",
