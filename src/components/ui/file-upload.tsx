@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import FileUploader from '../drag-n-drop/drag-n-drop';
 import FancyText from "@carefully-coded/react-text-gradient";
 import { usePathname } from "next/navigation";
+import { createPortal } from 'react-dom';
 
 interface Folder {
   id: string;
@@ -54,7 +55,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
   }
 
   return (
-    <div className="w-full max-w-md mx-auto z-0">
+    <div className="w-full max-w-md mx-auto">
       {!isUploaderVisible ? (
         <motion.div
           onClick={handleClick}
@@ -115,15 +116,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
           </div>
         </motion.div>
       ) : (
-        <FileUploader
-          workspaceId={workspaceId}
-          db={db}
-          onFileUpload={onFileUpload}
-          isVisible={true}
-          onClose={handleClose}
-          initialFile={selectedFile}
-          folder={folder}
-        />
+        typeof window !== 'undefined' && createPortal(
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[99999] flex items-center justify-center">
+            <div className="relative z-[100000] bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <FileUploader
+                workspaceId={workspaceId}
+                db={db}
+                onFileUpload={onFileUpload}
+                isVisible={true}
+                onClose={handleClose}
+                initialFile={selectedFile}
+                folder={folder}
+              />
+            </div>
+          </div>,
+          document.body
+        )
       )}
     </div>
   );

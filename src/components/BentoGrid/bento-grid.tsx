@@ -371,7 +371,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
 
 
   return (
-    <div className={cn("max-w-7xl mx-auto p-4", className)}>
+    <div className={cn("w-full", className)} style={{ position: 'relative', zIndex: 1 }}>
       {folders.length === 0 ? (
         
         <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
@@ -419,7 +419,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               className={getItemClass(index, items.length + 1)}
             />
           ))}
-          <div className={cn("p-4 flex items-center justify-center z-0", getItemClass(items.length, items.length + 1))}>
+          <div className={cn("p-4 flex items-center justify-center", getItemClass(items.length, items.length + 1))} style={{ zIndex: 1 }}>
             <FileUpload 
               workspaceId={workspaceId} 
               db={db} 

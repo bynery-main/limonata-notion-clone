@@ -318,142 +318,140 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">
+    <div className="bg-white rounded-lg max-w-md w-full backdrop-blur-sm">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">
+          {" "}
+          <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
             {" "}
-            <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
-              {" "}
-              Upload File
-            </FancyText>{" "}
-          </h2>
-          <button
-            title="Close"
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X size={24} />
-          </button>
-        </div>
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
-            }`}
+            Upload File
+          </FancyText>{" "}
+        </h2>
+        <button
+          title="Close"
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
         >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p className="text-center">Drop the file here ...</p>
-          ) : (
-            <div>
-                          <p className="text-center text-sm text-gray-500 z-50 font-light">
-                Psst! If you&apos;re new here
-                <b className="font-bold">
-                , make sure to create a folder
-                first  
-                </b>
-                . It&apos;s like making a comfy bed for your files before
-                tucking them in! 
-                (Check out the Workspace Sidebar)
-              </p>
-            </div>
-          )}
-        </div>
-
-        {file && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 items-center"
-          >
-            <span className="text-gray-600 flex items-center">
-              {getFileEmoji(file.name)}
-              <span className="ml-2">{truncateFileName(file.name, 22)}</span>
-            </span>
-          </motion.div>
-        )}
-
-        {folder === undefined && (
-          <div className="mt-4">
-            <Select
-              options={folders.map((folder) => ({
-                value: folder.id,
-                label: folder.name,
-              }))}
-              onChange={(option) =>
-                setSelectedFolder(
-                  option
-                    ? folders.find((f) => f.id === option.value) || null
-                    : null
-                )
-              }
-              value={
-                selectedFolder
-                  ? { value: selectedFolder.id, label: selectedFolder.name }
-                  : null
-              }
-              placeholder="Select a folder"
-              className="basic-select"
-              classNamePrefix="select"
-            />
+          <X size={24} />
+        </button>
+      </div>
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+          }`}
+      >
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p className="text-center">Drop the file here ...</p>
+        ) : (
+          <div>
+                        <p className="text-center text-sm text-gray-500 z-50 font-light">
+            Psst! If you&apos;re new here
+            <b className="font-bold">
+            , make sure to create a folder
+            first  
+            </b>
+            . It&apos;s like making a comfy bed for your files before
+            tucking them in! 
+            (Check out the Workspace Sidebar)
+          </p>
           </div>
         )}
-        <div className="mt-4 flex justify-center items-center">
-          <GradientButton
-            onClick={handleUpload}
-            disabled={
-              !file || (folder === undefined && !selectedFolder) || isUploading
-            }
-          >
-            {isUploading ? (
-              <>
-                <motion.div
-                  className="w-5 h-5 mr-2 border-t-2 border-current rounded-full animate-spin"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
-                <span>Uploading...</span>
-              </>
-            ) : isUploadComplete ? (
-              <>
-                <CheckCircle className="w-5 h-5 mr-2" />
-                <span>Upload Complete</span>
-              </>
-            ) : (
-              <>
-                <UploadIcon className="w-5 h-5 mr-2" />
-                <span>Upload File</span>
-              </>
-            )}
-          </GradientButton>
-        </div>
-
-        {errorMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 text-red-500 flex items-center"
-          >
-            <AlertCircle className="w-5 h-5 mr-2" />
-            {errorMessage}
-          </motion.div>
-        )}
-
-        {isUploading && (
-          <motion.div
-            className="mt-4 bg-gray-200 rounded-full overflow-hidden"
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-          >
-            <motion.div
-              className="h-2 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${uploadProgress}%` }}
-              transition={{ duration: 0.5 }}
-            />
-          </motion.div>
-        )}
       </div>
+
+      {file && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 items-center"
+        >
+          <span className="text-gray-600 flex items-center">
+            {getFileEmoji(file.name)}
+            <span className="ml-2">{truncateFileName(file.name, 22)}</span>
+          </span>
+        </motion.div>
+      )}
+
+      {folder === undefined && (
+        <div className="mt-4">
+          <Select
+            options={folders.map((folder) => ({
+              value: folder.id,
+              label: folder.name,
+            }))}
+            onChange={(option) =>
+              setSelectedFolder(
+                option
+                  ? folders.find((f) => f.id === option.value) || null
+                  : null
+              )
+            }
+            value={
+              selectedFolder
+                ? { value: selectedFolder.id, label: selectedFolder.name }
+                : null
+            }
+            placeholder="Select a folder"
+            className="basic-select"
+            classNamePrefix="select"
+          />
+        </div>
+      )}
+      <div className="mt-4 flex justify-center items-center">
+        <GradientButton
+          onClick={handleUpload}
+          disabled={
+            !file || (folder === undefined && !selectedFolder) || isUploading
+          }
+        >
+          {isUploading ? (
+            <>
+              <motion.div
+                className="w-5 h-5 mr-2 border-t-2 border-current rounded-full animate-spin"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <span>Uploading...</span>
+            </>
+          ) : isUploadComplete ? (
+            <>
+              <CheckCircle className="w-5 h-5 mr-2" />
+              <span>Upload Complete</span>
+            </>
+          ) : (
+            <>
+              <UploadIcon className="w-5 h-5 mr-2" />
+              <span>Upload File</span>
+            </>
+          )}
+        </GradientButton>
+      </div>
+
+      {errorMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 text-red-500 flex items-center"
+        >
+          <AlertCircle className="w-5 h-5 mr-2" />
+          {errorMessage}
+        </motion.div>
+      )}
+
+      {isUploading && (
+        <motion.div
+          className="mt-4 bg-gray-200 rounded-full overflow-hidden"
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+        >
+          <motion.div
+            className="h-2 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${uploadProgress}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </motion.div>
+      )}
     </div>
   );
 };
