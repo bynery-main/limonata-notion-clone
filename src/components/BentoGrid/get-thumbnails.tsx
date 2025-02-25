@@ -196,6 +196,95 @@ const NoteThumbnail = () => {
   );
 };
 
+// New component for collaborative study notes
+const CollaborativeNoteThumbnail = () => {
+  // Array of gradient options for collaborative notes
+  const gradients = [
+    "bg-gradient-to-br from-[#A9F1DF] to-[#FFBBEC]",
+    "bg-gradient-to-br from-[#E2B0FF] to-[#9F44D3]",
+    "bg-gradient-to-br from-[#F5F7FA] to-[#C3CFE2]",
+    "bg-gradient-to-br from-[#E0EAFC] to-[#CFDEF3]",
+    "bg-gradient-to-br from-[#E6DADA] to-[#274046]",
+    "bg-gradient-to-br from-[#74EBD5] to-[#9FACE6]",
+    "bg-gradient-to-br from-[#FFFEFF] to-[#D7FFFE]",
+    "bg-gradient-to-br from-[#E6E9F0] to-[#9733EE]"
+  ];
+  
+  // Select a random gradient
+  const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+  
+  // Generate random positions for cursors
+  const cursor1X = Math.floor(Math.random() * 80); // 0-80% from left
+  const cursor1Y = Math.floor(Math.random() * 60); // 0-60% from top
+  
+  const cursor2X = Math.floor(Math.random() * 80); // 0-80% from left
+  const cursor2Y = Math.floor(Math.random() * 60) + 20; // 20-80% from top (avoid overlap)
+  
+  const cursor3X = Math.floor(Math.random() * 80); // 0-80% from left
+  const cursor3Y = Math.floor(Math.random() * 40) + 40; // 40-80% from top (avoid overlap)
+  
+  // Cursor colors
+  const cursorColors = [
+    { fill: "#3B82F6", stroke: "#3B82F6" }, // Blue
+    { fill: "#EC4899", stroke: "#EC4899" }, // Pink
+    { fill: "#8B5CF6", stroke: "#8B5CF6" }  // Purple
+  ];
+  
+  // Shuffle cursor colors
+  const shuffledColors = [...cursorColors].sort(() => Math.random() - 0.5);
+  
+  return (
+    <div className={`w-full h-full ${randomGradient} relative`}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-3/4 h-3/4 bg-white/30 backdrop-blur-sm rounded-lg shadow-lg flex flex-col justify-center border border-white/40 p-5">
+          {/* Document with multiple cursors to show collaboration */}
+          <div className="h-4 bg-white/70 rounded w-1/2 mb-4"></div>
+          <div className="space-y-3 relative">
+            <div className="h-2 bg-white/70 rounded w-full"></div>
+            <div className="h-2 bg-white/70 rounded w-5/6"></div>
+            <div className="h-2 bg-white/70 rounded w-full"></div>
+            <div className="h-2 bg-white/70 rounded w-4/5"></div>
+            <div className="h-2 bg-white/70 rounded w-3/4"></div>
+            
+            {/* First cursor - random position */}
+            <div className="absolute" style={{ left: `${cursor1X}%`, top: `${cursor1Y}%` }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill={shuffledColors[0].fill} stroke={shuffledColors[0].stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            
+            {/* Second cursor - random position */}
+            <div className="absolute" style={{ left: `${cursor2X}%`, top: `${cursor2Y}%` }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill={shuffledColors[1].fill} stroke={shuffledColors[1].stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            
+            {/* Third cursor - random position */}
+            <div className="absolute" style={{ left: `${cursor3X}%`, top: `${cursor3Y}%` }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill={shuffledColors[2].fill} stroke={shuffledColors[2].stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          
+          <div className="mt-auto pt-4 flex justify-between items-center">
+            {/* Collaboration indicators */}
+            <div className="flex -space-x-2">
+              <div className="w-5 h-5 rounded-full bg-blue-400 border-2 border-white"></div>
+              <div className="w-5 h-5 rounded-full bg-pink-400 border-2 border-white"></div>
+              <div className="w-5 h-5 rounded-full bg-purple-400 border-2 border-white"></div>
+            </div>
+            <div className="h-6 w-6 rounded-sm bg-white/40 flex items-center justify-center">
+              <div className="h-3 w-3 rounded-sm bg-white/90"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Enhanced TextSkeleton for general files
 const EnhancedFileThumbnail = (fileExtension: string) => {
   // Different gradient sets based on file type
@@ -345,11 +434,114 @@ const EnhancedFileThumbnail = (fileExtension: string) => {
   );
 };
 
+// PDF document thumbnail
+const PDFThumbnail = () => {
+  // Array of gradient options for PDFs
+  const gradients = [
+    "bg-gradient-to-br from-[#FF9A9E] to-[#FECFEF]",
+    "bg-gradient-to-br from-[#FF9A9E] to-[#F6416C]",
+    "bg-gradient-to-br from-[#FF512F] to-[#DD2476]",
+    "bg-gradient-to-br from-[#FF5E62] to-[#FF9966]"
+  ];
+  
+  // Select a random gradient
+  const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+  
+  return (
+    <div className={`w-full h-full ${randomGradient} relative`}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-3/4 h-3/4 bg-white/30 backdrop-blur-sm rounded-lg shadow-lg flex flex-col justify-center border border-white/40 p-5">
+          {/* PDF header with icon */}
+          <div className="flex items-center mb-4">
+            <div className="w-8 h-10 bg-red-500 rounded-sm flex items-center justify-center text-white text-xs font-bold mr-3">
+              PDF
+            </div>
+            <div className="h-3 bg-white/70 rounded w-1/2"></div>
+          </div>
+          
+          {/* PDF content */}
+          <div className="space-y-2">
+            <div className="h-2 bg-white/70 rounded w-full"></div>
+            <div className="h-2 bg-white/70 rounded w-5/6"></div>
+            <div className="h-2 bg-white/70 rounded w-full"></div>
+            <div className="h-2 bg-white/70 rounded w-4/5"></div>
+          </div>
+          
+          {/* PDF footer with page number */}
+          <div className="mt-auto pt-4 flex justify-between items-center">
+            <div className="h-2 bg-white/70 rounded w-1/4"></div>
+            <div className="text-white/70 text-xs px-2 py-1 bg-white/20 rounded">
+              1/12
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Word document thumbnail
+const DOCXThumbnail = () => {
+  // Array of gradient options for Word docs
+  const gradients = [
+    "bg-gradient-to-br from-[#4F86F7] to-[#48D1CC]",
+    "bg-gradient-to-br from-[#0093E9] to-[#80D0C7]",
+    "bg-gradient-to-br from-[#00B4DB] to-[#0083B0]",
+    "bg-gradient-to-br from-[#56CCF2] to-[#2F80ED]"
+  ];
+  
+  // Select a random gradient
+  const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+  
+  return (
+    <div className={`w-full h-full ${randomGradient} relative`}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-3/4 h-3/4 bg-white/30 backdrop-blur-sm rounded-lg shadow-lg flex flex-col justify-center border border-white/40 p-4">
+          {/* Word doc header with icon - reduced size */}
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-sm flex items-center justify-center text-white text-xs font-bold mr-2 -mt-2">
+              W
+            </div>
+            <div className="h-2.5 bg-white/70 rounded w-1/2"></div>
+          </div>
+          
+          {/* Word doc content with formatting - reduced size and spacing */}
+          <div className="space-y-1.5">
+            <div className="h-2.5 bg-white/70 rounded w-3/4"></div>
+            <div className="space-y-1">
+              <div className="h-1.5 bg-white/70 rounded w-full"></div>
+              <div className="h-1.5 bg-white/70 rounded w-5/6"></div>
+            </div>
+            <div className="h-2.5 bg-white/70 rounded w-2/3 mt-1"></div>
+            <div className="space-y-1">
+              <div className="h-1.5 bg-white/70 rounded w-full"></div>
+              <div className="h-1.5 bg-white/70 rounded w-4/5"></div>
+            </div>
+          </div>
+          
+          {/* Word doc footer - reduced size */}
+          <div className="mt-3 flex justify-between items-center">
+            <div className="flex items-center">
+              <div className="w-2.5 h-2.5 rounded-full bg-white/40 mr-1"></div>
+              <div className="h-1.5 bg-white/70 rounded w-10"></div>
+            </div>
+            <div className="text-white/70 text-xs">
+              2h ago
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const FileThumbnail: React.FC<FileThumbnailProps> = ({ fileName, fileUrl, className = '', type }) => {
   const fileExtension = fileName.split(".").pop()?.toLowerCase();
 
   const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
   const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+  const pdfExtensions = ["pdf"];
+  const docExtensions = ["doc", "docx"];
 
   // Render specialized thumbnails based on type
   if (type === "decks") {
@@ -379,7 +571,23 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ fileName, fileUrl, classN
   if (type === "note") {
     return (
       <div className={`w-full h-48 relative ${className}`}>
-        <NoteThumbnail />
+        <CollaborativeNoteThumbnail />
+      </div>
+    );
+  }
+
+  if (pdfExtensions.includes(fileExtension || "")) {
+    return (
+      <div className={`w-full h-48 relative ${className}`}>
+        <PDFThumbnail />
+      </div>
+    );
+  }
+
+  if (docExtensions.includes(fileExtension || "")) {
+    return (
+      <div className={`w-full h-48 relative ${className}`}>
+        <DOCXThumbnail />
       </div>
     );
   }
