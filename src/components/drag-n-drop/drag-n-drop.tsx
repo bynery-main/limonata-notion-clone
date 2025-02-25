@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, setDoc, collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { storage } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import {
@@ -135,97 +135,96 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleUpload = async () => {
-    if (!file || !selectedFolder) {
-      setErrorMessage("Please select a file and a folder.");
-      return;
-    }
-
-    const fileType = determineFileType(file.name);
-
-    if (fileType === "other") {
-      setErrorMessage("This file type is not allowed for upload.");
-      return;
-    }
-
-    const sizeError = checkFileSize(file, fileType);
-    if (sizeError) {
-      setErrorMessage(sizeError);
-      return;
-    }
+    if (!file) return;
 
     setIsUploading(true);
-    const uploadFolder = folder || selectedFolder;
-    if (!uploadFolder) {
-      setErrorMessage("No folder selected for upload.");
-      return;
-    }
+    setUploadProgress(0);
+    setErrorMessage(null);
 
-    const storageRef = ref(
-      storage,
-      `workspaces/${workspaceId}/folders/${uploadFolder!.id}/${file.name}`
-    );
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    try {
+      // Create a reference to the file in Firebase Storage
+      const folderPath = folder ? `workspaces/${workspaceId}/folders/${folder.id}` : `workspaces/${workspaceId}`;
+      const storageRef = ref(storage, `${folderPath}/${file.name}`);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        setErrorMessage("Upload failed. Please try again.");
-        setIsUploading(false);
-      },
-      async () => {
-        try {
+      // Upload the file with progress tracking
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error('Error uploading file:', error);
+          setErrorMessage("Error uploading file. Please try again.");
+          setIsUploading(false);
+        },
+        async () => {
+          // Upload completed successfully
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+          
+          // Determine file type
+          const fileType = determineFileType(file.name);
 
-          const filesCollectionRef = collection(
-            db,
-            "workspaces",
-            workspaceId,
-            "folders",
-            uploadFolder.id,
-            "files"
-          );
-          const newFileRef = doc(filesCollectionRef);
-          const fileId = newFileRef.id;
-
-          const fileData: FileData = {
-            id: fileId,
+          // Save file metadata to Firestore
+          const fileData = {
             name: file.name,
             url: downloadURL,
-            type: fileType,
-            fileType: fileExtension,
-            folderId: uploadFolder.id,
+            type: 'file',
+            fileType: fileType,
+            size: file.size,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
           };
 
-          await setDoc(newFileRef, fileData);
-
-          onFileUpload(fileData);
-
-          if (fileType === "audio") {
-            await triggerAudioTranscription(downloadURL, newFileRef.path);
+          let docRef;
+          
+          if (folder) {
+            // Save to a specific folder
+            const fileRef = collection(db, 'workspaces', workspaceId, 'folders', folder.id, 'files');
+            docRef = await addDoc(fileRef, fileData);
+          } else if (selectedFolder) {
+            // Save to the selected folder
+            const fileRef = collection(db, 'workspaces', workspaceId, 'folders', selectedFolder.id, 'files');
+            docRef = await addDoc(fileRef, fileData);
+          } else {
+            // Save to the workspace root
+            const fileRef = collection(db, 'workspaces', workspaceId, 'files');
+            docRef = await addDoc(fileRef, fileData);
           }
 
-          if (fileType === "document" || fileType === "powerpoint") {
-            await triggerDocumentProcessing(downloadURL, newFileRef.path);
+          // Call the onFileUpload callback with the file data
+          onFileUpload({
+            id: docRef.id,
+            name: file.name,
+            url: downloadURL,
+            type: 'file',
+            fileType: fileType,
+            folderId: folder ? folder.id : selectedFolder ? selectedFolder.id : undefined
+          });
+
+          // Trigger appropriate processing based on file type
+          if (fileType === 'audio') {
+            await triggerAudioTranscription(downloadURL, docRef.path);
+          } else if (fileType === 'document' || fileType === 'powerpoint') {
+            await triggerDocumentProcessing(downloadURL, docRef.path);
           }
 
           setIsUploading(false);
           setIsUploadComplete(true);
-          setUploadProgress(0);
-          setFile(null);
-          setSelectedFolder(null);
-        } catch (error) {
-          console.error("Error in file upload process:", error);
-          setErrorMessage("An error occurred during the upload process. Please try again.");
-          setIsUploading(false);
+          
+          // Auto-close the modal after a short delay
+          setTimeout(() => {
+            onClose();
+          }, 1500); // 1.5 second delay to show the success message
         }
-      }
-    );
+      );
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setErrorMessage("Error uploading file. Please try again.");
+      setIsUploading(false);
+    }
   };
 
   const determineFileType = (fileName: string) => {
