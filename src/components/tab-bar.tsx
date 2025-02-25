@@ -35,7 +35,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 mb-6">
-      <div className="flex space-x-1 rounded-xl bg-gray-100 p-1 relative">
+      <div className="flex justify-between rounded-3xl bg-gray-100 p-1 relative">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -43,10 +43,10 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
               if (el) tabRefs.current.set(tab.id, el);
             }}
             onClick={() => onChange(tab.id)}
-            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all relative rounded-lg ${
+            className={`flex items-center px-6 py-2.5 text-sm font-medium transition-all relative rounded-2xl flex-1 justify-center ${
               activeTab === tab.id 
-              ? "text-white" 
-              : "hover:text-gray-900 text-gray-600"
+              ? "text-black" 
+              : "hover:text-gray-900 text-gray-400"
             }`}
           >
             <div className="relative flex items-center z-10">
@@ -56,7 +56,14 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
           </button>
         ))}
         <motion.div 
-          className="absolute inset-y-1 rounded-lg bg-gradient-to-r from-[#F6B144] to-[#FE7EF4]"
+          className="absolute inset-y-1 rounded-3xl"
+          style={{
+            boxShadow: "0 0 0 2px transparent",
+            backgroundImage: "linear-gradient(white, white), linear-gradient(to right, #F6B144, #FE7EF4)",
+            backgroundOrigin: "border-box",
+            backgroundClip: "content-box, border-box",
+            border: "1px solid transparent",
+          }}
           initial={false}
           animate={{
             width: indicatorStyle.width,
