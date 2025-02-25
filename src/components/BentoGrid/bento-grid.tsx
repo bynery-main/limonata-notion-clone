@@ -12,6 +12,7 @@ import CreateFolderModal from '../create-folder-modal/create-folder-modal';
 import router from "next/router";
 import { useLocations, useMembers, useSpace } from "@ably/spaces/react";
 import type { ProfileData, SpaceMember } from "@ably/spaces";
+import { ResourceCreator } from "../ui/resource-creator";
 
 
 interface FileData {
@@ -36,6 +37,7 @@ interface BentoGridProps {
   folderId?: string;
   className?: string;
   type: string;
+  userId: string;
 }
 
 export const BentoGrid: React.FC<BentoGridProps> = ({
@@ -43,11 +45,13 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   folderId,
   className,
   type,
+  userId,
 }: {
   workspaceId: string;
   folderId?: string;
   className?: string;
   type: string;
+  userId: string;
 }) => {
   
   console.log("BentoGrid rendered with folderId:", folderId);
@@ -395,16 +399,25 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
         
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
-          <FileUpload 
-            workspaceId={workspaceId} 
-            db={db} 
-            onFileUpload={() => {}} 
-            folder={currentFolder}
-            isBentoGridEmpty={true}
-          />
+          {type === "files" ? (
+            <FileUpload
+              workspaceId={workspaceId}
+              db={db}
+              onFileUpload={() => {}}
+              folder={currentFolder}
+              isBentoGridEmpty={true}
+            />
+          ) : (
+            <ResourceCreator
+              workspaceId={workspaceId}
+              userId={self?.connectionId || ''}
+              type={type as "decks" | "quizzes" | "studyguides"}
+              isBentoGridEmpty={true}
+            />
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", className)}>
           {items.map((item, index) => (
             <BentoGridItem
               key={item.id}
@@ -419,15 +432,23 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               className={getItemClass(index, items.length + 1)}
             />
           ))}
-          <div className={cn("p-4 flex items-center justify-center", getItemClass(items.length, items.length + 1))} style={{ zIndex: 1 }}>
-            <FileUpload 
-              workspaceId={workspaceId} 
-              db={db} 
-              onFileUpload={() => {}} 
+          
+          {type === "files" ? (
+            <FileUpload
+              workspaceId={workspaceId}
+              db={db}
+              onFileUpload={() => {}}
               folder={currentFolder}
               isBentoGridEmpty={false}
             />
-          </div>
+          ) : (
+            <ResourceCreator
+              workspaceId={workspaceId}
+              userId={self?.connectionId || ''}
+              type={type as "decks" | "quizzes" | "studyguides"}
+              isBentoGridEmpty={false}
+            />
+          )}
         </div>
       )}
       <CreateFolderModal

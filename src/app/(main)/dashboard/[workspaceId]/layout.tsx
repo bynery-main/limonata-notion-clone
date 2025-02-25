@@ -517,6 +517,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                       workspaceId={params.workspaceId}
                       folderId={folderId || undefined}
                       type={activeTab}
+                      userId={currentUserId}
                     />
                   )}
                 </div>
