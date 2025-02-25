@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User, Folder } from "lucide-react";
+import { FolderPlus, MoreHorizontal, PencilIcon, TrashIcon, User, Folder, HelpCircle, Layout, BookOpen } from "lucide-react";
 import { doc, collection, onSnapshot, updateDoc, deleteDoc, getDocs, getDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseConfig";
 import { addDoc } from "firebase/firestore";
@@ -92,6 +92,24 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
     };
 
     fetchFolders();
+  }, [workspaceId]);
+
+  useEffect(() => {
+    const fetchFolderNames = async () => {
+      const folderNamesMap: { [key: string]: string } = {};
+      
+      // Fetch all folders to get their names
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const foldersSnapshot = await getDocs(foldersRef);
+      
+      foldersSnapshot.docs.forEach(doc => {
+        folderNamesMap[doc.id] = doc.data().name || 'Unnamed Folder';
+      });
+      
+      setFolderNames(folderNamesMap);
+    };
+    
+    fetchFolderNames();
   }, [workspaceId]);
 
   const handleCreateFolder = async (folderName: string) => {
@@ -502,7 +520,22 @@ export const BentoGridItem = ({
             type
           } as BentoLocation
         });
-        router.push(href);
+        
+        // Construct the correct URL based on item type
+        let navigateUrl;
+        if (type === "file" || type === "note") {
+          navigateUrl = `/dashboard/${workspaceId}/${folderId}/${fileId}`;
+        } else if (type === "decks") {
+          navigateUrl = `/dashboard/${workspaceId}/decks/${fileId}`;
+        } else if (type === "quizzes") {
+          navigateUrl = `/dashboard/${workspaceId}/quizzes/${fileId}`;
+        } else if (type === "studyguides") {
+          navigateUrl = `/dashboard/${workspaceId}/studyguides/${fileId}`;
+        } else {
+          navigateUrl = href; // Fallback to the provided href
+        }
+        
+        router.push(navigateUrl);
       } catch (error) {
         console.error('Error updating location:', error);
         router.push(href);
@@ -682,11 +715,34 @@ export const BentoGridItem = ({
           {title}
         </h3>
         <p 
-          className="text-sm text-gray-500 overflow-hidden text-ellipsis flex items-center gap-1 hover:text-[#F6B144] cursor-pointer"
-          onClick={handleFolderClick}
+          className={cn(
+            "text-sm text-gray-500 overflow-hidden text-ellipsis flex items-center gap-1",
+            type === "file" || type === "note" ? "hover:text-[#F6B144] cursor-pointer" : ""
+          )}
+          onClick={type === "file" || type === "note" ? handleFolderClick : undefined}
         >
-          <Folder className="h-4 w-4" />
-          {description}
+          {type === "file" || type === "note" ? (
+            <Folder className="h-4 w-4" />
+          ) : type === "decks" ? (
+            <Layout className="h-4 w-4" />
+          ) : type === "quizzes" ? (
+            <HelpCircle className="h-4 w-4" />
+          ) : type === "studyguides" ? (
+            <BookOpen className="h-4 w-4" />
+          ) : (
+            <Folder className="h-4 w-4" />
+          )}
+          {type === "file" || type === "note" ? (
+            description
+          ) : type === "decks" ? (
+            "Flashcard"
+          ) : type === "quizzes" ? (
+            "Quiz"
+          ) : type === "studyguides" ? (
+            "Study Guide"
+          ) : (
+            description
+          )}
         </p>
       </div>
       <div className="flex items-center justify-between mt-auto group-hover/bento:translate-x-2 transition duration-200">
