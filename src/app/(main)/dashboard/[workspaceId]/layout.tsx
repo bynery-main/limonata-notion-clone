@@ -25,6 +25,7 @@ import LiveCursors from "@/components/ably/live-cursors";
 import OnlineCollaborators from "@/components/ably/online-collaborators";
 import { BookOpen, FileText, Layout as LayoutIcon, HelpCircle } from "lucide-react";
 import { IconLayout } from "@tabler/icons-react";
+import TabBar from "@/components/tab-bar";
 
 interface FileData {
   id: string;
@@ -504,29 +505,11 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 />
             {!isSettingsPage && (
               <>
-                <div className="max-w-7xl mx-auto px-4 mb-6">
-                  <div className="flex space-x-1 rounded-xl bg-gray-100 p-1">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all relative rounded-lg ${
-                          activeTab === tab.id 
-                          ? "text-white" 
-                          : "hover:text-gray-900 text-gray-600"
-                        }`}
-                      >
-                        <div className={`absolute inset-0 rounded-lg ${
-                          activeTab === tab.id ? "bg-gradient-to-r from-[#F6B144] to-[#FE7EF4]" : ""
-                        }`} />
-                        <div className="relative flex items-center">
-                          {tab.icon}
-                          {tab.label}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <TabBar 
+                  tabs={tabs} 
+                  activeTab={activeTab} 
+                  onChange={setActiveTab} 
+                />
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
                     <BentoGrid 
