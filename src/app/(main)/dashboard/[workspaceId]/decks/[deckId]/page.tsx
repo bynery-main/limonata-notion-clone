@@ -179,7 +179,7 @@ const FlashcardsPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center p-4 min-h-screen w-full">
+    <div className="flex flex-col items-center p-4 mb-40 w-full">
       {flashcards.length > 0 ? (
         <div className="w-full max-w-3xl">
           <div className="mt-10 w-full">
