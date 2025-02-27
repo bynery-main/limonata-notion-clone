@@ -343,17 +343,22 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         {isDragActive ? (
           <p className="text-center">Drop the file here ...</p>
         ) : (
-          <div>
-                        <p className="text-center text-sm text-gray-500 z-50 font-light">
-            Psst! If you&apos;re new here
-            <b className="font-bold">
-            , make sure to create a folder
-            first  
-            </b>
-            . It&apos;s like making a comfy bed for your files before
-            tucking them in! 
-            (Check out the Workspace Sidebar)
-          </p>
+          <div className="text-center">
+            <UploadIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+            <p className="text-gray-600">Drag & drop a file here, or click to select</p>
+            {folders.length === 0 && (
+              <p className="text-center text-sm text-gray-500 z-50 font-light mt-4">
+                Psst! If you&apos;re new here
+                <b className="font-bold">
+                , make sure to create a folder
+                first  
+                </b>
+                . It&apos;s like making a comfy bed for your files before
+                tucking them in! 
+                <br/>
+                (Check out the Workspace Sidebar)
+              </p>
+            )}
           </div>
         )}
       </div>

@@ -14,6 +14,15 @@ interface Folder {
   filests: any;
 }
 
+interface FileData {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  fileType: string;
+  folderId?: string;
+}
+
 interface FileUploadProps {
   workspaceId: string;
   db: any;
@@ -37,7 +46,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
   const [isUploaderVisible, setIsUploaderVisible] = useState(false);
   const showHelp = isBentoGridEmpty;
 
-
   const handleClick = () => {
     setIsUploaderVisible(true);
   };
@@ -55,33 +63,30 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className={cn("w-full max-w-md mx-auto", isBentoGridEmpty ? "scale-105" : "")}>
       {!isUploaderVisible ? (
         <motion.div
           onClick={handleClick}
           whileHover="animate"
-          className="p-4 sm:p-6 md:p-8 group/file block rounded-lg cursor-pointer w-full relative overflow-hidden"
+          className={cn(
+            "p-4 sm:p-6 md:p-8 group/file block rounded-lg cursor-pointer w-full relative overflow-hidden",
+            isBentoGridEmpty ? "border-2 border-dashed border-gray-300 hover:border-[#F6B144]" : ""
+          )}
         >
           <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
             <GridPattern />
           </div>
           <div className="flex flex-col items-center justify-center">
             <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-sm sm:text-base">
-            <FancyText
-            gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
-            Upload file
-          </FancyText>
-              
+              <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
+                Upload file
+              </FancyText>
             </p>
             <p className="relative z-20 font-sans font-normal text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
               Click or drag and drop it here!
             </p>
             {showHelp && (
-              <>  
-              
-              {/* Add a paragraph with a message
-              <p className="text-center text-sm text-gray-500 z-50 font-light">
-                <br />
+              <p className="text-center text-sm text-gray-500 z-50 font-light mt-4">
                 Psst! If you&apos;re new here
                 <b className="font-bold">
                 , make sure to create a folder
@@ -92,9 +97,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
                 <br/>
                 (Check out the Workspace Sidebar)
               </p>
-              */}
-              </>
-              
             )}
             <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto font-light">
               <motion.div
