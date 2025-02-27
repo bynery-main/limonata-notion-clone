@@ -26,6 +26,7 @@ import OnlineCollaborators from "@/components/ably/online-collaborators";
 import { BookOpen, FileText, Layout as LayoutIcon, HelpCircle } from "lucide-react";
 import { IconLayout } from "@tabler/icons-react";
 import TabBar from "@/components/tab-bar";
+import FolderFilterTabs from "@/components/folder-filter/folder-filter-tabs";
 
 interface FileData {
   id: string;
@@ -76,6 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const pathname = usePathname();
   const isSettingsPage = pathname?.endsWith("/settings");
   const isWorkspaceRoot = pathname === `/dashboard/${params.workspaceId}`;
+  const [activeFilterFolder, setActiveFilterFolder] = useState<string | null>(null);
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -510,6 +512,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   activeTab={activeTab} 
                   onChange={setActiveTab} 
                 />
+                <FolderFilterTabs
+                  folders={foldersData}
+                  activeFolder={activeFilterFolder}
+                  onFolderChange={setActiveFilterFolder}
+                  isVisible={activeTab === "files" && foldersData.length > 0}
+                />
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
                     <BentoGrid 
@@ -518,6 +526,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                       folderId={folderId || undefined}
                       type={activeTab}
                       userId={currentUserId}
+                      filterFolderId={activeFilterFolder}
                     />
                   )}
                 </div>

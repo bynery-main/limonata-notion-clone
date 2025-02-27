@@ -38,6 +38,7 @@ interface BentoGridProps {
   className?: string;
   type: string;
   userId: string;
+  filterFolderId?: string | null;
 }
 
 export const BentoGrid: React.FC<BentoGridProps> = ({
@@ -46,12 +47,14 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   className,
   type,
   userId,
+  filterFolderId,
 }: {
   workspaceId: string;
   folderId?: string;
   className?: string;
   type: string;
   userId: string;
+  filterFolderId?: string | null;
 }) => {
   
   console.log("BentoGrid rendered with folderId:", folderId);
@@ -371,9 +374,13 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
     }
   };
 
-
-
-
+  // Add this to filter items based on the selected folder
+  const filteredItems = React.useMemo(() => {
+    if (!filterFolderId || type !== "files") {
+      return items;
+    }
+    return items.filter(item => item.folderId === filterFolderId);
+  }, [items, filterFolderId, type]);
 
   return (
     <div className={cn("w-full", className)} style={{ position: 'relative', zIndex: 1 }}>
@@ -425,7 +432,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               isBentoGridEmpty={false}
             />
           )}
-          {items.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <BentoGridItem
               key={item.id}
               workspaceId={workspaceId}
@@ -436,7 +443,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
               href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
               type={item.type}
-              className={getItemClass(index, items.length + 1)}
+              className={getItemClass(index, filteredItems.length + 1)}
             />
           ))}
         </div>
