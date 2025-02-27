@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { IconUpload } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,9 @@ const secondaryVariant = {
 export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileUpload, folder, isBentoGridEmpty }) => {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
   const [isUploaderVisible, setIsUploaderVisible] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const showHelp = isBentoGridEmpty;
+  const fileUploadRef = useRef<HTMLDivElement>(null);
 
   const handleClick = () => {
     setIsUploaderVisible(true);
@@ -53,6 +55,35 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
   const handleClose = () => {
     setIsUploaderVisible(false);
     setSelectedFile(undefined);
+  };
+  
+  // Add these handlers to properly handle drag events
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(true);
+  };
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+  };
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFile(e.dataTransfer.files[0]);
+      setIsUploaderVisible(true);
+    }
   };
 
   const pathname = usePathname();
@@ -66,11 +97,17 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
     <div className={cn("w-full max-w-md mx-auto", isBentoGridEmpty ? "scale-105" : "")}>
       {!isUploaderVisible ? (
         <motion.div
+          ref={fileUploadRef}
           onClick={handleClick}
+          onDragEnter={handleDragEnter}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           whileHover="animate"
           className={cn(
             "p-4 sm:p-6 md:p-8 group/file block rounded-lg cursor-pointer w-full relative overflow-hidden",
-            isBentoGridEmpty ? "border-2 border-dashed border-gray-300 hover:border-[#F6B144]" : ""
+            isBentoGridEmpty ? "border-2 border-dashed border-gray-300 hover:border-[#F6B144]" : "",
+            isDraggingOver ? "border-[#F6B144] bg-gray-50" : ""
           )}
         >
           <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
@@ -85,19 +122,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
             <p className="relative z-20 font-sans font-normal text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
               Click or drag and drop it here!
             </p>
-            {showHelp && (
-              <p className="text-center text-sm text-gray-500 z-50 font-light mt-4">
-                Psst! If you&apos;re new here
-                <b className="font-bold">
-                , make sure to create a folder
-                first  
-                </b>
-                . It&apos;s like making a comfy bed for your files before
-                tucking them in! 
-                <br/>
-                (Check out the Workspace Sidebar)
-              </p>
-            )}
+
             <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto font-light">
               <motion.div
                 layoutId="file-upload"

@@ -422,7 +422,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
           {type === "files" ? (
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md z-10">
               <FileUpload
                 workspaceId={workspaceId}
                 db={db}

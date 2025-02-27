@@ -214,7 +214,35 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setUploadedFiles(prevFiles => [...prevFiles, file]);
     setIsFileUploaderVisible(false);
   };
-
+  useEffect(() => {
+    const bentoGridElement = bentoGridRef.current;
+    if (bentoGridElement) {
+      // Add a check to see if the target is inside the BentoGrid element
+      const handleDragEnterWithCheck = (e: DragEvent) => {
+        const isFileUploadArea = e.target && 
+          (e.target as Element).closest('.group\\/file');
+        
+        // Skip event handling if it's within a file upload area
+        if (isFileUploadArea) {
+          return;
+        }
+        
+        handleDragEnter(e);
+      };
+  
+      bentoGridElement.addEventListener('dragenter', handleDragEnterWithCheck);
+      bentoGridElement.addEventListener('dragover', handleDragOver);
+      bentoGridElement.addEventListener('drop', handleDrop);
+      document.addEventListener('dragend', handleDragEnd);
+  
+      return () => {
+        bentoGridElement.removeEventListener('dragenter', handleDragEnterWithCheck);
+        bentoGridElement.removeEventListener('dragover', handleDragOver);
+        bentoGridElement.removeEventListener('drop', handleDrop);
+        document.removeEventListener('dragend', handleDragEnd);
+      };
+    }
+  }, [handleDragEnter, handleDragOver, handleDrop, handleDragEnd]);
 
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
@@ -273,6 +301,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
     // Logic to copy link
   };
+  
 
   const [isPhone, setIsPhone] = useState(false);
 
