@@ -33,7 +33,7 @@ export const generateStudyGuidePdf = async (studyGuide: StudyGuide): Promise<voi
     .replace(/^\s*\*\s+(.+)$/gm, '<li style="margin-bottom: 8px; margin-left: 20px; font-weight: 300;">$1</li>')
     .replace(/^\s*\d+\.\s+(.+)$/gm, '<li style="margin-bottom: 8px; margin-left: 20px; font-weight: 300;">$1</li>')
     // Code blocks
-    .replace(/```(.+?)```/gs, '<pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; font-weight: normal;">$1</pre>')
+    .replace(/```([\s\S]+?)```/g, '<pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; font-weight: normal;">$1</pre>')
     // Inline code
     .replace(/`(.+?)`/g, '<code style="background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; font-family: monospace; font-weight: normal;">$1</code>')
     // Links
@@ -94,6 +94,6 @@ export const generateStudyGuidePdf = async (studyGuide: StudyGuide): Promise<voi
       .set(options)
       .save()
       .then(() => resolve())
-      .catch(error => reject(error));
+      .catch((error: any) => reject(error));
   });
 }; 
