@@ -7,6 +7,7 @@ import { db } from "@/firebase/firebaseConfig";
 import ReactMarkdown from 'react-markdown';
 import { generateStudyGuidePdf } from "@/utils/pdfGenerator";
 import Image from 'next/image';
+import { DownloadIcon } from "lucide-react";
 
 const StudyGuidePage = () => {
   const [studyGuide, setStudyGuide] = useState<{ content: string; title?: string } | null>(null);
@@ -109,7 +110,12 @@ const StudyGuidePage = () => {
               disabled={isGeneratingPdf}
               className="px-4 py-2 bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] text-white rounded-lg shadow hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {isGeneratingPdf ? 'Generating PDF...' : 'Download PDF'}
+              {isGeneratingPdf ? 'Generating PDF...' : (
+                <>
+                  <DownloadIcon className="inline mr-2" />
+                  Download PDF
+                </>
+              )}
             </button>
           </div>
           <div ref={contentRef} className="prose dark:prose-invert max-w-none mx-16 py-10">
