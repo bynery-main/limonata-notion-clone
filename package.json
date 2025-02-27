@@ -42,6 +42,7 @@
     "framer-motion": "^11.5.4",
     "hast-util-to-jsx-runtime": "^2.3.0",
     "hast-util-whitespace": "^3.0.0",
+    "html2pdf.js": "^0.10.3",
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.411.0",
     "mammoth": "^1.8.0",
