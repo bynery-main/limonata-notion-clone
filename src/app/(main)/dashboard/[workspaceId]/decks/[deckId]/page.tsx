@@ -5,7 +5,7 @@ import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc } from "firebase
 import { db } from "@/firebase/firebaseConfig";
 import { FlashCardArray } from "react-flashcards";
 import { Flashcard } from "./interfaces";
-import { Pencil, Trash2, PlusCircle } from "lucide-react";
+import { Pencil, Trash2, PlusCircle, Download } from "lucide-react";
 import FancyText from "@carefully-coded/react-text-gradient";
 
 const FlashcardsPage = () => {
@@ -137,16 +137,52 @@ const FlashcardsPage = () => {
     }
   };
 
+  const handleExportToAnki = () => {
+    if (flashcards.length === 0) {
+      alert("No flashcards to export");
+      return;
+    }
+    
+    // Create Anki-compatible format with headers
+    let ankiContent = "#separator:tab\n#html:true\n#columns:Front\tBack\n";
+    
+    // Add each flashcard, properly escaping content if needed
+    ankiContent += flashcards
+      .map(card => {
+        // Escape quotes and tabs if present
+        const front = card.front.includes('"') ? 
+          `"${card.front.replace(/"/g, '""')}"` : 
+          card.front.includes('\t') ? `"${card.front}"` : card.front;
+          
+        const back = card.back.includes('"') ? 
+          `"${card.back.replace(/"/g, '""')}"` : 
+          card.back.includes('\t') ? `"${card.back}"` : card.back;
+          
+        return `${front}\t${back}`;
+      })
+      .join('\n');
+    
+    // Create a blob and download link
+    const blob = new Blob([ankiContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'anki-flashcards.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   if (!workspaceId || !deckId) {
     return <p>Invalid workspace or flashcard deck.</p>;
   }
 
   return (
-    <div className="flex flex-col items-center p-4 min-h-screen w-full">
+    <div className="flex flex-col items-center p-4 mb-40 w-full">
       {flashcards.length > 0 ? (
         <div className="w-full max-w-3xl">
-          <div className=" w-full">
+          <div className="mt-10 w-full">
             <FlashCardArray
               cards={flashcards}
               label="Flashcards"
@@ -169,6 +205,9 @@ const FlashcardsPage = () => {
             </button>
             <button onClick={handleAddFlashcard} className="hover:text-blue-500" title="Add Card">
               <PlusCircle className="w-5 h-5" />
+            </button>
+            <button onClick={handleExportToAnki} className="hover:text-green-500" title="Export to Anki">
+              <Download className="w-5 h-5" />
             </button>
           </div>
         </div>

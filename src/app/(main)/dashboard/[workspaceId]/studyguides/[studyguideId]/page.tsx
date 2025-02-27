@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import ReactMarkdown from 'react-markdown';
+import { generateStudyGuidePdf } from "@/utils/pdfGenerator";
+import Image from 'next/image';
+import { DownloadIcon } from "lucide-react";
 
 const StudyGuidePage = () => {
-  const [studyGuide, setStudyGuide] = useState<{ content: string } | null>(null);
+  const [studyGuide, setStudyGuide] = useState<{ content: string; title?: string } | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const params = useParams();
 
   const workspaceId = params?.workspaceId as string;
@@ -22,7 +27,10 @@ const StudyGuidePage = () => {
 
       if (studyGuideSnapshot.exists()) {
         const studyGuideData = studyGuideSnapshot.data();
-        setStudyGuide({ content: studyGuideData.content });
+        setStudyGuide({ 
+          content: studyGuideData.content,
+          title: studyGuideData.title || 'Study Guide'
+        });
       } else {
         console.error("Study guide not found!");
       }
@@ -30,6 +38,21 @@ const StudyGuidePage = () => {
 
     fetchStudyGuide();
   }, [workspaceId, studyguideId]);
+
+  const handleDownloadPdf = () => {
+    if (!contentRef.current || !studyGuide) return;
+    
+    setIsGeneratingPdf(true);
+    
+    generateStudyGuidePdf(studyGuide)
+      .then(() => {
+        setIsGeneratingPdf(false);
+      })
+      .catch(error => {
+        console.error("Error generating PDF:", error);
+        setIsGeneratingPdf(false);
+      });
+  };
 
   if (!workspaceId || !studyguideId) {
     return <p>Invalid workspace or study guide.</p>;
@@ -81,7 +104,21 @@ const StudyGuidePage = () => {
       <div className="absolute inset-0 " />
       {studyGuide ? (
         <div className="relative max-w-full m-12 bg-white/60 backdrop-blur-lg rounded-3xl shadow-[0_0_20px_rgba(0,0,0,0.15)] p-8">
-          <div className="prose dark:prose-invert max-w-none mx-16 py-10">
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="px-4 py-2 bg-gradient-to-r from-[#FE7EF4] to-[#F6B144] text-white rounded-lg shadow hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {isGeneratingPdf ? 'Generating PDF...' : (
+                <>
+                  <DownloadIcon className="inline mr-2" />
+                  Download PDF
+                </>
+              )}
+            </button>
+          </div>
+          <div ref={contentRef} className="prose dark:prose-invert max-w-none mx-16 py-10">
             <ReactMarkdown components={components}>
               {studyGuide.content}
             </ReactMarkdown>

@@ -30,7 +30,7 @@ const Flashcards: React.FC<FlashcardsProps> = ({ flashcards }) => {
     <div className="mt-4 flex flex-col items-center">
       <div
         onClick={handleCardClick}
-        className="w-full max-w-sm p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-lg cursor-pointer text-center"
+        className="w-full max-w-sm p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-md cursor-pointer text-center"
       >
         {showAnswer ? currentFlashcard.answer : currentFlashcard.question}
       </div>

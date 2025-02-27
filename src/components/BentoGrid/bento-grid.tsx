@@ -9,10 +9,10 @@ import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage
 import FileThumbnail from "./get-thumbnails";
 import {FileUpload} from "../ui/file-upload";
 import CreateFolderModal from '../create-folder-modal/create-folder-modal';
-import router from "next/router";
 import { useLocations, useMembers, useSpace } from "@ably/spaces/react";
 import type { ProfileData, SpaceMember } from "@ably/spaces";
 import { ResourceCreator } from "../ui/resource-creator";
+import Link from "next/link";
 
 
 interface FileData {
@@ -64,6 +64,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   const { space } = useSpace();
   const { self } = useMembers();
   const [isEntered, setIsEntered] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!space || isEntered) return;
@@ -399,25 +400,31 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
         
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
+          <ResourceCreator
+            workspaceId={workspaceId}
+            userId={self?.connectionId || ''}
+            type={type as "decks" | "quizzes" | "studyguides"}
+            isBentoGridEmpty={true}
+          />
+        </div>
+      ) : (
+        <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", className)}>
           {type === "files" ? (
             <FileUpload
               workspaceId={workspaceId}
               db={db}
               onFileUpload={() => {}}
               folder={currentFolder}
-              isBentoGridEmpty={true}
+              isBentoGridEmpty={false}
             />
           ) : (
             <ResourceCreator
               workspaceId={workspaceId}
               userId={self?.connectionId || ''}
               type={type as "decks" | "quizzes" | "studyguides"}
-              isBentoGridEmpty={true}
+              isBentoGridEmpty={false}
             />
           )}
-        </div>
-      ) : (
-        <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", className)}>
           {items.map((item, index) => (
             <BentoGridItem
               key={item.id}
@@ -432,23 +439,6 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               className={getItemClass(index, items.length + 1)}
             />
           ))}
-          
-          {type === "files" ? (
-            <FileUpload
-              workspaceId={workspaceId}
-              db={db}
-              onFileUpload={() => {}}
-              folder={currentFolder}
-              isBentoGridEmpty={false}
-            />
-          ) : (
-            <ResourceCreator
-              workspaceId={workspaceId}
-              userId={self?.connectionId || ''}
-              type={type as "decks" | "quizzes" | "studyguides"}
-              isBentoGridEmpty={false}
-            />
-          )}
         </div>
       )}
       <CreateFolderModal
@@ -530,38 +520,50 @@ export const BentoGridItem = ({
     }
   });
 
-  const handleClick = async (event: React.MouseEvent) => {
-    if (!dropdownVisible && updateLocation) {
-      // Set location before navigating
-      try {
-        await updateLocation({
-          data: {
-            fileId,
-            folderId,
-            type
-          } as BentoLocation
-        });
-        
-        // Construct the correct URL based on item type
-        let navigateUrl;
-        if (type === "file" || type === "note") {
-          navigateUrl = `/dashboard/${workspaceId}/${folderId}/${fileId}`;
-        } else if (type === "decks") {
-          navigateUrl = `/dashboard/${workspaceId}/decks/${fileId}`;
-        } else if (type === "quizzes") {
-          navigateUrl = `/dashboard/${workspaceId}/quizzes/${fileId}`;
-        } else if (type === "studyguides") {
-          navigateUrl = `/dashboard/${workspaceId}/studyguides/${fileId}`;
-        } else {
-          navigateUrl = href; // Fallback to the provided href
-        }
-        
-        router.push(navigateUrl);
-      } catch (error) {
-        console.error('Error updating location:', error);
-        router.push(href);
-      }
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate if dropdown is visible
+    if (dropdownVisible) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
     }
+    
+    // Construct the correct URL based on item type
+    let navigateUrl;
+    if (type === "file" || type === "note") {
+      navigateUrl = `/dashboard/${workspaceId}/${folderId}/${fileId}`;
+    } else if (type === "decks") {
+      navigateUrl = `/dashboard/${workspaceId}/decks/${fileId}`;
+    } else if (type === "quizzes") {
+      navigateUrl = `/dashboard/${workspaceId}/quizzes/${fileId}`;
+    } else if (type === "studyguides") {
+      navigateUrl = `/dashboard/${workspaceId}/studyguides/${fileId}`;
+    } else {
+      navigateUrl = href; // Fallback to the provided href
+    }
+    
+    console.log("Navigating to:", navigateUrl);
+    
+    // Update location in the background if available
+    if (updateLocation) {
+      updateLocation({
+        data: {
+          fileId,
+          folderId,
+          type
+        } as BentoLocation
+      }).catch(error => {
+        console.error('Error updating location:', error);
+      });
+    }
+    
+    // Create and click a temporary anchor element to navigate
+    const anchor = document.createElement('a');
+    anchor.href = navigateUrl;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
   };
 
 
@@ -757,6 +759,7 @@ export const BentoGridItem = ({
   };
 
   const handleFolderClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent triggering the parent click handler
     router.push(`/dashboard/${workspaceId}/${folderId}`);
   };
@@ -825,6 +828,7 @@ export const BentoGridItem = ({
             className="h-5 w-5 text-neutral-500 cursor-pointer bento-menu"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               setDropdownVisible(!dropdownVisible);
             }}
           />
@@ -833,6 +837,10 @@ export const BentoGridItem = ({
               ref={dropdownRef} 
               className="absolute left-0 bottom-full mb-2 w-48 bg-white border rounded-lg shadow-lg z-50"
               style={{ minWidth: '200px' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
             >
               <div className="p-2">
                 <input
@@ -841,16 +849,27 @@ export const BentoGridItem = ({
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Rename"
                   className="border p-1 rounded w-full"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
                 />
                 <button
-                  onClick={handleRename}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleRename(e);
+                  }}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                 >
                   <PencilIcon className="h-3.5 w-3.5 mr-2 inline" /> Rename
                 </button>
                 <button
-                  onClick={handleDelete}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleDelete(e);
+                  }}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                 >
                   <TrashIcon className="h-3.5 w-3.5 mr-2 inline" /> Delete
