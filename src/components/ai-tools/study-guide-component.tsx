@@ -346,7 +346,7 @@ const StudyGuideComponent: React.FC<StudyGuideComponentProps> = ({
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
               className="bg-white/95 dark:bg-neutral-800/95 backdrop-filter backdrop-blur-sm rounded-lg p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl"
-              style={{ minHeight: "500px" }} // Match the loading screen height
+              style={{ minHeight: "300px" }} // Match the loading screen height
             >
               <div className="relative flex justify-center items-center mb-4">
                 {/* Add back arrow */}
