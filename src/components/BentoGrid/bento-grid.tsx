@@ -13,6 +13,7 @@ import { useLocations, useMembers, useSpace } from "@ably/spaces/react";
 import type { ProfileData, SpaceMember } from "@ably/spaces";
 import { ResourceCreator } from "../ui/resource-creator";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 interface FileData {
@@ -416,36 +417,64 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
         </div>
       ) : (
         <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", className)}>
-          {type === "files" ? (
-            <FileUpload
-              workspaceId={workspaceId}
-              db={db}
-              onFileUpload={() => {}}
-              folder={currentFolder}
-              isBentoGridEmpty={false}
-            />
-          ) : (
-            <ResourceCreator
-              workspaceId={workspaceId}
-              userId={self?.connectionId || ''}
-              type={type as "decks" | "quizzes" | "studyguides"}
-              isBentoGridEmpty={false}
-            />
-          )}
-          {filteredItems.map((item, index) => (
-            <BentoGridItem
-              key={item.id}
-              workspaceId={workspaceId}
-              folderId={item.folderId || ''}
-              fileId={item.id}
-              title={item.name}
-              header={<FileThumbnail fileName={item.name} fileUrl={item.url} type={item.type} />}
-              description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
-              href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
-              type={item.type}
-              className={getItemClass(index, filteredItems.length + 1)}
-            />
-          ))}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`creator-${type}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ 
+                duration: 0.15,
+                ease: "easeOut"
+              }}
+              layout
+            >
+              {type === "files" ? (
+                <FileUpload
+                  workspaceId={workspaceId}
+                  db={db}
+                  onFileUpload={() => {}}
+                  folder={currentFolder}
+                  isBentoGridEmpty={false}
+                />
+              ) : (
+                <ResourceCreator
+                  workspaceId={workspaceId}
+                  userId={self?.connectionId || ''}
+                  type={type as "decks" | "quizzes" | "studyguides"}
+                  isBentoGridEmpty={false}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence mode="sync">
+            {filteredItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ 
+                  duration: 0.15, 
+                  delay: index * 0.02,
+                  ease: "easeOut"
+                }}
+                layout
+              >
+                <BentoGridItem
+                  workspaceId={workspaceId}
+                  folderId={item.folderId || ''}
+                  fileId={item.id}
+                  title={item.name}
+                  header={<FileThumbnail fileName={item.name} fileUrl={item.url} type={item.type} />}
+                  description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
+                  href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
+                  type={item.type}
+                  className={getItemClass(index, filteredItems.length + 1)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
       <CreateFolderModal
