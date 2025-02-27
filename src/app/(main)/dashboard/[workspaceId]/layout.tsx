@@ -513,7 +513,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
                     <BentoGrid 
-                      className="max-w-7xl mx-auto p-4 z-10" 
+                      className="max-w-7xl mx-auto p-4" 
                       workspaceId={params.workspaceId}
                       folderId={folderId || undefined}
                       type={activeTab}
