@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, setDoc, collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { storage } from "@/firebase/firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import {
@@ -135,97 +135,96 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleUpload = async () => {
-    if (!file || !selectedFolder) {
-      setErrorMessage("Please select a file and a folder.");
-      return;
-    }
-
-    const fileType = determineFileType(file.name);
-
-    if (fileType === "other") {
-      setErrorMessage("This file type is not allowed for upload.");
-      return;
-    }
-
-    const sizeError = checkFileSize(file, fileType);
-    if (sizeError) {
-      setErrorMessage(sizeError);
-      return;
-    }
+    if (!file) return;
 
     setIsUploading(true);
-    const uploadFolder = folder || selectedFolder;
-    if (!uploadFolder) {
-      setErrorMessage("No folder selected for upload.");
-      return;
-    }
+    setUploadProgress(0);
+    setErrorMessage(null);
 
-    const storageRef = ref(
-      storage,
-      `workspaces/${workspaceId}/folders/${uploadFolder!.id}/${file.name}`
-    );
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    try {
+      // Create a reference to the file in Firebase Storage
+      const folderPath = folder ? `workspaces/${workspaceId}/folders/${folder.id}` : `workspaces/${workspaceId}`;
+      const storageRef = ref(storage, `${folderPath}/${file.name}`);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        setErrorMessage("Upload failed. Please try again.");
-        setIsUploading(false);
-      },
-      async () => {
-        try {
+      // Upload the file with progress tracking
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error('Error uploading file:', error);
+          setErrorMessage("Error uploading file. Please try again.");
+          setIsUploading(false);
+        },
+        async () => {
+          // Upload completed successfully
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+          
+          // Determine file type
+          const fileType = determineFileType(file.name);
 
-          const filesCollectionRef = collection(
-            db,
-            "workspaces",
-            workspaceId,
-            "folders",
-            uploadFolder.id,
-            "files"
-          );
-          const newFileRef = doc(filesCollectionRef);
-          const fileId = newFileRef.id;
-
-          const fileData: FileData = {
-            id: fileId,
+          // Save file metadata to Firestore
+          const fileData = {
             name: file.name,
             url: downloadURL,
-            type: fileType,
-            fileType: fileExtension,
-            folderId: uploadFolder.id,
+            type: 'file',
+            fileType: fileType,
+            size: file.size,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
           };
 
-          await setDoc(newFileRef, fileData);
-
-          onFileUpload(fileData);
-
-          if (fileType === "audio") {
-            await triggerAudioTranscription(downloadURL, newFileRef.path);
+          let docRef;
+          
+          if (folder) {
+            // Save to a specific folder
+            const fileRef = collection(db, 'workspaces', workspaceId, 'folders', folder.id, 'files');
+            docRef = await addDoc(fileRef, fileData);
+          } else if (selectedFolder) {
+            // Save to the selected folder
+            const fileRef = collection(db, 'workspaces', workspaceId, 'folders', selectedFolder.id, 'files');
+            docRef = await addDoc(fileRef, fileData);
+          } else {
+            // Save to the workspace root
+            const fileRef = collection(db, 'workspaces', workspaceId, 'files');
+            docRef = await addDoc(fileRef, fileData);
           }
 
-          if (fileType === "document" || fileType === "powerpoint") {
-            await triggerDocumentProcessing(downloadURL, newFileRef.path);
+          // Call the onFileUpload callback with the file data
+          onFileUpload({
+            id: docRef.id,
+            name: file.name,
+            url: downloadURL,
+            type: 'file',
+            fileType: fileType,
+            folderId: folder ? folder.id : selectedFolder ? selectedFolder.id : undefined
+          });
+
+          // Trigger appropriate processing based on file type
+          if (fileType === 'audio') {
+            await triggerAudioTranscription(downloadURL, docRef.path);
+          } else if (fileType === 'document' || fileType === 'powerpoint') {
+            await triggerDocumentProcessing(downloadURL, docRef.path);
           }
 
           setIsUploading(false);
           setIsUploadComplete(true);
-          setUploadProgress(0);
-          setFile(null);
-          setSelectedFolder(null);
-        } catch (error) {
-          console.error("Error in file upload process:", error);
-          setErrorMessage("An error occurred during the upload process. Please try again.");
-          setIsUploading(false);
+          
+          // Auto-close the modal after a short delay
+          setTimeout(() => {
+            onClose();
+          }, 1500); // 1.5 second delay to show the success message
         }
-      }
-    );
+      );
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setErrorMessage("Error uploading file. Please try again.");
+      setIsUploading(false);
+    }
   };
 
   const determineFileType = (fileName: string) => {
@@ -318,142 +317,140 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">
+    <div className="bg-white rounded-lg max-w-md w-full backdrop-blur-sm">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">
+          {" "}
+          <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
             {" "}
-            <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
-              {" "}
-              Upload File
-            </FancyText>{" "}
-          </h2>
-          <button
-            title="Close"
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X size={24} />
-          </button>
-        </div>
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
-            }`}
+            Upload File
+          </FancyText>{" "}
+        </h2>
+        <button
+          title="Close"
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
         >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p className="text-center">Drop the file here ...</p>
-          ) : (
-            <div>
-                          <p className="text-center text-sm text-gray-500 z-50 font-light">
-                Psst! If you&apos;re new here
-                <b className="font-bold">
-                , make sure to create a folder
-                first  
-                </b>
-                . It&apos;s like making a comfy bed for your files before
-                tucking them in! 
-                (Check out the Workspace Sidebar)
-              </p>
-            </div>
-          )}
-        </div>
-
-        {file && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 items-center"
-          >
-            <span className="text-gray-600 flex items-center">
-              {getFileEmoji(file.name)}
-              <span className="ml-2">{truncateFileName(file.name, 22)}</span>
-            </span>
-          </motion.div>
-        )}
-
-        {folder === undefined && (
-          <div className="mt-4">
-            <Select
-              options={folders.map((folder) => ({
-                value: folder.id,
-                label: folder.name,
-              }))}
-              onChange={(option) =>
-                setSelectedFolder(
-                  option
-                    ? folders.find((f) => f.id === option.value) || null
-                    : null
-                )
-              }
-              value={
-                selectedFolder
-                  ? { value: selectedFolder.id, label: selectedFolder.name }
-                  : null
-              }
-              placeholder="Select a folder"
-              className="basic-select"
-              classNamePrefix="select"
-            />
+          <X size={24} />
+        </button>
+      </div>
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+          }`}
+      >
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p className="text-center">Drop the file here ...</p>
+        ) : (
+          <div>
+                        <p className="text-center text-sm text-gray-500 z-50 font-light">
+            Psst! If you&apos;re new here
+            <b className="font-bold">
+            , make sure to create a folder
+            first  
+            </b>
+            . It&apos;s like making a comfy bed for your files before
+            tucking them in! 
+            (Check out the Workspace Sidebar)
+          </p>
           </div>
         )}
-        <div className="mt-4 flex justify-center items-center">
-          <GradientButton
-            onClick={handleUpload}
-            disabled={
-              !file || (folder === undefined && !selectedFolder) || isUploading
-            }
-          >
-            {isUploading ? (
-              <>
-                <motion.div
-                  className="w-5 h-5 mr-2 border-t-2 border-current rounded-full animate-spin"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
-                <span>Uploading...</span>
-              </>
-            ) : isUploadComplete ? (
-              <>
-                <CheckCircle className="w-5 h-5 mr-2" />
-                <span>Upload Complete</span>
-              </>
-            ) : (
-              <>
-                <UploadIcon className="w-5 h-5 mr-2" />
-                <span>Upload File</span>
-              </>
-            )}
-          </GradientButton>
-        </div>
-
-        {errorMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 text-red-500 flex items-center"
-          >
-            <AlertCircle className="w-5 h-5 mr-2" />
-            {errorMessage}
-          </motion.div>
-        )}
-
-        {isUploading && (
-          <motion.div
-            className="mt-4 bg-gray-200 rounded-full overflow-hidden"
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-          >
-            <motion.div
-              className="h-2 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${uploadProgress}%` }}
-              transition={{ duration: 0.5 }}
-            />
-          </motion.div>
-        )}
       </div>
+
+      {file && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 items-center"
+        >
+          <span className="text-gray-600 flex items-center">
+            {getFileEmoji(file.name)}
+            <span className="ml-2">{truncateFileName(file.name, 22)}</span>
+          </span>
+        </motion.div>
+      )}
+
+      {folder === undefined && (
+        <div className="mt-4">
+          <Select
+            options={folders.map((folder) => ({
+              value: folder.id,
+              label: folder.name,
+            }))}
+            onChange={(option) =>
+              setSelectedFolder(
+                option
+                  ? folders.find((f) => f.id === option.value) || null
+                  : null
+              )
+            }
+            value={
+              selectedFolder
+                ? { value: selectedFolder.id, label: selectedFolder.name }
+                : null
+            }
+            placeholder="Select a folder"
+            className="basic-select"
+            classNamePrefix="select"
+          />
+        </div>
+      )}
+      <div className="mt-4 flex justify-center items-center">
+        <GradientButton
+          onClick={handleUpload}
+          disabled={
+            !file || (folder === undefined && !selectedFolder) || isUploading
+          }
+        >
+          {isUploading ? (
+            <>
+              <motion.div
+                className="w-5 h-5 mr-2 border-t-2 border-current rounded-full animate-spin"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <span>Uploading...</span>
+            </>
+          ) : isUploadComplete ? (
+            <>
+              <CheckCircle className="w-5 h-5 mr-2" />
+              <span>Upload Complete</span>
+            </>
+          ) : (
+            <>
+              <UploadIcon className="w-5 h-5 mr-2" />
+              <span>Upload File</span>
+            </>
+          )}
+        </GradientButton>
+      </div>
+
+      {errorMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 text-red-500 flex items-center"
+        >
+          <AlertCircle className="w-5 h-5 mr-2" />
+          {errorMessage}
+        </motion.div>
+      )}
+
+      {isUploading && (
+        <motion.div
+          className="mt-4 bg-gray-200 rounded-full overflow-hidden"
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+        >
+          <motion.div
+            className="h-2 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${uploadProgress}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </motion.div>
+      )}
     </div>
   );
 };

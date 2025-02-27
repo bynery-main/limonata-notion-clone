@@ -72,8 +72,8 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!workspaceName || !workspaceDescription) {
-      alert("Please fill in all fields.");
+    if (!workspaceName) {
+      alert("Please enter a workspace name.");
       return;
     }
 
@@ -82,7 +82,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
     try {
       const result = await initializeWorkspace({
         workspaceName,
-        workspaceDescription,
+        workspaceDescription: workspaceDescription || " ", // Use empty space if description is empty
         emoji,
         userId: user!.uid,
         collaborators: selectedCollaborators.map(collab => collab.uid), // Only send UIDs as an array of strings
@@ -125,6 +125,7 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <div className="flex items-center space-x-2">
             <button
+              ref={emojiButtonRef}
               type="button"
               onClick={toggleEmojiPicker}
               className="h-10 w-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px]"
@@ -150,11 +151,12 @@ const DashboardSetup = ({ onCancel, onSuccess }: { onCancel: () => void, onSucce
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               className="flex-grow bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"
+              required
             />
           </div>
           <input
             type="text"
-            placeholder="Workspace Description"
+            placeholder="Workspace Description (optional)"
             value={workspaceDescription}
             onChange={(e) => setWorkspaceDescription(e.target.value)}
             className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border-[1px] border-orange-500"

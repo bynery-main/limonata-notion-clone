@@ -1,24 +1,20 @@
+"use client";
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { IconUpload } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
-import FileUploader from '../drag-n-drop/drag-n-drop';
 import FancyText from "@carefully-coded/react-text-gradient";
 import { usePathname } from "next/navigation";
 import { createPortal } from 'react-dom';
+import FlashcardComponent from "../ai-tools/flashcard-component";
+import QuizComponent from "../ai-tools/quizzes-component";
+import StudyGuideComponent from "../ai-tools/study-guide-component";
 
-interface Folder {
-  id: string;
-  name: string;
-  contents: any;
-  filests: any;
-}
-
-interface FileUploadProps {
+interface ResourceCreatorProps {
   workspaceId: string;
-  db: any;
-  onFileUpload: (file: FileData) => void;
-  folder?: Folder;  
+  userId: string;
+  type: "decks" | "quizzes" | "studyguides";
   isBentoGridEmpty: boolean;
 }
 
@@ -32,19 +28,21 @@ const secondaryVariant = {
   animate: { opacity: 1 },
 };
 
-export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileUpload, folder, isBentoGridEmpty }) => {
-  const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
-  const [isUploaderVisible, setIsUploaderVisible] = useState(false);
+export const ResourceCreator: React.FC<ResourceCreatorProps> = ({ 
+  workspaceId, 
+  userId, 
+  type, 
+  isBentoGridEmpty 
+}) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const showHelp = isBentoGridEmpty;
 
-
   const handleClick = () => {
-    setIsUploaderVisible(true);
+    setIsModalVisible(true);
   };
 
   const handleClose = () => {
-    setIsUploaderVisible(false);
-    setSelectedFile(undefined);
+    setIsModalVisible(false);
   };
 
   const pathname = usePathname();
@@ -54,9 +52,28 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
     return null; // Don't render the component
   }
 
+  // Determine title and description based on type
+  let title = "";
+  let description = "";
+  
+  switch (type) {
+    case "decks":
+      title = "Create Flashcards";
+      description = "Generate AI flashcards from your notes";
+      break;
+    case "quizzes":
+      title = "Create Quiz";
+      description = "Generate AI quizzes from your notes";
+      break;
+    case "studyguides":
+      title = "Create Study Guide";
+      description = "Generate AI study guides from your notes";
+      break;
+  }
+
   return (
     <div className="w-full max-w-md mx-auto">
-      {!isUploaderVisible ? (
+      {!isModalVisible ? (
         <motion.div
           onClick={handleClick}
           whileHover="animate"
@@ -67,38 +84,16 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
           </div>
           <div className="flex flex-col items-center justify-center">
             <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-sm sm:text-base">
-            <FancyText
-            gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
-            Upload file
-          </FancyText>
-              
+              <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
+                {title}
+              </FancyText>
             </p>
             <p className="relative z-20 font-sans font-normal text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
-              Click or drag and drop it here!
+              {description}
             </p>
-            {showHelp && (
-              <>  
-              
-              {/* Add a paragraph with a message
-              <p className="text-center text-sm text-gray-500 z-50 font-light">
-                <br />
-                Psst! If you&apos;re new here
-                <b className="font-bold">
-                , make sure to create a folder
-                first  
-                </b>
-                . It&apos;s like making a comfy bed for your files before
-                tucking them in! 
-                <br/>
-                (Check out the Workspace Sidebar)
-              </p>
-              */}
-              </>
-              
-            )}
             <div className="relative w-full mt-6 sm:mt-8 max-w-xs mx-auto font-light">
               <motion.div
-                layoutId="file-upload"
+                layoutId={`${type}-creator`}
                 variants={mainVariant}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={cn(
@@ -106,7 +101,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
                   "shadow-[0px_10px_50px_rgba(0,0,0,0.1)]"
                 )}
               >
-                <IconUpload className="w-5 h-5 text-gray-400" />
+                <IconPlus className="w-5 h-5 text-gray-400" />
               </motion.div>
               <motion.div
                 variants={secondaryVariant}
@@ -118,25 +113,39 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
       ) : (
         typeof window !== 'undefined' && createPortal(
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[99999] flex items-center justify-center">
-            <div className="relative z-[100000] bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-              <FileUploader
-                workspaceId={workspaceId}
-                db={db}
-                onFileUpload={onFileUpload}
-                isVisible={true}
-                onClose={handleClose}
-                initialFile={selectedFile}
-                folder={folder}
+            {type === "decks" && (
+              <FlashcardComponent 
+                onClose={handleClose} 
+                workspaceId={workspaceId} 
+                userId={userId}
+                onBack={() => {}} 
               />
-            </div>
+            )}
+            {type === "quizzes" && (
+              <QuizComponent 
+                onClose={handleClose} 
+                workspaceId={workspaceId} 
+                userId={userId}
+                onBack={() => {}} 
+              />
+            )}
+            {type === "studyguides" && (
+              <StudyGuideComponent 
+                onClose={handleClose} 
+                workspaceId={workspaceId} 
+                userId={userId}
+                onBack={() => {}} 
+              />
+            )}
           </div>,
           document.body
         )
       )}
     </div>
   );
-}
+};
 
+// Reuse the GridPattern from FileUpload
 export function GridPattern() {
   const columns = 21;
   const rows = 11;
@@ -159,4 +168,4 @@ export function GridPattern() {
       )}
     </div>
   );
-}
+} 
