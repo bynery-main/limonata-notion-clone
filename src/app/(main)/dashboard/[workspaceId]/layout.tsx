@@ -475,7 +475,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                               onChange={(e) => setEditedTitle(e.target.value)}
                               onBlur={handleTitleSave}
                               onKeyDown={handleTitleKeyDown}
-                              className="text-4xl font-light bg-transparent border-b border-gray-300 w-full"
+                              className="text-4xl font-light bg-transparent border-b border-gray-300 focus:outline-none focus:border-gray-500 w-full"
                               maxLength={100}
                             />
                           ) : (
