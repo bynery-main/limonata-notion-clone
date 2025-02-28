@@ -26,6 +26,7 @@ import OnlineCollaborators from "@/components/ably/online-collaborators";
 import { BookOpen, FileText, Layout as LayoutIcon, HelpCircle } from "lucide-react";
 import { IconLayout } from "@tabler/icons-react";
 import TabBar from "@/components/tab-bar";
+import FolderFilterTabs from "@/components/folder-filter/folder-filter-tabs";
 
 interface FileData {
   id: string;
@@ -76,6 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const pathname = usePathname();
   const isSettingsPage = pathname?.endsWith("/settings");
   const isWorkspaceRoot = pathname === `/dashboard/${params.workspaceId}`;
+  const [activeFilterFolder, setActiveFilterFolder] = useState<string | null>(null);
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -212,7 +214,35 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     setUploadedFiles(prevFiles => [...prevFiles, file]);
     setIsFileUploaderVisible(false);
   };
-
+  useEffect(() => {
+    const bentoGridElement = bentoGridRef.current;
+    if (bentoGridElement) {
+      // Add a check to see if the target is inside the BentoGrid element
+      const handleDragEnterWithCheck = (e: DragEvent) => {
+        const isFileUploadArea = e.target && 
+          (e.target as Element).closest('.group\\/file');
+        
+        // Skip event handling if it's within a file upload area
+        if (isFileUploadArea) {
+          return;
+        }
+        
+        handleDragEnter(e);
+      };
+  
+      bentoGridElement.addEventListener('dragenter', handleDragEnterWithCheck);
+      bentoGridElement.addEventListener('dragover', handleDragOver);
+      bentoGridElement.addEventListener('drop', handleDrop);
+      document.addEventListener('dragend', handleDragEnd);
+  
+      return () => {
+        bentoGridElement.removeEventListener('dragenter', handleDragEnterWithCheck);
+        bentoGridElement.removeEventListener('dragover', handleDragOver);
+        bentoGridElement.removeEventListener('drop', handleDrop);
+        document.removeEventListener('dragend', handleDragEnd);
+      };
+    }
+  }, [handleDragEnter, handleDragOver, handleDrop, handleDragEnd]);
 
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [existingCollaborators, setExistingCollaborators] = useState<{ uid: string; email: string }[]>([]);
@@ -271,6 +301,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
     // Logic to copy link
   };
+  
 
   const [isPhone, setIsPhone] = useState(false);
 
@@ -510,6 +541,12 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   activeTab={activeTab} 
                   onChange={setActiveTab} 
                 />
+                <FolderFilterTabs
+                  folders={foldersData}
+                  activeFolder={activeFilterFolder}
+                  onFolderChange={setActiveFilterFolder}
+                  isVisible={activeTab === "files" && foldersData.length > 0}
+                />
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
                     <BentoGrid 
@@ -518,6 +555,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                       folderId={folderId || undefined}
                       type={activeTab}
                       userId={currentUserId}
+                      filterFolderId={activeFilterFolder}
                     />
                   )}
                 </div>

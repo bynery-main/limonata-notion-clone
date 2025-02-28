@@ -13,6 +13,7 @@ import { useLocations, useMembers, useSpace } from "@ably/spaces/react";
 import type { ProfileData, SpaceMember } from "@ably/spaces";
 import { ResourceCreator } from "../ui/resource-creator";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 interface FileData {
@@ -38,6 +39,7 @@ interface BentoGridProps {
   className?: string;
   type: string;
   userId: string;
+  filterFolderId?: string | null;
 }
 
 export const BentoGrid: React.FC<BentoGridProps> = ({
@@ -46,12 +48,14 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   className,
   type,
   userId,
+  filterFolderId,
 }: {
   workspaceId: string;
   folderId?: string;
   className?: string;
   type: string;
   userId: string;
+  filterFolderId?: string | null;
 }) => {
   
   console.log("BentoGrid rendered with folderId:", folderId);
@@ -134,125 +138,125 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
     }
   };
 
-  useEffect(() => {
-    const fetchItems = async () => {
-      if (folderId) {
-        // Fetch items for a specific folder
-        let itemsRef;
-        switch (type) {
-          case 'decks':
-            itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
-            break;
-          case 'quizzes':
-            itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
-            break;
-          case 'studyguides':
-            itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
-            break;
-          default: // 'files'
-            const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
-            const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
-            
-            const [filesSnapshot, notesSnapshot] = await Promise.all([
-              getDocs(filesRef),
-              getDocs(notesRef)
-            ]);
+  const fetchItems = async () => {
+    if (folderId) {
+      // Fetch items for a specific folder
+      let itemsRef;
+      switch (type) {
+        case 'decks':
+          itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
+          break;
+        case 'quizzes':
+          itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
+          break;
+        case 'studyguides':
+          itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
+          break;
+        default: // 'files'
+          const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
+          const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+          
+          const [filesSnapshot, notesSnapshot] = await Promise.all([
+            getDocs(filesRef),
+            getDocs(notesRef)
+          ]);
 
-            const files = filesSnapshot.docs.map(doc => ({
-              id: doc.id,
-              name: doc.data().name || 'Untitled',
-              ...doc.data(),
-              type: "file" as const,
-              folderId: folderId
-            })) as FileData[];
+          const files = filesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name || 'Untitled',
+            ...doc.data(),
+            type: "file" as const,
+            folderId: folderId
+          })) as FileData[];
 
-            const notes = notesSnapshot.docs.map(doc => ({
-              id: doc.id,
-              name: doc.data().name || 'Untitled',
-              ...doc.data(),
-              type: "note" as const,
-              folderId: folderId
-            })) as FileData[];
+          const notes = notesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name || 'Untitled',
+            ...doc.data(),
+            type: "note" as const,
+            folderId: folderId
+          })) as FileData[];
 
-            setItems([...files, ...notes]);
-            return;
-        }
-
-        const snapshot = await getDocs(itemsRef);
-        const fetchedItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          name: doc.data().name || 'Untitled',
-          ...doc.data(),
-          type: type as FileData['type'],
-          folderId: folderId
-        })) as FileData[];
-
-        setItems(fetchedItems);
-      } else {
-        // Fetch items from workspace level collections
-        let itemsRef;
-        switch (type) {
-          case 'decks':
-            itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
-            break;
-          case 'quizzes':
-            itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
-            break;
-          case 'studyguides':
-            itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
-            break;
-          default:
-            // Handle files and notes from all folders
-            const foldersRef = collection(db, "workspaces", workspaceId, "folders");
-            const foldersSnapshot = await getDocs(foldersRef);
-            
-            const allItems = await Promise.all(
-              foldersSnapshot.docs.map(async (folderDoc) => {
-                const fId = folderDoc.id;
-                const filesRef = collection(db, "workspaces", workspaceId, "folders", fId, "files");
-                const notesRef = collection(db, "workspaces", workspaceId, "folders", fId, "notes");
-                
-                const [filesSnapshot, notesSnapshot] = await Promise.all([
-                  getDocs(filesRef),
-                  getDocs(notesRef)
-                ]);
-
-                const files = filesSnapshot.docs.map(doc => ({
-                  id: doc.id,
-                  name: doc.data().name || 'Untitled',
-                  ...doc.data(),
-                  type: "file" as const,
-                  folderId: fId
-                })) as FileData[];
-
-                const notes = notesSnapshot.docs.map(doc => ({
-                  id: doc.id,
-                  name: doc.data().name || 'Untitled',
-                  ...doc.data(),
-                  type: "note" as const,
-                  folderId: fId
-                })) as FileData[];
-
-                return [...files, ...notes];
-              })
-            );
-
-            setItems(allItems.flat());
-            return;
-        }
-
-        const snapshot = await getDocs(itemsRef);
-        const updatedItems = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name || 'Untitled',
-          ...doc.data(),
-          type: type as FileData['type'],
-        })) as FileData[];
-
-        setItems(updatedItems);
+          setItems([...files, ...notes]);
+          return;
       }
-    };
 
+      const snapshot = await getDocs(itemsRef);
+      const fetchedItems = snapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name || 'Untitled',
+        ...doc.data(),
+        type: type as FileData['type'],
+        folderId: folderId
+      })) as FileData[];
+
+      setItems(fetchedItems);
+    } else {
+      // Fetch items from workspace level collections
+      let itemsRef;
+      switch (type) {
+        case 'decks':
+          itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
+          break;
+        case 'quizzes':
+          itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
+          break;
+        case 'studyguides':
+          itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
+          break;
+        default:
+          // Handle files and notes from all folders
+          const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+          const foldersSnapshot = await getDocs(foldersRef);
+          
+          const allItems = await Promise.all(
+            foldersSnapshot.docs.map(async (folderDoc) => {
+              const fId = folderDoc.id;
+              const filesRef = collection(db, "workspaces", workspaceId, "folders", fId, "files");
+              const notesRef = collection(db, "workspaces", workspaceId, "folders", fId, "notes");
+              
+              const [filesSnapshot, notesSnapshot] = await Promise.all([
+                getDocs(filesRef),
+                getDocs(notesRef)
+              ]);
+
+              const files = filesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                name: doc.data().name || 'Untitled',
+                ...doc.data(),
+                type: "file" as const,
+                folderId: fId
+              })) as FileData[];
+
+              const notes = notesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                name: doc.data().name || 'Untitled',
+                ...doc.data(),
+                type: "note" as const,
+                folderId: fId
+              })) as FileData[];
+
+              return [...files, ...notes];
+            })
+          );
+
+          setItems(allItems.flat());
+          return;
+      }
+
+      const snapshot = await getDocs(itemsRef);
+      const updatedItems = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name || 'Untitled',
+        ...doc.data(),
+        type: type as FileData['type'],
+      })) as FileData[];
+
+      setItems(updatedItems);
+    }
+  };
+
+  useEffect(() => {
     fetchItems();
   }, [workspaceId, folderId, type]);
 
@@ -371,74 +375,131 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
     }
   };
 
-
-
-
+  // Add this to filter items based on the selected folder
+  const filteredItems = React.useMemo(() => {
+    if (!filterFolderId || type !== "files") {
+      return items;
+    }
+    return items.filter(item => item.folderId === filterFolderId);
+  }, [items, filterFolderId, type]);
 
   return (
     <div className={cn("w-full", className)} style={{ position: 'relative', zIndex: 1 }}>
       {folders.length === 0 ? (
-        
         <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
-        <button
+          <button
             onClick={() => setIsCreateFolderModalVisible(true)}
-            className="p-[1px] relative block "
+            className="p-[1px] relative block"
           >
-
             <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
             <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
               <FolderPlus className="w-5 h-5 mr-3 text-regular" />
-              <div className="flex items-center whitespace-nowrap text-xl ">
+              <div className="flex items-center whitespace-nowrap text-xl">
                 Create Your First Topic
               </div>
             </div>
           </button>
           <div className="mt-4 w-80 font-light text-sm text-center">
-        💡 A topic is a subsection of a workspace. Here&apos;s where you can store files and notes.
-        </div>  
+            💡 A topic is a subsection of a workspace. Here&apos;s where you can store files and notes.
+          </div>
+          
+          {/* Add this div with a specific height to ensure the FileUpload is visible */}
+          <div className="mt-8 w-full max-w-md">
+            {typeof window !== 'undefined' && (
+              <FileUpload 
+                workspaceId={workspaceId} 
+                db={db} 
+                onFileUpload={(file) => {
+                  console.log("File uploaded:", file);
+                  fetchItems(); // Refresh the items after upload
+                }} 
+                folder={currentFolder}
+                isBentoGridEmpty={true}
+              />
+            )}
+          </div>
         </div>
-        
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
-          <ResourceCreator
-            workspaceId={workspaceId}
-            userId={self?.connectionId || ''}
-            type={type as "decks" | "quizzes" | "studyguides"}
-            isBentoGridEmpty={true}
-          />
-        </div>
-      ) : (
-        <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", className)}>
           {type === "files" ? (
-            <FileUpload
-              workspaceId={workspaceId}
-              db={db}
-              onFileUpload={() => {}}
-              folder={currentFolder}
-              isBentoGridEmpty={false}
-            />
+            <div className="w-full max-w-md z-10">
+              <FileUpload
+                workspaceId={workspaceId}
+                db={db}
+                onFileUpload={() => {}}
+                folder={currentFolder}
+                isBentoGridEmpty={true}
+              />
+            </div>
           ) : (
             <ResourceCreator
               workspaceId={workspaceId}
               userId={self?.connectionId || ''}
               type={type as "decks" | "quizzes" | "studyguides"}
-              isBentoGridEmpty={false}
+              isBentoGridEmpty={true}
             />
           )}
-          {items.map((item, index) => (
-            <BentoGridItem
-              key={item.id}
-              workspaceId={workspaceId}
-              folderId={item.folderId || ''}
-              fileId={item.id}
-              title={item.name}
-              header={<FileThumbnail fileName={item.name} fileUrl={item.url} type={item.type} />}
-              description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
-              href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
-              type={item.type}
-              className={getItemClass(index, items.length + 1)}
-            />
-          ))}
+        </div>
+      ) : (
+        <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", className)}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`creator-${type}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ 
+                duration: 0.15,
+                ease: "easeOut"
+              }}
+              layout
+            >
+              {type === "files" ? (
+                <FileUpload
+                  workspaceId={workspaceId}
+                  db={db}
+                  onFileUpload={() => {}}
+                  folder={currentFolder}
+                  isBentoGridEmpty={false}
+                />
+              ) : (
+                <ResourceCreator
+                  workspaceId={workspaceId}
+                  userId={self?.connectionId || ''}
+                  type={type as "decks" | "quizzes" | "studyguides"}
+                  isBentoGridEmpty={false}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence mode="sync">
+            {filteredItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ 
+                  duration: 0.15, 
+                  delay: index * 0.02,
+                  ease: "easeOut"
+                }}
+                layout
+              >
+                <BentoGridItem
+                  workspaceId={workspaceId}
+                  folderId={item.folderId || ''}
+                  fileId={item.id}
+                  title={item.name}
+                  header={<FileThumbnail fileName={item.name} fileUrl={item.url} type={item.type} />}
+                  description={`${folderNames[item.folderId || ''] || 'Unknown'}`}
+                  href={`/dashboard/${workspaceId}/${item.folderId}/${item.id}`}
+                  type={item.type}
+                  className={getItemClass(index, filteredItems.length + 1)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
       <CreateFolderModal

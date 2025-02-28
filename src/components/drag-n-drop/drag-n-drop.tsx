@@ -132,8 +132,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     }
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-
+    // Update your getRootProps call
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+      onDrop,
+      // Add this to prevent event propagation
+      noDragEventsBubbling: true
+    });
   const handleUpload = async () => {
     if (!file) return;
 
@@ -335,25 +339,19 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         </button>
       </div>
       <div
-        {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-8 cursor-pointer hover:border-[#F6B144] transition ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
-          }`}
-      >
+  {...getRootProps()}
+  className={`border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors duration-200 ${
+    isDragActive ? "border-[#F6B144] bg-[#F6B14410]" : "border-gray-300 hover:border-[#F6B144]"
+  }`}
+>
         <input {...getInputProps()} />
         {isDragActive ? (
           <p className="text-center">Drop the file here ...</p>
         ) : (
-          <div>
-                        <p className="text-center text-sm text-gray-500 z-50 font-light">
-            Psst! If you&apos;re new here
-            <b className="font-bold">
-            , make sure to create a folder
-            first  
-            </b>
-            . It&apos;s like making a comfy bed for your files before
-            tucking them in! 
-            (Check out the Workspace Sidebar)
-          </p>
+          <div className="text-center">
+            <UploadIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+            <p className="text-gray-600">Drag & drop a file here, or click to select</p>
+
           </div>
         )}
       </div>
