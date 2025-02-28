@@ -498,7 +498,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                           <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
                           <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
                             <Pencil className="w-4 h-4 md:mr-2" />
-                            <span className="hidden md:inline">New Note</span>
+                            <span className="hidden md:inline">New Live Note</span>
                           </div>
                         </button>
                         </div>

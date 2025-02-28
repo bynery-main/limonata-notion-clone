@@ -402,22 +402,6 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
           <div className="mt-4 w-80 font-light text-sm text-center">
             💡 A topic is a subsection of a workspace. Here&apos;s where you can store files and notes.
           </div>
-          
-          {/* Add this div with a specific height to ensure the FileUpload is visible */}
-          <div className="mt-8 w-full max-w-md">
-            {typeof window !== 'undefined' && (
-              <FileUpload 
-                workspaceId={workspaceId} 
-                db={db} 
-                onFileUpload={(file) => {
-                  console.log("File uploaded:", file);
-                  fetchItems(); // Refresh the items after upload
-                }} 
-                folder={currentFolder}
-                isBentoGridEmpty={true}
-              />
-            )}
-          </div>
         </div>
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center mt-30">
