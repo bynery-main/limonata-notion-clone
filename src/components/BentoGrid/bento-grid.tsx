@@ -386,13 +386,13 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   return (
     <div className={cn("w-full", className)} style={{ position: 'relative', zIndex: 1 }}>
       {folders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
+        <div className="flex flex-col -mt-20 items-center justify-center h-[calc(100vh-200px)]">
           <button
             onClick={() => setIsCreateFolderModalVisible(true)}
-            className="p-[1px] relative block"
+            className="p-[1px] relative block "
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
-            <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
+            <div className="px-10 py-5  relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
               <FolderPlus className="w-5 h-5 mr-3 text-regular" />
               <div className="flex items-center whitespace-nowrap text-xl">
                 Create Your First Topic
