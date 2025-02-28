@@ -618,13 +618,8 @@ export const BentoGridItem = ({
       });
     }
     
-    // Create and click a temporary anchor element to navigate
-    const anchor = document.createElement('a');
-    anchor.href = navigateUrl;
-    anchor.style.display = 'none';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
+    // Use router.push for client-side navigation instead of creating an anchor element
+    router.push(navigateUrl);
   };
 
 
