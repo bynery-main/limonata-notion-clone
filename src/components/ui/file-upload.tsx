@@ -114,12 +114,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
             <GridPattern />
           </div>
           <div className="flex flex-col items-center justify-center">
-            <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-sm sm:text-base">
+            <p className="relative z-20 font-bold text-neutral-700 dark:text-neutral-300 text-sm sm:text-base">
               <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
                 Upload file
               </FancyText>
             </p>
-            <p className="relative z-20 font-sans font-normal text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
+            <p className="relative z-20 font-medium text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
               Click or drag and drop it here!
             </p>
 

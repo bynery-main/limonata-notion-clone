@@ -5,8 +5,9 @@ import "quill/dist/quill.snow.css";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
-import Summarise from "../ai-tools/summarise";
 import { useAuth } from "../auth-provider/AuthProvider";
+import { motion } from "framer-motion";
+import { GridPattern } from "../ui/resource-creator";
 
 interface QuillEditorProps {
   dirDetails: any;
@@ -35,9 +36,11 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const { socket } = useSocket();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toolbarTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(false);
 
   const details = useMemo(() => {
     if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
@@ -56,6 +59,17 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
     }
     return "";
   }, [dirDetails, fileId]);
+
+  // Function to start the auto-hide timer
+  const startAutoHideTimer = () => {
+    if (toolbarTimerRef.current) {
+      clearTimeout(toolbarTimerRef.current);
+    }
+    
+    toolbarTimerRef.current = setTimeout(() => {
+      setShowToolbar(false);
+    }, 3000); // Hide after 3 seconds of inactivity
+  };
 
   useEffect(() => {
     if (typeof window === "undefined" || !wrapperRef.current || !details) return;
@@ -78,6 +92,31 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         placeholder: "Start writing your notes here...",
       });
       setQuill(q);
+      
+      // Set Urbanist font for the editor
+      q.root.style.fontFamily = 'Urbanist, sans-serif';
+      
+      // Make the font bigger by default
+      q.root.style.fontSize = '18px';
+      
+      // Remove borders from the editor
+      q.root.style.border = 'none';
+      
+      // Initially style the toolbar
+      const toolbar = wrapperRef.current!.querySelector('.ql-toolbar');
+      if (toolbar) {
+        const toolbarEl = toolbar as HTMLElement;
+        toolbarEl.style.fontFamily = 'Urbanist, sans-serif';
+        toolbarEl.style.fontSize = '25px';
+        toolbarEl.style.position = 'absolute';
+        toolbarEl.style.top = '0';
+        toolbarEl.style.left = '0';
+        toolbarEl.style.right = '0';
+        toolbarEl.style.zIndex = '10';
+        toolbarEl.style.transform = 'translateY(-100%)';
+        toolbarEl.style.transition = 'transform 0.3s ease';
+        toolbarEl.style.borderRadius = '8px 8px 0 0';
+      }
 
       q.on("text-change", async (delta, oldDelta, source) => {
         if (source !== "user" || !isInitialized) return;
@@ -106,10 +145,68 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
           }
         }
       });
+      
+      // Add event listener for editor interactions to reset the auto-hide timer
+      q.root.addEventListener('keydown', () => {
+        setShowToolbar(true);
+        startAutoHideTimer();
+      });
+      
+      q.root.addEventListener('click', () => {
+        setShowToolbar(true);
+        startAutoHideTimer();
+      });
     };
 
     initQuill();
+    
+    // Add hover event listeners to the container
+    const container = wrapperRef.current;
+    
+    const handleMouseEnter = () => {
+      setShowToolbar(true);
+      startAutoHideTimer();
+    };
+    
+    const handleMouseLeave = () => {
+      // Don't immediately hide on mouse leave
+      // Let the auto-hide timer handle it
+    };
+    
+    const handleMouseMove = () => {
+      setShowToolbar(true);
+      startAutoHideTimer();
+    };
+    
+    if (container) {
+      container.addEventListener('mouseenter', handleMouseEnter);
+      container.addEventListener('mouseleave', handleMouseLeave);
+      container.addEventListener('mousemove', handleMouseMove);
+    }
+    
+    return () => {
+      if (container) {
+        container.removeEventListener('mouseenter', handleMouseEnter);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+        container.removeEventListener('mousemove', handleMouseMove);
+      }
+      
+      if (toolbarTimerRef.current) {
+        clearTimeout(toolbarTimerRef.current);
+      }
+    };
   }, [details]);
+
+  // Effect to show/hide toolbar
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    
+    const toolbar = wrapperRef.current.querySelector('.ql-toolbar');
+    if (toolbar) {
+      const toolbarEl = toolbar as HTMLElement;
+      toolbarEl.style.transform = showToolbar ? 'translateY(0)' : 'translateY(-100%)';
+    }
+  }, [showToolbar]);
 
   useEffect(() => {
     if (!fileId || !quill || !details) return;
@@ -212,20 +309,37 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }, [quill, socket, fileId]);
 
   if (!details) {
-    return <div className="w-full h-[calc(100vh-64px)] flex items-center justify-center
-    ">
-      <div className="animate-spin w-10 h-10 border-t-2 border-b-2 border-purple-500 rounded-full mx-5"></div>
-      Loading...</div>;
+    return (
+      <div className="w-full h-[calc(100vh-64px)] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F7B64F] to-[#F988B4] rounded-full opacity-75 blur-lg"></div>
+          <div className="animate-spin w-12 h-12 border-t-2 border-b-2 border-purple-500 rounded-full relative"></div>
+        </div>
+        <p className="mt-4 text-gray-600 dark:text-gray-300 font-urbanist">Loading your note...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-full">
-      <div className="w-full md:w-3/4 h-[70vh] md:h-full">
-        <div id="container" className="w-full h-full p-4 overflow-hidden" ref={wrapperRef}></div>
-      </div>
-      <div className="w-full md:w-1/4 md:h-full p-4 overflow-y-auto">
-        {user && <Summarise refString={refString} type="note" userId={user.uid} />}
-      </div>
+    <div className="flex flex-col w-full h-full font-urbanist">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full h-[70vh] md:h-full flex flex-col"
+      >
+        <div id="container" className="w-full flex-1 p-4 overflow-hidden rounded-lg backdrop-blur-sm bg-white/60 dark:bg-background/70 shadow-sm relative" ref={wrapperRef}>
+          <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)] opacity-30 pointer-events-none">
+            <GridPattern />
+          </div>
+        </div>
+        {saving && !showToolbar && (
+          <div className="text-xs text-gray-500 mt-2 flex items-center">
+            <div className="animate-spin w-3 h-3 border-t-2 border-b-2 border-purple-500 rounded-full mr-2"></div>
+            Saving...
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }

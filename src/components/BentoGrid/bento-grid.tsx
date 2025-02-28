@@ -386,13 +386,13 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   return (
     <div className={cn("w-full", className)} style={{ position: 'relative', zIndex: 1 }}>
       {folders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
+        <div className="flex flex-col -mt-20 items-center justify-center h-[calc(100vh-200px)]">
           <button
             onClick={() => setIsCreateFolderModalVisible(true)}
-            className="p-[1px] relative block"
+            className="p-[1px] relative block "
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-xl" />
-            <div className="px-10 py-5 relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
+            <div className="px-10 py-5  relative bg-white rounded-xl group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center h-full">
               <FolderPlus className="w-5 h-5 mr-3 text-regular" />
               <div className="flex items-center whitespace-nowrap text-xl">
                 Create Your First Topic
@@ -402,25 +402,9 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
           <div className="mt-4 w-80 font-light text-sm text-center">
             💡 A topic is a subsection of a workspace. Here&apos;s where you can store files and notes.
           </div>
-          
-          {/* Add this div with a specific height to ensure the FileUpload is visible */}
-          <div className="mt-8 w-full max-w-md">
-            {typeof window !== 'undefined' && (
-              <FileUpload 
-                workspaceId={workspaceId} 
-                db={db} 
-                onFileUpload={(file) => {
-                  console.log("File uploaded:", file);
-                  fetchItems(); // Refresh the items after upload
-                }} 
-                folder={currentFolder}
-                isBentoGridEmpty={true}
-              />
-            )}
-          </div>
         </div>
       ) : items.length === 0 ? (
-        <div className="flex items-center justify-center mt-30">
+        <div className="flex flex-col items-center justify-center mt-30">
           {type === "files" ? (
             <div className="w-full max-w-md z-10">
               <FileUpload
@@ -430,6 +414,33 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
                 folder={currentFolder}
                 isBentoGridEmpty={true}
               />
+              <div className="text-center mt-6">
+                <button 
+                  onClick={() => {
+                    // This will trigger the same action as the "New Live Note" button
+                    const event = new CustomEvent('create-new-note');
+                    document.dispatchEvent(event);
+                  }}
+                  className="text-sm text-gray-400 font-medium flex items-center justify-center mx-auto bg-white px-4 py-2 rounded-lg group hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  <svg 
+                    className="w-4 h-4 mr-2 transition-colors group-hover:stroke-[#C66EC5]" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 5v14" />
+                    <path d="M5 12h14" />
+                  </svg>
+                  <span className="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#C66EC5] group-hover:to-[#FC608D]">
+                    Or create a new<span className="font-bold ml-1">Collaborative Live Note</span>
+                  </span>
+                </button>
+              </div>
             </div>
           ) : (
             <ResourceCreator
@@ -618,13 +629,8 @@ export const BentoGridItem = ({
       });
     }
     
-    // Create and click a temporary anchor element to navigate
-    const anchor = document.createElement('a');
-    anchor.href = navigateUrl;
-    anchor.style.display = 'none';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
+    // Use router.push for client-side navigation instead of creating an anchor element
+    router.push(navigateUrl);
   };
 
 

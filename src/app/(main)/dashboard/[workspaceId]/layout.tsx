@@ -384,6 +384,18 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
   const [activeTab, setActiveTab] = useState("files");
 
+  useEffect(() => {
+    const handleCreateNewNote = () => {
+      setIsNewNoteModalOpen(true);
+    };
+    
+    document.addEventListener('create-new-note', handleCreateNewNote);
+    
+    return () => {
+      document.removeEventListener('create-new-note', handleCreateNewNote);
+    };
+  }, []);
+
   return (
     <FolderProvider>
        <AblySpacesProvider workspaceId={params.workspaceId}>
@@ -497,8 +509,20 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                           className="p-[1px] relative block mx-2">
                           <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
                           <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                            <Pencil className="w-4 h-4 md:mr-2" />
-                            <span className="hidden md:inline">New Note</span>
+                            <svg 
+                              className="w-4 h-4 md:mr-2" 
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              xmlns="http://www.w3.org/2000/svg"
+                              stroke="currentColor" 
+                              strokeWidth="2" 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round"
+                            >
+                              <path d="M12 5v14" />
+                              <path d="M5 12h14" />
+                            </svg>
+                            <span className="hidden md:inline">New Live Note</span>
                           </div>
                         </button>
                         </div>
@@ -545,7 +569,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   folders={foldersData}
                   activeFolder={activeFilterFolder}
                   onFolderChange={setActiveFilterFolder}
-                  isVisible={activeTab === "files" && foldersData.length > 0}
+                  isVisible={activeTab === "files" && foldersData.length > 0 && !folderId}
                 />
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
@@ -562,7 +586,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               </>
             )}
             <div className="relative">
-              <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 lg:left-80 w-max">
+              <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 lg:left-[25%] w-max">
                 <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
               </div>
             </div>
