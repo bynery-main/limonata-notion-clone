@@ -5,7 +5,6 @@ import "quill/dist/quill.snow.css";
 import { db } from "@/firebase/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useSocket } from "@/lib/providers/socket-provider";
-import Summarise from "../ai-tools/summarise";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { motion } from "framer-motion";
 import { GridPattern } from "../ui/resource-creator";
@@ -322,12 +321,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-full font-urbanist">
+    <div className="flex flex-col w-full h-full font-urbanist">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full md:w-3/4 h-[70vh] md:h-full flex flex-col"
+        className="w-full h-[70vh] md:h-full flex flex-col"
       >
         <div id="container" className="w-full flex-1 p-4 overflow-hidden rounded-lg backdrop-blur-sm bg-white/60 dark:bg-background/70 shadow-sm relative" ref={wrapperRef}>
           <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)] opacity-30 pointer-events-none">
@@ -340,14 +339,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
             Saving...
           </div>
         )}
-      </motion.div>
-      <motion.div 
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="w-full md:w-1/4 md:h-full p-4 overflow-y-auto"
-      >
-        {user && <Summarise refString={refString} type="note" userId={user.uid} />}
       </motion.div>
     </div>
   );
