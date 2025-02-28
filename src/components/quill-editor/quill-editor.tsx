@@ -31,6 +31,27 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
+// Define Markdown shortcuts
+const MARKDOWN_SHORTCUTS = {
+  '#': { header: 1 },
+  '##': { header: 2 },
+  '###': { header: 3 },
+  '####': { header: 4 },
+  '#####': { header: 5 },
+  '######': { header: 6 },
+  '*': { list: 'bullet' },
+  '-': { list: 'bullet' },
+  '+': { list: 'bullet' },
+  '1.': { list: 'ordered' },
+  '>': { blockquote: true },
+  '```': { 'code-block': true },
+  '**': { bold: true },
+  '__': { bold: true },
+  '*_': { italic: true },
+  '_*': { italic: true },
+  '~~': { strike: true },
+};
+
 const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }) => {
   const [quill, setQuill] = useState<any>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -81,6 +102,51 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       const { default: Quill } = await import("quill");
       const QuillCursors = (await import("quill-cursors")).default;
       Quill.register("modules/cursors", QuillCursors);
+      
+      // Create a custom keyboard module for Markdown shortcuts
+      const keyboard = {
+        bindings: {
+          // Add markdown shortcuts
+          markdownShortcuts: {
+            key: ' ',
+            handler: function(range, context) {
+              // Get the text before the space
+              const line = context.prefix;
+              
+              // Check if the line starts with a Markdown shortcut
+              for (const [pattern, format] of Object.entries(MARKDOWN_SHORTCUTS)) {
+                if (line === pattern || line.startsWith(pattern + ' ')) {
+                  // Delete the Markdown syntax
+                  this.quill.deleteText(range.index - line.length, line.length);
+                  
+                  // Apply the format
+                  if ('header' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'header', format.header);
+                  } else if ('list' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'list', format.list);
+                  } else if ('blockquote' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'blockquote', true);
+                  } else if ('code-block' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'code-block', true);
+                  } else if ('bold' in format) {
+                    // For inline formats like bold/italic, we need different handling
+                    // This is simplified - would need more complex handling for actual implementation
+                    this.quill.format('bold', true);
+                  } else if ('italic' in format) {
+                    this.quill.format('italic', true);
+                  } else if ('strike' in format) {
+                    this.quill.format('strike', true);
+                  }
+                  
+                  return false; // Prevent default space insertion
+                }
+              }
+              return true; // Allow default space insertion
+            }
+          }
+        }
+      };
+      
       const q = new Quill(editor, {
         theme: "snow",
         modules: {
@@ -88,6 +154,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
           cursors: {
             transformOnTextChange: true,
           },
+          keyboard: keyboard,
         },
         placeholder: "Start writing your notes here...",
       });
