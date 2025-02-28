@@ -20,7 +20,7 @@ const TOOLBAR_OPTIONS = [
   ["blockquote", "code-block"],
   [{ header: 1 }, { header: 2 }],
   [{ list: "ordered" }, { list: "bullet" }],
-  [{ script: "sub" }, { script: "super" }],
+  [ { script: "super" }],
   [{ indent: "-1" }, { indent: "+1" }],
   [{ direction: "rtl" }],
   [{ size: ["small", false, "large", "huge"] }],
@@ -145,17 +145,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
           }
         }
       });
-      
-      // Add event listener for editor interactions to reset the auto-hide timer
-      q.root.addEventListener('keydown', () => {
-        setShowToolbar(true);
-        startAutoHideTimer();
-      });
-      
-      q.root.addEventListener('click', () => {
-        setShowToolbar(true);
-        startAutoHideTimer();
-      });
     };
 
     initQuill();
@@ -173,15 +162,23 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       // Let the auto-hide timer handle it
     };
     
-    const handleMouseMove = () => {
-      setShowToolbar(true);
-      startAutoHideTimer();
+    const handleMouseMove = (e: MouseEvent) => {
+      // Only show toolbar when mouse is near the top of the editor
+      const topThreshold = 50; // pixels from the top
+      if (e.clientY - container.getBoundingClientRect().top < topThreshold) {
+        setShowToolbar(true);
+        startAutoHideTimer();
+      }
     };
     
     if (container) {
+      // Remove the general mousemove listener
+      // container.addEventListener('mousemove', handleMouseMove);
+      
+      // Only listen for mouse movements near the top of the container
+      container.addEventListener('mousemove', handleMouseMove);
       container.addEventListener('mouseenter', handleMouseEnter);
       container.addEventListener('mouseleave', handleMouseLeave);
-      container.addEventListener('mousemove', handleMouseMove);
     }
     
     return () => {
