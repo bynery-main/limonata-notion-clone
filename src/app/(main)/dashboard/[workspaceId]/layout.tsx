@@ -545,7 +545,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   folders={foldersData}
                   activeFolder={activeFilterFolder}
                   onFolderChange={setActiveFilterFolder}
-                  isVisible={activeTab === "files" && foldersData.length > 0}
+                  isVisible={activeTab === "files" && foldersData.length > 0 && !folderId}
                 />
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
