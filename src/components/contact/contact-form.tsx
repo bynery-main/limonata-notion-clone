@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { FilloutStandardEmbed } from "@fillout/react";
 import "@fillout/react/style.css";
 import { Header } from '../landing-page/header';
-import Footer from '../footer/footer';
+import Footer from '../landing-page/UI/Footer/Footer';
 import Navbar from '../landing-page/navbar';
 
 const FirebaseContactForm = () => {
