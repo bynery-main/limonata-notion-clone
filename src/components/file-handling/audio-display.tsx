@@ -94,12 +94,10 @@ const AudioDisplay: React.FC<AudioDisplayProps> = ({ fileUrl }) => {
       
       
       {/* Waveform visualization */}
-      <div className="w-full max-w-2xl h-24 mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
+      <div className="w-full max-w-2xl h-24 mb-6  dark:bg-gray-700 rounded-lg overflow-hidden relative">
         <div 
           className="absolute inset-0 flex items-center justify-center"
-          style={{
-            background: `linear-gradient(90deg, rgba(246,177,68,0.3) 0%, rgba(246,177,68,0.3) ${(currentTime / duration) * 100}%, transparent ${(currentTime / duration) * 100}%, transparent 100%)`
-          }}
+
         >
           {/* Decorative waveform bars */}
           <div className="flex items-end justify-center w-full h-full px-4">
