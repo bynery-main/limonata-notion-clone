@@ -149,7 +149,10 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                       ref={dropdownRef}
                       className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"                  >
                       <button
-                        onClick={handleRenameStudyGuide}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleRenameStudyGuide();
+                        }}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                       >
                         <div className="flex items-center">
@@ -157,7 +160,10 @@ const StudyGuideDropdown: React.FC<StudyGuideDropdownProps> = ({
                         </div>
                       </button>
                       <button
-                        onClick={handleDeleteStudyGuide}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteStudyGuide();
+                        }}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                       >
                         <div className="flex items-center">
