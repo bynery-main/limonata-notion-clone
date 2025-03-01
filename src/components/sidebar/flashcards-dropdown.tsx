@@ -59,12 +59,15 @@ const menuIconRef = useRef<HTMLDivElement>(null);
     setDropdownVisible(!dropdownVisible);
   };
 
-  const handleRenameDeck = async () => {
+  const handleRenameDeck = async (event?: React.MouseEvent) => {
     const newName = prompt("Enter a new name for this flashcard deck:", selectedDeck?.name);
     if (newName && selectedDeck) {
       console.log("Renaming deck:", selectedDeck.id, "to new name:", newName);
       const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
       await updateDoc(deckRef, { name: newName });
+      
+      // Prevent automatic navigation by stopping event propagation
+      event?.stopPropagation();
     }
     setDropdownVisible(false);
   };
@@ -184,7 +187,10 @@ const menuIconRef = useRef<HTMLDivElement>(null);
                     className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
                   >
                     <button
-                      onClick={handleRenameDeck}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleRenameDeck();
+                      }}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <div className="flex items-center">
@@ -192,7 +198,10 @@ const menuIconRef = useRef<HTMLDivElement>(null);
                       </div>
                     </button>
                     <button
-                      onClick={handleDeleteDeck}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDeleteDeck();
+                      }}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <div className="flex items-center">

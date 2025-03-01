@@ -173,7 +173,10 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                         className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
                       >
                         <button
-                          onClick={handleRenameQuiz}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleRenameQuiz();
+                          }}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                         >
                           <div className="flex items-center">
@@ -181,7 +184,10 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
                           </div>
                         </button>
                         <button
-                          onClick={handleDeleteQuiz}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleDeleteQuiz();
+                          }}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                         >
                           <div className="flex items-center">
