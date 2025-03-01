@@ -46,31 +46,29 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ fileUrl, fileName }) => {
   return (
     <div className="flex flex-col h-full bg-white/95 dark:bg-neutral-800/95 backdrop-filter backdrop-blur-sm rounded-lg shadow-xl">
       {/* Header with file name */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <FancyText gradient={{ from: '#FE7EF4', to: '#F6B144' }} className="text-xl font-bold truncate">
-          {fileName}
-        </FancyText>
-      </div>
+
       
       {/* Image container */}
       <div 
         className={`relative flex-grow flex items-center justify-center p-4 overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50 bg-black/90' : ''}`}
         onClick={isFullscreen ? toggleFullscreen : undefined}
       >
-        <motion.div
-          className="relative max-w-full max-h-full"
-          style={{
-            transform: `scale(${scale}) rotate(${rotation}deg)`,
-            transition: 'transform 0.3s ease'
-          }}
-        >
-          <img 
-            src={fileUrl} 
-            alt={fileName} 
-            className="max-h-full max-w-full object-contain cursor-zoom-in"
-            onClick={isFullscreen ? undefined : toggleFullscreen}
-          />
-        </motion.div>
+        <div className="flex items-center justify-center w-full h-full">
+          <motion.div
+            className="relative flex items-center justify-center"
+            style={{
+              transform: `scale(${scale}) rotate(${rotation}deg)`,
+              transition: 'transform 0.3s ease'
+            }}
+          >
+            <img 
+              src={fileUrl} 
+              alt={fileName} 
+              className="max-h-[calc(100vh-200px)] max-w-full object-contain cursor-zoom-in"
+              onClick={isFullscreen ? undefined : toggleFullscreen}
+            />
+          </motion.div>
+        </div>
       </div>
       
       {/* Controls */}
@@ -113,7 +111,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ fileUrl, fileName }) => {
           title="Download"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-          <div className="relative bg-white dark:bg-gray-800 rounded-full p-2 group transition duration-200 hover:bg-transparent hover:text-white">
+          <div className="relative rounded-full p-2 group transition duration-200 bg-transparent text-white">
             <Download size={20} />
           </div>
         </motion.button>
