@@ -57,7 +57,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [tier, setTier] = useState<string | null>(null); // State for user tier
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-  const [maxCredits, setMaxCredits] = useState<number>(100); // Assuming a default max of 100 credits per day
+  const [maxCredits, setMaxCredits] = useState<number>(150); // Changed from 100 to 150 credits per day
   const progressValue = credits !== null ? (credits / maxCredits) * 100 : 0;
   const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
     string | null
@@ -230,6 +230,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         setCredits(userData?.credits || 0);
         setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
         setTier(userData?.tier || "free");
+        setMaxCredits(userData?.tier === "pro" ? 1000 : 150); // Changed from 100 to 150 for free tier
       }
     });
 
@@ -255,7 +256,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         setCredits(userData?.credits || 0);
         setSubscriptionStatus(userData?.subscriptionStatus || "inactive");
         setTier(userData?.tier || "free");
-        setMaxCredits(userData?.tier === "pro" ? 1000 : 100);
+        setMaxCredits(userData?.tier === "pro" ? 1000 : 150);
       }
     });
 
@@ -334,7 +335,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                 />
               </motion.div>
               <p className="text-xs text-center mt-1 text-gray-400">
-                {credits} / 100 credits remaining
+                {credits} / 150 credits remaining
               </p>
             </div>
           </>
