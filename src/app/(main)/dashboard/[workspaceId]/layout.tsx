@@ -4,7 +4,7 @@ import { BentoGrid } from "@/components/BentoGrid/bento-grid";
 import { FolderProvider } from "@/contexts/FolderContext";
 import ChatComponent from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
-import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, updateDoc, setDoc } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
@@ -410,15 +410,108 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const handleTitleSave = async () => {
     if (editedTitle.trim() !== pageTitle) {
       try {
-        const workspaceRef = doc(db, "workspaces", params.workspaceId);
-        await updateDoc(workspaceRef, {
-          name: editedTitle.trim()
-        });
-        setPageTitle(editedTitle.trim());
-        toast.success("Workspace title updated");
+        const pathSegments = pathname?.split('/').filter(Boolean) || [];
+        console.log("Path segments:", pathSegments);
+        
+        // Determine if we're updating workspace, folder, or file
+        if (pathSegments.length === 2) {
+          // We're at workspace root - update workspace name
+          console.log("Updating workspace name");
+          const workspaceRef = doc(db, "workspaces", params.workspaceId);
+          await updateDoc(workspaceRef, {
+            name: editedTitle.trim()
+          });
+          setPageTitle(editedTitle.trim());
+          toast.success("Workspace title updated");
+        } 
+        else if (pathSegments.length >= 3) {
+          // Extract folder ID and potential file ID
+          const folderId = pathSegments[2];
+          const fileId = pathSegments.length >= 4 ? pathSegments[3] : null;
+          
+          console.log("Folder ID:", folderId, "File ID:", fileId);
+          
+          // If we have a file ID, we're at file level
+          if (fileId && pathSegments.length >= 4) {
+            console.log("Attempting to update file with ID:", fileId, "in folder:", folderId);
+            
+            // Try to find the file in the folder's files subcollection
+            try {
+              const fileRef = doc(db, "workspaces", params.workspaceId, "folders", folderId, "files", fileId);
+              const fileDoc = await getDoc(fileRef);
+              
+              if (fileDoc.exists()) {
+                console.log("Found file in folder's files subcollection:", fileDoc.data());
+                
+                // Update the file name
+                await updateDoc(fileRef, {
+                  name: editedTitle.trim()
+                });
+                
+                setPageTitle(editedTitle.trim());
+                toast.success("File title updated");
+                setIsEditingTitle(false);
+                return;
+              } else {
+                console.log("File not found in folder's files subcollection");
+              }
+            } catch (fileError) {
+              console.error("Error checking folder's files subcollection:", fileError);
+            }
+            
+            // If not found in files subcollection, try notes subcollection
+            try {
+              console.log("Attempting to update note instead");
+              const noteRef = doc(db, "workspaces", params.workspaceId, "folders", folderId, "notes", fileId);
+              const noteDoc = await getDoc(noteRef);
+              
+              if (noteDoc.exists()) {
+                console.log("Found note in folder's notes subcollection:", noteDoc.data());
+                
+                // Update the note name
+                await updateDoc(noteRef, {
+                  name: editedTitle.trim()
+                });
+                
+                setPageTitle(editedTitle.trim());
+                toast.success("Note title updated");
+                setIsEditingTitle(false);
+                return;
+              } else {
+                console.log("Not a note either");
+              }
+            } catch (noteError) {
+              console.error("Error checking if ID is a note:", noteError);
+            }
+            
+            toast.error("File or note not found");
+          } 
+          // Otherwise, we're at folder level
+          else {
+            console.log("Updating folder with ID:", folderId);
+            
+            const folderRef = doc(db, "workspaces", params.workspaceId, "folders", folderId);
+            const folderDoc = await getDoc(folderRef);
+            
+            if (folderDoc.exists()) {
+              console.log("Found folder in workspace's folders subcollection:", folderDoc.data());
+              
+              // Update the folder name
+              await setDoc(folderRef, { name: editedTitle.trim() }, { merge: true });
+              
+              setPageTitle(editedTitle.trim());
+              toast.success("Folder title updated");
+              setIsEditingTitle(false);
+              return;
+            } else {
+              console.log("Folder not found");
+              toast.error("Folder not found");
+            }
+          }
+        }
       } catch (error) {
-        console.error("Error updating workspace title:", error);
-        toast.error("Failed to update workspace title");
+        console.error("Error updating title:", error);
+        toast.error("Failed to update title");
       }
     }
     setIsEditingTitle(false);
@@ -493,7 +586,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                           >
                             <motion.div
                               initial={{ rotate: 0 }}
-                              animate={{ rotate: isDescriptionVisible ? 0 : 180 }}
+                              animate={{ rotate: isDescriptionVisible ? 180 : 0 }}
                               transition={{ duration: 0.2 }}
                             >
                               <svg
