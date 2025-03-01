@@ -108,7 +108,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
           // Add markdown shortcuts
           markdownShortcuts: {
             key: ' ',
-            handler: function(range, context) {
+            handler: function(this: { quill: any }, range: { index: number, length: number }, context: { prefix: string }) {
               // Get the text before the space
               const line = context.prefix;
               
@@ -128,8 +128,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
                   } else if ('code-block' in format) {
                     this.quill.formatLine(range.index - line.length, 1, 'code-block', true);
                   } else if ('bold' in format) {
-                    // For inline formats like bold/italic, we need different handling
-                    // This is simplified - would need more complex handling for actual implementation
                     this.quill.format('bold', true);
                   } else if ('italic' in format) {
                     this.quill.format('italic', true);
