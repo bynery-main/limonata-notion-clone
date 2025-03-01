@@ -21,23 +21,23 @@ const IntroductionComponent = () => {
           
           <div className="space-y-6 text-gray-600">
             <p className="text-lg md:text-xl leading-relaxed">
-              Don't waste time creating study resources or{' '}
+              Don&apos;t waste time creating study resources or{' '}
               <span className="text-gray-900 font-medium">prompting ChatGPT.</span>
             </p>
             
             <p className="text-lg md:text-xl leading-relaxed">
-              In Limonata, you can add your own and your peer's study notes. All
+              In Limonata, you can add your own and your peer&apos;s study notes. All
               of this will be used by your AI to generate{' '}
               <span className="text-gray-900 font-medium">personalized study materials.</span>
             </p>
             
             <p className="text-lg md:text-xl leading-relaxed">
-              And don't forget,{' '}
+              And don&apos;t forget,{' '}
               <a 
                 href="#" 
                 className="text-[#FE7EF4] hover:text-[#F6B144] transition-colors duration-300 font-medium"
               >
-                it's all collaborative!
+                it&apos;s all collaborative!
               </a>
             </p>
           </div>

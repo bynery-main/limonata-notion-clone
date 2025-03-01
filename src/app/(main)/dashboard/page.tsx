@@ -1,6 +1,6 @@
 "use client";
 
-import Footer from "@/components/landing-page/UI/Footer/Footer";
+import Footer from "@/components/landing-page/UI/footer/footer";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/components/auth-provider/AuthProvider';

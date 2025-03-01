@@ -112,7 +112,7 @@ const ReadySection = () => {
             <div className="card-content">
               <h3>Your study workflow in one place</h3>
               <p>
-                 In Limonata, you'll find all your study essentials—from flashcards to quizzes and guides—designed to streamline your workflow and boost your learning efficiency.
+                 In Limonata, you&apos;ll find all your study essentials—from flashcards to quizzes and guides—designed to streamline your workflow and boost your learning efficiency.
               </p>
             </div>
             <div className="features-grid">

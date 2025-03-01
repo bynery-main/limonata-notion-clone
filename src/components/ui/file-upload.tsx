@@ -114,12 +114,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
             <GridPattern />
           </div>
           <div className="flex flex-col items-center justify-center">
-            <p className="relative z-20 font-bold text-neutral-700 dark:text-neutral-300 text-sm sm:text-base">
+            <p className="relative z-20 font-bold text-neutral-700  text-sm sm:text-base">
               <FancyText gradient={{ from: "#FE7EF4", to: "#F6B144" }}>
                 Upload file
               </FancyText>
             </p>
-            <p className="relative z-20 font-medium text-center text-neutral-400 dark:text-neutral-400 text-xs sm:text-sm mt-2">
+            <p className="relative z-20 font-medium text-center text-neutral-400  text-xs sm:text-sm mt-2">
               Click or drag and drop it here!
             </p>
 
@@ -129,7 +129,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
                 variants={mainVariant}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={cn(
-                  "relative group-hover/file:shadow-2xl z-40 bg-white dark:bg-neutral-900 flex items-center justify-center h-24 sm:h-28 w-full max-w-[6rem] sm:max-w-[7rem] mx-auto rounded-xl",
+                  "relative group-hover/file:shadow-2xl z-40 bg-white flex items-center justify-center h-24 sm:h-28 w-full max-w-[6rem] sm:max-w-[7rem] mx-auto rounded-xl",
                   "shadow-[0px_10px_50px_rgba(0,0,0,0.1)]"
                 )}
               >
@@ -168,7 +168,7 @@ export function GridPattern() {
   const columns = 21;
   const rows = 11;
   return (
-    <div className="flex bg-gray-100 dark:bg-neutral-900 flex-shrink-0 flex-wrap justify-center items-center gap-x-px gap-y-px scale-105">
+    <div className="flex bg-gray-100  flex-shrink-0 flex-wrap justify-center items-center gap-x-px gap-y-px scale-105">
       {Array.from({ length: rows }).map((_, row) =>
         Array.from({ length: columns }).map((_, col) => {
           const index = row * columns + col;
@@ -177,8 +177,8 @@ export function GridPattern() {
               key={`${col}-${row}`}
               className={`w-4 h-4 sm:w-6 sm:h-6 flex flex-shrink-0 rounded-[2px] ${
                 index % 2 === 0
-                  ? "bg-gray-50 dark:bg-neutral-950"
-                  : "bg-gray-50 dark:bg-neutral-950 shadow-[0px_0px_1px_2px_rgba(255,255,255,1)_inset] dark:shadow-[0px_0px_1px_2px_rgba(0,0,0,1)_inset]"
+                  ? "bg-gray-50 "
+                  : "bg-gray-50 shadow-[0px_0px_1px_2px_rgba(255,255,255,1)_inset]"
               }`}
             />
           );

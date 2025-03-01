@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../landing-page/navbar";
+import Navbar from "../landing-page/UI/NavBar/NavBar";
 
 interface NavbarAuthButtonProps {
   children: React.ReactNode;
