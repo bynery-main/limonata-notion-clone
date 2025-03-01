@@ -4,7 +4,7 @@ import { BentoGrid } from "@/components/BentoGrid/bento-grid";
 import { FolderProvider } from "@/contexts/FolderContext";
 import ChatComponent from "@/components/chat/chat-component";
 import AIChatComponent from "@/components/ai-tools/ai-chat-component";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/breadcrumbs/breadcrumbs";
 import { useAuth } from "@/components/auth-provider/AuthProvider";
@@ -27,6 +27,7 @@ import { BookOpen, FileText, Layout as LayoutIcon, HelpCircle } from "lucide-rea
 import { IconLayout } from "@tabler/icons-react";
 import TabBar from "@/components/tab-bar";
 import FolderFilterTabs from "@/components/folder-filter/folder-filter-tabs";
+import { toast } from "react-hot-toast";
 
 interface FileData {
   id: string;
@@ -78,6 +79,9 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const isSettingsPage = pathname?.endsWith("/settings");
   const isWorkspaceRoot = pathname === `/dashboard/${params.workspaceId}`;
   const [activeFilterFolder, setActiveFilterFolder] = useState<string | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState("");
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -116,8 +120,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
 
     validateUserAndFetchData();
   }, [params.workspaceId, db, currentUserId, loading, user, router, isWorkspaceRoot]);
-
-
 
   const getFolderId = (path: string): string | null => {
     const segments = path.split("/").filter(Boolean);
@@ -396,6 +398,40 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     };
   }, []);
 
+  const handleTitleEdit = () => {
+    setEditedTitle(pageTitle);
+    setIsEditingTitle(true);
+    setTimeout(() => {
+      titleInputRef.current?.focus();
+      titleInputRef.current?.select();
+    }, 10);
+  };
+
+  const handleTitleSave = async () => {
+    if (editedTitle.trim() !== pageTitle) {
+      try {
+        const workspaceRef = doc(db, "workspaces", params.workspaceId);
+        await updateDoc(workspaceRef, {
+          name: editedTitle.trim()
+        });
+        setPageTitle(editedTitle.trim());
+        toast.success("Workspace title updated");
+      } catch (error) {
+        console.error("Error updating workspace title:", error);
+        toast.error("Failed to update workspace title");
+      }
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleTitleSave();
+    } else if (e.key === "Escape") {
+      setIsEditingTitle(false);
+    }
+  };
+
   return (
     <FolderProvider>
        <AblySpacesProvider workspaceId={params.workspaceId}>
@@ -431,9 +467,26 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                       </button>
                       {pageTitle && (
                         <div className="flex items-center">
-                          <h1 className="text-4xl font-light">
-                            {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                          </h1>
+                          {isEditingTitle ? (
+                            <input
+                              ref={titleInputRef}
+                              type="text"
+                              value={editedTitle}
+                              onChange={(e) => setEditedTitle(e.target.value)}
+                              onBlur={handleTitleSave}
+                              onKeyDown={handleTitleKeyDown}
+                              className="text-4xl font-light bg-transparent border-b border-gray-300 focus:outline-none focus:border-gray-500 w-full"
+                              maxLength={100}
+                            />
+                          ) : (
+                            <h1 
+                              className="text-4xl font-light cursor-pointer"
+                              onClick={handleTitleEdit}
+                              title="Click to edit workspace title"
+                            >
+                              {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                            </h1>
+                          )}
                           <button
                             onClick={() => setIsDescriptionVisible(!isDescriptionVisible)}
                             className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"

@@ -20,9 +20,8 @@ const TOOLBAR_OPTIONS = [
   ["blockquote", "code-block"],
   [{ header: 1 }, { header: 2 }],
   [{ list: "ordered" }, { list: "bullet" }],
-  [{ script: "sub" }, { script: "super" }],
+  [ { script: "super" }],
   [{ indent: "-1" }, { indent: "+1" }],
-  [{ direction: "rtl" }],
   [{ size: ["small", false, "large", "huge"] }],
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   [{ color: [] }, { background: [] }],
@@ -30,6 +29,27 @@ const TOOLBAR_OPTIONS = [
   [{ align: [] }],
   ["clean"],
 ];
+
+// Define Markdown shortcuts
+const MARKDOWN_SHORTCUTS = {
+  '#': { header: 1 },
+  '##': { header: 2 },
+  '###': { header: 3 },
+  '####': { header: 4 },
+  '#####': { header: 5 },
+  '######': { header: 6 },
+  '*': { list: 'bullet' },
+  '-': { list: 'bullet' },
+  '+': { list: 'bullet' },
+  '1.': { list: 'ordered' },
+  '>': { blockquote: true },
+  '```': { 'code-block': true },
+  '**': { bold: true },
+  '__': { bold: true },
+  '*_': { italic: true },
+  '_*': { italic: true },
+  '~~': { strike: true },
+};
 
 const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }) => {
   const [quill, setQuill] = useState<any>(null);
@@ -81,6 +101,49 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       const { default: Quill } = await import("quill");
       const QuillCursors = (await import("quill-cursors")).default;
       Quill.register("modules/cursors", QuillCursors);
+      
+      // Create a custom keyboard module for Markdown shortcuts
+      const keyboard = {
+        bindings: {
+          // Add markdown shortcuts
+          markdownShortcuts: {
+            key: ' ',
+            handler: function(this: { quill: any }, range: { index: number, length: number }, context: { prefix: string }) {
+              // Get the text before the space
+              const line = context.prefix;
+              
+              // Check if the line starts with a Markdown shortcut
+              for (const [pattern, format] of Object.entries(MARKDOWN_SHORTCUTS)) {
+                if (line === pattern || line.startsWith(pattern + ' ')) {
+                  // Delete the Markdown syntax
+                  this.quill.deleteText(range.index - line.length, line.length);
+                  
+                  // Apply the format
+                  if ('header' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'header', format.header);
+                  } else if ('list' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'list', format.list);
+                  } else if ('blockquote' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'blockquote', true);
+                  } else if ('code-block' in format) {
+                    this.quill.formatLine(range.index - line.length, 1, 'code-block', true);
+                  } else if ('bold' in format) {
+                    this.quill.format('bold', true);
+                  } else if ('italic' in format) {
+                    this.quill.format('italic', true);
+                  } else if ('strike' in format) {
+                    this.quill.format('strike', true);
+                  }
+                  
+                  return false; // Prevent default space insertion
+                }
+              }
+              return true; // Allow default space insertion
+            }
+          }
+        }
+      };
+      
       const q = new Quill(editor, {
         theme: "snow",
         modules: {
@@ -88,6 +151,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
           cursors: {
             transformOnTextChange: true,
           },
+          keyboard: keyboard,
         },
         placeholder: "Start writing your notes here...",
       });
@@ -145,17 +209,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
           }
         }
       });
-      
-      // Add event listener for editor interactions to reset the auto-hide timer
-      q.root.addEventListener('keydown', () => {
-        setShowToolbar(true);
-        startAutoHideTimer();
-      });
-      
-      q.root.addEventListener('click', () => {
-        setShowToolbar(true);
-        startAutoHideTimer();
-      });
     };
 
     initQuill();
@@ -173,15 +226,23 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       // Let the auto-hide timer handle it
     };
     
-    const handleMouseMove = () => {
-      setShowToolbar(true);
-      startAutoHideTimer();
+    const handleMouseMove = (e: MouseEvent) => {
+      // Only show toolbar when mouse is near the top of the editor
+      const topThreshold = 50; // pixels from the top
+      if (e.clientY - container.getBoundingClientRect().top < topThreshold) {
+        setShowToolbar(true);
+        startAutoHideTimer();
+      }
     };
     
     if (container) {
+      // Remove the general mousemove listener
+      // container.addEventListener('mousemove', handleMouseMove);
+      
+      // Only listen for mouse movements near the top of the container
+      container.addEventListener('mousemove', handleMouseMove);
       container.addEventListener('mouseenter', handleMouseEnter);
       container.addEventListener('mouseleave', handleMouseLeave);
-      container.addEventListener('mousemove', handleMouseMove);
     }
     
     return () => {

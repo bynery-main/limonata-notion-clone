@@ -57,7 +57,7 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
         <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-lg shadow-md max-w-md text-center">
           <h3 className="text-lg font-medium mb-2">File Preview Unavailable</h3>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
-            The file "{fileName}" cannot be previewed because the URL is missing.
+            The file &quot;{fileName}&quot; cannot be previewed because the URL is missing.
           </p>
           <p className="text-sm text-gray-500">
             This may be because the file was uploaded with a different method or the storage link has expired.
