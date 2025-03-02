@@ -45,7 +45,7 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
         ) : (
           <div>
             <p>File type not supported for preview. <a href={effectiveUrl} download>Download</a> the file to view.</p>
-          </div>
+          </div> 
         )}
       </div>
     );

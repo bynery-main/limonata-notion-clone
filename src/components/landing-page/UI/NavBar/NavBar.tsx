@@ -6,7 +6,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig';
 import Image from 'next/image';
-import logo from '../../../../../public/images/Black_Logo@4x.png';
+import logo from '@/public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
 import Link from 'next/link';
 
@@ -101,21 +101,6 @@ const Navbar = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    const scrollToFeatures = () => {
-        if (pathname !== '/') {
-            router.push('/');
-            setShouldScrollToFeatures(true);
-        } else {
-            const featuresSection = document.getElementById('features-section');
-            if (featuresSection) {
-                featuresSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-        setIsMenuOpen(false);
-    };
-    const handleLogoClick = () => {
-        router.push('/');
-    }
 
     useEffect(() => {
         if (shouldScrollToFeatures && pathname === '/') {
