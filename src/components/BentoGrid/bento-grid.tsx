@@ -737,7 +737,25 @@ export const BentoGridItem = ({
           // If not found as a file, attempt to delete as a note
           const noteSnapshot = await getDoc(noteRef);
           if (noteSnapshot.exists()) {
+
+            // Get workspace document reference
+            const workspaceRef = doc(db, "workspaces", workspaceId);
+            let workspaceDoc = await getDoc(workspaceRef);
+            let workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+
+            const noteData = noteSnapshot.data();
+            const noteText = noteData.text || "";
+            
+            // Count characters in the note's text
+            const noteCharCount = noteText.length;
+            
+            // Subtract note's character count from workspace total
+            workspaceCharCount -= noteCharCount;
+
             await deleteDoc(noteRef);  // Delete from Firestore
+            
+            workspaceCharCount = Math.max(0, workspaceCharCount);
+            await updateDoc(workspaceRef, { charCount: workspaceCharCount })
           } else {
             console.error("File or note not found in Firestore.");
           }

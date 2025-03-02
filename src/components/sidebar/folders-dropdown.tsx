@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { collection, onSnapshot, doc, deleteDoc, query, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, getDocs, getDoc, updateDoc } from "firebase/firestore";
 import { ref, listAll, deleteObject } from "firebase/storage";
 import { db, storage } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
@@ -139,9 +139,28 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
     const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
     const notesQuery = query(notesRef);
     const notesSnapshot = await getDocs(notesQuery);
+
+    // Get workspace document reference
+    const workspaceRef = doc(db, "workspaces", workspaceId);
+    let workspaceDoc = await getDoc(workspaceRef);
+    let workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+
     for (const noteDoc of notesSnapshot.docs) {
+      // Get the note's text content
+      const noteData = noteDoc.data();
+      const noteText = noteData.text || "";
+      
+      // Count characters in the note's text
+      const noteCharCount = noteText.length;
+      
+      // Subtract note's character count from workspace total
+      workspaceCharCount -= noteCharCount;
+
       await deleteDoc(noteDoc.ref);
     }
+
+    workspaceCharCount = Math.max(0, workspaceCharCount);
+    await updateDoc(workspaceRef, { charCount: workspaceCharCount })
 
     // Recursively delete all subfolders and their contents
     const subfoldersRef = collection(db, "workspaces", workspaceId, "folders", folderId, "subfolders");
