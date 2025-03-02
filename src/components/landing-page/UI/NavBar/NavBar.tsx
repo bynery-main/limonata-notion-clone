@@ -6,7 +6,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig';
 import Image from 'next/image';
-import logo from '@/public/Images/Black_Logo@4x.png';
+import logo from '/public/Images/Black_Logo@4x.png';
 import styled, { keyframes } from 'styled-components';
 import Link from 'next/link';
 
