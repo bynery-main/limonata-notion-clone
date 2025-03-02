@@ -130,20 +130,42 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
     const filesQuery = query(filesRef);
     const filesSnapshot = await getDocs(filesQuery);
 
+    // Get workspace reference - we'll need this for both file and note cases
+    const workspaceRef = doc(db, "workspaces", workspaceId);
+    let workspaceDoc = await getDoc(workspaceRef);
+    let workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+
     // Delete all files in the folder
     for (const fileDoc of filesSnapshot.docs) {
-      await deleteDoc(fileDoc.ref);
+      const fileData = fileDoc.data();
+
+      if (fileData?.transcript) {
+        const transcriptCharCount = fileData.transcript.length;
+        workspaceCharCount -= transcriptCharCount;
+        console.log(`Subtracting ${transcriptCharCount} characters from transcript`);
+      }
+
+      try {
+        await deleteDoc(fileDoc.ref);
+      } catch (error) {
+        console.error("Error deleting file document:", error);
+      }
+
+      if (fileData?.transcript) {
+        try {
+          workspaceCharCount = Math.max(0, workspaceCharCount);
+          await updateDoc(workspaceRef, { charCount: workspaceCharCount });
+          console.log(`Updated workspace character count after file deletion: ${workspaceCharCount}`);
+        } catch (error) {
+          console.error("Error updating workspace character count:", error);
+        }
+      }
     }
 
     // Delete notes
     const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
     const notesQuery = query(notesRef);
     const notesSnapshot = await getDocs(notesQuery);
-
-    // Get workspace document reference
-    const workspaceRef = doc(db, "workspaces", workspaceId);
-    let workspaceDoc = await getDoc(workspaceRef);
-    let workspaceCharCount = workspaceDoc.data()?.charCount || 0;
 
     for (const noteDoc of notesSnapshot.docs) {
       // Get the note's text content

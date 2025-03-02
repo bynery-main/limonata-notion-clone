@@ -178,15 +178,35 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
       const noteRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/notes/${fileId}`);
 
+      // Get workspace reference - we'll need this for both file and note cases
+      const workspaceRef = doc(db, "workspaces", workspaceId);
+      let workspaceDoc = await getDoc(workspaceRef);
+      let workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+
       // Attempt to delete as a file first
       try {
         const fileSnapshot = await getDoc(fileRef);
         if (fileSnapshot.exists()) {
+          const fileData = fileSnapshot.data();
           const fileName = fileSnapshot.data()?.name;
+
+          if (fileData?.transcript) {
+            const transcriptCharCount = fileData.transcript.length;
+            workspaceCharCount -= transcriptCharCount;
+            console.log(`Subtracting ${transcriptCharCount} characters from transcript`);
+          }
+
           const storagePath = `workspaces/${workspaceId}/folders/${folder.id}/${fileName}`;
           const storageRef = ref(storage, storagePath);
           await deleteObject(storageRef);  // Delete from storage
           await deleteDoc(fileRef);  // Delete from Firestore
+
+          if (fileData?.transcript) {
+            workspaceCharCount = Math.max(0, workspaceCharCount);
+            await updateDoc(workspaceRef, { charCount: workspaceCharCount });
+            console.log(`Updated workspace character count after file deletion: ${workspaceCharCount}`);
+          }
+
         } else {
           // If not found as a file, attempt to delete as a note
           const noteSnapshot = await getDoc(noteRef);
