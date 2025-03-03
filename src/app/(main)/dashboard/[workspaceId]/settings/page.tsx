@@ -24,7 +24,9 @@ const SettingsPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
+  const [charCount, setCharCount] = useState(0);
+  const maxCharCount = 200000;
+  const charProgressValue = (charCount / maxCharCount) * 100;
 
   useEffect(() => {
     if (pathname) {
@@ -48,6 +50,7 @@ const SettingsPage = () => {
         setTitle(workspaceData.name || "");
         setDescription(workspaceData.description || "");
         setEmoji(workspaceData.emoji || "💼");
+        setCharCount(workspaceData.charCount || 0);
       } else {
         toast.error("Workspace not found.");
       }
@@ -166,6 +169,22 @@ const SettingsPage = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full h-24"
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Workspace Storage
+                </label>
+                <div className="bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-2 bg-blue-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${charProgressValue}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {charCount.toLocaleString()} / {maxCharCount.toLocaleString()} characters used
+                </p>
               </div>
             </>
           )}
