@@ -63,7 +63,7 @@
                 width: 100%;
                 background: radial-gradient(circle at top right, #F8AB2F, #F44E18, #FC1AA6);
                 color: white;
-                padding: 2rem 2rem 0 2rem;
+                padding: 4rem 2rem 0 2rem;
 
             }
 
@@ -72,7 +72,7 @@
                 width: 80%;
                 background: radial-gradient(circle at top right, #F44E18, #F8AB2F);
                 color: white;
-                padding: 2rem 2rem 0 2rem;
+                padding: 4rem 2rem 0 2rem;
                 position: relative;
                 overflow: hidden;
 
@@ -129,7 +129,7 @@
                 min-height: 300px;
                 background: radial-gradient(circle at top right, #FC1AA6, #F8AB2F, #FFF5D1);
                 color: white;
-                padding: 2rem;
+                padding: 4rem 2rem 2rem 2rem;
                 overflow: hidden;
 
                 
@@ -201,11 +201,11 @@
         justify-content: center;
         gap: 1rem;
         
-        border-radius: 1.5rem;
+        border-radius: 3rem;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
 
         h3{
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 600;
         }
 

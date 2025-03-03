@@ -44,7 +44,6 @@ const stackedCards = (
 )
 
 const courses = [
-  { name: "Literature", emoji: "📚" },
   { name: "Mathematics", emoji: "🔢" },
   { name: "Biology", emoji: "🧬" },
   { name: "Chemistry", emoji: "⚗️" },
