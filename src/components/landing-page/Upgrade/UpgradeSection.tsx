@@ -88,10 +88,10 @@ const floatingEmojis = (
 
 // Update the AI notifications implementation
 const aiNotifications = [
-  "Summarizing your notes...",
-  "Creating flashcards from your highlights...",
-  "Finding key concepts in your notes...",
-  "Generating practice questions..."
+  { text: "Summarizing your notes...", emoji: "📝" },
+  { text: "Creating flashcards from your highlights...", emoji: "🔍" },
+  { text: "Finding key concepts in your notes...", emoji: "🧠" },
+  { text: "Generating practice questions...", emoji: "❓" }
 ];
 
 const aiNotificationsElement = (
@@ -101,8 +101,9 @@ const aiNotificationsElement = (
         className="ai-notification" 
         key={index}
         style={{"--index": index} as React.CSSProperties}
+        data-emoji={notification.emoji}
       >
-        {notification}
+        <span className="notification-text">{notification.text}</span>
       </div>
     ))}
   </div>

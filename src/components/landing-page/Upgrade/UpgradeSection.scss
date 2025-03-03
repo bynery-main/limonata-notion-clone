@@ -105,8 +105,9 @@
                         animation: notificationSequence 12s calc(var(--index) * 3s) infinite;
                         
                         &::before {
-                            content: "🤖";
+                            content: attr(data-emoji);
                             font-size: 22px;
+                            margin-right: 8px;
                         }
                     }
                 }
