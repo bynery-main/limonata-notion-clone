@@ -107,6 +107,19 @@ const ReadySection = () => {
       </div>
 
       <div className="ready-section__container">
+        <div className="ready-right">
+          <div className="ready-section__card ready-section__card--tools">
+            <div className="card-content">
+              <h3>Collaborate with your friends</h3>
+            </div>
+            <GradeRing />
+          </div>
+
+          <button className="ready-section__button">
+            Start for free
+          </button>
+        </div>
+
         <div className="ready-left">
           <div className="ready-section__card ready-section__card--flashcards">
             <div className="card-content">
@@ -125,26 +138,7 @@ const ReadySection = () => {
             </div>
           </div>
 
-          <div className="ready-section__card ready-section__card--ai">
-            <div className="card-content">
-              <h3>Use AI to skyrocket your productivity</h3>
-              <p>Jot down tasks and assign action items in your meetings.</p>
-            </div>
-            <Image src={ai} alt="ai" />
-          </div>
-        </div>
-
-        <div className="ready-right">
-          <div className="ready-section__card ready-section__card--tools">
-            <div className="card-content">
-              <h3>Collaborate with your friends</h3>
-            </div>
-            <GradeRing />
-          </div>
-
-          <button className="ready-section__button">
-            Start for free
-          </button>
+         
         </div>
       </div>
     </section>
