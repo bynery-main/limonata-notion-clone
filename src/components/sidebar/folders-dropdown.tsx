@@ -226,7 +226,7 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
-            placeholder="New Topic name"
+            placeholder="New Topic Name"
             className="border p-2 rounded flex-grow"
           />
           <motion.div
