@@ -86,6 +86,28 @@ const floatingEmojis = (
   </div>
 );
 
+// Update the AI notifications implementation
+const aiNotifications = [
+  "Summarizing your notes...",
+  "Creating flashcards from your highlights...",
+  "Finding key concepts in your notes...",
+  "Generating practice questions..."
+];
+
+const aiNotificationsElement = (
+  <div className="ai-notifications">
+    {aiNotifications.map((notification, index) => (
+      <div 
+        className="ai-notification" 
+        key={index}
+        style={{"--index": index} as React.CSSProperties}
+      >
+        {notification}
+      </div>
+    ))}
+  </div>
+);
+
 const UpgradeSection = () => {
   return (
     <section className="upgrade-section">
@@ -122,6 +144,7 @@ const UpgradeSection = () => {
               <h3>Use AI to skyrocket your productivity</h3>
               <p>Jot down tasks and assign action items in your meetings.</p>
             </div>
+            {aiNotificationsElement}
             <Image src={ai} alt="ai" />
           </div>
         </div>
