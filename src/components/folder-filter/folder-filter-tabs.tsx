@@ -24,7 +24,7 @@ const FolderFilterTabs: React.FC<FolderFilterTabsProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="flex flex-wrap gap-2 px-4 overflow-x-auto absolute w-full"
+            className="flex flex-wrap gap-2 px-4 overflow-x-auto absolute w-full no-scrollbar"
           >
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -33,13 +33,13 @@ const FolderFilterTabs: React.FC<FolderFilterTabsProps> = ({
               className={cn(
                 "px-3 py-1 rounded-full text-sm font-medium transition-colors relative",
                 activeFolder === null
-                  ? "text-[#F6B144]"
+                  ? "text-[#C66EC5]"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               )}
             >
               {activeFolder === null && (
                 <div className="absolute inset-0 rounded-full p-[1px]">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#F6B144] to-[#FED280]"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#C66EC5] to-[#FC608D]"></div>
                   <div className="absolute inset-[1px] rounded-full bg-white"></div>
                 </div>
               )}
@@ -66,13 +66,13 @@ const FolderFilterTabs: React.FC<FolderFilterTabsProps> = ({
                 className={cn(
                   "px-3 py-1 rounded-full text-sm font-medium transition-colors relative",
                   activeFolder === folder.id
-                    ? "text-[#F6B144]"
+                    ? "text-[#C66EC5]"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 )}
               >
                 {activeFolder === folder.id && (
                   <div className="absolute inset-0 rounded-full p-[1px]">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#F6B144] to-[#FED280]"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#C66EC5] to-[#FC608D]"></div>
                     <div className="absolute inset-[1px] rounded-full bg-white"></div>
                   </div>
                 )}

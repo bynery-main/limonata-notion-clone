@@ -35,7 +35,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 mb-6">
-      <div className="flex justify-between rounded-3xl bg-gray-100 p-1 relative">
+      <div className="flex justify-between rounded-3xl bg-gray-100 p-0 relative">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -43,7 +43,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
               if (el) tabRefs.current.set(tab.id, el);
             }}
             onClick={() => onChange(tab.id)}
-            className={`flex items-center px-6 py-2.5 text-sm font-medium transition-all relative rounded-2xl flex-1 justify-center ${
+            className={`flex items-center px-6 py-3 text-sm font-medium transition-all relative rounded-3xl flex-1 justify-center ${
               activeTab === tab.id 
               ? "" 
               : "hover:text-gray-900 text-gray-400"
@@ -60,7 +60,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
           </button>
         ))}
         <motion.div 
-          className="absolute inset-y-1 rounded-3xl"
+          className="absolute inset-y-0 rounded-3xl"
           style={{
             boxShadow: "0 0 0 2px transparent",
             backgroundImage: "linear-gradient(white, white), linear-gradient(to right, #C66EC5, #FC608D)",
