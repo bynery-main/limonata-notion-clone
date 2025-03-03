@@ -25,7 +25,7 @@ const Reviews = () => {
       author: {
         name: 'Roco Fernandez Pagella',
         title: 'Grad Student at Hardvard',
-        image: '/images/testimonials/roco.png',
+        image: '/avatars/avatar2.jpg',
       },
     },
     {
@@ -36,7 +36,7 @@ const Reviews = () => {
       author: {
         name: 'Sarah Johnson',
         title: 'Software Engineer',
-        image: '/images/testimonials/sarah.png',
+        image: '/avatars/avatar1.jpg',
       },
     },
     {
@@ -47,7 +47,18 @@ const Reviews = () => {
       author: {
         name: 'Michael Chen',
         title: 'Product Manager',
-        image: '/images/testimonials/michael.png',
+        image: '/avatars/avatar3.jpg',
+      },
+    },
+    {
+      id: 4,
+      percentage: '350%',
+      tagline: 'increased efficiency',
+      quote: 'Limonata has revolutionized my workflow. I can focus on what matters most.',
+      author: {
+        name: 'Jessica Williams',
+        title: 'Marketing Director',
+        image: '/avatars/avatar4.jpg',
       },
     },
   ];
