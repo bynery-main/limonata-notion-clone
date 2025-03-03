@@ -4,6 +4,7 @@ import {
   SettingsIcon,
   UserPlusIcon,
   MessageSquare,
+  X,
 } from "lucide-react";
 import FoldersDropDown from "./folders-dropdown";
 import FlashcardsDropdown from "./flashcards-dropdown";
@@ -24,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import { GoProButton } from "../subscribe/subscribe-button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import FeedbackForm from "../feedback/feedback-form";
 import {PricingPage} from "../subscribe/pricing";
 
@@ -442,27 +443,44 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         </div>
       </aside>
 
-      {showGoProModal && (
-        <div className="fixed inset-0  flex items-center justify-center z-50">
-          <div className=" bg-gradient-to-br from-green-50 via-blue-50 to-pink-50 w-full h-full overflow-y-auto">
-            <button 
-              onClick={close}
-              className="mx-4 mt-4 shadow-lg inline-flex text-white h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
-            >      
-              Close
-            </button>
-            <PricingPage />
-            <div className="flex justify-center items-center mt-8 mb-16">
-              <GoProButton
-              className="mx-4 mt-4 shadow-lg inline-flex text-white h-10 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
-              userEmail={currentUserEmail!}
-                userId={currentUserUid!}
-                subscriptionStatus={subscriptionStatus}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showGoProModal && (
+          <motion.div 
+            className="fixed inset-0 z-[60] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowGoProModal(false)} />
+            
+            <motion.div 
+              className="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto relative z-10"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              ref={modalRef}
+            >
+              <button 
+                onClick={() => setShowGoProModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+              <div className="p-8">
+                <PricingPage />
+                <div className="flex justify-center items-center mt-8 mb-16">
+                  <GoProButton
+                    className="bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors"
+                    userEmail={currentUserEmail!}
+                    userId={currentUserUid!}
+                    subscriptionStatus={subscriptionStatus}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
