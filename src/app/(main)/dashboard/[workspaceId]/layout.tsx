@@ -545,7 +545,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
         )}
         <main className="flex-1 overflow-y-auto">
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-            <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-12 relative text-xl ">
+            <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-8 relative text-xl">
               <div className="w-full mt-8">
                 {!isWorkspaceRoot && !isSettingsPage && (
                   <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
@@ -554,7 +554,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               {!isSettingsPage && (
                 <>
                   <div className="flex items-center justify-between w-full mt-2">
-                    <div className={`flex items-center group relative ${!isDescriptionVisible ? 'border rounded-lg p-3' : ''} transition-all duration-200`}>
+                    <div className={`flex items-center group relative ${!isDescriptionVisible ? 'border rounded-2xl p-3' : ''} transition-all duration-200`}>
                       <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-3xl mr-3 focus:outline-none">
                         <span>{emoji}</span>
                       </button>
@@ -706,6 +706,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 />
             {!isSettingsPage && (
               <>
+                <div className="max-w-7xl mx-auto px-4" >
                 <TabBar 
                   tabs={tabs} 
                   activeTab={activeTab} 
@@ -717,6 +718,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                   onFolderChange={setActiveFilterFolder}
                   isVisible={activeTab === "files" && foldersData.length > 0 && !folderId}
                 />
+                </div>
                 <div ref={bentoGridRef}>
                   {showBentoGrid && (
                     <BentoGrid 
