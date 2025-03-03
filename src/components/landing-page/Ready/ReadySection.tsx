@@ -1,7 +1,7 @@
 import React from "react";
 import "./ReadySection.scss";
-import Image from "next/image";
-import ai from "../../../../public/Images/upgrade/ai.png";
+import { GradientButton } from "../UI/PrimaryButton/PrimaryButton";
+
 
 const studyFeatures = [
   {
@@ -18,15 +18,7 @@ const studyFeatures = [
   }
 ];
 
-const courses = [
-  { name: "Literature", emoji: "📚" },
-  { name: "Mathematics", emoji: "🔢" },
-  { name: "Biology", emoji: "🧬" },
-  { name: "Chemistry", emoji: "⚗️" },
-  { name: "Physics", emoji: "⚛️" },
-  { name: "Computer Science", emoji: "💻" },
 
-];
 
 const notifications = [
   {
@@ -49,16 +41,7 @@ const notifications = [
   }
 ];
 
-const coursesList = (
-  <div className="courses-list">
-  {courses.map((course, index) => (
-    <div className="course-item" key={index}>
-      <span className="course-emoji">{course.emoji}</span>
-      <span className="course-name">{course.name}</span>
-    </div>
-  ))}
-</div>
-)
+
 
 // Add this SVG path component
 const WavyUnderline = () => (
@@ -115,9 +98,9 @@ const ReadySection = () => {
             <GradeRing />
           </div>
 
-          <button className="ready-section__button">
+          <GradientButton className="ready-section__button">
             Start for free
-          </button>
+          </GradientButton>
         </div>
 
         <div className="ready-left">
