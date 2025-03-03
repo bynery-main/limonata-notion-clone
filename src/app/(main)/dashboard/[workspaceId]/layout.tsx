@@ -568,7 +568,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
           !isPhone && !isSidebarOpen ? 'ml-[-300px]' : ''
         }`}>
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-            <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-8 relative text-xl">
+            <div className="flex flex-col h-50 shrink-0 items-start pb-7 max-w-7xl mx-auto px-4 relative text-xl">
               <div className="w-full mt-8">
                 {!isWorkspaceRoot && !isSettingsPage && (
                   <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
@@ -576,8 +576,8 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
               </div>
               {!isSettingsPage && (
                 <>
-                  <div className="flex items-center justify-between w-full mt-2">
-                    <div className={`flex items-center group relative ${!isDescriptionVisible ? 'border rounded-2xl p-3' : ''} transition-all duration-200`}>
+                  <div className="flex items-center justify-between w-full mt-2 max-w-7xl mx-auto p-4">
+                    <div className={`flex group relative ${!isDescriptionVisible ? 'border rounded-2xl p-3' : ''} transition-all duration-200`}>
                       <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-3xl mr-3 focus:outline-none">
                         <span>{emoji}</span>
                       </button>
@@ -706,7 +706,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="text-sm text-gray-600 mt-3 font-medium"
+                        className="text-sm text-gray-600 font-medium px-4"
                       >
                         {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
                       </motion.p>
