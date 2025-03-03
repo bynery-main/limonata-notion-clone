@@ -5,20 +5,20 @@
 }
 
 .upgrade-section__button {
-  background: #FD32AF;
-  color: white;
+  background: linear-gradient(to right, #F44E18, #F8F401) !important;
+  color: white !important;
   padding: 0.5rem 2rem;
   border-radius: 0.5rem;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  border: 2px solid #FD32AF;
+  border: 2px solid #F8AB2F !important;
   transition: all 0.3s ease;
   
   &:hover {
     background: transparent;
-    color: #FD32AF;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(253, 50, 175, 0.3);
+    box-shadow: 0 5px 15px #f8ab2f74 !important;
+
   }
 } 
