@@ -11,7 +11,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
-import { Link, Pencil, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X } from "lucide-react";
+import { Link, Pencil, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X, ArrowLeftCircleIcon, Menu } from "lucide-react";
 import CollaboratorSearch from "@/components/collaborator-setup/collaborator-search";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
@@ -82,6 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -525,6 +526,10 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
     }
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <FolderProvider>
        <AblySpacesProvider workspaceId={params.workspaceId}>
@@ -536,14 +541,32 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             onFoldersUpdate={updateFoldersData} 
           />
         ) : (
-          <WorkspaceSidebar 
-            params={{ workspaceId: params.workspaceId }}
-            onFoldersUpdate={updateFoldersData} 
-            onGoProClick={handleGoProClick}
-            onShowNoCreditsModal={handleShowNoCreditsModal}
-          />
+          <div className={`h-full relative transition-all duration-300 ease-in-out ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-[300px]'
+          }`}>
+            <WorkspaceSidebar 
+              params={{ workspaceId: params.workspaceId }}
+              onFoldersUpdate={updateFoldersData} 
+              onGoProClick={handleGoProClick}
+              onShowNoCreditsModal={handleShowNoCreditsModal}
+            />
+          </div>
         )}
-        <main className="flex-1 overflow-y-auto">
+
+        {!isPhone && (
+          <motion.button
+            className="fixed top-3 z-40 bg-gray-200 text-gray-700 p-2 shadow-lg rounded-md opacity-90 hover:opacity-100 transition-opacity"
+            animate={{ left: isSidebarOpen ? 350 : 70 }}
+            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+            onClick={toggleSidebar}
+          >
+            {isSidebarOpen ? <ArrowLeftCircleIcon className='h-4 w-4'/> : <Menu className='h-4 w-4'/>}
+          </motion.button>
+        )}
+
+        <main className={`flex-1 overflow-y-auto transition-all duration-300 ease-in-out ${
+          !isPhone && !isSidebarOpen ? 'ml-[-300px]' : ''
+        }`}>
           <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
             <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-8 relative text-xl">
               <div className="w-full mt-8">
