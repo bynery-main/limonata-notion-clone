@@ -6,11 +6,11 @@ import ai from "../../../../public/Images/upgrade/ai.png";
 const studyFeatures = [
   {
     title: "Flash Cards",
-    icon: "📝"
+    icon: "⚡️"
   },
   {
     title: "Practice Quizzes",
-    icon: "✍️"
+    icon: "❔"
   },
   {
     title: "Study Guides",
