@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { Loader2, RefreshCw, StarsIcon } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
@@ -6,14 +6,17 @@ import { motion } from 'framer-motion';
 import NoCreditsModal from "../subscribe/no-credits-modal";
 import { useAuth } from '../auth-provider/AuthProvider';
 import toast from 'react-hot-toast';
+import { db } from '@/firebase/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface SyncWorkspaceButtonProps {
     workspaceId: string;
     onSyncComplete?: () => void;
     className?: string;
     onShowNoCreditsModal: (remainingCredits: number, creditCost: number) => void;
-  }
-  
+    maxCharCount?: number;
+}
+
 const gradientAnimation = keyframes`
     0% {
         background-position: 0% 50%;
@@ -57,18 +60,46 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({
     workspaceId,
     onSyncComplete,
     className,
-    onShowNoCreditsModal
-  }) => {
+    onShowNoCreditsModal,
+    maxCharCount = 200000
+}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [remainingCredits, setRemainingCredits] = useState(0);
     const { user } = useAuth(); 
     const creditCost = 15;
     const [isHovered, setIsHovered] = useState(false);
+    const [workspaceCharCount, setWorkspaceCharCount] = useState(0);
+
+    // Fetch workspace character count
+    useEffect(() => {
+        const fetchWorkspaceData = async () => {
+            if (!workspaceId) return;
+            
+            try {
+                const workspaceRef = doc(db, 'workspaces', workspaceId);
+                const workspaceSnap = await getDoc(workspaceRef);
+                
+                if (workspaceSnap.exists()) {
+                    setWorkspaceCharCount(workspaceSnap.data().charCount || 0);
+                }
+            } catch (error) {
+                console.error('Error fetching workspace character count:', error);
+            }
+        };
+
+        fetchWorkspaceData();
+    }, [workspaceId]);
 
     const syncWorkspace = async () => {
         if (!user) {
             console.error("No user logged in");
+            return;
+        }
+
+        // Check if character count exceeds the limit
+        if (workspaceCharCount > maxCharCount) {
+            toast.error(`Cannot sync workspace: Character limit exceeded (${workspaceCharCount.toLocaleString()}/${maxCharCount.toLocaleString()}). Please reduce content before syncing.`);
             return;
         }
 
@@ -147,6 +178,11 @@ const SyncWorkspaceButton: React.FC<SyncWorkspaceButtonProps> = ({
                     )}
                 </motion.div>
             </AnimatedButton>
+            {workspaceCharCount > maxCharCount && (
+                <div className="text-xs text-red-500 mt-2">
+                    Character limit exceeded ({workspaceCharCount.toLocaleString()}/{maxCharCount.toLocaleString()}). Reduce content to sync.
+                </div>
+            )}
         </>
     );
 };
