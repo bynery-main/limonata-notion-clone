@@ -49,7 +49,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex h-screen overflow-hidden">
       {isPhone ? 
         isRootDashboard ? <ResponsiveSidebar user={user} /> : null 
-        : <MainSidebar user={user} setShowDashboardSetup={setShowDashboardSetup} />
+        : <div className="relative z-[100]">
+            <MainSidebar user={user} setShowDashboardSetup={setShowDashboardSetup} />
+          </div>
       }
       <main className="flex-1 overflow-y-auto">
         {children}

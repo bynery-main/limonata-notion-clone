@@ -285,7 +285,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-72 overflow-show flex-col border-r bg-white sm:static sm:h-auto shadow-[0px_64px_64px_-32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%]">
+      <aside className="fixed inset-y-0 left-0 z-10 flex h-screen w-72 overflow-hidden flex-col border-r bg-white sm:static shadow-[-64px_64px_64px_32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%] rounded-tr-3xl rounded-br-3xl">
                 <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
