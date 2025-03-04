@@ -3,7 +3,7 @@
 Limonata is an AI-powered study assistant to enhance your learning experience.
 
 ### Access the App
-You can access Limonata by visiting [this link](https://ratty-charmaine-bynery-0576e5ae.koyeb.app/).
+You can access Limonata by visiting https://limonata.app.
 
 ### Key Features
 - Collaborative study environment

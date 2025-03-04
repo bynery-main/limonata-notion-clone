@@ -112,7 +112,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
             <motion.div
               layoutId={`card-${active.id}-${id}`}
               ref={modalRef}
-              className="w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl overflow-hidden"
+              className="w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white  sm:rounded-3xl overflow-hidden"
             >
               <motion.div 
                 layoutId={`image-${active.id}-${id}`} 
@@ -126,13 +126,13 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
                   <div>
                     <motion.h3
                       layoutId={`title-${active.id}-${id}`}
-                      className="font-bold text-neutral-700 dark:text-neutral-200"
+                      className="font-bold text-neutral-700"
                     >
                       {active.name}
                     </motion.h3>
                     <motion.p
                       layoutId={`description-${active.id}-${id}`}
-                      className="text-neutral-600 dark:text-neutral-400"
+                      className="text-neutral-600"
                     >
                       {workspaceDetails[active.id]?.description || 'Loading...'}
                     </motion.p>
@@ -155,7 +155,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-neutral-600 text-xs md:text-sm lg:text-base h-40 md:h-fit pb-10 flex flex-col items-start gap-4 overflow-auto dark:text-neutral-400 [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch]"
+                    className="text-neutral-600 text-xs md:text-sm lg:text-base h-40 md:h-fit pb-10 flex flex-col items-start gap-4 overflow-auto [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch]"
                   >
                     <p>
                       {active.type} Workspace<br />
@@ -173,7 +173,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
             layoutId={`card-${card.id}-${id}`}
             key={`card-${card.id}-${id}`}
             onClick={() => setActive(card)}
-            className="w-full p-4 flex flex-col md:flex-row justify-between items-center hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-xl cursor-pointer transition-colors duration-200"
+            className="w-full p-4 flex flex-col md:flex-row justify-between items-center hover:bg-gray-100 rounded-xl cursor-pointer transition-colors duration-200"
           >
             <div className="flex items-center">
               <motion.div 
@@ -185,13 +185,13 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
               <div className="text-center md:text-left ml-4">
                 <motion.h3
                   layoutId={`title-${card.id}-${id}`}
-                  className="font-bold text-neutral-800 dark:text-neutral-200"
+                  className="font-bold text-neutral-800 "
                 >
                   {card.name}
                 </motion.h3>
                 <motion.p
                   layoutId={`description-${card.id}-${id}`}
-                  className="text-neutral-600 dark:text-neutral-400"
+                  className="text-neutral-600"
                 >
                   {workspaceDetails[card.id]?.description.substring(0, 100) || 'Loading...'}
                 </motion.p>
@@ -218,7 +218,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
         ))}
         <motion.div
           onClick={onAddWorkspace}
-          className="w-full p-4 flex justify-center items-center hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-xl cursor-pointer transition-colors duration-200"
+          className="w-full p-4 flex justify-center items-center hover:bg-gray-100 rounded-xl cursor-pointer transition-colors duration-200"
         >
           <PlusIcon className="w-6 h-6 mr-2" />
           <span>Add Workspace</span>

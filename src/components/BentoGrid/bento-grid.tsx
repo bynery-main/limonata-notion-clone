@@ -726,18 +726,51 @@ export const BentoGridItem = ({
         const fileRef = doc(db, "workspaces", workspaceId, "folders", folderId, "files", fileId);
         const noteRef = doc(db, "workspaces", workspaceId, "folders", folderId, "notes", fileId);
 
+        // Get workspace reference - we'll need this for both file and note cases
+        const workspaceRef = doc(db, "workspaces", workspaceId);
+        let workspaceDoc = await getDoc(workspaceRef);
+        let workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+
         const fileSnapshot = await getDoc(fileRef);
         if (fileSnapshot.exists()) {
+          const fileData = fileSnapshot.data();
           const fileName = fileSnapshot.data()?.name;
+          
+          if (fileData?.transcript) {
+            const transcriptCharCount = fileData.transcript.length;
+            workspaceCharCount -= transcriptCharCount;
+            console.log(`Subtracting ${transcriptCharCount} characters from transcript`);
+          }
+
           const storagePath = `workspaces/${workspaceId}/folders/${folderId}/${fileName}`;
           const storageRef = ref(storage, storagePath);
           await deleteObject(storageRef);  // Delete from storage
           await deleteDoc(fileRef);  // Delete from Firestore
+
+          if (fileData?.transcript) {
+            workspaceCharCount = Math.max(0, workspaceCharCount);
+            await updateDoc(workspaceRef, { charCount: workspaceCharCount });
+            console.log(`Updated workspace character count after file deletion: ${workspaceCharCount}`);
+          }
+          
         } else {
           // If not found as a file, attempt to delete as a note
           const noteSnapshot = await getDoc(noteRef);
           if (noteSnapshot.exists()) {
+
+            const noteData = noteSnapshot.data();
+            const noteText = noteData.text || "";
+            
+            // Count characters in the note's text
+            const noteCharCount = noteText.length;
+            
+            // Subtract note's character count from workspace total
+            workspaceCharCount -= noteCharCount;
+
             await deleteDoc(noteRef);  // Delete from Firestore
+            
+            workspaceCharCount = Math.max(0, workspaceCharCount);
+            await updateDoc(workspaceRef, { charCount: workspaceCharCount })
           } else {
             console.error("File or note not found in Firestore.");
           }
@@ -834,7 +867,7 @@ export const BentoGridItem = ({
   return (
     <div
       className={cn(
-        "rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border border-neutral-200 dark:border-neutral-800 flex flex-col space-y-4 cursor-pointer relative",
+        "rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input p-4 bg-white border border-neutral-200 flex flex-col space-y-4 cursor-pointer relative",
         className
       )}
       onClick={handleClick}

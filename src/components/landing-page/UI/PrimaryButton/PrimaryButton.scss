@@ -1,0 +1,25 @@
+.gradient-button {
+  &.shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.upgrade-section__button {
+  background: linear-gradient(to right, #F44E18, #F8F401) !important;
+  color: white !important;
+  padding: 0.5rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid #F8AB2F !important;
+  transition: all 0.3s ease;
+  
+  &:hover {
+
+    background: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px #f8ab2f74 !important;
+
+  }
+} 

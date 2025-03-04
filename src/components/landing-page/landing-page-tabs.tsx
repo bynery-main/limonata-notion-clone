@@ -7,6 +7,7 @@ import flashcardimage from "../../../public/Images/Flashcards.png";
 import tutorimage from "../../../public/Images/Chat.png";
 import quizimage from "../../../public/Images/Quiz.png";
 import FancyText from '@carefully-coded/react-text-gradient';
+import './landing-page-tabs.scss';
 
 
 interface TabContentProps {
@@ -19,32 +20,29 @@ interface TabContentProps {
 
 function TabContent({ title, description, image, textColor, isFlashcard = false }: TabContentProps) {
   return (
-    <div style={{ boxShadow: '0 2px 30px -3px rgba(0, 0, 0, 0.2), 0 -4px 6px -2px rgba(0, 0, 0, 0.05)' }} className="w-full h-[40rem] overflow-hidden relative rounded-xl">
-      <div className="absolute inset-0 z-0">
-        {/* Render gradient background */}
-        <img src={Gradient.src} alt="Gradient" className="w-full h-full object-cover opacity-50" />
+    <div className="tab-content">
+      <div className="gradient-background">
+        <img src={Gradient.src} alt="Gradient" />
       </div>
-      <div className={`relative z-10 bg-white bg-opacity-70 backdrop-blur p-8 rounded-xl h-full flex ${isFlashcard ? 'flex-col' : 'flex-col md:flex-row'} items-center justify-between`}>
-        <div className={`flex flex-col ${isFlashcard ? 'items-center' : 'items-center md:items-start'} ${isFlashcard ? 'mb-8' : 'md:w-1/2'}`}>
-          <div className={`text-2xl md:text-4xl font-bold ${textColor} text-center ${isFlashcard ? '' : 'md:text-left'} mb-6`}>
+      <div className={`content-wrapper ${isFlashcard ? 'flashcard' : ''}`}>
+        <div className={`text-content ${isFlashcard ? 'flashcard' : ''}`}>
+          <div className={`title ${isFlashcard ? 'flashcard' : ''} ${textColor}`}>
             <FancyText gradient={{ from: '#F6B144', to: '#FE7EF4' }} className="font-extrabold">
               {title}
             </FancyText>
           </div>
-          <p className={`text-base md:text-lg font-light text-gray-700 text-center ${isFlashcard ? '' : 'md:text-left'} max-w-xl`}>
+          <p className={`description ${isFlashcard ? 'flashcard' : ''}`}>
             {description}
           </p>
         </div>
-        <div className={`${isFlashcard ? 'w-full' : 'md:w-1/2'} flex justify-center items-center`}>
-          <div className="relative w-full" style={{ height: isFlashcard ? '70%' : '100%', maxHeight: '25rem' }}>
-            {/* Render content image */}
+        <div className={`image-content ${isFlashcard ? 'flashcard' : ''}`}>
+          <div className={`image-wrapper ${isFlashcard ? 'flashcard' : ''}`}>
             <img 
               src={image} 
-              alt={title} 
-              className="w-full h-full object-contain"
+              alt={title}
               onError={(e) => {
                 console.error(`Error loading image: ${image}`);
-                e.currentTarget.src = '/placeholder.png'; // Replace with an actual placeholder image path
+                e.currentTarget.src = '/placeholder.png';
               }}
             />
           </div>
@@ -108,9 +106,9 @@ export function TabsDemo() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center mb-10">
-      <div className="relative h-[40rem] [perspective:1000px] flex flex-col mx-auto w-full items-start justify-start mb-40">
-        <div className="absolute top-0 left-0 w-full h-full px-20 md:px-40">
+    <div className="tabs-container">
+      <div className="tabs-perspective">
+        <div className="tabs-wrapper">
           <Tabs tabs={tabs} />
         </div>
       </div>
