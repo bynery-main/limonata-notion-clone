@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import SyncWorkspaceButton from "../sync-workspaces/sync-workspaces-button";
 import CostButton from "../ai-tools/cost-button";
 import ChatButton from "./chat-button";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { db } from "@/firebase/firebaseConfig";
 
 interface ChatComponentProps {
   workspaceId: string;
@@ -59,6 +61,38 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showSyncReminder, setShowSyncReminder] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
+  const [workspaceCharCount, setWorkspaceCharCount] = useState(0);
+  const maxCharCount = 200000;
+  const isCharLimitReached = workspaceCharCount > maxCharCount;
+
+  // Fetch workspace character count
+  useEffect(() => {
+    const fetchWorkspaceData = async () => {
+      if (!workspaceId) return;
+      
+      try {
+        const workspaceRef = doc(db, 'workspaces', workspaceId);
+        const workspaceSnap = await getDoc(workspaceRef);
+        
+        if (workspaceSnap.exists()) {
+          setWorkspaceCharCount(workspaceSnap.data().charCount || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching workspace character count:', error);
+      }
+    };
+
+    fetchWorkspaceData();
+    
+    // Set up a listener to track changes to the character count
+    const unsubscribe = onSnapshot(doc(db, 'workspaces', workspaceId), (doc) => {
+      if (doc.exists()) {
+        setWorkspaceCharCount(doc.data().charCount || 0);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [workspaceId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -220,6 +254,19 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ workspaceId, userId, isCh
           </div>
           <ScrollArea className="flex-1 overflow-y-auto">
             <div className="grid gap-4 p-4">
+                  {isCharLimitReached && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-100 p-3 rounded-lg shadow-lg"
+                    >
+                      <p className="text-sm text-red-800 font-medium">Character limit exceeded</p>
+                      <p className="text-xs text-red-700 mt-1">
+                        Your workspace has {workspaceCharCount.toLocaleString()} characters, exceeding the limit of {maxCharCount.toLocaleString()}. 
+                        The Chatbot's knowledge will be limited until you reduce content.
+                      </p>
+                    </motion.div>
+                  )}
 
                   {showSyncReminder && workspaceId && (
                     <motion.div
