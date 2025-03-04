@@ -417,7 +417,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
   }
 
   return (
-    <div className="flex flex-col w-full h-full font-urbanist">
+    <div className="flex flex-col w-full h-full font-urbanist ">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
