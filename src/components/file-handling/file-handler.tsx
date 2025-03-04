@@ -70,8 +70,8 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
   else {
     console.log('Rendering note with QuillEditor');
     return (
-      <div className="relative h-full flex flex-col">
-        <div className="flex-grow overflow-auto mx-auto">
+      <div className="relative h-full flex flex-col"> 
+        <div className="flex-grow overflow-auto px-15">
           <QuillEditor
             dirType="file"
             fileId={params.fileId}
