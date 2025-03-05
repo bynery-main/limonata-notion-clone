@@ -3,8 +3,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot, getDocs, query, CollectionReference } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
-import * as Accordion from "@radix-ui/react-accordion";
-import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { BookOpenIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 interface FlashcardDeck {
   id: string;
@@ -24,11 +25,18 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
 }) => {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const [openAccordion, setOpenAccordion] = useState<boolean>(false);
-  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
-  const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
-  const dropdownRef = useRef<HTMLDivElement>(null);
-const menuIconRef = useRef<HTMLDivElement>(null);
+  const [showMenu, setShowMenu] = useState<{[key: string]: boolean}>({});
+  const [menuPosition, setMenuPosition] = useState<{[key: string]: {top: number, left: number}}>({});
+  const [renamingDeckId, setRenamingDeckId] = useState<string | null>(null);
+  const [newDeckName, setNewDeckName] = useState<string>("");
+  const renameInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [isBrowser, setIsBrowser] = useState(false);
+
+  useEffect(() => {
+    setIsBrowser(true);
+  }, []);
+
   useEffect(() => {
     console.log("Subscribing to flashcards decks updates for workspace:", workspaceId);
     const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
@@ -49,27 +57,66 @@ const menuIconRef = useRef<HTMLDivElement>(null);
     };
   }, [workspaceId]);
 
-  const handleDropdownToggle = (event: React.MouseEvent, deck: FlashcardDeck) => {
+  const toggleMenu = (event: React.MouseEvent, deckId: string) => {
     event.stopPropagation();
-    console.log("Dropdown toggle clicked for deck:", deck);
-    setSelectedDeck(deck);
-
-    const targetRect = (event.target as HTMLElement).getBoundingClientRect();
-    setDropdownPosition({ top: targetRect.bottom, left: targetRect.left });
-    setDropdownVisible(!dropdownVisible);
+    
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenuPosition(prev => ({
+      ...prev,
+      [deckId]: {
+        top: rect.top,
+        left: rect.left
+      }
+    }));
+    
+    setShowMenu(prev => {
+      const newState = { ...prev };
+      // Close all other menus
+      Object.keys(newState).forEach(key => {
+        newState[key] = false;
+      });
+      // Toggle this menu
+      newState[deckId] = !prev[deckId];
+      return newState;
+    });
   };
 
-  const handleRenameDeck = async (event?: React.MouseEvent) => {
-    const newName = prompt("Enter a new name for this flashcard deck:", selectedDeck?.name);
-    if (newName && selectedDeck) {
-      console.log("Renaming deck:", selectedDeck.id, "to new name:", newName);
-      const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
-      await updateDoc(deckRef, { name: newName });
-      
-      // Prevent automatic navigation by stopping event propagation
-      event?.stopPropagation();
+  const startRenameDeck = (deck: FlashcardDeck, event?: React.MouseEvent) => {
+    event?.stopPropagation();
+    setRenamingDeckId(deck.id);
+    setNewDeckName(deck.name);
+    // Close the menu if it's open
+    setShowMenu(prev => ({
+      ...prev,
+      [deck.id]: false
+    }));
+    
+    setTimeout(() => {
+      if (renameInputRef.current) {
+        renameInputRef.current.focus();
+        renameInputRef.current.select();
+      }
+    }, 50);
+  };
+
+  const handleRenameDeck = async (deckId: string) => {
+    if (newDeckName.trim() === "") return;
+    
+    const deck = decks.find(d => d.id === deckId);
+    if (deck && newDeckName === deck.name) {
+      setRenamingDeckId(null);
+      return;
     }
-    setDropdownVisible(false);
+
+    try {
+      console.log("Renaming deck:", deckId, "to new name:", newDeckName);
+      const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", deckId);
+      await updateDoc(deckRef, { name: newDeckName });
+    } catch (error) {
+      console.error("Error renaming deck:", error);
+    }
+    
+    setRenamingDeckId(null);
   };
 
   const deleteCollection = async (collectionRef: CollectionReference) => {
@@ -80,145 +127,208 @@ const menuIconRef = useRef<HTMLDivElement>(null);
     await Promise.all(deleteOps);
   };
 
-  const handleDeleteDeck = async () => {
-    if (selectedDeck) {
-      const confirmDelete = confirm(`Are you sure you want to delete ${selectedDeck.name}?`);
-      if (confirmDelete) {
-        try {
-          console.log("Deleting deck:", selectedDeck.id);
-          const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", selectedDeck.id);
-          
-          // Delete the flashcards subcollection
-          const flashcardsCollectionRef = collection(deckRef, "flashcards");
-          await deleteCollection(flashcardsCollectionRef);
-          
-          // Delete the main deck document
-          await deleteDoc(deckRef);
-          
-          console.log("Flashcard deck and all nested flashcards deleted successfully");
-        } catch (error) {
-          console.error("Error deleting flashcard deck:", error);
-        }
+  const handleDeleteDeck = async (deck: FlashcardDeck, event?: React.MouseEvent) => {
+    event?.stopPropagation();
+    const confirmDelete = confirm(`Are you sure you want to delete ${deck.name}?`);
+    if (confirmDelete) {
+      try {
+        console.log("Deleting deck:", deck.id);
+        const deckRef = doc(db, "workspaces", workspaceId, "flashcardsDecks", deck.id);
+        
+        // Delete the flashcards subcollection
+        const flashcardsCollectionRef = collection(deckRef, "flashcards");
+        await deleteCollection(flashcardsCollectionRef);
+        
+        // Delete the main deck document
+        await deleteDoc(deckRef);
+        
+        console.log("Flashcard deck and all nested flashcards deleted successfully");
+      } catch (error) {
+        console.error("Error deleting flashcard deck:", error);
       }
     }
-    setDropdownVisible(false);
+    
+    // Close the menu
+    setShowMenu(prev => ({
+      ...prev,
+      [deck.id]: false
+    }));
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      setDropdownVisible(false);
+    if (renamingDeckId) {
+      const target = event.target as Node;
+      if (renameInputRef.current && !renameInputRef.current.contains(target)) {
+        handleRenameDeck(renamingDeckId);
+      }
+    }
+    
+    // Close any open menus when clicking outside
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setShowMenu({});
     }
   };
 
   useEffect(() => {
-    if (dropdownVisible) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownVisible]);
+  }, [renamingDeckId]);
+
+  const renderMenu = (deck: FlashcardDeck) => {
+    if (!isBrowser || !showMenu[deck.id]) return null;
+    
+    const position = menuPosition[deck.id] || { top: 0, left: 0 };
+    
+    return createPortal(
+      <div
+        ref={menuRef}
+        className="fixed w-48 bg-white border rounded-lg shadow-lg z-50"
+        style={{
+          top: position.top,
+          right: window.innerWidth - position.left + 10,
+        }}
+      >
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            startRenameDeck(deck, event);
+          }}
+          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+        >
+          <div className="flex items-center">
+            <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+          </div>
+        </button>
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            handleDeleteDeck(deck, event);
+          }}
+          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+        >
+          <div className="flex items-center">
+            <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+            Delete
+          </div>
+        </button>
+      </div>,
+      document.body
+    );
+  };
 
   return (
     <div>
-      <Accordion.Root
-        type="single"
-        value={openAccordion ? "flashcards" : undefined}
-        onValueChange={(value) => setOpenAccordion(value === "flashcards")}
-        className="space-y-2"
-      >
-        <Accordion.Item
-          value="flashcards"
-          className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
-        >
-          <Accordion.Trigger
-            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+      <div className="space-y-2">
+        <div className="border rounded-lg">
+          <div
+            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer"
             onClick={() => {
               console.log("Accordion trigger clicked, toggling accordion state.");
               setOpenAccordion(!openAccordion);
             }}
           >
             <div className="flex items-center">
-            <BookOpenIcon className="h-4 w-4 mr-2" />
+              <BookOpenIcon className="h-4 w-4 mr-2" />
               <span>Flashcards</span>
             </div>
-            {openAccordion ? (
-              <ChevronDownIcon className="h-4 w-4" />
-            ) : (
-              <ChevronRightIcon className="h-4 w-4" />
-            )}
-          </Accordion.Trigger>
-          <Accordion.Content
-            className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
-          >
-          {decks.length === 0 ? (
-              <div className="p-2 text-sm font-light text-gray-500">
-                Create your first Flashcard Deck by pressing the
-                <img
-                    src="/favicon.ico"
-                    alt="LemonGPT"
-                    className="inline-block mx-1 w-4 h-4"
-                  />                                
-                     on the <b className="font-bold">bottom right</b>!
-              </div>
-            ) : (
-            
-          decks.map((deck) => (
-              <div
-                key={deck.id}
-                className={`p-2 text-sm w-full text-left flex items-center hover:bg-gray-100 rounded-lg justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
-                onClick={() => {
-                  console.log("Selected deck:", deck);
-                  onFlashcardDeckSelect(deck);
+            <ChevronRightIcon 
+              className="h-4 w-4 transition-transform duration-300" 
+              style={{ transform: openAccordion ? 'rotate(90deg)' : 'rotate(0deg)' }}
+            />
+          </div>
+          
+          <AnimatePresence initial={false} mode="wait">
+            {openAccordion && (
+              <motion.div 
+                className="pl-4 overflow-hidden"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ 
+                  duration: 0.3,
+                  exit: { duration: 0.3 }
                 }}
               >
-                <span>{deck.name}</span>
-                <div className="flex-shrink-0 relative" ref={menuIconRef}>
-                  <MoreHorizontalIcon
-                    className="h-4 w-4 cursor-pointer"
-                    onClick={(event) => handleDropdownToggle(event, deck)}
-                  />
-                {dropdownVisible && selectedDeck?.id === deck.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+                {decks.length === 0 ? (
+                  <motion.div 
+                    className="p-2 text-sm font-light text-gray-500"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleRenameDeck();
+                    Create your first Flashcard Deck by pressing the
+                    <img
+                      src="/favicon.ico"
+                      alt="LemonGPT"
+                      className="inline-block mx-1 w-4 h-4"
+                    />                                
+                    on the <b className="font-bold">bottom right</b>!
+                  </motion.div>
+                ) : (
+                  decks.map((deck, index) => (
+                    <motion.div
+                      key={deck.id}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ 
+                        duration: 0.2, 
+                        delay: index * 0.05,
+                        exit: { duration: 0.2, delay: 0 }
                       }}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
-                      </div>
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleDeleteDeck();
+                      className={`p-2 text-sm w-full text-left flex items-center hover:bg-gray-100 rounded-lg justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
+                      onClick={() => {
+                        if (renamingDeckId !== deck.id) {
+                          console.log("Selected deck:", deck);
+                          onFlashcardDeckSelect(deck);
+                        }
                       }}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      onDoubleClick={(e) => {
+                        if (renamingDeckId !== deck.id) {
+                          startRenameDeck(deck, e);
+                        }
+                      }}
                     >
-                      <div className="flex items-center">
-                        <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-                        Delete
-                      </div>
-                    </button>
-                  </div>
+                      {renamingDeckId === deck.id ? (
+                        <div className="flex items-center flex-grow" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            ref={renameInputRef}
+                            type="text"
+                            value={newDeckName}
+                            onChange={(e) => setNewDeckName(e.target.value)}
+                            onBlur={() => handleRenameDeck(deck.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleRenameDeck(deck.id);
+                              if (e.key === "Escape") setRenamingDeckId(null);
+                            }}
+                            className="text-sm bg-transparent w-full border border-gray-300 rounded p-1 focus:outline-none"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      ) : (
+                        <span>{deck.name}</span>
+                      )}
+                      
+                      {renamingDeckId !== deck.id && (
+                        <div className="flex-shrink-0">
+                          <MoreHorizontalIcon
+                            className="h-4 w-4 cursor-pointer"
+                            onClick={(event) => toggleMenu(event, deck.id)}
+                          />
+                          {renderMenu(deck)}
+                        </div>
+                      )}
+                    </motion.div>
+                  ))
                 )}
-              </div>
-            </div>
-
-            ))
-          )}
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion.Root>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };
