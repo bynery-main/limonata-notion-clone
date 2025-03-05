@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { collection, doc, deleteDoc, updateDoc, onSnapshot, getDocs, query, DocumentReference, CollectionReference } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
-import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
-import exp from "constants";
+import { ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface QuizSet {
   id: string;
@@ -117,94 +116,114 @@ const QuizzesDropdown: React.FC<QuizzesDropdownProps> = ({
 
   return (
     <div>
-      <Accordion.Root
-        type="single"
-        value={openAccordion ? "quizzes" : undefined}
-        onValueChange={(value) => setOpenAccordion(value === "quizzes")}
-        className="space-y-2"
-      >
-        <Accordion.Item
-          value="quizzes"
+      <div className="space-y-2">
+        <div
           className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
         >
-          <Accordion.Trigger
-            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+          <div
+            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer"
             onClick={() => setOpenAccordion(!openAccordion)}
           >
             <div className="flex items-center">
               <PencilIcon className="h-4 w-4 mr-2" />
               <span>Quizzes</span>
             </div>
-            {openAccordion ? (
-              <ChevronDownIcon className="h-4 w-4" />
-            ) : (
-              <ChevronRightIcon className="h-4 w-4" />
-            )}
-          </Accordion.Trigger>
-          <Accordion.Content
-            className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
-          >
-          {quizSets.length === 0 ? (
-              <div className="p-2 text-sm font-light text-gray-500">
-                Create your first Quiz by pressing the
-                <img
-                    src="/favicon.ico"
-                    alt="LemonGPT"
-                    className="inline-block mx-1 w-4 h-4"
-                  />                                
-                     on the <b className="font-bold">bottom right</b>!
-                     </div>
-            ) : (
-              quizSets.map((quizSet) => (
-                <div
-                  key={quizSet.id}
-                  className={`p-2 text-sm w-full text-left flex items-center justify-between hover:bg-gray-100 rounded-lg cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
-                  onClick={() => onQuizSetSelect(quizSet)}
-                >
-                  <span>{quizSet.name}</span>
-                  <div className="flex-shrink-0 relative" ref={menuIconRef}>
-                    <MoreHorizontalIcon
-                      className="h-4 w-4 cursor-pointer"
-                      onClick={(event) => handleDropdownToggle(event, quizSet)}
-                    />
-                    {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
-                      >
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleRenameQuiz();
-                          }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                        >
-                          <div className="flex items-center">
-                            <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+            <ChevronRightIcon 
+              className="h-4 w-4 transition-transform duration-300" 
+              style={{ transform: openAccordion ? 'rotate(90deg)' : 'rotate(0deg)' }}
+            />
+          </div>
+          
+          <AnimatePresence initial={false} mode="wait">
+            {openAccordion && (
+              <motion.div 
+                className="pl-4 overflow-hidden"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ 
+                  duration: 0.3,
+                  exit: { duration: 0.3 }
+                }}
+              >
+                {quizSets.length === 0 ? (
+                  <motion.div 
+                    className="p-2 text-sm font-light text-gray-500"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Create your first Quiz by pressing the
+                    <img
+                      src="/favicon.ico"
+                      alt="LemonGPT"
+                      className="inline-block mx-1 w-4 h-4"
+                    />                                
+                    on the <b className="font-bold">bottom right</b>!
+                  </motion.div>
+                ) : (
+                  quizSets.map((quizSet, index) => (
+                    <motion.div
+                      key={quizSet.id}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ 
+                        duration: 0.2, 
+                        delay: index * 0.05,
+                        exit: { duration: 0.2, delay: 0 }
+                      }}
+                      className={`p-2 text-sm w-full text-left flex items-center justify-between hover:bg-gray-100 rounded-lg cursor-pointer ${quizSet.id === currentQuizSetId ? 'bg-gray-100' : ''}`}
+                      onClick={() => onQuizSetSelect(quizSet)}
+                    >
+                      <span>{quizSet.name}</span>
+                      <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                        <MoreHorizontalIcon
+                          className="h-4 w-4 cursor-pointer"
+                          onClick={(event) => handleDropdownToggle(event, quizSet)}
+                        />
+                        {dropdownVisible && selectedQuizSet?.id === quizSet.id && (
+                          <div
+                            ref={dropdownRef}
+                            className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+                          >
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleRenameQuiz();
+                              }}
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                              <div className="flex items-center">
+                                <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                              </div>
+                            </button>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDeleteQuiz();
+                              }}
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                              <div className="flex items-center">
+                                <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+                                Delete
+                              </div>
+                            </button>
                           </div>
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleDeleteQuiz();
-                          }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                        >
-                          <div className="flex items-center">
-                            <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-                            Delete
-                          </div>
-                        </button>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              ))
+                    </motion.div>
+                  ))
+                )}
+              </motion.div>
             )}
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion.Root>
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };
+
 export default QuizzesDropdown;

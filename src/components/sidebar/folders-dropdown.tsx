@@ -214,24 +214,24 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xs " ref={dropdownRef}> {/* Added max-width and full width */}
+    <div className="w-full max-w-xs" ref={dropdownRef}>
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
           <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
             Topics
           </h3>
         </div>
-        <div className="flex items-center space-x-2"> {/* Added padding */}
+        <div className="flex items-center space-x-2">
           <input
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             placeholder="New Topic Name"
-            className="border p-2 rounded flex-grow"
+            className="bg-gray-100 h-8 rounded-xl flex-grow pl-3 focus:outline-none"
           />
           <motion.div
             onClick={handleAddFolder}
-            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]"
+            className="bg-white text-gray-400 cursor-pointer p-2 rounded hover:text-[#F6B144]"
             whileHover={{ scale: 1.1, rotate: 180 }}
             whileTap={{ scale: 0.9 }}
             aria-label="Add new folder"
@@ -239,27 +239,23 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             <CirclePlusIcon className="h-4 w-4 " />
           </motion.div>
         </div>
-        <Accordion.Root
-          type="single"
-          value={openFolderId || undefined}
-          onValueChange={(value) => setOpenFolderId(value)}
-          className="space-y-2 overflow-show"
-        >
+        <div className="space-y-2 overflow-visible">
           {folders.map((folder) => (
             <FolderComponent
-            key={folder.id}
-            folder={folder}
-            workspaceId={workspaceId}
-            setFolders={setFolders}
-            deleteFolder={handleDeleteFolder}
-            deleteFile={handleDeleteFolder}
-            isActive={folder.id === currentFolderId}
-            onSelect={() => handleFolderSelect(folder)}
-            openFolderId={openFolderId}
-            setOpenFolderId={setOpenFolderId}
-          />
+              key={folder.id}
+              folder={folder}
+              workspaceId={workspaceId}
+              setFolders={setFolders}
+              deleteFolder={handleDeleteFolder}
+              deleteFile={handleDeleteFolder}
+              isActive={folder.id === currentFolderId}
+              onSelect={() => handleFolderSelect(folder)}
+              openFolderId={openFolderId}
+              setOpenFolderId={setOpenFolderId}
+              parentFolderId={undefined}
+            />
           ))}
-        </Accordion.Root>
+        </div>
       </div>
     </div>
   );

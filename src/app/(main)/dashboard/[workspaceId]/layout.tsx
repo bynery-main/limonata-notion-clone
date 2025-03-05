@@ -562,9 +562,6 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 onGoProClick={handleGoProClick}
                 onShowNoCreditsModal={handleShowNoCreditsModal}
               />
-              <div className="absolute top-3 right-[-20px] bg-gray-200 text-gray-700 p-2 shadow-lg rounded-md opacity-90 hover:opacity-100 transition-opacity">
-                <Menu className='h-4 w-4'/>
-              </div>
             </div>
           </>
         )}
