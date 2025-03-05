@@ -34,7 +34,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onChange }) => {
   }, [activeTab]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 mb-6">
+    <div className=" mx-auto px-4 mb-6">
       <div className="flex justify-between rounded-3xl bg-gray-100 p-0 relative">
         {tabs.map((tab) => (
           <button
