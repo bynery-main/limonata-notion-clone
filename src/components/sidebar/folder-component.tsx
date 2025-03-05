@@ -38,6 +38,9 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [files, setFiles] = useState<FileData[]>([]); // New state variable for files and notes
   const contentRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [isRenamingFolder, setIsRenamingFolder] = useState(false);
+  const renameInputRef = useRef<HTMLInputElement>(null);
+  const fileRenameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen !== (openFolderId === folder.id)) {
@@ -103,19 +106,56 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     action();
   };
 
+  const startRenameFolder = () => {
+    setNewName(folder.name);
+    setIsRenamingFolder(true);
+    setShowMenu(false);
+    setTimeout(() => {
+      renameInputRef.current?.focus();
+      renameInputRef.current?.select();
+    }, 50);
+  };
+
   const handleRename = async () => {
     if (newName.trim() === "") return;
-    const folderRef = doc(db, "workspaces", workspaceId, "folders", folder.id);
-    await setDoc(folderRef, { name: newName }, { merge: true });
-    setShowRename(false);
+    if (newName === folder.name) {
+      setIsRenamingFolder(false);
+      return;
+    }
+    
+    try {
+      const folderRef = doc(db, "workspaces", workspaceId, "folders", folder.id);
+      await updateDoc(folderRef, { name: newName });
+      setIsRenamingFolder(false);
+    } catch (error) {
+      console.error("Error renaming folder:", error);
+    }
+  };
+
+  const startRenameFile = (file: FileData) => {
+    setRenameFileId(file.id);
+    setRenameFileName(file.name || "");
+    setShowFileMenu({ ...showFileMenu, [file.id]: false });
+    setTimeout(() => {
+      fileRenameInputRef.current?.focus();
+      fileRenameInputRef.current?.select();
+    }, 50);
   };
 
   const handleRenameFile = async (fileId: string) => {
     if (renameFileName.trim() === "") return;
+    
+    const file = files.find(f => f.id === fileId);
+    if (file && renameFileName === file.name) {
+      setRenameFileId(null);
+      return;
+    }
 
     try {
+      // First determine if it's a file or note
       const fileRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/files/${fileId}`);
       const noteRef = doc(db, `workspaces/${workspaceId}/folders/${folder.id}/notes/${fileId}`);
+      
       const fileSnapshot = await getDoc(fileRef);
       const noteSnapshot = await getDoc(noteRef);
 
@@ -126,35 +166,13 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
 
         // Check if the new name ends with the correct extension
         let newFileName = renameFileName;
-        if (!newFileName.toLowerCase().endsWith(`.${oldFileExtension}`)) {
+        if (oldFileExtension && !newFileName.toLowerCase().endsWith(`.${oldFileExtension}`)) {
           newFileName = `${newFileName}.${oldFileExtension}`;
         }
 
-        const oldStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${oldFileName}`;
-        const newStoragePath = `workspaces/${workspaceId}/folders/${folder.id}/${newFileName}`;
-        const oldStorageRef = ref(storage, oldStoragePath);
-        const newStorageRef = ref(storage, newStoragePath);
-
-        // Get the file data
-        const fileData = await getDownloadURL(oldStorageRef);
-        const response = await fetch(fileData);
-        const blob = await response.blob();
-
-        // Upload the file with the new name
-        await uploadBytes(newStorageRef, blob);
-
-        // Get the new URL
-        const newUrl = await getDownloadURL(newStorageRef);
-
-        // Update Firestore with the new name and URL
-        await updateDoc(fileRef, {
-          name: newFileName,
-          url: newUrl
-        });
-
-        // Delete the old file from storage
-        await deleteObject(oldStorageRef);
-
+        // Update Firestore with the new name
+        await updateDoc(fileRef, { name: newFileName });
+        
         // Update the state to reflect the new file name
         setFiles(prevFiles =>
           prevFiles.map(file =>
@@ -164,15 +182,19 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       } else if (noteSnapshot.exists()) {
         // Handle renaming a note (only in Firestore)
         await updateDoc(noteRef, { name: renameFileName });
-      } else {
-        console.error("File or note not found in Firestore.");
+        
+        // Update the state to reflect the new note name
+        setFiles(prevFiles =>
+          prevFiles.map(file =>
+            file.id === fileId ? { ...file, name: renameFileName } : file
+          )
+        );
       }
     } catch (error) {
       console.error("Error renaming file or note:", error);
     }
 
     setRenameFileId(null);
-    setRenameFileName("");
     setShowFileMenu({ ...showFileMenu, [fileId]: false });
   };
 
@@ -247,12 +269,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     setShowFileMenu({ ...showFileMenu, [fileId]: false });
   };
 
-  const handleRenameKeyPress = async (event: React.KeyboardEvent, fileId: string) => {
-    if (event.key === "Enter") {
-      await handleRenameFile(fileId);
-    }
-  };
-
   const getFileEmoji = (fileName: string | undefined) => {
     if (!fileName) return "📝"; // Default emoji for undefined or empty file names
 
@@ -317,7 +333,33 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                   }}
                 />
               </div>
-              <span className="truncate w-full flex-grow overflow-visible break-words">{folder.name}</span> 
+              {isRenamingFolder ? (
+                <div className="flex items-center flex-grow min-w-0">
+                  <input
+                    ref={renameInputRef}
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onBlur={handleRename}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRename();
+                      if (e.key === "Escape") setIsRenamingFolder(false);
+                    }}
+                    className="text-sm bg-transparent w-full border border-gray-300 rounded p-1 focus:outline-none"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              ) : (
+                <span 
+                  className="truncate w-full flex-grow overflow-visible break-words"
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    startRenameFolder();
+                  }}
+                >
+                  {folder.name}
+                </span>
+              )}
             </div>
             <div 
               className="p-2 cursor-pointer flex-shrink-0"
@@ -338,8 +380,8 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ 
-                  duration: 0.3,
-                  exit: { duration: 0.3 }
+                  duration: 0.1,
+                  exit: { duration: 0.1 }
                 }}
               >
                 {/* File list */}
@@ -364,21 +406,28 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                     {renameFileId === file.id ? (
                       <div className="flex items-center flex-grow">
                         <input
+                          ref={fileRenameInputRef}
                           type="text"
                           value={renameFileName}
                           onChange={(e) => setRenameFileName(e.target.value)}
                           onBlur={() => handleRenameFile(file.id)}
-                          onKeyPress={(e) => handleRenameKeyPress(e, file.id)}
-                          className="text-sm bg-transparent w-full border border-gray-300 rounded p-1 focus:outline-none "
-                          title="Rename file"
-                          placeholder="Rename file"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleRenameFile(file.id);
+                            if (e.key === "Escape") setRenameFileId(null);
+                          }}
+                          className="text-sm bg-transparent w-full border border-gray-300 rounded p-1 focus:outline-none"
+                          onClick={(e) => e.stopPropagation()}
                         />
-                        <button onClick={() => handleRenameFile(file.id)} className="ml-2 text-green-500" aria-label="Rename File">
-                          <CheckIcon className="h-4 w-4" />
-                        </button>
                       </div>
                     ) : (
-                      <span className="text-sm flex-grow" onClick={() => handleFileClick(file)}>
+                      <span 
+                        className="text-sm flex-grow" 
+                        onClick={() => handleFileClick(file)}
+                        onDoubleClick={(e) => {
+                          e.stopPropagation();
+                          startRenameFile(file);
+                        }}
+                      >
                         {file.name || "Unnamed File"}
                       </span>
                     )}
@@ -392,8 +441,8 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
                       <MoreVerticalIcon className="h-4 w-4" />
                     </div>
                     {showFileMenu[file.id] && (
-                      <div className="absolute right-0 mt-8 bg-white border rounded-lg shadow-md z-50 mr-2" ref={menuRef}>
-                        <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-100 w-full text-left flex items-center">
+                      <div className="absolute right-0 mt-8 bg-white border rounded-lg shadow-md z-50 mr-2">
+                        <button onClick={() => startRenameFile(file)} className="p-2 hover:bg-gray-100 w-full text-left flex items-center">
                           <PencilIcon className="h-4 w-4 mr-2" /> Rename
                         </button>
                         <button onClick={() => handleDeleteFile(file.id)} className="p-2 hover:text-red-600 hover:bg-gray-100 w-full text-left flex items-center">
@@ -447,7 +496,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
             zIndex: 1000,
           }}
         >
-          <button onClick={() => handleMenuItemClick(() => setShowRename(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+          <button onClick={() => startRenameFolder()} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
             <PencilIcon className="h-4 w-4 mr-2" /> Rename
           </button>
           <button onClick={() => handleMenuItemClick(() => setShowCreateNote(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
@@ -461,25 +510,6 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
           </button>
         </div>
       )}
-  
-      {/* Rename Component */}
-      <CSSTransition in={showRename} timeout={300} classNames="rename" unmountOnExit>
-        <div className="absolute left-0 right-0 bg-white border rounded p-2 shadow-lg"
-             style={{
-               bottom: '100%',
-               marginBottom: '4px',
-               zIndex: 1001,
-             }}>
-          <input
-            aria-label="Rename Topic"
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            className="border p-1 w-full mb-2"
-          />
-          <button onClick={handleRename} className="bg-[#F6B144] text-white p-1 rounded">Rename</button>
-        </div>
-      </CSSTransition>
   
       {/* Upload Component */}
       <CSSTransition in={showUpload} timeout={300} classNames="upload" unmountOnExit>
