@@ -10,6 +10,7 @@ import * as Accordion from "@radix-ui/react-accordion";
 import UploadFile from "./upload-file";
 import CreateNote from "./create-note";
 import './folder-component.css';
+import { motion, AnimatePresence } from "framer-motion";
 
 const FolderComponent: React.FC<FolderComponentProps> = ({
   folder,
@@ -39,7 +40,9 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setIsOpen(openFolderId === folder.id);
+    if (isOpen !== (openFolderId === folder.id)) {
+      setIsOpen(openFolderId === folder.id);
+    }
   }, [openFolderId, folder.id]);
 
   useEffect(() => {
@@ -289,65 +292,68 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       onSelect();
     }
   };
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setShowMenu(false);
-      setShowFileMenu({});
-    }
-  };
 
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
-  };
-}, []);
   return (
     <div className="relative w-64" ref={menuRef}>
       <div className={`overflow-visible break-words border border-gray-300 rounded-lg hover:bg-gray-100 ${isActive ? 'bg-gray-100 border-[#F6B144]' : 'bg-white border-gray-300'}`}>
-        <Accordion.Item value={folder.id}>
-          <Accordion.Trigger
-            className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left"
+        <div className="hover:no-underline p-2 dark:text-muted-foreground text-sm w-full text-left">
+          <div 
+            className="flex items-center justify-between overflow-visible"
             onClick={handleFolderClick}
           >
-            <div className="flex items-center justify-between overflow-visible">
-              <div className="flex items-center gap-2 flex-grow min-w-0">
-              <div className="flex items-starts max-w-10 h-full hover:bg-gray-200 rounded-sm"
+            <div className="flex items-center gap-2 flex-grow min-w-0">
+              <div 
+                className="flex items-starts max-w-10 h-full hover:bg-gray-200 rounded-sm"
                 onClick={(e) => {
-                  {/* CLiking this Icon  only should expand and close the folder but not activate it */}
                   e.stopPropagation();
                   toggleFolder(e);
-                }}>
-                  
-                  <ChevronRightIcon
-                    className="h-4 w-4 cursor-pointer flex-shrink-0"
-                    style={{ 
-                      transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
-                      transition: "transform 0.3s ease" 
-                    }}
-                  />
-                </div>
-                <span className="truncate w-full flex-grow overflow-visible break-words">{folder.name}</span> 
-              </div>
-              <div 
-                className="p-2 cursor-pointer flex-shrink-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMenu(!showMenu);
                 }}
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <ChevronRightIcon
+                  className="h-4 w-4 cursor-pointer flex-shrink-0"
+                  style={{ 
+                    transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", 
+                    transition: "transform 0.3s ease" 
+                  }}
+                />
               </div>
+              <span className="truncate w-full flex-grow overflow-visible break-words">{folder.name}</span> 
             </div>
-          </Accordion.Trigger>
+            <div 
+              className="p-2 cursor-pointer flex-shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu(!showMenu);
+              }}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </div>
+          </div>
           
-          <Accordion.Content className="transition-all duration-300 ease-in-out">
+          <AnimatePresence initial={false} mode="wait">
             {isOpen && (
-              <div className="p-2 w-full text-gray-500 font-light">
+              <motion.div 
+                className="py-2 w-full text-gray-500 font-light"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ 
+                  duration: 0.3,
+                  exit: { duration: 0.3 }
+                }}
+              >
                 {/* File list */}
-                {files.map((file) => (
-                  <div 
+                {files.map((file, index) => (
+                  <motion.div 
                     key={file.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ 
+                      duration: 0.2, 
+                      delay: index * 0.05,
+                      exit: { duration: 0.2, delay: 0 }
+                    }}
                     className={`flex items-center p-2 rounded cursor-pointer rounded-lg ${
                       hoveredFileId === file.id ? 'bg-gray-200' : ''
                     }`}
@@ -363,8 +369,9 @@ useEffect(() => {
                           onChange={(e) => setRenameFileName(e.target.value)}
                           onBlur={() => handleRenameFile(file.id)}
                           onKeyPress={(e) => handleRenameKeyPress(e, file.id)}
-                          className="text-sm flex-grow border rounded p-1"
+                          className="text-sm bg-transparent w-full border border-gray-300 rounded p-1 focus:outline-none "
                           title="Rename file"
+                          placeholder="Rename file"
                         />
                         <button onClick={() => handleRenameFile(file.id)} className="ml-2 text-green-500" aria-label="Rename File">
                           <CheckIcon className="h-4 w-4" />
@@ -376,7 +383,7 @@ useEffect(() => {
                       </span>
                     )}
                     <div 
-                      className="p-2 cursor-pointer"
+                      className="py-2 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowFileMenu({ ...showFileMenu, [file.id]: !showFileMenu[file.id] });
@@ -385,38 +392,49 @@ useEffect(() => {
                       <MoreVerticalIcon className="h-4 w-4" />
                     </div>
                     {showFileMenu[file.id] && (
-                      <div className="absolute right-0 mt-8 bg-white border rounded-md shadow-md z-50 mr-2" ref={menuRef}>
+                      <div className="absolute right-0 mt-8 bg-white border rounded-lg shadow-md z-50 mr-2" ref={menuRef}>
                         <button onClick={() => setRenameFileId(file.id)} className="p-2 hover:bg-gray-100 w-full text-left flex items-center">
                           <PencilIcon className="h-4 w-4 mr-2" /> Rename
                         </button>
-                        <button onClick={() => handleDeleteFile(file.id)} className="p-2 text-red-600 hover:bg-gray-100 w-full text-left flex items-center">
+                        <button onClick={() => handleDeleteFile(file.id)} className="p-2 hover:text-red-600 hover:bg-gray-100 w-full text-left flex items-center">
                           <TrashIcon className="h-4 w-4 mr-2" /> Delete
                         </button>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
-  
+    
                 {/* Subfolders */}
-                {folder.contents.map((subfolder) => (
-                  <FolderComponent
+                {folder.contents.map((subfolder, index) => (
+                  <motion.div
                     key={subfolder.id}
-                    folder={subfolder}
-                    parentFolderId={folder.id}
-                    workspaceId={workspaceId}
-                    setFolders={setFolders}
-                    deleteFolder={deleteFolder}
-                    deleteFile={deleteFile}
-                    isActive={isActive}
-                    onSelect={onSelect}
-                    openFolderId={openFolderId}
-                    setOpenFolderId={setOpenFolderId}
-                  />
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ 
+                      duration: 0.2, 
+                      delay: index * 0.05,
+                      exit: { duration: 0.2, delay: 0 }
+                    }}
+                  >
+                    <FolderComponent
+                      folder={subfolder}
+                      parentFolderId={folder.id}
+                      workspaceId={workspaceId}
+                      setFolders={setFolders}
+                      deleteFolder={deleteFolder}
+                      deleteFile={deleteFile}
+                      isActive={isActive}
+                      onSelect={onSelect}
+                      openFolderId={openFolderId}
+                      setOpenFolderId={setOpenFolderId}
+                    />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
-          </Accordion.Content>
-        </Accordion.Item>
+          </AnimatePresence>
+        </div>
       </div>
       
       {/* Folder Menu */}

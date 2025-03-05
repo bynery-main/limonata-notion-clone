@@ -214,14 +214,14 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xs " ref={dropdownRef}> {/* Added max-width and full width */}
+    <div className="w-full max-w-xs" ref={dropdownRef}>
       <div className="space-y-2">
         <div className="flex items-center justify-between space-x-4 px-3">
           <h3 className="text-xs font-medium uppercase tracking-wider text-[#24222066]">
             Topics
           </h3>
         </div>
-        <div className="flex items-center space-x-2"> {/* Added padding */}
+        <div className="flex items-center space-x-2">
           <input
             type="text"
             value={newFolderName}
@@ -239,27 +239,23 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             <CirclePlusIcon className="h-4 w-4 " />
           </motion.div>
         </div>
-        <Accordion.Root
-          type="single"
-          value={openFolderId || undefined}
-          onValueChange={(value) => setOpenFolderId(value)}
-          className="space-y-2 overflow-show"
-        >
+        <div className="space-y-2 overflow-visible">
           {folders.map((folder) => (
             <FolderComponent
-            key={folder.id}
-            folder={folder}
-            workspaceId={workspaceId}
-            setFolders={setFolders}
-            deleteFolder={handleDeleteFolder}
-            deleteFile={handleDeleteFolder}
-            isActive={folder.id === currentFolderId}
-            onSelect={() => handleFolderSelect(folder)}
-            openFolderId={openFolderId}
-            setOpenFolderId={setOpenFolderId}
-          />
+              key={folder.id}
+              folder={folder}
+              workspaceId={workspaceId}
+              setFolders={setFolders}
+              deleteFolder={handleDeleteFolder}
+              deleteFile={handleDeleteFolder}
+              isActive={folder.id === currentFolderId}
+              onSelect={() => handleFolderSelect(folder)}
+              openFolderId={openFolderId}
+              setOpenFolderId={setOpenFolderId}
+              parentFolderId={undefined}
+            />
           ))}
-        </Accordion.Root>
+        </div>
       </div>
     </div>
   );
