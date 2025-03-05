@@ -5,6 +5,7 @@ import { collection, doc, deleteDoc, updateDoc, onSnapshot, getDocs, query, Coll
 import { db } from "@/firebase/firebaseConfig";
 import * as Accordion from "@radix-ui/react-accordion";
 import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FlashcardDeck {
   id: string;
@@ -28,7 +29,8 @@ const FlashcardsDropdown: React.FC<FlashcardsDropdownProps> = ({
   const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
-const menuIconRef = useRef<HTMLDivElement>(null);
+  const menuIconRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     console.log("Subscribing to flashcards decks updates for workspace:", workspaceId);
     const decksRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
@@ -124,101 +126,118 @@ const menuIconRef = useRef<HTMLDivElement>(null);
 
   return (
     <div>
-      <Accordion.Root
-        type="single"
-        value={openAccordion ? "flashcards" : undefined}
-        onValueChange={(value) => setOpenAccordion(value === "flashcards")}
-        className="space-y-2"
-      >
-        <Accordion.Item
-          value="flashcards"
-          className={`border rounded-lg ${dropdownVisible ? 'shadow-xl border-2' : ''}`}
+      <div className="space-y-2">
+        <div 
+          className={`border rounded-lg `}
         >
-          <Accordion.Trigger
-            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between"
+          <div
+            className="hover:no-underline p-2 text-sm w-full text-left flex items-center justify-between cursor-pointer"
             onClick={() => {
               console.log("Accordion trigger clicked, toggling accordion state.");
               setOpenAccordion(!openAccordion);
             }}
           >
             <div className="flex items-center">
-            <BookOpenIcon className="h-4 w-4 mr-2" />
+              <BookOpenIcon className="h-4 w-4 mr-2" />
               <span>Flashcards</span>
             </div>
-            {openAccordion ? (
-              <ChevronDownIcon className="h-4 w-4" />
-            ) : (
-              <ChevronRightIcon className="h-4 w-4" />
-            )}
-          </Accordion.Trigger>
-          <Accordion.Content
-            className={`pl-4 ${openAccordion ? 'block' : 'hidden'}`}
-          >
-          {decks.length === 0 ? (
-              <div className="p-2 text-sm font-light text-gray-500">
-                Create your first Flashcard Deck by pressing the
-                <img
-                    src="/favicon.ico"
-                    alt="LemonGPT"
-                    className="inline-block mx-1 w-4 h-4"
-                  />                                
-                     on the <b className="font-bold">bottom right</b>!
-              </div>
-            ) : (
-            
-          decks.map((deck) => (
-              <div
-                key={deck.id}
-                className={`p-2 text-sm w-full text-left flex items-center hover:bg-gray-100 rounded-lg justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
-                onClick={() => {
-                  console.log("Selected deck:", deck);
-                  onFlashcardDeckSelect(deck);
+            <ChevronRightIcon 
+              className="h-4 w-4 transition-transform duration-300" 
+              style={{ transform: openAccordion ? 'rotate(90deg)' : 'rotate(0deg)' }}
+            />
+          </div>
+          
+          <AnimatePresence initial={false} mode="wait">
+            {openAccordion && (
+              <motion.div 
+                className="pl-4 overflow-hidden"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ 
+                  duration: 0.3,
+                  exit: { duration: 0.3 }
                 }}
               >
-                <span>{deck.name}</span>
-                <div className="flex-shrink-0 relative" ref={menuIconRef}>
-                  <MoreHorizontalIcon
-                    className="h-4 w-4 cursor-pointer"
-                    onClick={(event) => handleDropdownToggle(event, deck)}
-                  />
-                {dropdownVisible && selectedDeck?.id === deck.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+                {decks.length === 0 ? (
+                  <motion.div 
+                    className="p-2 text-sm font-light text-gray-500"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleRenameDeck();
+                    Create your first Flashcard Deck by pressing the
+                    <img
+                      src="/favicon.ico"
+                      alt="LemonGPT"
+                      className="inline-block mx-1 w-4 h-4"
+                    />                                
+                    on the <b className="font-bold">bottom right</b>!
+                  </motion.div>
+                ) : (
+                  decks.map((deck, index) => (
+                    <motion.div
+                      key={deck.id}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ 
+                        duration: 0.2, 
+                        delay: index * 0.05,
+                        exit: { duration: 0.2, delay: 0 }
                       }}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                    >
-                      <div className="flex items-center">
-                        <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
-                      </div>
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleDeleteDeck();
+                      className={`p-2 text-sm w-full text-left flex items-center hover:bg-gray-100 rounded-lg justify-between cursor-pointer ${deck.id === currentFlashcardDeckId ? 'bg-gray-100' : ''}`}
+                      onClick={() => {
+                        console.log("Selected deck:", deck);
+                        onFlashcardDeckSelect(deck);
                       }}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
-                      <div className="flex items-center">
-                        <TrashIcon className="h-3.5 w-3.5 mr-2"/>
-                        Delete
+                      <span>{deck.name}</span>
+                      <div className="flex-shrink-0 relative" ref={menuIconRef}>
+                        <MoreHorizontalIcon
+                          className="h-4 w-4 cursor-pointer"
+                          onClick={(event) => handleDropdownToggle(event, deck)}
+                        />
+                        {dropdownVisible && selectedDeck?.id === deck.id && (
+                          <div
+                            ref={dropdownRef}
+                            className="absolute top-0 right-full mr-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+                          >
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleRenameDeck();
+                              }}
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                              <div className="flex items-center">
+                                <PencilIcon className="h-3.5 w-3.5 mr-2"/> Rename 
+                              </div>
+                            </button>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDeleteDeck();
+                              }}
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                              <div className="flex items-center">
+                                <TrashIcon className="h-3.5 w-3.5 mr-2"/>
+                                Delete
+                              </div>
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </button>
-                  </div>
+                    </motion.div>
+                  ))
                 )}
-              </div>
-            </div>
-
-            ))
-          )}
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion.Root>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };
