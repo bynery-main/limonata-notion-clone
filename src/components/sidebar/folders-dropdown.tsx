@@ -227,11 +227,11 @@ const FoldersDropDown: React.FC<FoldersDropDownProps> = ({
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             placeholder="New Topic Name"
-            className="border p-2 rounded flex-grow"
+            className="bg-gray-100 h-8 rounded-xl flex-grow pl-3 focus:outline-none"
           />
           <motion.div
             onClick={handleAddFolder}
-            className="bg-white text-black cursor-pointer p-2 rounded hover:text-[#F6B144]"
+            className="bg-white text-gray-400 cursor-pointer p-2 rounded hover:text-[#F6B144]"
             whileHover={{ scale: 1.1, rotate: 180 }}
             whileTap={{ scale: 0.9 }}
             aria-label="Add new folder"
