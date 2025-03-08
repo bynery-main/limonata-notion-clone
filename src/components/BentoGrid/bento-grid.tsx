@@ -445,7 +445,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
           ) : (
             <ResourceCreator
               workspaceId={workspaceId}
-              userId={self?.connectionId || ''}
+              userId={userId}
               type={type as "decks" | "quizzes" | "studyguides"}
               isBentoGridEmpty={true}
             />
@@ -476,7 +476,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
               ) : (
                 <ResourceCreator
                   workspaceId={workspaceId}
-                  userId={self?.connectionId || ''}
+                  userId={userId}
                   type={type as "decks" | "quizzes" | "studyguides"}
                   isBentoGridEmpty={false}
                 />
