@@ -181,6 +181,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
   };
 
   return (
+    <div className="relative bg-white">
     <div className="relative w-[50px] h-screen bg-[#272727] flex flex-col justify-between rounded-tr-3xl z-500">
       <div className="mt-3 flex flex-col items-center">
         <motion.button
@@ -275,6 +276,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
       <AnimatePresence>
         {renderDashboardSetupModal()}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

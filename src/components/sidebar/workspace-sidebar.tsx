@@ -53,20 +53,20 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const [workspaceName, setWorkspaceName] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showCollaborators, setShowCollaborators] = useState(false);
-  const [showGoProModal, setShowGoProModal] = useState(false); // State for Go Pro modal
-  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null); // State for subscription status
-  const [tier, setTier] = useState<string | null>(null); // State for user tier
+  const [showGoProModal, setShowGoProModal] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [tier, setTier] = useState<string | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-  const [maxCredits, setMaxCredits] = useState<number>(150); // Changed from 100 to 150 credits per day
+  const [maxCredits, setMaxCredits] = useState<number>(150);
   const progressValue = credits !== null ? (credits / maxCredits) * 100 : 0;
-  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<
-    string | null
-  >(null);
+  const [currentFlashcardDeckId, setCurrentFlashcardDeckId] = useState<string | null>(null);
   const [currentQuizSetId, setCurrentQuizSetId] = useState<string | null>(null);
-  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(
-    null
-  );
+  const [currentStudyGuideId, setCurrentStudyGuideId] = useState<string | null>(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  
+  // Add state for tracking mouse position
+  const [isMouseNearSidebar, setIsMouseNearSidebar] = useState(false);
 
   const [existingCollaborators, setExistingCollaborators] = useState<
     { uid: string; email: string }[]
@@ -283,10 +283,63 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     };
   }, [showGoProModal]);
 
+  // Modify the useEffect for mouse movement detection
+  useEffect(() => {
+    // Use a debounce mechanism to prevent erratic behavior
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      // Consider the sidebar "near" if mouse is within 50px of the left edge
+      const isNear = e.clientX <= 50;
+      
+      // Clear any existing timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      if (isNear) {
+        // Show sidebar immediately when mouse is near
+        setIsSidebarVisible(true);
+        setIsMouseNearSidebar(true);
+      } else {
+        // Set a longer timeout for hiding to prevent flickering
+        timeoutId = setTimeout(() => {
+          setIsSidebarVisible(false);
+          setIsMouseNearSidebar(false);
+        }, 1000); // Increased delay to 1 second
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []); // Remove dependency on isSidebarVisible to prevent re-attaching listeners
+
+  // Add a function to toggle sidebar visibility
+  const toggleSidebar = () => {
+    setIsSidebarVisible(prev => !prev);
+  };
+
+  // Add a new useEffect that runs once on component mount to ensure sidebar starts hidden
+  useEffect(() => {
+    // Set sidebar to hidden on initial load
+    setIsSidebarVisible(false);
+  }, []);
+
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-10 flex h-screen w-72 overflow-hidden flex-col border-r bg-white sm:static shadow-[-64px_64px_64px_32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%] rounded-tr-3xl rounded-br-3xl">
-                <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
+      <aside 
+        ref={sidebarRef}
+        className={`fixed inset-y-0 left-0 z-10 flex h-screen w-72 overflow-hidden flex-col border-r bg-white sm:static shadow-[-64px_64px_64px_32px_#6624008f] backdrop-blur-[160px] backdrop-brightness-[100%] rounded-tr-3xl rounded-br-3xl transition-transform duration-300 ${
+          isSidebarVisible ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex h-20 shrink-0 items-center border-b px-6 relative">
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="flex items-center gap-2 font-semibold"
@@ -442,6 +495,18 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </nav>
         </div>
       </aside>
+
+      {/* Improve the tab when sidebar is hidden */}
+      {!isSidebarVisible && (
+        <div 
+          className="fixed top-1/2 left-0 z-10 bg-white p-2 rounded-r-md shadow-md cursor-pointer transform -translate-y-1/2 transition-opacity duration-300"
+          onClick={toggleSidebar}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      )}
 
       <AnimatePresence>
         {showGoProModal && (
