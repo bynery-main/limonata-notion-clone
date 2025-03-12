@@ -40,6 +40,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
   const [workspaceEmojis, setWorkspaceEmojis] = useState<{
     [key: string]: string;
   }>({});
+  const [hoveredWorkspace, setHoveredWorkspace] = useState<string | null>(null);
   MainSidebar.displayName = "MainSidebar";
   useEffect(() => {
     let unsubscribeOwned: () => void;
@@ -185,14 +186,21 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
     <div className="relative w-[50px] h-screen bg-[#272727] flex flex-col justify-between rounded-tr-3xl z-500">
       <div className="mt-3 flex flex-col items-center">
         <motion.button
-          className="w-[37px] h-[37px] bg-[#d14a24ed] rounded-full cursor-pointer mb-2"
+          className="w-[37px] h-[37px] bg-[#d14a24ed] rounded-full cursor-pointer mb-2 relative"
           onClick={() => handleWorkspaceClick("home")}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          onMouseEnter={() => setHoveredWorkspace("home")}
+          onMouseLeave={() => setHoveredWorkspace(null)}
         >
           <div className="flex items-center justify-center w-[37px] h-[37px] rounded-full overflow-hidden bg-cover bg-[50%_50%] hover:border-2 hover:border-white">
             <Home className="w-5 h-5 text-white" />
           </div>
+          {hoveredWorkspace === "home" && (
+            <div className="absolute left-12 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap z-50">
+              Home
+            </div>
+          )}
         </motion.button>
   
         {ownedWorkspaces.map((workspace, index) => (
@@ -203,6 +211,9 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
             index={index}
             onClick={() => handleWorkspaceClick(workspace.id)}
             emoji={workspaceEmojis[workspace.id]}
+            onMouseEnter={() => setHoveredWorkspace(workspace.id)}
+            onMouseLeave={() => setHoveredWorkspace(null)}
+            showTooltip={hoveredWorkspace === workspace.id}
           />
         ))}
         {ownedWorkspaces.length > 0 && collaborativeWorkspaces.length > 0 && (
@@ -216,15 +227,25 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
             index={index}
             onClick={() => handleWorkspaceClick(workspace.id)}
             emoji={workspaceEmojis[workspace.id]}
+            onMouseEnter={() => setHoveredWorkspace(workspace.id)}
+            onMouseLeave={() => setHoveredWorkspace(null)}
+            showTooltip={hoveredWorkspace === workspace.id}
           />
         ))}
         <motion.div
-          className="mt-3 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm"
+          className="mt-3 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm relative"
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setShowDashboardSetup(true)}
+          onMouseEnter={() => setHoveredWorkspace("new")}
+          onMouseLeave={() => setHoveredWorkspace(null)}
         >
           <FaPlus />
+          {hoveredWorkspace === "new" && (
+            <div className="absolute left-12 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap z-50">
+              Create Workspace
+            </div>
+          )}
         </motion.div>
       </div>
   
@@ -234,18 +255,32 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
             <motion.img
               src={user.photoURL}
               alt="Google Profile"
-              className="w-8 h-8 rounded-full mt-2 cursor-pointer"
+              className="w-8 h-8 rounded-full mt-2 cursor-pointer relative"
               onClick={handleSettingsClick}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              onMouseEnter={() => setHoveredWorkspace("profile")}
+              onMouseLeave={() => setHoveredWorkspace(null)}
             />
+            {hoveredWorkspace === "profile" && (
+              <div className="absolute left-12 bottom-14 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap z-50">
+                Profile
+              </div>
+            )}
             <motion.div
-              className="mt-2 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm"
+              className="mt-2 w-8 h-8 bg-[#666666] rounded-full overflow-hidden cursor-pointer flex items-center justify-center text-white text-sm relative"
               onClick={() => router.push("/settings")}
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.9 }}
+              onMouseEnter={() => setHoveredWorkspace("settings")}
+              onMouseLeave={() => setHoveredWorkspace(null)}
             >
               <FaCog className="w-4 h-4" />
+              {hoveredWorkspace === "settings" && (
+                <div className="absolute left-12 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap z-50">
+                  Settings
+                </div>
+              )}
             </motion.div>
           </>
         )}
