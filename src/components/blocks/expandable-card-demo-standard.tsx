@@ -378,14 +378,13 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
                     <div className="flex flex-col gap-4 w-full">
                       {/* Workspace type */}
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">Status:</span> 
-                        {active.type === 'Owned' ? 'Personal Workspace' : 'Collaborative Workspace'}
+                        <span className="font-medium"></span> 
+                        {active.type === 'Owned' ? '' : ''}
                       </div>
                       
                       {/* Collaborators section with profile pictures */}
                       {workspaceDetails[active.id]?.collaborators.length > 0 && (
                         <div className="flex flex-col gap-2">
-                          <span className="font-medium">Collaborators:</span>
                           <div className="flex flex-wrap gap-2">
                             {workspaceDetails[active.id]?.collaborators.map((collaborator) => (
                               <div key={collaborator.id} className="flex items-center bg-gray-100 rounded-full px-2 py-1">
@@ -442,11 +441,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
               </div>
             </div>
             <div className="flex items-center gap-2 mt-4 md:mt-0">
-              {card.type === 'Owned' ? (
-                <div title="This is a personal workspace"><UserIcon className="w-5 h-5 text-gray-500" /></div>
-              ) : (
-                <div title="This is a shared workspace"><UsersIcon className="w-5 h-5 text-gray-500" /></div>
-              )}
+
               
               {/* Show collaborator avatars in the card */}
               {workspaceDetails[card.id]?.collaborators.length > 0 && (

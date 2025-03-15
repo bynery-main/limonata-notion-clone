@@ -82,7 +82,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 w-full">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">
             <FancyText
