@@ -289,8 +289,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     let isOverSidebar = false;
     
     const handleMouseMove = (e: MouseEvent) => {
-      // Consider the sidebar "near" if mouse is within 50px of the left edge
-      const isNear = e.clientX <= 50;
+      // Increase the detection area to 100px from the left edge (up from 50px)
+      const isNear = e.clientX <= 100;
       
       if (isNear && !isSidebarVisible) {
         // Show sidebar when mouse approaches the edge
@@ -509,8 +509,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       {/* Improve the tab when sidebar is hidden */}
       {!isSidebarVisible && (
         <div 
-          className="fixed top-1/2 left-0 z-10 bg-white/80 backdrop-filter backdrop-blur-sm p-2 rounded-r-md shadow-md cursor-pointer transform -translate-y-1/2 transition-opacity duration-300 hover:bg-white/90"
+          className="fixed top-1/2 left-0 z-10 bg-white/80 backdrop-filter backdrop-blur-sm p-3 rounded-r-md shadow-md cursor-pointer transform -translate-y-1/2 transition-opacity duration-300 hover:bg-white/90"
           onClick={toggleSidebar}
+          style={{ width: '40px', height: '60px' }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
