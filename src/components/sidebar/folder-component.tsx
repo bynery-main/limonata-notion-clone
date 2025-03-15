@@ -10,6 +10,7 @@ import * as Accordion from "@radix-ui/react-accordion";
 import UploadFile from "./upload-file";
 import CreateNote from "./create-note";
 import './folder-component.css';
+import toast from "react-hot-toast";
 
 const FolderComponent: React.FC<FolderComponentProps> = ({
   folder,
@@ -278,6 +279,26 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     }
   };
 
+  const handleUploadClick = async () => {
+    try {
+      // Fetch charCount from workspace
+      const workspaceRef = doc(db, "workspaces", workspaceId);
+      const workspaceDoc = await getDoc(workspaceRef);
+      const workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+  
+      if (workspaceCharCount >= 200000) {
+        toast.error("You have exceeded the character limit. Upload not allowed.");
+        return;
+      }
+  
+      // If within limit, proceed to show upload modal
+      setShowUpload(true);
+    } catch (error) {
+      console.error("Error checking workspace character count:", error);
+      toast.error("Error checking character limit. Try again later.");
+    }
+  };
+
   const handleFolderClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isOpen) {
@@ -435,7 +456,7 @@ useEffect(() => {
           <button onClick={() => handleMenuItemClick(() => setShowCreateNote(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
             <NotebookIcon className="h-4 w-4 mr-2" /> Create Note
           </button>
-          <button onClick={() => handleMenuItemClick(() => setShowUpload(true))} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
+          <button onClick={handleUploadClick} className="p-2 hover:bg-gray-200 w-full text-left flex items-center">
             <UploadIcon className="h-4 w-4 mr-2" /> Upload File
           </button>
           <button onClick={() => { deleteFolder(workspaceId, folder.id, parentFolderId); setShowMenu(false); }} className="p-2 text-red-600 hover:bg-gray-200 w-full text-left flex items-center">
