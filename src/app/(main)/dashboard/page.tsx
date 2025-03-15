@@ -95,7 +95,7 @@ const Dashboard = () => {
           <p className="text-gray-600 text-sm sm:text-base">
             Here you&apos;ll find the list of all your workspaces,
             <br className="hidden sm:inline" />
-            some of them are private and others are shared.
+            both personal and collaborative.
           </p>
         </div>
         
