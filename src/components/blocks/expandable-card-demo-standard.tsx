@@ -134,6 +134,7 @@ const renderProfileImage = (photoURL: string | null | undefined, className: stri
 export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser }: ExpandableCardDemoProps) {
   const [active, setActive] = useState<WorkspaceCard | null>(null);
   const [workspaceDetails, setWorkspaceDetails] = useState<Record<string, WorkspaceDetailInfo>>({});
+  const [expandedDescription, setExpandedDescription] = useState(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const id = useId();
   
@@ -348,12 +349,25 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
                     >
                       {active.name}
                     </motion.h3>
-                    <motion.p
+                    <motion.div
                       layoutId={`description-${active.id}-${id}`}
-                      className="text-neutral-600"
+                      className="text-neutral-600 relative"
                     >
-                      {workspaceDetails[active.id]?.description || 'Loading...'}
-                    </motion.p>
+                      <p className={expandedDescription ? "" : "line-clamp-2"}>
+                        {workspaceDetails[active.id]?.description || 'Loading...'}
+                      </p>
+                      {workspaceDetails[active.id]?.description && workspaceDetails[active.id]?.description.length > 100 && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedDescription(!expandedDescription);
+                          }}
+                          className="text-blue-500 text-sm mt-1 hover:underline"
+                        >
+                          {expandedDescription ? "Show less" : "Show more"}
+                        </button>
+                      )}
+                    </motion.div>
                   </div>
 
                   <motion.div layoutId={`button-${active.id}-${id}`}>
@@ -434,9 +448,10 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
                 </motion.h3>
                 <motion.p
                   layoutId={`description-${card.id}-${id}`}
-                  className="text-neutral-600"
+                  className="text-neutral-600 line-clamp-2"
                 >
                   {workspaceDetails[card.id]?.description.substring(0, 100) || 'Loading...'}
+                  {workspaceDetails[card.id]?.description && workspaceDetails[card.id]?.description.length > 100 && "..."}
                 </motion.p>
               </div>
             </div>
