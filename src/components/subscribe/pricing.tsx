@@ -35,6 +35,7 @@ export function PricingPage() {
             <Feature icon={<BookIcon />} title="10x Study Guides" description="Create more comprehensive study guides" />
             <Feature icon={<PencilIcon />} title="10x Quizzes" description="Test yourself and improve repeatedly" />
             <Feature icon={<FoldersIcon />} title="10x Workspaces" description="Create and join as many as you need" />
+            <Feature icon={<LightbulbIcon />} title="10x Answer Evaluations" description="Get more detailed feedback on your answers" />
           </div>
         </div>
       </Card>
