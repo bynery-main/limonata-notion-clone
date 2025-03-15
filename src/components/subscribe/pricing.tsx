@@ -27,14 +27,14 @@ export function PricingPage() {
       <Card className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="grid md:grid-cols-2 gap-6 p-6">
           <div className="space-y-4">
-            <Feature icon={<CloudIcon />} title="Massive Storage" description="Up to 50GB per Workspace" />
-            <Feature icon={<BookOpenIcon />} title="Unlimited Flashcards" description="Create ten times more!" />
-            <Feature icon={<MessageCircleIcon />} title="10x Chats" description="Many more chats with your AI tutor" />
+            <Feature icon={<CloudIcon />} title="10x Storage" description="Up to 50GB per Workspace" />
+            <Feature icon={<BookOpenIcon />} title="10x Flashcards" description="Almost unlimited flashcards" />
+            <Feature icon={<MessageCircleIcon />} title="10x Chats" description="More conversations with your AI tutor" />
           </div>
           <div className="space-y-4">
-            <Feature icon={<BookIcon />} title="10x Studyguides" description="Create many more study guides" />
-            <Feature icon={<PencilIcon />} title="10x Quizzes" description="Test yourself and improve over and over" />
-            <Feature icon={<FoldersIcon />} title="10x Workspaces" description="Create and join as many as you want" />
+            <Feature icon={<BookIcon />} title="10x Study Guides" description="Create more comprehensive study guides" />
+            <Feature icon={<PencilIcon />} title="10x Quizzes" description="Test yourself and improve repeatedly" />
+            <Feature icon={<FoldersIcon />} title="10x Workspaces" description="Create and join as many as you need" />
           </div>
         </div>
       </Card>
