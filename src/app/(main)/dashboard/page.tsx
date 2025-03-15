@@ -101,7 +101,11 @@ const Dashboard = () => {
         
         <div className="w-full">
           {allWorkspaces.length > 0 ? (
-            <ExpandableCardDemo cards={allWorkspaces} onAddWorkspace={handleAddWorkspace} />
+            <ExpandableCardDemo 
+              cards={allWorkspaces} 
+              onAddWorkspace={handleAddWorkspace} 
+              currentUser={user}
+            />
           ) : (
             <div className="h-[50vh] flex justify-center items-center">
               <button 

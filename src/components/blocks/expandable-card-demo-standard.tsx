@@ -12,13 +12,31 @@ interface WorkspaceCard extends Workspace {
   type: string;
 }
 
+interface CollaboratorInfo {
+  id: string;
+  displayName: string;
+  photoURL: string;
+}
+
+interface WorkspaceDetailInfo {
+  emoji: string;
+  description: string;
+  createdBy: {
+    id: string;
+    displayName: string;
+    photoURL: string;
+  };
+  collaborators: CollaboratorInfo[];
+}
+
 interface ExpandableCardDemoProps {
   cards: WorkspaceCard[];
   onAddWorkspace: () => void;
+  currentUser?: any;
 }
 
-// New component for emoji classification
-const EmojiGradients = {
+// Add an index signature to the object type
+const EmojiGradients: Record<string, {from: string, to: string}> = {
   // Work & Productivity
   '🚀': {from: '#FF5A5F', to: '#B762C1'}, // Rocket: Red to Purple
   '🏢': {from: '#3498DB', to: '#2ECC71'}, // Building: Blue to Green
@@ -98,9 +116,24 @@ const EmojiGradients = {
   '🔑': {from: '#F1C40F', to: '#F39C12'}, // Key: Yellow to Orange
 };
 
-export default function ExpandableCardDemo({ cards, onAddWorkspace }: ExpandableCardDemoProps) {
+// Placeholder image as data URL (simple user icon)
+const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+
+// Function to render profile image consistently
+const renderProfileImage = (photoURL: string | null | undefined, className: string = "h-6 w-6 rounded-full") => {
+  return (
+    <img
+      src={PLACEHOLDER_IMAGE}
+      alt="Profile"
+      className={className}
+      referrerPolicy="no-referrer"
+    />
+  );
+};
+
+export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser }: ExpandableCardDemoProps) {
   const [active, setActive] = useState<WorkspaceCard | null>(null);
-  const [workspaceDetails, setWorkspaceDetails] = useState<Record<string, { emoji: string; description: string; createdBy: string; collaborators: string[] }>>({});
+  const [workspaceDetails, setWorkspaceDetails] = useState<Record<string, WorkspaceDetailInfo>>({});
   const modalRef = useRef<HTMLDivElement | null>(null);
   const id = useId();
   
@@ -114,15 +147,66 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
     const workspaceRef = doc(db, "workspaces", workspaceId);
     const workspaceSnap = await getDoc(workspaceRef);
     const data = workspaceSnap.data();
+    
     if (data) {
-      // Get creator name
-      let creatorName = "Unknown";
+      // Get creator information
+      let creatorInfo = {
+        id: data.createdBy || "",
+        displayName: "Unknown",
+        photoURL: ""
+      };
+      
       if (data.createdBy) {
         const creatorRef = doc(db, "users", data.createdBy);
         const creatorSnap = await getDoc(creatorRef);
         if (creatorSnap.exists()) {
-          creatorName = creatorSnap.data().displayName || creatorSnap.data().email || "Unknown";
+          const creatorData = creatorSnap.data();
+          creatorInfo = {
+            id: data.createdBy,
+            displayName: creatorData.displayName || creatorData.email || "Unknown",
+            photoURL: creatorData.photoURL || "" // Will use placeholder image
+          };
         }
+      }
+      
+      // Get collaborator information
+      const collaboratorsInfo: CollaboratorInfo[] = [];
+      if (data.collaborators && Array.isArray(data.collaborators)) {
+        // Process up to 5 collaborators to avoid too many requests
+        const collaboratorsToProcess = data.collaborators.slice(0, 5);
+        
+        // Use Promise.all to fetch all collaborator data in parallel
+        const collaboratorPromises = collaboratorsToProcess.map(async (collaboratorId: string) => {
+          // If this collaborator is the current user, use the current user data directly
+          if (currentUser && collaboratorId === currentUser.uid) {
+            return {
+              id: currentUser.uid,
+              displayName: currentUser.displayName || currentUser.email || "You",
+              photoURL: currentUser.photoURL || "" // Will use placeholder image
+            };
+          }
+          
+          const collaboratorRef = doc(db, "users", collaboratorId);
+          const collaboratorSnap = await getDoc(collaboratorRef);
+          
+          if (collaboratorSnap.exists()) {
+            const collaboratorData = collaboratorSnap.data();
+            
+            return {
+              id: collaboratorId,
+              displayName: collaboratorData.displayName || collaboratorData.email || "Unknown",
+              photoURL: collaboratorData.photoURL || "" // Will use placeholder image
+            };
+          }
+          return null;
+        });
+        
+        const resolvedCollaborators = await Promise.all(collaboratorPromises);
+        resolvedCollaborators.forEach(collaborator => {
+          if (collaborator) {
+            collaboratorsInfo.push(collaborator);
+          }
+        });
       }
       
       setWorkspaceDetails(prevDetails => ({
@@ -130,8 +214,8 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
         [workspaceId]: {
           emoji: data.emoji || '🏢',
           description: data.description || 'No description available',
-          createdBy: creatorName,
-          collaborators: data.collaborators || []
+          createdBy: creatorInfo,
+          collaborators: collaboratorsInfo
         }
       }));
     }
@@ -143,7 +227,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
         getWorkspaceDetails(card.id);
       }
     });
-  }, [cards, workspaceDetails]);
+  }, [cards, workspaceDetails, currentUser]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -177,6 +261,19 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [active, setActive]);
+
+  // Add a debug log to check the user data
+  useEffect(() => {
+    if (currentUser) {
+      console.log("Current user in ExpandableCardDemo:", {
+        uid: currentUser.uid,
+        displayName: currentUser.displayName,
+        email: currentUser.email,
+        photoURL: currentUser.photoURL,
+        providerData: currentUser.providerData
+      });
+    }
+  }, [currentUser]);
 
   const renderEmoji = (cardId: string) => (
     <div className="h-full w-full flex items-center justify-center text-4xl">
@@ -278,20 +375,34 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
                     exit={{ opacity: 0 }}
                     className="text-neutral-600 text-xs md:text-sm lg:text-base h-40 md:h-fit pb-10 flex flex-col items-start gap-4 overflow-auto [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch]"
                   >
-                    <div className="flex flex-col gap-2 w-full">
-                      <p className="flex items-center gap-2">
-                        <span className="font-medium">Created by:</span> {workspaceDetails[active.id]?.createdBy || 'Unknown'}
-                      </p>
-                      <p className="flex items-center gap-2">
+                    <div className="flex flex-col gap-4 w-full">
+                      {/* Workspace type */}
+                      <div className="flex items-center gap-2">
                         <span className="font-medium">Status:</span> 
                         {active.type === 'Owned' ? 'Personal Workspace' : 'Collaborative Workspace'}
-                        {workspaceDetails[active.id]?.collaborators?.length > 0 && (
-                          <span className="inline-flex items-center ml-2 text-sm text-gray-500">
-                            <UsersIcon className="w-4 h-4 mr-1" /> 
-                            {workspaceDetails[active.id]?.collaborators.length}
-                          </span>
-                        )}
-                      </p>
+                      </div>
+                      
+                      {/* Collaborators section with profile pictures */}
+                      {workspaceDetails[active.id]?.collaborators.length > 0 && (
+                        <div className="flex flex-col gap-2">
+                          <span className="font-medium">Collaborators:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {workspaceDetails[active.id]?.collaborators.map((collaborator) => (
+                              <div key={collaborator.id} className="flex items-center bg-gray-100 rounded-full px-2 py-1">
+                                <div className="mr-2">
+                                  {renderProfileImage(collaborator.photoURL, "w-6 h-6 rounded-full")}
+                                </div>
+                                <span className="text-xs">{collaborator.displayName}</span>
+                              </div>
+                            ))}
+                            {workspaceDetails[active.id]?.collaborators.length > 5 && (
+                              <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
+                                <span className="text-xs">+{workspaceDetails[active.id].collaborators.length - 5} more</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 </div>
@@ -336,12 +447,29 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace }: Expandable
               ) : (
                 <div title="This is a shared workspace"><UsersIcon className="w-5 h-5 text-gray-500" /></div>
               )}
-              {workspaceDetails[card.id]?.collaborators?.length > 0 && (
-                <div title={`${workspaceDetails[card.id]?.collaborators.length} collaborators`} className="flex items-center">
-                  <UsersIcon className="w-4 h-4 text-gray-500" />
-                  <span className="text-xs text-gray-500 ml-1">{workspaceDetails[card.id]?.collaborators.length}</span>
+              
+              {/* Show collaborator avatars in the card */}
+              {workspaceDetails[card.id]?.collaborators.length > 0 && (
+                <div className="flex -space-x-3 overflow-hidden" title={`${workspaceDetails[card.id]?.collaborators.length} collaborators`}>
+                  {workspaceDetails[card.id]?.collaborators.slice(0, 3).map((collaborator, index) => (
+                    <div 
+                      key={collaborator.id} 
+                      className="relative inline-block"
+                      style={{ zIndex: 3 - index }}
+                    >
+                      {renderProfileImage(collaborator.photoURL, "w-6 h-6 rounded-full")}
+                    </div>
+                  ))}
+                  {workspaceDetails[card.id]?.collaborators.length > 3 && (
+                    <div className="inline-block relative" style={{ zIndex: 0 }}>
+                      <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xs">
+                        +{workspaceDetails[card.id]?.collaborators.length - 3}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
+              
               <motion.div layoutId={`button-${card.id}-${id}`}>
                 <a href={`/dashboard/${card.id}`} className="p-[1px] relative block">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
