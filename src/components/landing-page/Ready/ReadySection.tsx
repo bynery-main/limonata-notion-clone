@@ -1,16 +1,16 @@
 import React from "react";
 import "./ReadySection.scss";
-import Image from "next/image";
-import ai from "../../../../public/Images/upgrade/ai.png";
+import { GradientButton } from "../UI/PrimaryButton/PrimaryButton";
+
 
 const studyFeatures = [
   {
     title: "Flash Cards",
-    icon: "📝"
+    icon: "⚡️"
   },
   {
     title: "Practice Quizzes",
-    icon: "✍️"
+    icon: "❔"
   },
   {
     title: "Study Guides",
@@ -18,15 +18,7 @@ const studyFeatures = [
   }
 ];
 
-const courses = [
-  { name: "Literature", emoji: "📚" },
-  { name: "Mathematics", emoji: "🔢" },
-  { name: "Biology", emoji: "🧬" },
-  { name: "Chemistry", emoji: "⚗️" },
-  { name: "Physics", emoji: "⚛️" },
-  { name: "Computer Science", emoji: "💻" },
 
-];
 
 const notifications = [
   {
@@ -49,16 +41,7 @@ const notifications = [
   }
 ];
 
-const coursesList = (
-  <div className="courses-list">
-  {courses.map((course, index) => (
-    <div className="course-item" key={index}>
-      <span className="course-emoji">{course.emoji}</span>
-      <span className="course-name">{course.name}</span>
-    </div>
-  ))}
-</div>
-)
+
 
 // Add this SVG path component
 const WavyUnderline = () => (
@@ -107,6 +90,19 @@ const ReadySection = () => {
       </div>
 
       <div className="ready-section__container">
+        <div className="ready-right">
+          <div className="ready-section__card ready-section__card--tools">
+            <div className="card-content">
+              <h3>Collaborate with your friends</h3>
+            </div>
+            <GradeRing />
+          </div>
+
+          <GradientButton className="ready-section__button">
+            Start for free
+          </GradientButton>
+        </div>
+
         <div className="ready-left">
           <div className="ready-section__card ready-section__card--flashcards">
             <div className="card-content">
@@ -125,26 +121,7 @@ const ReadySection = () => {
             </div>
           </div>
 
-          <div className="ready-section__card ready-section__card--ai">
-            <div className="card-content">
-              <h3>Use AI to skyrocket your productivity</h3>
-              <p>Jot down tasks and assign action items in your meetings.</p>
-            </div>
-            <Image src={ai} alt="ai" />
-          </div>
-        </div>
-
-        <div className="ready-right">
-          <div className="ready-section__card ready-section__card--tools">
-            <div className="card-content">
-              <h3>Collaborate with your friends</h3>
-            </div>
-            <GradeRing />
-          </div>
-
-          <button className="ready-section__button">
-            Start for free
-          </button>
+         
         </div>
       </div>
     </section>

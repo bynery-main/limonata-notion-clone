@@ -181,8 +181,8 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ user, setShowDashboard
   };
 
   return (
-    <div className="relative w-[50px] h-screen bg-[#272727] flex flex-col justify-between">
-      <div className="mt-3 bg-[#272727] flex flex-col items-center">
+    <div className="relative w-[50px] h-screen bg-[#272727] flex flex-col justify-between rounded-tr-3xl z-500">
+      <div className="mt-3 flex flex-col items-center">
         <motion.button
           className="w-[37px] h-[37px] bg-[#d14a24ed] rounded-full cursor-pointer mb-2"
           onClick={() => handleWorkspaceClick("home")}

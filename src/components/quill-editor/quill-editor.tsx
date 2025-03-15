@@ -8,11 +8,15 @@ import { useSocket } from "@/lib/providers/socket-provider";
 import { useAuth } from "../auth-provider/AuthProvider";
 import { motion } from "framer-motion";
 import { GridPattern } from "../ui/resource-creator";
+import { toast } from 'react-hot-toast';
 
 interface QuillEditorProps {
   dirDetails: any;
   dirType: "workspace" | "folder" | "file";
   fileId: string;
+  workspaceCharCount?: number;
+  maxCharCount?: number;
+  onCharCountCheck?: (newLength: number, currentLength: number) => boolean;
 }
 
 const TOOLBAR_OPTIONS = [
@@ -51,7 +55,14 @@ const MARKDOWN_SHORTCUTS = {
   '~~': { strike: true },
 };
 
-const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }) => {
+const QuillEditor: React.FC<QuillEditorProps> = ({ 
+  dirType, 
+  fileId, 
+  dirDetails, 
+  workspaceCharCount = 0, 
+  maxCharCount = 200000,
+  onCharCountCheck 
+}) => {
   const [quill, setQuill] = useState<any>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const { socket } = useSocket();
@@ -61,6 +72,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   const { user } = useAuth();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
+  const [currentLength, setCurrentLength] = useState(0);
+  const [isLimitReached, setIsLimitReached] = useState(false);
 
   const details = useMemo(() => {
     if (dirDetails && dirDetails.workspaceId && dirDetails.folderId) {
@@ -186,6 +199,27 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         if (source !== "user" || !isInitialized) return;
 
         const text = q.root.innerHTML;
+        const newLength = text.length;
+        
+        // Check character count limit
+        const shouldApplyChanges = onCharCountCheck ? 
+          onCharCountCheck(newLength, currentLength) : 
+          (workspaceCharCount - currentLength + newLength <= maxCharCount);
+        
+        if (!shouldApplyChanges) {
+          // Revert the change
+          setIsLimitReached(true);
+          // Show toast notification
+          toast.error(`Character limit reached (${maxCharCount.toLocaleString()} characters). Please delete some content.`);
+          // Use a setTimeout to allow the error message to display before reverting
+          setTimeout(() => {
+            q.history.undo();
+            setIsLimitReached(false);
+          }, 10);
+          return;
+        }
+        
+        setCurrentLength(newLength);
         console.log("Text change detected:", text);
 
         if (details) {
@@ -256,7 +290,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
         clearTimeout(toolbarTimerRef.current);
       }
     };
-  }, [details]);
+  }, [details, onCharCountCheck, workspaceCharCount, maxCharCount, currentLength]);
 
   // Effect to show/hide toolbar
   useEffect(() => {
@@ -287,6 +321,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
       if (fileDoc.exists()) {
         const fileData = fileDoc.data();
         quill.root.innerHTML = fileData.text || "";
+        setCurrentLength(fileData.text?.length || 0);
         console.log("Fetched document data:", fileData);
         setIsInitialized(true);
       } else {
@@ -382,7 +417,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
   }
 
   return (
-    <div className="flex flex-col w-full h-full font-urbanist">
+    <div className="flex flex-col w-full h-full font-urbanist ">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -400,6 +435,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ dirType, fileId, dirDetails }
             Saving...
           </div>
         )}
+        {isLimitReached && (
+          <div className="text-xs text-red-500 mt-2 flex items-center">
+            Character limit reached ({maxCharCount.toLocaleString()} characters). Please delete some content.
+          </div>
+        )}
+
       </motion.div>
     </div>
   );

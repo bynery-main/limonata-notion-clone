@@ -11,7 +11,7 @@ import { useAuth } from "@/components/auth-provider/AuthProvider";
 import { useRouter } from "next/navigation";
 import ResponsiveSidebar from "@/components/sidebar/responsive-sidebars";
 import FileUploader from "@/components/drag-n-drop/drag-n-drop"; // Import the new FileUploader component
-import { Link, Pencil, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X } from "lucide-react";
+import { Link, Pencil, Search, SearchIcon, SearchSlash, SearchX, Share, Share2, UserPlusIcon, X, ArrowLeftCircleIcon, Menu } from "lucide-react";
 import CollaboratorSearch from "@/components/collaborator-setup/collaborator-search";
 import { fetchUserEmailById } from "@/lib/db/users/get-users";
 import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
@@ -82,6 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -536,208 +537,234 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
             onFoldersUpdate={updateFoldersData} 
           />
         ) : (
-          <WorkspaceSidebar 
-            params={{ workspaceId: params.workspaceId }}
-            onFoldersUpdate={updateFoldersData} 
-            onGoProClick={handleGoProClick}
-            onShowNoCreditsModal={handleShowNoCreditsModal}
-          />
+          <>
+            {/* Hover trigger area */}
+            <div 
+              className="absolute z-999 top-0 left-0 h-full w-16 z-40"
+              onMouseEnter={() => {
+                console.log("Hover trigger entered");
+                setSidebarOpen(true);
+              }}
+            />
+            
+            <div 
+              className={`h-full absolute z-50 transition-all duration-300 ease-in-out ${
+                isSidebarOpen ? 'translate-x-0' : '-translate-x-[300px]'
+              } hover:shadow-xl`}
+              onMouseLeave={() => {
+                console.log("Sidebar left");
+                setSidebarOpen(false);
+              }}
+            >
+              <WorkspaceSidebar 
+                params={{ workspaceId: params.workspaceId }}
+                onFoldersUpdate={updateFoldersData} 
+                onGoProClick={handleGoProClick}
+                onShowNoCreditsModal={handleShowNoCreditsModal}
+              />
+            </div>
+          </>
         )}
-        <main className="flex-1 overflow-y-auto">
-          <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
-            <div className="flex flex-col h-50 shrink-0 items-start pb-7 px-12 relative text-xl ">
-              <div className="w-full mt-8">
-                {!isWorkspaceRoot && !isSettingsPage && (
-                  <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
-                )}
-              </div>
-              {!isSettingsPage && (
-                <>
-                  <div className="flex items-center justify-between w-full mt-2">
-                    <div className={`flex items-center group relative ${!isDescriptionVisible ? 'border rounded-lg p-3' : ''} transition-all duration-200`}>
-                      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-3xl mr-3 focus:outline-none">
-                        <span>{emoji}</span>
-                      </button>
-                      {pageTitle && (
-                        <div className="flex items-center">
-                          {isEditingTitle ? (
-                            <input
-                              ref={titleInputRef}
-                              type="text"
-                              value={editedTitle}
-                              onChange={(e) => setEditedTitle(e.target.value)}
-                              onBlur={handleTitleSave}
-                              onKeyDown={handleTitleKeyDown}
-                              className="text-4xl font-light bg-transparent border-b border-gray-300 focus:outline-none focus:border-gray-500 w-full"
-                              maxLength={100}
-                            />
-                          ) : (
-                            <h1 
-                              className="text-4xl font-light cursor-pointer"
-                              onClick={handleTitleEdit}
-                              title="Click to edit workspace title"
-                            >
-                              {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
-                            </h1>
-                          )}
-                          <button
-                            onClick={() => setIsDescriptionVisible(!isDescriptionVisible)}
-                            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          >
-                            <motion.div
-                              initial={{ rotate: 0 }}
-                              animate={{ rotate: isDescriptionVisible ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="m6 9 6 6 6-6"/>
-                              </svg>
-                            </motion.div>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center ml-auto gap-2">
-                      <div className="flex items-center">
 
+        <main className="flex-1 overflow-y-auto">
+          <div className="w-full">
+            <div className="relative overflow-scroll font-inter text-xl font-semibold w-full">
+              <div className="flex flex-col h-50 shrink-0 items-start pb-7 max-w-[95%] mx-auto px-1 relative text-xl">
+                <div className="w-full mt-8">
+                  {!isWorkspaceRoot && !isSettingsPage && (
+                    <Breadcrumbs onBreadcrumbsUpdate={updatePageTitle} />
+                  )}
+                </div>
+                {!isSettingsPage && (
+                  <>
+                    <div className="flex items-center justify-between w-full mt-2 max-w-full mx-auto p-1">
+                      <div className={`flex group relative ${!isDescriptionVisible ? 'border rounded-2xl p-3' : ''} transition-all duration-200`}>
+                        <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-3xl mr-3 focus:outline-none">
+                          <span>{emoji}</span>
+                        </button>
+                        {pageTitle && (
+                          <div className="flex items-center">
+                            {isEditingTitle ? (
+                              <input
+                                ref={titleInputRef}
+                                type="text"
+                                value={editedTitle}
+                                onChange={(e) => setEditedTitle(e.target.value)}
+                                onBlur={handleTitleSave}
+                                onKeyDown={handleTitleKeyDown}
+                                className="text-4xl font-light bg-transparent border-b border-gray-300 focus:outline-none focus:border-gray-500 w-full"
+                                maxLength={100}
+                              />
+                            ) : (
+                              <h1 
+                                className="text-4xl font-light cursor-pointer"
+                                onClick={handleTitleEdit}
+                                title="Click to edit workspace title"
+                              >
+                                {pageTitle.length > 50 ? `${pageTitle.slice(0, 50)}...` : pageTitle}
+                              </h1>
+                            )}
+                            <button
+                              onClick={() => setIsDescriptionVisible(!isDescriptionVisible)}
+                              className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            >
+                              <motion.div
+                                initial={{ rotate: 0 }}
+                                animate={{ rotate: isDescriptionVisible ? 180 : 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="m6 9 6 6 6-6"/>
+                                </svg>
+                              </motion.div>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center ml-auto gap-2">
                         <div className="flex items-center">
-                          <OnlineCollaborators user={user}/>
-                          <button 
-                            ref={shareButtonRef}
-                            onClick={handleShare} 
-                            className="p-[1px] relative block mx-2"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                            <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                              <Share2 className="w-4 h-4 md:mr-2" />
-                              <span className="hidden md:inline">Invite Collaborators</span>
-                            </div>
-                          </button>
-                          {showShareMenu && (
-                            <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                              <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                                <CollaboratorSearch
-                                  existingCollaborators={existingCollaborators.map(c => c.uid)}
-                                  currentUserUid={currentUserUid}
-                                  onAddCollaborator={handleAddCollaborator}
-                                  onOpen={fetchExistingCollaborators}
-                                  workspaceId={params.workspaceId}
-                                >
-                                  <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
-                                    <Search className="mr-3 h-5 w-5"/>
-                                    <span className="hidden md:inline">Search Collaborators</span>
-                                    <span className="md:hidden">Search</span>
+
+                          <div className="flex items-center">
+                            <OnlineCollaborators user={user}/>
+                            <button 
+                              ref={shareButtonRef}
+                              onClick={handleShare} 
+                              className="p-[1px] relative block mx-2"
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                              <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                                <Share2 className="w-4 h-4 md:mr-2" />
+                                <span className="hidden md:inline">Invite Collaborators</span>
+                              </div>
+                            </button>
+                            {showShareMenu && (
+                              <div ref={shareMenuRef} className="absolute bottom-0 right-40 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                  <CollaboratorSearch
+                                    existingCollaborators={existingCollaborators.map(c => c.uid)}
+                                    currentUserUid={currentUserUid}
+                                    onAddCollaborator={handleAddCollaborator}
+                                    onOpen={fetchExistingCollaborators}
+                                    workspaceId={params.workspaceId}
+                                  >
+                                    <div className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer whitespace-nowrap">
+                                      <Search className="mr-3 h-5 w-5"/>
+                                      <span className="hidden md:inline">Search Collaborators</span>
+                                      <span className="md:hidden">Search</span>
+                                    </div>
+                                  </CollaboratorSearch>
+                                  <div
+                                    className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
+                                    onClick={handleCopyLink}
+                                    title="Soon..."
+                                  >
+                                    <Link className="mr-3 h-5 w-5" />
+                                    <span className="hidden md:inline">Copy link</span>
+                                    <span className="md:hidden">Copy</span>
                                   </div>
-                                </CollaboratorSearch>
-                                <div
-                                  className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-300 cursor-not-allowed"
-                                  onClick={handleCopyLink}
-                                  title="Soon..."
-                                >
-                                  <Link className="mr-3 h-5 w-5" />
-                                  <span className="hidden md:inline">Copy link</span>
-                                  <span className="md:hidden">Copy</span>
                                 </div>
                               </div>
+                            )}
+                          <button 
+                            onClick={handleNewNoteClick} 
+                            className="p-[1px] relative block mx-2">
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
+                            <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
+                              <svg 
+                                className="w-4 h-4 md:mr-2" 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                xmlns="http://www.w3.org/2000/svg"
+                                stroke="currentColor" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                              >
+                                <path d="M12 5v14" />
+                                <path d="M5 12h14" />
+                              </svg>
+                              <span className="hidden md:inline">New Live Note</span>
                             </div>
-                          )}
-                        <button 
-                          onClick={handleNewNoteClick} 
-                          className="p-[1px] relative block mx-2">
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
-                          <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center">
-                            <svg 
-                              className="w-4 h-4 md:mr-2" 
-                              viewBox="0 0 24 24" 
-                              fill="none" 
-                              xmlns="http://www.w3.org/2000/svg"
-                              stroke="currentColor" 
-                              strokeWidth="2" 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round"
-                            >
-                              <path d="M12 5v14" />
-                              <path d="M5 12h14" />
-                            </svg>
-                            <span className="hidden md:inline">New Live Note</span>
+                          </button>
                           </div>
-                        </button>
                         </div>
                       </div>
                     </div>
-                  </div>
+                    
+                    <AnimatePresence>
+                      {isDescriptionVisible && (
+                        <motion.p
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="text-sm text-gray-600 font-medium px-1"
+                        >
+                          {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </>
                   
-                  <AnimatePresence>
-                    {isDescriptionVisible && (
-                      <motion.p
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-sm text-gray-600 mt-3 font-medium"
-                      >
-                        {pageDescription.length > 175 ? `${pageDescription.substring(0, 175)}...` : pageDescription}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </>
+                )}
                 
-              )}
-              
-            </div>
-            <LiveCursors user={user} workspaceId={params.workspaceId} />
-            {children}
-
-            <FileUploader
-                  workspaceId={params.workspaceId}
-                  db={db}
-                  onFileUpload={handleFileUpload}
-                  isVisible={isFileUploaderVisible}
-                  onClose={() => setIsFileUploaderVisible(false)}
-                />
-            {!isSettingsPage && (
-              <>
-                <TabBar 
-                  tabs={tabs} 
-                  activeTab={activeTab} 
-                  onChange={setActiveTab} 
-                />
-                <FolderFilterTabs
-                  folders={foldersData}
-                  activeFolder={activeFilterFolder}
-                  onFolderChange={setActiveFilterFolder}
-                  isVisible={activeTab === "files" && foldersData.length > 0 && !folderId}
-                />
-                <div ref={bentoGridRef}>
-                  {showBentoGrid && (
-                    <BentoGrid 
-                      className="max-w-7xl mx-auto p-4" 
-                      workspaceId={params.workspaceId}
-                      folderId={folderId || undefined}
-                      type={activeTab}
-                      userId={currentUserId}
-                      filterFolderId={activeFilterFolder}
-                    />
-                  )}
-                </div>
-              </>
-            )}
-            <div className="relative">
-              <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 lg:left-[25%] w-max">
-                <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
               </div>
-            </div>
-            <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 mb-12 z-50">
-              <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible}/>
+              <LiveCursors user={user} workspaceId={params.workspaceId} />
+              {children}
+
+              <FileUploader
+                    workspaceId={params.workspaceId}
+                    db={db}
+                    onFileUpload={handleFileUpload}
+                    isVisible={isFileUploaderVisible}
+                    onClose={() => setIsFileUploaderVisible(false)}
+                  />
+              {!isSettingsPage && (
+                <>
+                  <div className="max-w-[95%] mx-auto px-1" >
+                  <TabBar 
+                    tabs={tabs} 
+                    activeTab={activeTab} 
+                    onChange={setActiveTab} 
+                  />
+                  <FolderFilterTabs
+                    folders={foldersData}
+                    activeFolder={activeFilterFolder}
+                    onFolderChange={setActiveFilterFolder}
+                    isVisible={activeTab === "files" && foldersData.length > 0 && !folderId}
+                  />
+                  </div>
+                  <div ref={bentoGridRef}>
+                    {showBentoGrid && (
+                      <BentoGrid 
+                        className="max-w-[95%] mx-auto p-1" 
+                        workspaceId={params.workspaceId}
+                        folderId={folderId || undefined}
+                        type={activeTab}
+                        userId={currentUserId}
+                        filterFolderId={activeFilterFolder}
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+              <div className="relative">
+                <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 lg:left-[25%] w-max">
+                  <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
+                </div>
+              </div>
+              <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 mb-12 z-50">
+                <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible}/>
+              </div>
             </div>
           </div>
         </main>

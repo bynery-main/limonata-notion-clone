@@ -45,7 +45,7 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
         ) : (
           <div>
             <p>File type not supported for preview. <a href={effectiveUrl} download>Download</a> the file to view.</p>
-          </div>
+          </div> 
         )}
       </div>
     );
@@ -70,8 +70,8 @@ const FileHandler: React.FC<FileHandlerProps> = ({ fileName, fileUrl, fileExtens
   else {
     console.log('Rendering note with QuillEditor');
     return (
-      <div className="relative h-full flex flex-col">
-        <div className="flex-grow overflow-auto">
+      <div className="relative h-full flex flex-col"> 
+        <div className="flex-grow overflow-auto px-15">
           <QuillEditor
             dirType="file"
             fileId={params.fileId}

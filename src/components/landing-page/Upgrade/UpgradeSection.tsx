@@ -44,7 +44,6 @@ const stackedCards = (
 )
 
 const courses = [
-  { name: "Literature", emoji: "📚" },
   { name: "Mathematics", emoji: "🔢" },
   { name: "Biology", emoji: "🧬" },
   { name: "Chemistry", emoji: "⚗️" },
@@ -86,6 +85,29 @@ const floatingEmojis = (
   </div>
 );
 
+// Update the AI notifications implementation
+const aiNotifications = [
+  { text: "Summarizing your notes...", emoji: "📝" },
+  { text: "Creating flashcards from your highlights...", emoji: "🔍" },
+  { text: "Finding key concepts in your notes...", emoji: "🧠" },
+  { text: "Generating practice questions...", emoji: "❓" }
+];
+
+const aiNotificationsElement = (
+  <div className="ai-notifications">
+    {aiNotifications.map((notification, index) => (
+      <div 
+        className="ai-notification" 
+        key={index}
+        style={{"--index": index} as React.CSSProperties}
+        data-emoji={notification.emoji}
+      >
+        <span className="notification-text">{notification.text}</span>
+      </div>
+    ))}
+  </div>
+);
+
 const UpgradeSection = () => {
   return (
     <section className="upgrade-section">
@@ -97,8 +119,7 @@ const UpgradeSection = () => {
           </span>
         </h2>
         <p>
-          Templates, tasks, and meeting tools make it effortless to supercharge
-          your studies.
+          AI tools, flashcards, and organizers to supercharge your learning.
         </p>
       </div>
 
@@ -108,9 +129,8 @@ const UpgradeSection = () => {
             <div className="card-content">
               <h3>Create flashcards in seconds</h3>
               <p>
-                Templates allow you to recreate the perfect meeting in 1-click.
-                And Templates can be added automatically to your weekly meetings,
-                making it No-Click™.
+                Turn notes into study materials instantly. AI identifies key concepts 
+                and creates flashcards to boost retention.
               </p>
             </div>
             {floatingEmojis}
@@ -119,9 +139,13 @@ const UpgradeSection = () => {
 
           <div className="upgrade-section__card upgrade-section__card--ai">
             <div className="card-content">
-              <h3>Use AI to skyrocket your productivity</h3>
-              <p>Jot down tasks and assign action items in your meetings.</p>
+              <h3>AI-powered study assistant</h3>
+              <p>
+                Get summaries, practice questions, and concept explanations 
+                to master any subject faster.
+              </p>
             </div>
+            {aiNotificationsElement}
             <Image src={ai} alt="ai" />
           </div>
         </div>
@@ -129,10 +153,10 @@ const UpgradeSection = () => {
         <div className="upgrade-right">
           <div className="upgrade-section__card upgrade-section__card--tools">
             <div className="card-content">
-              <h3>Organize and share your course notes</h3>
+              <h3>Organize your study materials</h3>
               <p>
-                Meeting spaces come loaded with a growing kit of meeting tools
-                that power-up your meetings in a few clicks.
+                Keep study materials organized by subject. Share with classmates 
+                and create collaborative study groups.
               </p>
             </div>
             {coursesList}
@@ -140,7 +164,7 @@ const UpgradeSection = () => {
           </div>
 
           <button className="upgrade-section__button">
-            Start for free
+            Start studying smarter
           </button>
         </div>
       </div>
