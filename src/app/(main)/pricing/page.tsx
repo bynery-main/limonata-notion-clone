@@ -77,16 +77,17 @@ const PricingPage: React.FC = () => {
   }, [user?.uid]);
 
   return (
-    <div className="flex flex-col items-centerjustify-center min-h-screen  min-w-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="flex flex-col items-centerjustify-center min-h-screen min-w-screen bg-gradient-to-br from-purple-50 to-blue-50">
           <Navbar/>
           
-          <WavyBackground 
-          className="max-w-4xl mx-auto py-20"
-          backgroundFill='white'
-          colors={["#F988B4", "#F7B64F", "#C66EC5", "#F7B64F", "#F988B4"]}
-          waveWidth={30}
-          waveOpacity={0.3}
-          blur={20}>
+          <div className="pt-32 pb-32">
+            <WavyBackground 
+            className="max-w-4xl mx-auto py-20"
+            backgroundFill='white'
+            colors={["#F988B4", "#F7B64F", "#C66EC5", "#F7B64F", "#F988B4"]}
+            waveWidth={30}
+            waveOpacity={0.3}
+            blur={20}>
       <motion.div 
         className="text-center mb-8 "
         initial={{ opacity: 0, y: -20 }}
@@ -109,26 +110,32 @@ const PricingPage: React.FC = () => {
         >
           <Card className="bg-white bg-opacity-40 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden p-6">
             <h2 className="text-2xl font-bold mb-4">Free Plan</h2>
-            <p className="text-gray-600 mb-6">100 credits per day</p>
+            <p className="text-gray-600 mb-6">150 credits per day</p>
             <PlanFeature 
               icon={<BookOpenIcon />} 
               title="Flashcards" 
-              description="Up to 6 flashcard decks per day" 
+              description="Up to 7 flashcard decks per day" 
             />
             <PlanFeature 
               icon={<MessageCircleIcon />} 
               title="AI Chat Messages" 
-              description="Up to 20 AI chat sessions per day" 
+              description="Up to 30 AI chat sessions per day" 
             />
             <PlanFeature 
               icon={<PencilIcon />} 
               title="Quizzes" 
-              description="Create up to 5 quizzes per day" 
+              description="Create up to 15 quizzes per day" 
             />
+            
             <PlanFeature 
               icon={<BookIcon />} 
               title="Study Guides" 
-              description="Generate up to 6 study guides per day" 
+              description="Generate up to 7 study guides per day" 
+            />
+            <PlanFeature 
+              icon={<PencilIcon />} 
+              title="Answer Evaluation" 
+              description="Up to 7 answer evaluations per day" 
             />
             <div className="mt-6">
               <p className="text-xl font-bold">$0 <span className="text-sm font-normal text-gray-600">/month</span></p>
@@ -164,6 +171,11 @@ const PricingPage: React.FC = () => {
               title="Study Guides" 
               description="Generate up to 60 study guides per day" 
             />
+            <PlanFeature 
+              icon={<PencilIcon />} 
+              title="Answer Evaluation" 
+              description="Up to 50 answer evaluations per day" 
+            />
             <div className="mt-6">
               <p className="text-xl font-bold">$4.99 <span className="text-sm font-normal text-gray-600">/month</span></p>
             </div>
@@ -180,6 +192,7 @@ const PricingPage: React.FC = () => {
 
       </div>
       </WavyBackground>
+      </div>
       <Footer />
     </div>
   );

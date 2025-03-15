@@ -1,5 +1,5 @@
 import { Workspace } from "@/lib/db/workspaces/get-workspaces";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface WorkspaceIconProps {
     isActive: boolean;
@@ -7,35 +7,77 @@ interface WorkspaceIconProps {
     index?: number;
     onClick: () => void;
     emoji: string | undefined;
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+    showTooltip: boolean;
   }
   
-const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive, emoji }) => {
+const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick, isActive, emoji, onMouseEnter, onMouseLeave, showTooltip }) => {
     return (
-      <motion.div
-        className={`relative mt-2 mb-2 w-9 h-9 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
-        onClick={onClick}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        layout
-        title={workspace.name}
-      >
+      <div className="relative flex items-center">
         <motion.div
-          className={`absolute inset-0 ${isActive ? 'bg-black' : 'bg-[#666666]'}`}
-          layoutId={`workspace-bg-${workspace.id}`}
-        />
-        <motion.div
-          className={`absolute inset-0 rounded-lg border-2 ${isActive ? 'border-white' : 'border-transparent'}`}
-          layoutId={`workspace-border-${workspace.id}`}
-        />
-        <motion.span
-          className="relative z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          className={`relative mt-2 mb-2 w-9 h-9 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center text-white font-semibold text-md`}
+          onClick={onClick}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          layout
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
         >
-          {emoji || workspace.name.charAt(0).toUpperCase()}
-        </motion.span>
-      </motion.div>
+          <motion.div
+            className={`absolute inset-0 ${isActive ? 'bg-black' : 'bg-[#666666]'}`}
+            layoutId={`workspace-bg-${workspace.id}`}
+          />
+          <motion.div
+            className={`absolute inset-0 rounded-lg border-2 ${isActive ? 'border-white' : 'border-transparent'}`}
+            layoutId={`workspace-border-${workspace.id}`}
+          />
+          <motion.span
+            className="relative z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {emoji || workspace.name.charAt(0).toUpperCase()}
+          </motion.span>
+        </motion.div>
+        
+        <AnimatePresence>
+          {showTooltip && (
+            <motion.div 
+              className="absolute left-full ml-2 top-1/2 -translate-y-1/2 backdrop-blur-md bg-white/20 -mt-4 border border-white/30 text-gray-800 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap z-[9999] shadow-lg"
+              initial={{ opacity: 0, x: -10, scale: 0.9 }}
+              animate={{ 
+                opacity: 1, 
+                x: 0, 
+                scale: 1,
+                transition: { 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 20 
+                } 
+              }}
+              exit={{ 
+                opacity: 0, 
+                x: -10, 
+                scale: 0.9,
+                transition: { duration: 0.2 } 
+              }}
+            >
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: 1,
+                  transition: { delay: 0.1, duration: 0.2 }
+                }}
+                className="block"
+              >
+                {workspace.name}
+              </motion.span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     );
   };
 

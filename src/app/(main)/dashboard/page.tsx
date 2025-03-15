@@ -82,7 +82,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 w-full">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">
             <FancyText
@@ -95,13 +95,17 @@ const Dashboard = () => {
           <p className="text-gray-600 text-sm sm:text-base">
             Here you&apos;ll find the list of all your workspaces,
             <br className="hidden sm:inline" />
-            some of them are private and others are shared.
+            both personal and collaborative.
           </p>
         </div>
         
         <div className="w-full">
           {allWorkspaces.length > 0 ? (
-            <ExpandableCardDemo cards={allWorkspaces} onAddWorkspace={handleAddWorkspace} />
+            <ExpandableCardDemo 
+              cards={allWorkspaces} 
+              onAddWorkspace={handleAddWorkspace} 
+              currentUser={user}
+            />
           ) : (
             <div className="h-[50vh] flex justify-center items-center">
               <button 

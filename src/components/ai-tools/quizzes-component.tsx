@@ -333,7 +333,7 @@ const QuizzesComponent: React.FC<QuizzesComponentProps> = ({ onClose, workspaceI
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
               >
-                Creating your quizzes...
+                Creating your quiz...
               </motion.p>
               
               <motion.div
