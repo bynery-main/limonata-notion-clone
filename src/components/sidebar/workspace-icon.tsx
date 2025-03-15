@@ -45,7 +45,7 @@ const WorkspaceIcon: React.FC<WorkspaceIconProps> = ({ workspace, index, onClick
         <AnimatePresence>
           {showTooltip && (
             <motion.div 
-              className="absolute left-full ml-2 top-1/2 -translate-y-1/2 backdrop-blur-md bg-white/20 border border-white/30 text-white px-3 py-1.5 rounded-lg text-sm whitespace-nowrap z-[9999] shadow-lg"
+              className="absolute left-full ml-2 top-1/2 -translate-y-1/2 backdrop-blur-md bg-white/20 -mt-4 border border-white/30 text-gray-800 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap z-[9999] shadow-lg"
               initial={{ opacity: 0, x: -10, scale: 0.9 }}
               animate={{ 
                 opacity: 1, 
