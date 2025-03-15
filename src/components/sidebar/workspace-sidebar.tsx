@@ -285,40 +285,50 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
   // Modify the useEffect for mouse movement detection
   useEffect(() => {
-    // Use a debounce mechanism to prevent erratic behavior
-    let timeoutId: NodeJS.Timeout | null = null;
+    // Track if the mouse is over the sidebar
+    let isOverSidebar = false;
     
     const handleMouseMove = (e: MouseEvent) => {
       // Consider the sidebar "near" if mouse is within 50px of the left edge
       const isNear = e.clientX <= 50;
       
-      // Clear any existing timeout
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      if (isNear) {
-        // Show sidebar immediately when mouse is near
+      if (isNear && !isSidebarVisible) {
+        // Show sidebar when mouse approaches the edge
         setIsSidebarVisible(true);
         setIsMouseNearSidebar(true);
-      } else {
-        // Set a longer timeout for hiding to prevent flickering
-        timeoutId = setTimeout(() => {
-          setIsSidebarVisible(false);
-          setIsMouseNearSidebar(false);
-        }, 1000); // Increased delay to 1 second
       }
     };
-
+    
+    // Add event listeners for the sidebar element
+    const handleSidebarMouseEnter = () => {
+      isOverSidebar = true;
+    };
+    
+    const handleSidebarMouseLeave = () => {
+      isOverSidebar = false;
+      // Only hide the sidebar if the mouse has left it
+      setIsSidebarVisible(false);
+      setIsMouseNearSidebar(false);
+    };
+    
     document.addEventListener('mousemove', handleMouseMove);
+    
+    // Add event listeners to the sidebar if it exists
+    if (sidebarRef.current) {
+      sidebarRef.current.addEventListener('mouseenter', handleSidebarMouseEnter);
+      sidebarRef.current.addEventListener('mouseleave', handleSidebarMouseLeave);
+    }
     
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      
+      // Clean up sidebar event listeners
+      if (sidebarRef.current) {
+        sidebarRef.current.removeEventListener('mouseenter', handleSidebarMouseEnter);
+        sidebarRef.current.removeEventListener('mouseleave', handleSidebarMouseLeave);
       }
     };
-  }, []); // Remove dependency on isSidebarVisible to prevent re-attaching listeners
+  }, [isSidebarVisible, sidebarRef.current]); // Add dependencies to ensure event listeners are updated
 
   // Add a function to toggle sidebar visibility
   const toggleSidebar = () => {
