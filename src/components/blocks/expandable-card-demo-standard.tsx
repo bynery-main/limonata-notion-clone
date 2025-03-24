@@ -345,13 +345,13 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
                   <div>
                     <motion.h3
                       layoutId={`title-${active.id}-${id}`}
-                      className="font-bold text-neutral-700"
+                      className="font-bold text-neutral-700 mx-6"
                     >
                       {active.name}
                     </motion.h3>
                     <motion.div
                       layoutId={`description-${active.id}-${id}`}
-                      className="text-neutral-600 relative"
+                      className="text-neutral-600 relative mx-6"
                     >
                       <p className={expandedDescription ? "" : "line-clamp-2"}>
                         {workspaceDetails[active.id]?.description || 'Loading...'}
@@ -442,7 +442,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
               <div className="text-center md:text-left ml-4">
                 <motion.h3
                   layoutId={`title-${card.id}-${id}`}
-                  className="font-bold text-neutral-800 "
+                  className="font-bold text-neutral-800"
                 >
                   {card.name}
                 </motion.h3>
@@ -480,7 +480,7 @@ export default function ExpandableCardDemo({ cards, onAddWorkspace, currentUser 
                 </div>
               )}
               
-              <motion.div layoutId={`button-${card.id}-${id}`}>
+              <motion.div layoutId={`button-${card.id}-${id}`} >
                 <a href={`/dashboard/${card.id}`} className="p-[1px] relative block">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
                   <div className="px-3 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white">
