@@ -182,13 +182,24 @@ const Header = () => {
             </NavigationMenu>
             <aside className="flex w-full gap-2 justify-end">
                 <Link href={'/logout'}>
-                    <Button variant="default" className="p-1 hidden sm:block">
-                        Sign Out
-                    </Button>
+                    <button 
+                        className="p-[1px] relative block hidden sm:block"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                        <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-xs sm:text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                            Sign Out
+                        </div>
+                    </button>
                 </Link>
-                <Button onClick={handleDeleteAccount} variant="default" className="whitespace-nowrap">
-                    Delete Account
-                </Button>
+                <button 
+                    onClick={handleDeleteAccount} 
+                    className="p-[1px] relative block"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
+                    <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-xs sm:text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold whitespace-nowrap">
+                        Delete Account
+                    </div>
+                </button>
             </aside>
         </header>
     );

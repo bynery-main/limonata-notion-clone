@@ -74,9 +74,12 @@ export default function CTAComponent() {
             Study with your own AI Professor.
           </h2> 
           <div className="button-container">
-            <button className="gradient-button" onClick={handleAuth}>
+            <GradientButton 
+              onClick={handleAuth} 
+              className="gradient-button"
+            >
               {isSignedIn ? 'Go to Your Dashboard' : 'Start a Workspace'}
-            </button>
+            </GradientButton>
           </div>
           <p className="free-text">
             Yes. It&apos;s free.
