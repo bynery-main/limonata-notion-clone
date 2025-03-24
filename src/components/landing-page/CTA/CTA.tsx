@@ -74,8 +74,14 @@ export default function CTAComponent() {
             Study with your own AI Professor.
           </h2> 
           <div className="button-container">
-            <button className="gradient-button" onClick={handleAuth}>
-              {isSignedIn ? 'Go to Your Dashboard' : 'Start a Workspace'}
+            <button 
+              onClick={handleAuth} 
+              className="p-[1px] relative block mx-auto w-full sm:w-auto"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+              <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                {isSignedIn ? 'Go to Your Dashboard' : 'Start a Workspace'}
+              </div>
             </button>
           </div>
           <p className="free-text">

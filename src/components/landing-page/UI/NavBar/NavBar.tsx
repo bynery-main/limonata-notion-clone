@@ -154,10 +154,17 @@ const Navbar = () => {
                     </div>
                     
                     <div className="-mr-2 -my-2 md:hidden">
-                        <GradientButton onClick={toggleMenu} className="text-gray-700">
-                            <span className="sr-only">Open menu</span>
-                            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                        </GradientButton>
+                        <button 
+                            onClick={toggleMenu} 
+                            className="p-[1px] relative block"
+                            aria-label="Open menu"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                            <div className="p-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center">
+                                <span className="sr-only">Open menu</span>
+                                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                            </div>
+                        </button>
                     </div>
 
                     <nav className="hidden md:flex space-x-8">
@@ -177,9 +184,14 @@ const Navbar = () => {
                         {!loading && (
                             user ? (
                                 <>
-                                    <button onClick={handleSignOut} 
-                                        className="text-sm text-gray-700 hover:text-gray-900 transition-colors">
-                                        Sign Out
+                                    <button 
+                                        onClick={handleSignOut} 
+                                        className="p-[1px] relative block"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full opacity-90" />
+                                        <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                                            Sign Out
+                                        </div>
                                     </button>
                                     <ProfilePicContainer onClick={() => router.push('/settings')}>
                                         {user.photoURL ? (
@@ -190,9 +202,14 @@ const Navbar = () => {
                                     </ProfilePicContainer>
                                 </>
                             ) : (
-                                <button onClick={handleLogin} 
-                                    className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors">
-                                    Sign In
+                                <button 
+                                    onClick={handleLogin} 
+                                    className="p-[1px] relative block"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                                    <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                                        Sign In
+                                    </div>
                                 </button>
                             )
                         )}
@@ -205,9 +222,15 @@ const Navbar = () => {
                 <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu}></div>
                 <div className="absolute right-0 top-0 h-full w-64 bg-white/95 shadow-lg p-6">
                     <div className="flex justify-end mb-6">
-                        <GradientButton onClick={toggleMenu} className="text-gray-700">
-                            <X className="h-5 w-5" />
-                        </GradientButton>
+                        <button 
+                            onClick={toggleMenu}
+                            className="p-[1px] relative block"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
+                            <div className="p-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center">
+                                <X className="h-5 w-5" />
+                            </div>
+                        </button>
                     </div>
                     <div className="flex flex-col space-y-4">
                         {navItems.map((item, index) => (
@@ -222,14 +245,24 @@ const Navbar = () => {
                             </NavItem>
                         ))}
                         {user ? (
-                            <button onClick={handleSignOut} 
-                                className="text-sm text-gray-700 hover:text-gray-900 transition-colors pt-4">
-                                Sign Out
+                            <button 
+                                onClick={handleSignOut} 
+                                className="p-[1px] relative block w-full mt-4"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full opacity-90" />
+                                <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                                    Sign Out
+                                </div>
                             </button>
                         ) : (
-                            <button onClick={handleLogin} 
-                                className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors pt-4">
-                                Sign In
+                            <button 
+                                onClick={handleLogin} 
+                                className="p-[1px] relative block w-full mt-4"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                                <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                                    Sign In
+                                </div>
                             </button>
                         )}
                     </div>

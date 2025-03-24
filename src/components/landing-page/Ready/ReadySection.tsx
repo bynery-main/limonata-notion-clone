@@ -98,7 +98,7 @@ const ReadySection = () => {
             <GradeRing />
           </div>
 
-          <GradientButton className="ready-section__button">
+          <GradientButton className="ready-section__button w-full sm:w-auto">
             Start for free
           </GradientButton>
         </div>
@@ -120,8 +120,6 @@ const ReadySection = () => {
               ))}
             </div>
           </div>
-
-         
         </div>
       </div>
     </section>
