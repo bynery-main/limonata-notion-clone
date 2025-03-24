@@ -160,33 +160,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
           document.body
         )
       )}
-      <div className="text-center mt-6">
-        <button 
-          onClick={() => {
-            // This will trigger the same action as the "New Live Note" button
-            const event = new CustomEvent('create-new-note');
-            document.dispatchEvent(event);
-          }}
-          className="text-sm text-gray-400 font-medium flex items-center justify-center mx-auto bg-white px-4 py-2 rounded-lg group hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
-        >
-          <svg 
-            className="w-4 h-4 mr-2 transition-colors group-hover:stroke-[#C66EC5]" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-          <span className="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#C66EC5] group-hover:to-[#FC608D]">
-            Or create a new<span className="font-bold ml-1">Collaborative Live Note</span>
-          </span>
-        </button>
-      </div>
+      
     </div>
   );
 }
