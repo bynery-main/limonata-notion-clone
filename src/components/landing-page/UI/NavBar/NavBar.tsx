@@ -217,57 +217,92 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile menu - with updated styling */}
-            <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 z-50`}>
-                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu}></div>
-                <div className="absolute right-0 top-0 h-full w-64 bg-white/95 shadow-lg p-6">
-                    <div className="flex justify-end mb-6">
-                        <button 
-                            onClick={toggleMenu}
-                            className="p-[1px] relative block"
+            {/* Simple Mobile Menu */}
+            <div 
+                style={{
+                    display: isMenuOpen ? 'block' : 'none',
+                    position: 'fixed',
+                    top: '64px',
+                    right: '0',
+                    width: '256px',
+                    height: 'calc(100vh - 64px)',
+                    backgroundColor: 'white',
+                    boxShadow: '-2px 0 10px rgba(0, 0, 0, 0.1)',
+                    zIndex: 9999
+                }}
+                className="md:hidden"
+            >
+                <div style={{padding: '16px'}}>
+                    {navItems.map((item, index) => (
+                        <div 
+                            key={index} 
+                            style={{
+                                margin: '8px 0',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                backgroundColor: isActive(item.link) ? '#f3f4f6' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full" />
-                            <div className="p-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center">
-                                <X className="h-5 w-5" />
-                            </div>
-                        </button>
-                    </div>
-                    <div className="flex flex-col space-y-4">
-                        {navItems.map((item, index) => (
-                            <NavItem
-                                key={index}
-                                as={Link}
+                            <Link 
                                 href={item.link}
                                 onClick={toggleMenu}
-                                className="text-gray-900"
+                                style={{
+                                    color: '#333',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    width: '100%'
+                                }}
                             >
+                                <span style={{marginRight: '12px'}}>{item.icon}</span>
                                 {item.name}
-                            </NavItem>
-                        ))}
+                            </Link>
+                        </div>
+                    ))}
+                    
+                    <div style={{
+                        marginTop: '24px', 
+                        paddingTop: '16px', 
+                        borderTop: '1px solid #eee'
+                    }}>
                         {user ? (
                             <button 
-                                onClick={handleSignOut} 
-                                className="p-[1px] relative block w-full mt-4"
+                                onClick={handleSignOut}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 16px',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#FC608D',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full opacity-90" />
-                                <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
-                                    Sign Out
-                                </div>
+                                Sign Out
                             </button>
                         ) : (
                             <button 
-                                onClick={handleLogin} 
-                                className="p-[1px] relative block w-full mt-4"
+                                onClick={handleLogin}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 16px',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#F6B144',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-                                <div className="px-4 py-2 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
-                                    Sign In
-                                </div>
+                                Sign In
                             </button>
                         )}
                     </div>
                 </div>
             </div>
+            
         </header>
     );
 };

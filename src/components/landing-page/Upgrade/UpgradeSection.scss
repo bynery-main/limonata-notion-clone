@@ -209,6 +209,59 @@
                     padding: 2rem 1.5rem 1.5rem 1.5rem;
                     min-height: 250px;
                 }
+
+                .courses-list {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    padding: 20px;
+                    margin-top: 20px;
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                    
+                    @media (max-width: 768px) {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                    
+                    @media (max-width: 480px) {
+                        grid-template-columns: repeat(1, 1fr);
+                        padding: 15px;
+                    }
+                    
+                    .course-item {
+                        display: flex;
+                        align-items: center;
+                        padding: 12px;
+                        background: rgba(255, 255, 255, 0.15);
+                        border-radius: 10px;
+                        transition: transform 0.2s ease;
+                        
+                        &:hover {
+                            transform: translateY(-3px);
+                            background: rgba(255, 255, 255, 0.25);
+                        }
+                        
+                        .course-emoji {
+                            font-size: 1.5rem;
+                            margin-right: 10px;
+                            
+                            @media (max-width: 768px) {
+                                font-size: 1.25rem;
+                            }
+                        }
+                        
+                        .course-name {
+                            font-size: 16px;
+                            font-weight: 500;
+                            color: white;
+                            
+                            @media (max-width: 768px) {
+                                font-size: 14px;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
