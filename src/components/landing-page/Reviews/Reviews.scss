@@ -2,25 +2,8 @@
   padding: 6rem 1rem;
   position: relative;
   overflow: hidden;
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(248, 244, 1, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 60%, rgba(252, 26, 166, 0.03) 0%, transparent 40%),
-    linear-gradient(120deg, rgba(255, 255, 255, 0.4) 0%, rgba(249, 249, 249, 0.4) 100%);
   
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
-    pointer-events: none;
-    z-index: 0;
-  }
+
 }
 
 .reviews-container {
@@ -32,18 +15,14 @@
 }
 
 .review-card {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(245, 245, 245, 0.95));
-  border-radius: 2.5rem;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgb(239, 239, 239));
+  border-radius: 4rem;
   padding: 3rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 800px;
   margin-bottom: 2rem;
   transition: all 0.3s ease;
-  position: relative;
-  z-index: 1;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .review-content {
@@ -115,8 +94,28 @@
 
 .review-controls {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.control-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+  font-size: 1.2rem;
+  
+  &:hover {
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
 }
 
 @media (max-width: 768px) {

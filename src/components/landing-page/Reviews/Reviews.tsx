@@ -101,23 +101,11 @@ const Reviews = () => {
         </div>
         
         <div className="review-controls">
-          <button 
-            className="p-[1px] relative block mr-2"
-            onClick={prevReview}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full opacity-90" />
-            <div className="w-10 h-10 md:w-12 md:h-12 relative bg-white rounded-full group transition duration-200 flex items-center justify-center hover:bg-transparent">
-              <FaChevronLeft className="text-black group-hover:text-white" />
-            </div>
+          <button className="control-btn prev" onClick={prevReview}>
+            <FaChevronLeft />
           </button>
-          <button 
-            className="p-[1px] relative block"
-            onClick={nextReview}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full opacity-90" />
-            <div className="w-10 h-10 md:w-12 md:h-12 relative bg-white rounded-full group transition duration-200 flex items-center justify-center hover:bg-transparent">
-              <FaChevronRight className="text-black group-hover:text-white" />
-            </div>
+          <button className="control-btn next" onClick={nextReview}>
+            <FaChevronRight />
           </button>
         </div>
       </div>

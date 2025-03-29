@@ -62,23 +62,20 @@
         justify-content: center;
 
         .gradient-button {
-          background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4)) !important;
-          color: #333 !important;
-          border: 1px solid rgba(255, 255, 255, 0.6) !important;
-          padding: 0.75rem 1.5rem !important;
-          border-radius: 0.5rem !important;
-          transition: all 0.3s ease !important;
-          backdrop-filter: blur(8px) !important;
-          -webkit-backdrop-filter: blur(8px) !important;
-          font-weight: 600 !important;
-          box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15) !important;
-          
-          &:hover {
-            transform: translateY(-5px) !important;
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5)) !important;
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25) !important;
+          background: linear-gradient(to right, #ffffff, #ffffff70) !important;
+          color: #333;
+          border: 1px solid white;
+          padding: 0.75rem 1.5rem;
+          border-radius: 0.5rem;
+          transition: all 0.3s ease;
+          font-weight: 600;
+          &:hover{
+
+            transform: translateY(-5px);
           }
+
         }
+        
       }
 
       .free-text {

@@ -187,7 +187,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
           document.body
         )
       )}
-      
     </div>
   );
 }

@@ -749,7 +749,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                         className="max-w-[95%] mx-auto p-1" 
                         workspaceId={params.workspaceId}
                         folderId={folderId || undefined}
-                        type={activeTab === "files" ? "files" : activeTab === "notes" ? "notes" : activeTab}
+                        type={activeTab}
                         userId={currentUserId}
                         filterFolderId={activeFilterFolder}
                       />

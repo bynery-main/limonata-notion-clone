@@ -70,29 +70,6 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
   const [isEntered, setIsEntered] = useState(false);
   const router = useRouter();
 
-  // Combined effect for fetching folders and folder names
-  useEffect(() => {
-    if (!workspaceId) return;
-
-    const fetchFoldersAndNames = async () => {
-      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
-      const foldersSnapshot = await getDocs(foldersRef);
-      
-      const fetchedFolders = foldersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Folder));
-      const folderNamesMap = foldersSnapshot.docs.reduce((acc, doc) => {
-        acc[doc.id] = doc.data().name || 'Unnamed Folder';
-        return acc;
-      }, {} as { [key: string]: string });
-
-      setFolders(fetchedFolders);
-      setFolderNames(folderNamesMap);
-      setIsBentoGridEmpty(fetchedFolders.length === 0);
-    };
-
-    fetchFoldersAndNames();
-  }, [workspaceId]);
-
-  // Effect for entering space
   useEffect(() => {
     if (!space || isEntered) return;
 
@@ -114,47 +91,121 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
     };
   }, [space, isEntered]);
 
-  // Combined effect for real-time updates and initial data fetching
   useEffect(() => {
-    if (!workspaceId) return;
+    const fetchFolders = async () => {
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const foldersSnapshot = await getDocs(foldersRef);
+      const fetchedFolders = foldersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Folder));
+      setFolders(fetchedFolders);
+      setIsBentoGridEmpty(fetchedFolders.length === 0);
+    };
 
-    let unsubscribeFunctions: (() => void)[] = [];
+    fetchFolders();
+  }, [workspaceId]);
 
-    const setupListeners = async () => {
-      // Handle files and notes
-      if (type === "files" || type === "notes") {
-        if (folderId) {
-          // Handle folder-specific items
+  useEffect(() => {
+    const fetchFolderNames = async () => {
+      const folderNamesMap: { [key: string]: string } = {};
+      
+      // Fetch all folders to get their names
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const foldersSnapshot = await getDocs(foldersRef);
+      
+      foldersSnapshot.docs.forEach(doc => {
+        folderNamesMap[doc.id] = doc.data().name || 'Unnamed Folder';
+      });
+      
+      setFolderNames(folderNamesMap);
+    };
+    
+    fetchFolderNames();
+  }, [workspaceId]);
+
+  const handleCreateFolder = async (folderName: string) => {
+    try {
+      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
+      const newFolderRef = await addDoc(foldersRef, {
+        name: folderName,
+        contents: [],
+        filests: []
+      });
+      console.log("New folder created with ID: ", newFolderRef.id);
+      setFolders(prevFolders => [...prevFolders, { id: newFolderRef.id, name: folderName, contents: [], filests: [] }]);
+      setIsBentoGridEmpty(false);
+      router.push(`/dashboard/${workspaceId}/${newFolderRef.id}`);
+    } catch (error) {
+      console.error("Error creating new folder: ", error);
+    }
+  };
+
+  const fetchItems = async () => {
+    if (folderId) {
+      // Fetch items for a specific folder
+      let itemsRef;
+      switch (type) {
+        case 'decks':
+          itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
+          break;
+        case 'quizzes':
+          itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
+          break;
+        case 'studyguides':
+          itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
+          break;
+        default: // 'files'
           const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
           const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+          
+          const [filesSnapshot, notesSnapshot] = await Promise.all([
+            getDocs(filesRef),
+            getDocs(notesRef)
+          ]);
 
-          const unsubscribeFiles = onSnapshot(filesRef, (snapshot) => {
-            const updatedFiles = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              name: doc.data().name || 'Untitled',
-              ...doc.data(),
-              type: "file" as const,
-              folderId,
-            })) as FileData[];
+          const files = filesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name || 'Untitled',
+            ...doc.data(),
+            type: "file" as const,
+            folderId: folderId
+          })) as FileData[];
 
-            setItems(prev => [...prev.filter(item => item.type !== "file"), ...updatedFiles]);
-          });
+          const notes = notesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name || 'Untitled',
+            ...doc.data(),
+            type: "note" as const,
+            folderId: folderId
+          })) as FileData[];
 
-          const unsubscribeNotes = onSnapshot(notesRef, (snapshot) => {
-            const updatedNotes = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              name: doc.data().name || 'Untitled',
-              ...doc.data(),
-              type: "note" as const,
-              folderId,
-            })) as FileData[];
+          setItems([...files, ...notes]);
+          return;
+      }
 
-            setItems(prev => [...prev.filter(item => item.type !== "note"), ...updatedNotes]);
-          });
+      const snapshot = await getDocs(itemsRef);
+      const fetchedItems = snapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name || 'Untitled',
+        ...doc.data(),
+        type: type as FileData['type'],
+        folderId: folderId
+      })) as FileData[];
 
-          unsubscribeFunctions.push(unsubscribeFiles, unsubscribeNotes);
-        } else {
-          // Handle workspace-level items
+      setItems(fetchedItems);
+    } else {
+      // Fetch items from workspace level collections
+      let itemsRef;
+      switch (type) {
+        case 'decks':
+          itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
+          break;
+        case 'quizzes':
+          itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
+          break;
+        case 'studyguides':
+          itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
+          break;
+        default:
+          // Handle files and notes from all folders
           const foldersRef = collection(db, "workspaces", workspaceId, "folders");
           const foldersSnapshot = await getDocs(foldersRef);
           
@@ -190,89 +241,118 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
           );
 
           setItems(allItems.flat());
-        }
-      } else {
-        // Handle other types (decks, quizzes, studyguides)
-        let collectionName;
-        switch (type) {
-          case 'decks':
-            collectionName = "flashcardsDecks";
-            break;
-          case 'quizzes':
-            collectionName = "quizSets";
-            break;
-          case 'studyguides':
-            collectionName = "studyGuides";
-            break;
-        }
+          return;
+      }
 
-        if (collectionName) {
-          const itemsRef = collection(db, "workspaces", workspaceId, collectionName);
-          const unsubscribe = onSnapshot(itemsRef, (snapshot) => {
-            const updatedItems = snapshot.docs.map((doc) => ({
+      const snapshot = await getDocs(itemsRef);
+      const updatedItems = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name || 'Untitled',
+        ...doc.data(),
+        type: type as FileData['type'],
+      })) as FileData[];
+
+      setItems(updatedItems);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, [workspaceId, folderId, type]);
+
+  useEffect(() => {
+    console.log("Current folder updated:", currentFolder);
+  }, [currentFolder]);
+  
+  const fetchFolderDetails = async (folderId: string) => {
+    console.log("Fetching folder details for:", folderId);
+    const folderRef = doc(db, "workspaces", workspaceId, "folders", folderId);
+    const folderSnap = await getDoc(folderRef);
+    if (folderSnap.exists()) {
+      const folderData = folderSnap.data() as Folder;
+      console.log("Folder data:", folderData);
+
+      setCurrentFolder({
+        id: folderId,
+        name: folderData.name,
+        contents: folderData.contents,
+        filests: folderData.filests
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!workspaceId) return;
+
+    let unsubscribeFunctions: (() => void)[] = [];
+
+    // Set up real-time listeners based on type
+    let itemsRef;
+    switch (type) {
+      case 'decks':
+        itemsRef = collection(db, "workspaces", workspaceId, "flashcardsDecks");
+        break;
+      case 'quizzes':
+        itemsRef = collection(db, "workspaces", workspaceId, "quizSets");
+        break;
+      case 'studyguides':
+        itemsRef = collection(db, "workspaces", workspaceId, "studyGuides");
+        break;
+      default:
+        // Handle files and notes
+        if (folderId) {
+          const filesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "files");
+          const notesRef = collection(db, "workspaces", workspaceId, "folders", folderId, "notes");
+
+          const unsubscribeFiles = onSnapshot(filesRef, (snapshot) => {
+            const updatedFiles = snapshot.docs.map((doc) => ({
               id: doc.id,
               name: doc.data().name || 'Untitled',
               ...doc.data(),
-              type: type as FileData['type'],
+              type: "file" as const,
               folderId,
             })) as FileData[];
 
-            setItems(updatedItems);
+            setItems(prev => [...prev.filter(item => item.type !== "file"), ...updatedFiles]);
           });
 
-          unsubscribeFunctions.push(unsubscribe);
-        }
-      }
-    };
+          const unsubscribeNotes = onSnapshot(notesRef, (snapshot) => {
+            const updatedNotes = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              name: doc.data().name || 'Untitled',
+              ...doc.data(),
+              type: "note" as const,
+              folderId,
+            })) as FileData[];
 
-    setupListeners();
+            setItems(prev => [...prev.filter(item => item.type !== "note"), ...updatedNotes]);
+          });
+
+          unsubscribeFunctions.push(unsubscribeFiles, unsubscribeNotes);
+          return;
+        }
+    }
+
+    if (itemsRef) {
+      const unsubscribe = onSnapshot(itemsRef, (snapshot) => {
+        const updatedItems = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name || 'Untitled',
+          ...doc.data(),
+          type: type as FileData['type'],
+        })) as FileData[];
+
+        setItems(updatedItems);
+      });
+
+      unsubscribeFunctions.push(unsubscribe);
+    }
 
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     };
   }, [workspaceId, folderId, type]);
 
-  // Effect for fetching current folder details
-  useEffect(() => {
-    if (!folderId || !workspaceId) return;
-
-    const fetchFolderDetails = async () => {
-      const folderRef = doc(db, "workspaces", workspaceId, "folders", folderId);
-      const folderSnap = await getDoc(folderRef);
-      if (folderSnap.exists()) {
-        const folderData = folderSnap.data() as Folder;
-        setCurrentFolder({
-          id: folderId,
-          name: folderData.name,
-          contents: folderData.contents,
-          filests: folderData.filests
-        });
-      }
-    };
-
-    fetchFolderDetails();
-  }, [folderId, workspaceId]);
-
-  const handleCreateFolder = async (folderName: string) => {
-    try {
-      const foldersRef = collection(db, "workspaces", workspaceId, "folders");
-      const newFolderRef = await addDoc(foldersRef, {
-        name: folderName,
-        contents: [],
-        filests: []
-      });
-      console.log("New folder created with ID: ", newFolderRef.id);
-      setFolders(prevFolders => [...prevFolders, { id: newFolderRef.id, name: folderName, contents: [], filests: [] }]);
-      setIsBentoGridEmpty(false);
-      router.push(`/dashboard/${workspaceId}/${newFolderRef.id}`);
-    } catch (error) {
-      console.error("Error creating new folder: ", error);
-    }
-  };
-
-  useEffect(() => {
-    console.log("Current folder updated:", currentFolder);
-  }, [currentFolder]);
   
   const getItemClass = (index: number, totalItems: number) => {
     // This pattern repeats every 9 items (8 items + FileUpload)

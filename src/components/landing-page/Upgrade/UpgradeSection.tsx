@@ -163,13 +163,8 @@ const UpgradeSection = () => {
            
           </div>
 
-          <button 
-            className="p-[1px] relative block w-full sm:w-auto mx-auto"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
-            <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
-              Start studying smarter
-            </div>
+          <button className="upgrade-section__button">
+            Start studying smarter
           </button>
         </div>
       </div>
