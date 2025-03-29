@@ -6,6 +6,9 @@ import FileUploader from '../drag-n-drop/drag-n-drop';
 import FancyText from "@carefully-coded/react-text-gradient";
 import { usePathname } from "next/navigation";
 import { createPortal } from 'react-dom';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/firebaseConfig";
+import toast from "react-hot-toast";
 
 interface Folder {
   id: string;
@@ -48,9 +51,30 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
   const showHelp = isBentoGridEmpty;
   const fileUploadRef = useRef<HTMLDivElement>(null);
 
-  const handleClick = () => {
-    setIsUploaderVisible(true);
+  
+  const checkCharCountBeforeUpload = async () => {
+    try {
+      // Fetch charCount from workspace
+      const workspaceRef = doc(db, "workspaces", workspaceId);
+      const workspaceDoc = await getDoc(workspaceRef);
+      const workspaceCharCount = workspaceDoc.data()?.charCount || 0;
+
+      if (workspaceCharCount >= 200000) {
+        toast.error("You have exceeded the character limit. Upload not allowed.");
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error checking workspace character count:", error);
+      toast.error("Error checking character limit. Try again later.");
+      return false;
+    }
   };
+
+  const handleClick = async () => {
+    const canUpload = await checkCharCountBeforeUpload();
+    if (!canUpload) return;
+    setIsUploaderVisible(true);  };
 
   const handleClose = () => {
     setIsUploaderVisible(false);
@@ -75,11 +99,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({ workspaceId, db, onFileU
     e.stopPropagation();
   };
   
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingOver(false);
-    
+  
+    const canUpload = await checkCharCountBeforeUpload();
+    if (!canUpload) return;
+  
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       setSelectedFile(e.dataTransfer.files[0]);
       setIsUploaderVisible(true);

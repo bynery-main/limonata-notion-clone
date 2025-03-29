@@ -133,20 +133,35 @@ export default function HeroComponent() {
           <div className="hero__buttons">
             {!isSignedIn ? (
               <>
-                <GradientButton onClick={login}>
-                  Try it free
-                </GradientButton>
+                <button 
+                  onClick={login} 
+                  className="p-[1px] relative block w-full sm:w-auto"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                  <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                    Try it free
+                  </div>
+                </button>
                 <button 
                   onClick={login}
-                  className="outline-button"
+                  className="p-[1px] relative block ml-0 sm:ml-4 mt-4 sm:mt-0 w-full sm:w-auto"
                 >
-                  Login
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full opacity-30" />
+                  <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-gray-800 flex items-center justify-center font-semibold border border-gray-200">
+                    Login
+                  </div>
                 </button>
               </>
             ) : (
-              <GradientButton onClick={goToDashboard}>
-                Go to Dashboard
-              </GradientButton>
+              <button 
+                onClick={goToDashboard} 
+                className="p-[1px] relative block w-full sm:w-auto"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
+                <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
+                  Go to Dashboard
+                </div>
+              </button>
             )}
           </div>
         </TextContent>
