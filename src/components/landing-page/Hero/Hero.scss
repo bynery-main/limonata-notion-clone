@@ -108,17 +108,15 @@
   &__buttons {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem; // gap-4
     justify-content: center;
-    margin-top: 1rem;
 
     @media (min-width: 640px) {
       flex-direction: row;
-      gap: 1rem;
     }
 
     @media (min-width: 768px) {
-      justify-content: center;
+      justify-content: flex-start; // md:justify-start
     }
   }
 }
@@ -148,4 +146,18 @@
   height: 2rem; // h-8
   border-radius: 9999px; // rounded-full
   object-fit: cover;
+}
+
+.outline-button {
+  background: transparent;
+  color: #374151;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: 2px solid #E5E7EB;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #F3F4F6;
+  }
 } 

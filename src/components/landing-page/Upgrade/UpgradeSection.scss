@@ -3,14 +3,6 @@
     flex-direction: column;
     padding: 10%;
     gap: 2rem;
-    
-    @media (max-width: 1024px) {
-        padding: 8% 6%;
-    }
-
-    @media (max-width: 768px) {
-        padding: 6% 4%;
-    }
 
     .upgrade-section__header{
         display: flex;
@@ -18,25 +10,11 @@
         align-items: left;
         justify-content: left;
         width: 50%;
-        
-        @media (max-width: 768px) {
-            width: 100%;
-            align-items: center;
-            text-align: center;
-        }
 
         h2{
             font-size: 2.5rem;
             font-weight: 600;
             color: #000;
-            
-            @media (max-width: 768px) {
-                font-size: 2rem;
-            }
-            
-            @media (max-width: 480px) {
-                font-size: 1.75rem;
-            }
             
             .highlight {
                 position: relative;
@@ -61,15 +39,9 @@
         p{
             font-size: 20px;
             color: #000;
-            
-            @media (max-width: 768px) {
-                font-size: 18px;
-            }
-            
-            @media (max-width: 480px) {
-                font-size: 16px;
-            }
         }
+        
+        
     }
 
     .upgrade-section__container{
@@ -78,15 +50,6 @@
         align-items: center;
         justify-content: center;
         gap: 2rem;
-        
-        @media (max-width: 1024px) {
-            gap: 1.5rem;
-        }
-        
-        @media (max-width: 768px) {
-            flex-direction: column;
-            gap: 2rem;
-        }
 
         .upgrade-left{
             display: flex;
@@ -94,12 +57,6 @@
             align-items: end;
             gap: 2rem;
             width: 55%;
-            
-            @media (max-width: 768px) {
-                width: 100%;
-                align-items: center;
-                gap: 1.5rem;
-            }
 
             .upgrade-section__card--flashcards{
                 align-items: start;
@@ -107,10 +64,7 @@
                 background: radial-gradient(circle at top right, #F8AB2F, #F44E18, #FC1AA6);
                 color: white;
                 padding: 4rem 2rem 0 2rem;
-                
-                @media (max-width: 768px) {
-                    padding: 2rem 1.5rem 0 1.5rem;
-                }
+
             }
 
             .upgrade-section__card--ai{
@@ -121,11 +75,6 @@
                 padding: 4rem 2rem 0 2rem;
                 position: relative;
                 overflow: hidden;
-                
-                @media (max-width: 768px) {
-                    width: 100%;
-                    padding: 2rem 1.5rem 0 1.5rem;
-                }
 
                 .ai-notifications {
                     position: absolute;
@@ -134,14 +83,6 @@
                     transform: translateX(-50%);
                     z-index: 2;
                     width: 80%;
-                    
-                    @media (max-width: 768px) {
-                        bottom: 80px;
-                    }
-                    
-                    @media (max-width: 480px) {
-                        width: 90%;
-                    }
                     
                     .ai-notification {
                         background: rgba(255, 255, 255, 0.95);
@@ -163,19 +104,10 @@
                         gap: 12px;
                         animation: notificationSequence 12s calc(var(--index) * 3s) infinite;
                         
-                        @media (max-width: 768px) {
-                            font-size: 14px;
-                            padding: 10px 15px;
-                        }
-                        
                         &::before {
                             content: attr(data-emoji);
                             font-size: 22px;
                             margin-right: 8px;
-                            
-                            @media (max-width: 768px) {
-                                font-size: 18px;
-                            }
                         }
                     }
                 }
@@ -190,11 +122,6 @@
             justify-content: center;
             gap: 2rem;
             width: 45%;
-            
-            @media (max-width: 768px) {
-                width: 100%;
-                gap: 1.5rem;
-            }
 
             .upgrade-section__card--tools{
                 align-items: start;
@@ -204,67 +131,68 @@
                 color: white;
                 padding: 4rem 2rem 2rem 2rem;
                 overflow: hidden;
+
                 
-                @media (max-width: 768px) {
-                    padding: 2rem 1.5rem 1.5rem 1.5rem;
-                    min-height: 250px;
-                }
 
                 .courses-list {
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    padding: 20px;
-                    margin-top: 20px;
                     width: 100%;
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 15px;
-                    
-                    @media (max-width: 768px) {
-                        grid-template-columns: repeat(2, 1fr);
-                    }
-                    
-                    @media (max-width: 480px) {
-                        grid-template-columns: repeat(1, 1fr);
-                        padding: 15px;
-                    }
-                    
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+
                     .course-item {
                         display: flex;
                         align-items: center;
-                        padding: 12px;
-                        background: rgba(255, 255, 255, 0.15);
-                        border-radius: 10px;
-                        transition: transform 0.2s ease;
-                        
+                        gap: 1rem;
+                        padding: 0.75rem;
+                        border-radius: 0.5rem;
+                        background: rgba(255, 255, 255, 0.3);
+                        backdrop-filter: blur(10px);
+                        transition: all 0.2s ease;
+                        cursor: pointer;
+
                         &:hover {
-                            transform: translateY(-3px);
-                            background: rgba(255, 255, 255, 0.25);
+                            background: rgba(255, 255, 255, 0.5);
+                            transform: translateX(5px);
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
                         }
-                        
+
                         .course-emoji {
                             font-size: 1.5rem;
-                            margin-right: 10px;
-                            
-                            @media (max-width: 768px) {
-                                font-size: 1.25rem;
-                            }
+                            min-width: 2rem;
+                            text-align: center;
                         }
-                        
+
                         .course-name {
-                            font-size: 16px;
                             font-weight: 500;
-                            color: white;
-                            
-                            @media (max-width: 768px) {
-                                font-size: 14px;
-                            }
+                            color: #333;
                         }
                     }
                 }
             }
+
+            .upgrade-section__button{
+                background: #FD32AF;
+                color: white;
+                padding: 0.5rem 2rem;
+                border-radius: 0.5rem;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                border: 2px solid #FD32AF;
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    background: transparent;
+                    color: #FD32AF;
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(253, 50, 175, 0.3);
+                }
+            }
         }
     }
+
+   
 
     .upgrade-section__card{
         display: flex;
@@ -275,36 +203,21 @@
         
         border-radius: 3rem;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
-        
-        @media (max-width: 768px) {
-            border-radius: 2rem;
-            gap: 0.75rem;
-        }
 
         h3{
             font-size: 1.8rem;
             font-weight: 600;
-            
-            @media (max-width: 768px) {
-                font-size: 1.5rem;
-            }
-            
-            @media (max-width: 480px) {
-                font-size: 1.3rem;
-            }
         }
 
         p{
             font-size: 18px;
-            
-            @media (max-width: 768px) {
-                font-size: 16px;
-            }
-            
-            @media (max-width: 480px) {
-                font-size: 14px;
-            }
         }
+
+       
+       
+        
+        
+        
         
         &--flashcards {
             display: flex;
@@ -315,10 +228,6 @@
             .card-content {
                 flex: 1;
                 align-self: flex-start;
-                
-                @media (max-width: 768px) {
-                    width: 100%;
-                }
             }
 
             .image-container {
@@ -337,14 +246,6 @@
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  
-  @media (max-width: 768px) {
-    height: 180px;
-  }
-  
-  @media (max-width: 480px) {
-    height: 160px;
-  }
 
   .card {
     position: absolute;
@@ -354,16 +255,6 @@
     left: 50%;
     bottom: 0;
     
-    @media (max-width: 768px) {
-      width: 250px;
-      height: 130px;
-    }
-    
-    @media (max-width: 480px) {
-      width: 200px;
-      height: 110px;
-    }
-
     &.card-3 {
       transform: translateX(-50%);
       z-index: 1;
