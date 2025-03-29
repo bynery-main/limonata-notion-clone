@@ -29,7 +29,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --custom-orange: 255, 89, 36;
+    --custom-orange: 255, 89, 36; /* FF5924 in HSL */
     --font-family: 'Urbanist', sans-serif;
   }
 
@@ -103,31 +103,23 @@
 
 @layer components {
   .ce-popover-item:hover {
-    background-color: rgba(var(--muted), 0.4);
-    transition: all;
+    @apply bg-muted/40 transition-all !important;
   }
 
   .ce-popover--opened {
-    background-color: var(--card);
-    outline: none;
-    border: 1px solid var(--border);
+    @apply bg-card outline-none border-border dark:text-muted;
   }
 
   .ce-popover-item__icon {
-    background-color: var(--background);
-    color: white;
-    font-weight: 500;
-    box-shadow: none;
-    border: 1px solid transparent;
+    @apply dark:bg-background text-[white] font-medium shadow-none dark:border-[1px] !important;
   }
 
   .ce-popover-item__title {
-    color: var(--neutral-700);
-    font-weight: normal;
+    @apply dark:text-Neutrals/neutrals-7 font-normal;
   }
 
   .cdx-search-field {
-    background-color: var(--background);
+    @apply bg-background;
   }
 
   .ce-toolbar__content,
@@ -136,8 +128,7 @@
   }
 
   .editorFocus {
-    border: none;
-    outline: none;
+    @apply border-none outline-none;
   }
 
   .ql-toolbar::-webkit-scrollbar {
@@ -145,30 +136,22 @@
   }
 
   .ql-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(var(--background), 0.7);
-    backdrop-filter: blur-md;
-    z-index: 40;
-    position: sticky;
-    top: 0;
-    border: none;
-    left: 0;
-    right: 0;
+    @apply flex flex-wrap items-center justify-center dark:bg-background/70 bg-white/40 backdrop-blur-md z-40 sticky top-0 !border-none left-0 right-0;
   }
 
   .ql-formats {
-    display: flex;
-    flex-shrink: 0;
+    @apply flex flex-shrink-0;
   }
 
   .ql-container {
-    border: none !important;
+    @apply !border-none;
   }
 
-  .ql-editor > p {
-    margin-bottom: 1rem;
+  .ql-editor > p,
+  ol,
+  ul {
+    @apply dark:text-muted-foreground;
   }
+
+  
 }
