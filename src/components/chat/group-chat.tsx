@@ -289,7 +289,10 @@ This is a collaborative workspace chat where you can:
 - Mention @LemonGPT to get AI assistance
 - Ask questions about your workspace
 
-Try asking @LemonGPT about your project!
+Try asking @LemonGPT about your project! 
+
+Don't forget to sync your workspace if you've made changes!
+This helps LemonGPT stay up-to-date with your content.
   `;
 
   // ScrollToBottom logic for keeping view at the latest messages
@@ -359,10 +362,7 @@ Try asking @LemonGPT about your project!
   const creditCost = 5;
   const showCreditCost = inputMessage.includes('@LemonGPT');
 
-  const syncReminderMessage = `
-Don't forget to sync your workspace if you've made changes!
-This helps LemonGPT stay up-to-date with your content.
-`;
+
 
   // Format messages to highlight @ mentions
   const formatMessageText = (message: string) => {
@@ -461,12 +461,7 @@ This helps LemonGPT stay up-to-date with your content.
               </motion.div>
             )}
             
-            {/* Sync reminder */}
-            <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg mb-4">
-              <p className="text-xs text-blue-800">
-                {syncReminderMessage}
-              </p>
-            </div>
+
             
             <div className="space-y-4">
               {messages.map((message) => {
