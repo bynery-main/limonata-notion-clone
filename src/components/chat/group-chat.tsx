@@ -114,10 +114,15 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
     };
   }, [space, workspaceId]);
 
-  // Scroll to bottom whenever messages change
+  // Scroll to bottom whenever messages change or chat visibility changes
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+    if (isChatVisible && messagesEndRef.current) {
+      // Use a small delay to ensure DOM is updated
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [messages, isLoading, isChatVisible]);
 
   // Check if message mentions @LemonGPT
   const hasLemonGPTMention = (text: string) => {
@@ -194,14 +199,14 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
       const ably = space.client;
       const chatChannel = ably.channels.get(channelName);
       
-      // Create message object
+      // Create message object with proper avatar URL from self profileData
       const message: ChatMessage = {
         id: `${userId}-${Date.now()}`,
         text: inputMessage.trim(),
         sender: {
           id: userId,
           name: self.profileData?.username as string || 'Anonymous',
-          avatar: self.profileData?.avatar as string
+          avatar: self.profileData?.avatar as string || undefined
         },
         timestamp: Date.now()
       };
@@ -289,26 +294,11 @@ This is a collaborative workspace chat where you can:
 - Mention @LemonGPT to get AI assistance
 - Ask questions about your workspace
 
-Try asking @LemonGPT about your project! 
+Try asking @LemonGPT about your project!
 
-Don't forget to sync your workspace if you've made changes!
-This helps LemonGPT stay up-to-date with your content.
-  `;
-
-  // ScrollToBottom logic for keeping view at the latest messages
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  // Use this effect to scroll to bottom when messages change or chat visibility changes
-  useEffect(() => {
-    if (isChatVisible) {
-      // Small delay to ensure DOM updates before scrolling
-      setTimeout(scrollToBottom, 100);
-    }
-  }, [messages, isChatVisible]);
+> **Remember**: Don't forget to sync your workspace if you've made changes! 
+> This helps LemonGPT stay up-to-date with your content.
+`;
 
   // Handle @ mentions
   const [mentionText, setMentionText] = useState("");
@@ -361,8 +351,6 @@ This helps LemonGPT stay up-to-date with your content.
   const [isCreditHovered, setCreditHovered] = useState(false);
   const creditCost = 5;
   const showCreditCost = inputMessage.includes('@LemonGPT');
-
-
 
   // Format messages to highlight @ mentions
   const formatMessageText = (message: string) => {
@@ -432,7 +420,7 @@ This helps LemonGPT stay up-to-date with your content.
           
           <ScrollArea className="flex-1 p-4">
             {showWelcomeMessage && (
-              <div className="bg-primary/5 rounded-lg p-4 mb-4">
+              <div className="bg-primary/5 rounded-lg p-4 mb-4 text-sm">
                 <ReactMarkdown components={components}>
                   {welcomeMessage}
                 </ReactMarkdown>
@@ -460,8 +448,6 @@ This helps LemonGPT stay up-to-date with your content.
                 </p>
               </motion.div>
             )}
-            
-
             
             <div className="space-y-4">
               {messages.map((message) => {
@@ -513,11 +499,11 @@ This helps LemonGPT stay up-to-date with your content.
                     
                     {isCurrentUser && (
                       <Avatar className="h-8 w-8 border">
-                        {self && self.profileData?.avatar ? (
-                          <AvatarImage src={self.profileData.avatar as string} alt="You" />
+                        {message.sender.avatar ? (
+                          <AvatarImage src={message.sender.avatar} alt={message.sender.name} />
                         ) : (
                           <AvatarFallback>
-                            {self ? (self.profileData?.username as string || 'You').substring(0, 2).toUpperCase() : 'YO'}
+                            {message.sender.name.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         )}
                       </Avatar>
@@ -579,7 +565,7 @@ This helps LemonGPT stay up-to-date with your content.
               )}
               <Textarea
                 ref={inputRef}
-                placeholder="Type a message... (@ mention LemonGPT for AI assistance)"
+                placeholder="Type a message..."
                 value={inputMessage}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
