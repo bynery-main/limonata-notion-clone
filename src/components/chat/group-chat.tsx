@@ -292,6 +292,116 @@ This is a collaborative workspace chat where you can:
 Try asking @LemonGPT about your project!
   `;
 
+  // ScrollToBottom logic for keeping view at the latest messages
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Use this effect to scroll to bottom when messages change or chat visibility changes
+  useEffect(() => {
+    if (isChatVisible) {
+      // Small delay to ensure DOM updates before scrolling
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages, isChatVisible]);
+
+  // Handle @ mentions
+  const [mentionText, setMentionText] = useState("");
+  const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value;
+    setInputMessage(text);
+    
+    // Check for @ mentions
+    const atIndex = text.lastIndexOf('@');
+    if (atIndex !== -1 && atIndex === text.length - 1) {
+      setMentionText("");
+      setShowMentionSuggestions(true);
+    } else if (atIndex !== -1 && atIndex > text.lastIndexOf(' ')) {
+      setMentionText(text.substring(atIndex + 1));
+      setShowMentionSuggestions(true);
+    } else {
+      setShowMentionSuggestions(false);
+    }
+  };
+
+  const completeMention = (name: string) => {
+    const atIndex = inputMessage.lastIndexOf('@');
+    if (atIndex !== -1) {
+      const newText = inputMessage.substring(0, atIndex) + '@' + name;
+      setInputMessage(newText);
+      setShowMentionSuggestions(false);
+      inputRef.current?.focus();
+    }
+  };
+
+  // Handle Tab key for mention completion
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Tab' && showMentionSuggestions) {
+      e.preventDefault();
+      completeMention('LemonGPT');
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    } else if (e.key === '@') {
+      // Immediately show mention suggestions when @ is typed
+      setShowMentionSuggestions(true);
+      setMentionText("");
+    }
+  };
+
+  // Credit cost display logic
+  const [isCreditHovered, setCreditHovered] = useState(false);
+  const creditCost = 5;
+  const showCreditCost = inputMessage.includes('@LemonGPT');
+
+  const syncReminderMessage = `
+Don't forget to sync your workspace if you've made changes!
+This helps LemonGPT stay up-to-date with your content.
+`;
+
+  // Format messages to highlight @ mentions
+  const formatMessageText = (message: string) => {
+    // If no @ mentions, just return the message for ReactMarkdown to handle
+    if (!message.includes('@')) {
+      return (
+        <ReactMarkdown components={components} className="text-sm">
+          {message}
+        </ReactMarkdown>
+      );
+    }
+    
+    // Simple regex to find @mentions - this won't handle all edge cases but works for basic highlighting
+    const parts = message.split(/(@\w+)/g);
+    
+    return (
+      <div className="text-sm whitespace-pre-wrap">
+        {parts.map((part, index) => {
+          if (part.startsWith('@')) {
+            return (
+              <span 
+                key={`mention-${index}`}
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-transparent bg-clip-text font-semibold"
+              >
+                {part}
+              </span>
+            );
+          } else {
+            return (
+              <ReactMarkdown key={`text-${index}`} components={components}>
+                {part}
+              </ReactMarkdown>
+            );
+          }
+        })}
+      </div>
+    );
+  };
+
   return (
     <>
       <motion.div
@@ -351,6 +461,13 @@ Try asking @LemonGPT about your project!
               </motion.div>
             )}
             
+            {/* Sync reminder */}
+            <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg mb-4">
+              <p className="text-xs text-blue-800">
+                {syncReminderMessage}
+              </p>
+            </div>
+            
             <div className="space-y-4">
               {messages.map((message) => {
                 const isCurrentUser = message.sender.id === userId;
@@ -388,9 +505,8 @@ Try asking @LemonGPT about your project!
                         <div className="font-medium text-xs mb-1">{message.sender.name}</div>
                       )}
                       
-                      <ReactMarkdown components={components}>
-                        {message.text}
-                      </ReactMarkdown>
+                      {/* Message content with formatted mentions */}
+                      {formatMessageText(message.text)}
                       
                       <div className="text-xs opacity-50 mt-1 text-right">
                         {new Date(message.timestamp).toLocaleTimeString([], { 
@@ -402,11 +518,11 @@ Try asking @LemonGPT about your project!
                     
                     {isCurrentUser && (
                       <Avatar className="h-8 w-8 border">
-                        {message.sender.avatar ? (
-                          <AvatarImage src={message.sender.avatar} alt={message.sender.name} />
+                        {self && self.profileData?.avatar ? (
+                          <AvatarImage src={self.profileData.avatar as string} alt="You" />
                         ) : (
                           <AvatarFallback>
-                            {message.sender.name.substring(0, 2).toUpperCase()}
+                            {self ? (self.profileData?.username as string || 'You').substring(0, 2).toUpperCase() : 'YO'}
                           </AvatarFallback>
                         )}
                       </Avatar>
@@ -433,12 +549,45 @@ Try asking @LemonGPT about your project!
           </ScrollArea>
           
           <div className="border-t border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
-            <div className="relative flex">
+            <div className="relative">
+              {showMentionSuggestions && (
+                <div className="absolute bottom-full mb-2 bg-white rounded-md shadow-lg border p-2 w-fit">
+                  <div 
+                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer rounded text-sm flex items-center"
+                    onClick={() => completeMention('LemonGPT')}
+                  >
+                    <Avatar className="h-5 w-5 mr-2">
+                      <AvatarImage src="/favicon.ico" alt="LemonGPT" />
+                      <AvatarFallback>LG</AvatarFallback>
+                    </Avatar>
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-transparent bg-clip-text font-semibold">LemonGPT</span>
+                  </div>
+                  {others.map(member => (
+                    <div 
+                      key={member.connectionId}
+                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer rounded text-sm flex items-center"
+                      onClick={() => completeMention((member.profileData?.username as string) || 'User')}
+                    >
+                      <Avatar className="h-5 w-5 mr-2">
+                        {(member.profileData?.avatar as string) ? (
+                          <AvatarImage src={member.profileData?.avatar as string} alt={member.profileData?.username as string} />
+                        ) : (
+                          <AvatarFallback>
+                            {((member.profileData?.username as string) || 'User').substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <span>{member.profileData?.username as string}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <Textarea
+                ref={inputRef}
                 placeholder="Type a message... (@ mention LemonGPT for AI assistance)"
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyPress}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/50 backdrop-blur-sm"
                 rows={1}
               />
@@ -446,8 +595,29 @@ Try asking @LemonGPT about your project!
                 onClick={sendMessage}
                 disabled={!inputMessage.trim()}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
+                onMouseEnter={() => setCreditHovered(true)}
+                onMouseLeave={() => setCreditHovered(false)}
               >
-                <ArrowUpIcon className="h-4 w-4" />
+                {showCreditCost ? (
+                  <motion.div className="relative">
+                    <motion.div
+                      animate={{ x: isCreditHovered ? -20 : 0, opacity: isCreditHovered ? 0 : 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ArrowUpIcon className="h-4 w-4" />
+                    </motion.div>
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center"
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: isCreditHovered ? 0 : 20, opacity: isCreditHovered ? 1 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {creditCost}
+                    </motion.div>
+                  </motion.div>
+                ) : (
+                  <ArrowUpIcon className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
