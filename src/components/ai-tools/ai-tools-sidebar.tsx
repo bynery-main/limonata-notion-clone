@@ -8,7 +8,7 @@ import {
   ChevronRight, 
   Sparkles, 
   BookOpen, 
-  MessageSquare, 
+  ChatIcon, 
   FileText, 
   Lightbulb, 
   Zap,
