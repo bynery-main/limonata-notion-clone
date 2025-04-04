@@ -1,6 +1,8 @@
 import React from "react";
 import "./ReadySection.scss";
 import { GradientButton } from "../UI/PrimaryButton/PrimaryButton";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../../firebase/firebaseConfig";
 
 
 const studyFeatures = [
@@ -74,6 +76,18 @@ const GradeRing = () => (
 );
 
 const ReadySection = () => {
+  const provider = new GoogleAuthProvider();
+
+  const login = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   return (
     <section className="ready-section">
       <div className="ready-section__header">
@@ -99,11 +113,16 @@ const ReadySection = () => {
           </div>
 
           <button 
-            className="p-[1px] relative block mx-auto w-full sm:w-auto mt-4"
+            className="p-[1px] relative block mx-auto w-full sm:w-auto mt-4"                  
+            onClick={() => {
+              window.umami?.track('clicked-third-CTA');
+              login();
+            }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
             <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">
               Start for free
+              
             </div>
           </button>
         </div>

@@ -12,6 +12,14 @@ import Image from 'next/image';
 import './Hero.scss';
 import { GradientButton } from '../UI/PrimaryButton/PrimaryButton';
 
+declare global {
+  interface Window {
+    umami?: {
+      track: (event: string) => void;
+    };
+  }
+}
+
 const HeroContainer = styled.div`
   position: relative;
   width: 100%;
@@ -134,7 +142,10 @@ export default function HeroComponent() {
             {!isSignedIn ? (
               <>
                 <button 
-                  onClick={login} 
+                  onClick={() => {
+                    window.umami?.track('clicked-first-CTA');
+                    login();
+                  }}
                   className="p-[1px] relative block w-full sm:w-auto"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
@@ -143,7 +154,10 @@ export default function HeroComponent() {
                   </div>
                 </button>
                 <button 
-                  onClick={login}
+                  onClick={() => {
+                    window.umami?.track('clicked-first-CTA');
+                    login();
+                  }}
                   className="p-[1px] relative block ml-0 sm:ml-4 mt-4 sm:mt-0 w-full sm:w-auto"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#C66EC5] to-[#FC608D] rounded-full opacity-30" />
