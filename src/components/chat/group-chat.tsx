@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { XIcon, ArrowUpIcon, MessageSquare } from "lucide-react";
+import ChatButton from "./chat-button";
 
 interface GroupChatProps {
   workspaceId: string;
@@ -373,7 +374,7 @@ Try asking @LemonGPT about your project!
             return (
               <span 
                 key={`mention-${index}`}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-transparent bg-clip-text font-semibold"
+                className="bg-yellow-400  text-transparent bg-clip-text font-semibold"
               >
                 {part}
               </span>
@@ -396,14 +397,14 @@ Try asking @LemonGPT about your project!
         initial={{ x: "100%" }}
         animate={{ x: isChatVisible ? 0 : "100%" }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/60 backdrop-blur-sm md:w-[400px] shadow-2xl"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md overflow-hidden bg-background/70 backdrop-blur-md md:w-[400px] shadow-2xl rounded-l-2xl"
         style={{ display: isChatVisible ? 'flex' : 'none' }}
       >
         <div className="flex h-full w-full flex-col">
-          <div className="flex items-center justify-between border-b border-background/10 bg-background/40 px-4 py-3 backdrop-blur-sm">
+          <div className="flex items-center justify-between border-b border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-md">
-                <MessageSquare className="h-5 w-5 text-primary" />
+              <div className="bg-gradient-to-r from-[#C66EC5] to-[#FC608D] p-2 rounded-full">
+                <MessageSquare className="h-5 w-5 text-white" />
               </div>
               <div className="flex flex-col">
                 <div className="text-sm font-medium">Workspace Chat</div>
@@ -412,7 +413,7 @@ Try asking @LemonGPT about your project!
                 </div>
               </div>
             </div>
-            <Button onClick={toggleChat} variant="ghost" size="icon">
+            <Button onClick={toggleChat} variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
               <XIcon className="h-5 w-5" />
               <span className="sr-only">Close</span>
             </Button>
@@ -420,7 +421,7 @@ Try asking @LemonGPT about your project!
           
           <ScrollArea className="flex-1 p-4">
             {showWelcomeMessage && (
-              <div className="bg-primary/5 rounded-lg p-4 mb-4 text-sm">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-4 text-sm border border-purple-100">
                 <ReactMarkdown components={components}>
                   {welcomeMessage}
                 </ReactMarkdown>
@@ -428,7 +429,7 @@ Try asking @LemonGPT about your project!
                   onClick={() => setShowWelcomeMessage(false)}
                   variant="outline"
                   size="sm"
-                  className="mt-2"
+                  className="mt-2 rounded-full text-xs px-3 hover:bg-purple-50"
                 >
                   Dismiss
                 </Button>
@@ -473,11 +474,11 @@ Try asking @LemonGPT about your project!
                       </Avatar>
                     )}
                     
-                    <div className={`max-w-[75%] rounded-lg p-3 text-sm shadow 
+                    <div className={`max-w-[75%] rounded-2xl p-3 text-sm shadow 
                       ${isCurrentUser 
-                        ? 'bg-primary/80 backdrop-blur-sm text-primary-foreground' 
+                        ? 'bg-gradient-to-r from-[#C66EC5] to-[#FC608D] text-white' 
                         : isAI 
-                          ? 'bg-yellow-100 border border-yellow-200' 
+                          ? 'bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-200' 
                           : 'bg-muted/20 backdrop-blur-sm'
                       }`} 
                       style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)' }}
@@ -518,7 +519,7 @@ Try asking @LemonGPT about your project!
                     <AvatarImage src="/favicon.ico" alt="LemonGPT" />
                     <AvatarFallback>LG</AvatarFallback>
                   </Avatar>
-                  <div className="rounded-lg p-3 text-sm shadow bg-yellow-100 border border-yellow-200" 
+                  <div className="rounded-2xl p-3 text-sm shadow bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-200" 
                     style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)' }}>
                     <LoadingDots />
                   </div>
@@ -529,7 +530,7 @@ Try asking @LemonGPT about your project!
             </div>
           </ScrollArea>
           
-          <div className="border-t border-background/10 bg-background/50 px-4 py-3 backdrop-blur-sm">
+          <div className="border-t border-background/10 bg-background/70 px-4 py-3 backdrop-blur-sm">
             <div className="relative">
               {showMentionSuggestions && (
                 <div className="absolute bottom-full mb-2 bg-white rounded-md shadow-lg border p-2 w-fit">
@@ -569,13 +570,13 @@ Try asking @LemonGPT about your project!
                 value={inputMessage}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/50 backdrop-blur-sm"
+                className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/80 backdrop-blur-sm border-transparent focus:border-purple-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
                 rows={1}
               />
               <Button
                 onClick={sendMessage}
                 disabled={!inputMessage.trim()}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary/90"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-gradient-to-r from-[#C66EC5] to-[#FC608D] hover:from-[#d67ad5] hover:to-[#fd7599] text-white"
                 onMouseEnter={() => setCreditHovered(true)}
                 onMouseLeave={() => setCreditHovered(false)}
               >
@@ -605,15 +606,7 @@ Try asking @LemonGPT about your project!
         </div>
       </motion.div>
       
-      {!isChatVisible && (
-        <Button
-          onClick={toggleChat}
-          className="fixed bottom-4 right-4 z-50 rounded-full shadow-lg p-3 bg-primary/80 hover:bg-primary/90"
-        >
-          <MessageSquare className="h-5 w-5" />
-          <span className="sr-only">Open chat</span>
-        </Button>
-      )}
+      <ChatButton toggleChat={toggleChat} isChatVisible={isChatVisible} />
     </>
   );
 };

@@ -24,6 +24,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
     }
   }, [defaultOpen]);
 
+  const toggleChat = () => {
+    setIsChatVisible(!isChatVisible);
+  };
+
   return (
     <>
       <GroupChat 
