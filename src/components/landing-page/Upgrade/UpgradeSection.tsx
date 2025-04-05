@@ -2,6 +2,8 @@ import React from "react";
 import "./UpgradeSection.scss";
 import Image from "next/image";
 import ai from "../../../../public/Images/upgrade/ai.png";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../../firebase/firebaseConfig";
 
 const flashcardContent = [
   {
@@ -109,6 +111,18 @@ const aiNotificationsElement = (
 );
 
 const UpgradeSection = () => {
+  const provider = new GoogleAuthProvider();
+
+  const login = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   return (
     <section className="upgrade-section">
       <div className="upgrade-section__header">
@@ -165,6 +179,10 @@ const UpgradeSection = () => {
 
           <button 
             className="p-[1px] relative block w-full sm:w-auto mx-auto"
+            onClick={() => {
+              window.umami?.track('clicked-second-CTA');
+              login();
+            }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#F6B144] to-[#FE7EF4] rounded-full" />
             <div className="px-6 py-3 relative bg-white rounded-full group transition duration-200 text-sm text-black hover:bg-transparent hover:text-white flex items-center justify-center font-semibold">

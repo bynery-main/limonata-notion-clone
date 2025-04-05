@@ -83,6 +83,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const [editedTitle, setEditedTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [chatShouldOpen, setChatShouldOpen] = useState(false);
 
   useEffect(() => {
     const getWorkspaceData = async () => {
@@ -170,7 +171,7 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   };
 
   const handleOpenAITutor = () => {
-    setIsChatVisible(true);
+    setChatShouldOpen(true);
   };
 
   const handleDragEnter = useCallback((e: DragEvent) => {
@@ -758,12 +759,17 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
                 </>
               )}
               <div className="relative">
-                <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 w-max translate-x-[20%]">
+                <div className="fixed bottom-4 left-0 right-0 mx-auto flex flex-col justify-end items-center p-4 z-50 w-max">
                   <AIChatComponent workspaceId={params.workspaceId} userId={currentUserId} onOpenAITutor={handleOpenAITutor}/>
                 </div>
               </div>
-              <div className="fixed bottom-0 right-0 flex flex-col items-center p-4 mb-12 z-50">
-                <ChatComponent workspaceId={params.workspaceId} userId={currentUserId} isChatVisible={isChatVisible} setIsChatVisible={setIsChatVisible}/>
+
+              <div className="relative">
+                <ChatComponent 
+                  workspaceId={params.workspaceId} 
+                  userId={currentUserId} 
+                  defaultOpen={chatShouldOpen} 
+                />
               </div>
             </div>
           </div>

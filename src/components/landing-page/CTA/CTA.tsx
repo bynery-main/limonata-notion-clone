@@ -75,7 +75,11 @@ export default function CTAComponent() {
           </h2> 
           <div className="button-container">
             <GradientButton 
-              onClick={handleAuth} 
+
+              onClick={() => {
+                window.umami?.track('clicked-last-CTA');
+                handleAuth();
+              }}
               className="gradient-button"
             >
               {isSignedIn ? 'Go to Your Dashboard' : 'Start a Workspace'}

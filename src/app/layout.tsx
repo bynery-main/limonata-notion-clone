@@ -30,6 +30,11 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-56ZB5JXV');
           `}
         </Script>
+        <Script
+          src="https://cloud.umami.is/script.js"
+          data-website-id="46d64cf8-3fee-4e99-9485-c51bd22f9569"
+          strategy="lazyOnload"
+        />
       </head>
       <body className={urbanist.className}>
         <noscript>
