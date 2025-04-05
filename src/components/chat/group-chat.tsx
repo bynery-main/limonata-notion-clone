@@ -212,6 +212,8 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
         timestamp: Date.now()
       };
       
+      console.log("Sending message with avatar:", message.sender.avatar);
+      
       // Publish message to channel
       await chatChannel.publish('chat-message', message);
       
