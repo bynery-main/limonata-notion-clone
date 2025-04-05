@@ -9,7 +9,7 @@ import { useToast } from "@chakra-ui/react";
 import { useSpace, useMembers } from "@ably/spaces/react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, orderBy, getDocs, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 import { XIcon, ArrowUpIcon, MessageSquare } from "lucide-react";
 import ChatButton from "./chat-button";
@@ -93,27 +93,49 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
     const handleMessage = (message: any) => {
       const chatMessage = message.data as ChatMessage;
       setMessages(prevMessages => [...prevMessages, chatMessage]);
+      
+      // Also save the message to Firestore (only if it's not an old message being replayed)
+      // We'll handle batch saving elsewhere
     };
 
     chatChannel.subscribe('chat-message', handleMessage);
     
-    // Fetch recent messages (last 50)
-    chatChannel.history({ limit: 50 }).then((result: any) => {
-      if (result && result.items.length > 0) {
-        const historyMessages = result.items
-          .map((item: any) => item.data as ChatMessage)
-          .sort((a: ChatMessage, b: ChatMessage) => a.timestamp - b.timestamp);
-        
-        setMessages(historyMessages);
-      }
-    }).catch((err: any) => {
-      console.error('Error fetching chat history:', err);
-    });
-
+    // Load messages from Firestore instead of Ably history
+    fetchMessagesFromFirestore();
+    
     return () => {
       chatChannel.unsubscribe('chat-message', handleMessage);
     };
   }, [space, workspaceId]);
+
+  // New function to fetch messages from Firestore
+  const fetchMessagesFromFirestore = async () => {
+    try {
+      const messagesRef = collection(db, 'workspaces', workspaceId, 'messages');
+      const q = query(messagesRef, orderBy('timestamp', 'asc'));
+      const querySnapshot = await getDocs(q);
+      
+      const loadedMessages: ChatMessage[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        loadedMessages.push({
+          id: doc.id,
+          text: data.text,
+          sender: {
+            id: data.sender.id,
+            name: data.sender.name,
+            avatar: data.sender.avatar
+          },
+          timestamp: data.timestamp.toMillis(),
+          isAI: data.isAI || false
+        });
+      });
+      
+      setMessages(loadedMessages);
+    } catch (error) {
+      console.error('Error fetching messages from Firestore:', error);
+    }
+  };
 
   // Scroll to bottom whenever messages change or chat visibility changes
   useEffect(() => {
@@ -130,7 +152,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
     return text.includes('@LemonGPT');
   };
 
-  // Get AI response
+  // Modify getAIResponse to save to Firestore
   const getAIResponse = async (query: string) => {
     if (!workspaceId || !userId || !space) return;
     
@@ -165,6 +187,14 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
         isAI: true
       };
       
+      // Save AI message to Firestore
+      await addDoc(collection(db, 'workspaces', workspaceId, 'messages'), {
+        text: aiMessage.text,
+        sender: aiMessage.sender,
+        timestamp: Timestamp.fromMillis(aiMessage.timestamp),
+        isAI: true
+      });
+      
       // Publish the AI message to the channel
       const channelName = `workspace-${workspaceId}-chat`;
       const ably = space.client;
@@ -191,7 +221,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
     }
   };
 
-  // Send a message to the group chat
+  // Modify sendMessage to save to Firestore
   const sendMessage = async () => {
     if (!inputMessage.trim() || !space || !self) return;
     
@@ -213,6 +243,13 @@ const GroupChat: React.FC<GroupChatProps> = ({ workspaceId, userId, isChatVisibl
       };
       
       console.log("Sending message with avatar:", message.sender.avatar);
+      
+      // Save message to Firestore
+      await addDoc(collection(db, 'workspaces', workspaceId, 'messages'), {
+        text: message.text,
+        sender: message.sender,
+        timestamp: Timestamp.fromMillis(message.timestamp)
+      });
       
       // Publish message to channel
       await chatChannel.publish('chat-message', message);
@@ -572,7 +609,7 @@ Try asking @LemonGPT about your project!
                 value={inputMessage}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-sm bg-background/80 backdrop-blur-sm border-transparent focus:border-purple-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
+                className="min-h-[48px] w-full rounded-2xl resize-none p-4 pr-16 shadow-md shadow-gray-300 shadow-opacity-50 shadow-inset backdrop-blur-sm border-transparent outline-none ring-0 focus:outline-none focus:ring-0 focus:border-0 focus:shadow-[0_0_0_2px_rgba(198,110,197,0.3),0_0_0_4px_rgba(252,96,141,0.2)]"
                 rows={1}
               />
               <Button
