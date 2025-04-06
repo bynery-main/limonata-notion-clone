@@ -15,6 +15,31 @@ import { ResourceCreator } from "../ui/resource-creator";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Add CSS for pulse animation
+const pulseRingStyles = `
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+  }
+}
+.pulse-ring {
+  animation: pulse-ring 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+`;
+
+// Inject the styles into the document head
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = pulseRingStyles;
+  document.head.appendChild(style);
+}
 
 interface FileData {
   id: string;
@@ -495,18 +520,20 @@ export const BentoGridItem = ({
       const currentLocation = update.currentLocation as BentoLocation | undefined;
       const previousLocation = update.previousLocation as BentoLocation | undefined;
       
-      if (currentLocation?.fileId === fileId) {
+      if (currentLocation?.fileId === fileId && currentLocation?.type === type) {
         // Add member to active members if they're in this file
         setActiveMembers(prev => {
           // Check if member is already in the list
           const existingIndex = prev.findIndex(m => m.connectionId === update.member.connectionId);
           if (existingIndex === -1) {
+            console.log('Adding active member to file:', fileId, update.member);
             return [...prev, update.member];
           }
           return prev;
         });
-      } else if (previousLocation?.fileId === fileId) {
+      } else if (previousLocation?.fileId === fileId && previousLocation?.type === type) {
         // Remove member from active members if they left this file
+        console.log('Removing member from file:', fileId, update.member.connectionId);
         setActiveMembers(prev => prev.filter(m => m.connectionId !== update.member.connectionId));
       }
     };
@@ -514,32 +541,48 @@ export const BentoGridItem = ({
     // Register subscription
     space.locations.subscribe('update', handleLocationUpdate);
     
-    // Get initial location state
-    const getInitialLocations = async () => {
+    // Function to fetch current locations and update active members
+    const refreshActiveMembers = async () => {
       try {
-        const othersLocations = await space.locations.getOthers();
-        const initialActiveMembers: SpaceMember[] = [];
+        const allLocations = await space.locations.getAll();
+        const currentActiveMembers: SpaceMember[] = [];
         
-        // Check each member's location
-        others.forEach(member => {
-          const location = othersLocations[member.connectionId] as BentoLocation | undefined;
-          if (location && location.fileId === fileId) {
-            initialActiveMembers.push(member);
+        // Check each connection's location
+        Object.entries(allLocations).forEach(([connectionId, location]) => {
+          if (!location) return;
+          
+          const locationData = location as BentoLocation;
+          // Match both fileId and the current type to avoid showing users in multiple places
+          if (locationData && 
+              locationData.fileId === fileId && 
+              locationData.type === type) {
+            const member = others.find(m => m.connectionId === connectionId);
+            if (member && !currentActiveMembers.some(m => m.connectionId === connectionId)) {
+              currentActiveMembers.push(member);
+            }
           }
         });
         
-        if (initialActiveMembers.length > 0) {
-          setActiveMembers(initialActiveMembers);
+        // Update active members if there are changes
+        if (JSON.stringify(currentActiveMembers.map(m => m.connectionId).sort()) !== 
+            JSON.stringify(activeMembers.map(m => m.connectionId).sort())) {
+          console.log('Refreshing active members for file:', fileId, currentActiveMembers);
+          setActiveMembers(currentActiveMembers);
         }
       } catch (error) {
-        console.error('Error getting initial locations:', error);
+        console.error('Error refreshing active members:', error);
       }
     };
     
-    getInitialLocations();
+    // Initial fetch
+    refreshActiveMembers();
     
-    // Clean up subscription
+    // Set up periodic refresh every 5 seconds to catch navigation that wasn't through BentoGrid
+    const intervalId = setInterval(refreshActiveMembers, 5000);
+    
+    // Clean up
     return () => {
+      clearInterval(intervalId);
       space.locations.unsubscribe('update', handleLocationUpdate);
     };
   }, [space, fileId, others]);
@@ -570,13 +613,19 @@ export const BentoGridItem = ({
     
     // Update location in the background if available
     if (space) {
-      space.locations.set({
-        fileId,
-        folderId,
-        type
-      } as BentoLocation).catch(error => {
-        console.error('Error updating location:', error);
-      });
+      // First clear any existing location
+      space.locations.set(null)
+        .then(() => {
+          // Then set the new location
+          return space.locations.set({
+            fileId,
+            folderId,
+            type
+          } as BentoLocation);
+        })
+        .catch(error => {
+          console.error('Error updating location:', error);
+        });
     }
     
     // Use router.push for client-side navigation instead of creating an anchor element
@@ -785,13 +834,14 @@ export const BentoGridItem = ({
     };
   };
 
-  const renderMemberAvatar = (member: SpaceMember) => {
+  const renderMemberAvatar = (member: SpaceMember, index: number) => {
     const { name, avatar } = getMemberDisplayInfo(member);
     
     return (
       <div 
         key={member.connectionId}
         className="relative group"
+        style={{ zIndex: 50 - index, marginRight: index > 0 ? "-8px" : "0" }}
       >
         {avatar ? (
           <div className="relative">
@@ -806,7 +856,7 @@ export const BentoGridItem = ({
             <User className="w-4 h-4 text-gray-500" />
           </div>
         )}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
           {name}
         </div>
         <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
@@ -824,6 +874,7 @@ export const BentoGridItem = ({
     <div
       className={cn(
         "rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input p-4 bg-white border border-neutral-200 flex flex-col space-y-4 cursor-pointer relative",
+        activeMembers.length > 0 ? "ring-2 ring-pink-500 ring-offset-2 pulse-ring" : "",
         className
       )}
       onClick={handleClick}
@@ -831,7 +882,15 @@ export const BentoGridItem = ({
       {/* Active members display */}
       {activeMembers.length > 0 && (
         <div className="absolute -top-2 -right-2 flex -space-x-2 z-10">
-          {activeMembers.map(renderMemberAvatar)}
+          {activeMembers.slice(0, 3).map((member, index) => renderMemberAvatar(member, index))}
+          {activeMembers.length > 3 && (
+            <div 
+              className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-xs font-medium text-white"
+              style={{ zIndex: 47 }}
+            >
+              +{activeMembers.length - 3}
+            </div>
+          )}
         </div>
       )}
 

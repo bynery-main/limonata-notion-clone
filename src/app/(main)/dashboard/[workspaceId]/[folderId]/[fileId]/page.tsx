@@ -33,38 +33,62 @@ const FileView = ({
   user: any;
 }) => {
   const { space } = useSpace();
-  const [isLocationSet, setIsLocationSet] = useState(false);
 
   // Set location when user enters a file
   useEffect(() => {
-    if (!space || !user || isLocationSet) return;
+    if (!space || !user || !fileData) return;
 
+    // Always try to update location when entering a file, regardless of how the user got here
     const setLocation = async () => {
       try {
-        await space.locations.set({
+        // Create location data
+        const locationData = {
           fileId: params.fileId,
           folderId: params.folderId,
           type: fileData.type
-        } as BentoLocation);
+        } as BentoLocation;
         
-        setIsLocationSet(true);
+        // Get current location to avoid unnecessary updates
+        const currentLocation = await space.locations.getSelf() as BentoLocation | null;
+        
+        // Only update if location has changed or is empty
+        if (!currentLocation || 
+            currentLocation.fileId !== locationData.fileId || 
+            currentLocation.folderId !== locationData.folderId) {
+          
+          // Set the new location - this will automatically clear the old location
+          await space.locations.set(locationData);
+          console.log('Location set for file viewing:', params.fileId);
+        } else {
+          console.log('Location already set correctly:', params.fileId);
+        }
       } catch (error) {
         console.error('Error setting location:', error);
       }
     };
 
+    // Set location immediately and retry after a delay if needed
     setLocation();
+    
+    // Set a small timeout as a backup to ensure the space is properly initialized
+    const timeoutId = setTimeout(() => {
+      setLocation();
+    }, 500);
 
     // Clear location when leaving file
     return () => {
-      if (space && isLocationSet) {
+      clearTimeout(timeoutId);
+      
+      if (space) {
         // When leaving the file, update to workspace location (removing file location)
+        // This is crucial to ensure the user doesn't appear in multiple locations
         space.locations.set(null).catch(error => {
           console.error('Error clearing location:', error);
         });
+        console.log('Location cleared on file exit');
       }
     };
-  }, [space, user, params.fileId, params.folderId, fileData?.type, isLocationSet]);
+  }, [space, user, params.fileId, params.folderId, fileData]);
 
   const refString = fileData?.type === 'file' 
     ? `workspaces/${params.workspaceId}/folders/${params.folderId}/files/${params.fileId}`
