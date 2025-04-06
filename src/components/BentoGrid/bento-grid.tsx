@@ -446,16 +446,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
 interface BentoLocation {
   fileId: string;
   folderId: string;
-  type: "file" | "note";
-}
-
-interface LocationUpdateEvent {
-  member: SpaceMember;
-  position?: {
-    x: number;
-    y: number;
-  };
-  data?: BentoLocation;
+  type: "file" | "note" | "decks" | "quizzes" | "studyguides";
 }
 
 interface DisplayInfo {
@@ -496,21 +487,62 @@ export const BentoGridItem = ({
   const [activeMembers, setActiveMembers] = useState<SpaceMember[]>([]);
 
   // Watch for location updates
-  const { update: updateLocation } = useLocations((update: LocationUpdateEvent) => {
-    if (update?.data?.fileId === fileId) {
-      setActiveMembers(prev => {
-        const existing = prev.find(m => m.connectionId === update.member.connectionId);
-        if (!existing) {
-          return [...prev, update.member];
+  useEffect(() => {
+    if (!space) return;
+    
+    // Subscribe to location updates
+    const handleLocationUpdate = (update: any) => {
+      const currentLocation = update.currentLocation as BentoLocation | undefined;
+      const previousLocation = update.previousLocation as BentoLocation | undefined;
+      
+      if (currentLocation?.fileId === fileId) {
+        // Add member to active members if they're in this file
+        setActiveMembers(prev => {
+          // Check if member is already in the list
+          const existingIndex = prev.findIndex(m => m.connectionId === update.member.connectionId);
+          if (existingIndex === -1) {
+            return [...prev, update.member];
+          }
+          return prev;
+        });
+      } else if (previousLocation?.fileId === fileId) {
+        // Remove member from active members if they left this file
+        setActiveMembers(prev => prev.filter(m => m.connectionId !== update.member.connectionId));
+      }
+    };
+    
+    // Register subscription
+    space.locations.subscribe('update', handleLocationUpdate);
+    
+    // Get initial location state
+    const getInitialLocations = async () => {
+      try {
+        const othersLocations = await space.locations.getOthers();
+        const initialActiveMembers: SpaceMember[] = [];
+        
+        // Check each member's location
+        others.forEach(member => {
+          const location = othersLocations[member.connectionId] as BentoLocation | undefined;
+          if (location && location.fileId === fileId) {
+            initialActiveMembers.push(member);
+          }
+        });
+        
+        if (initialActiveMembers.length > 0) {
+          setActiveMembers(initialActiveMembers);
         }
-        return prev;
-      });
-    } else {
-      setActiveMembers(prev => 
-        prev.filter(m => m.connectionId !== update.member.connectionId)
-      );
-    }
-  });
+      } catch (error) {
+        console.error('Error getting initial locations:', error);
+      }
+    };
+    
+    getInitialLocations();
+    
+    // Clean up subscription
+    return () => {
+      space.locations.unsubscribe('update', handleLocationUpdate);
+    };
+  }, [space, fileId, others]);
 
   const handleClick = (e: React.MouseEvent) => {
     // Don't navigate if dropdown is visible
@@ -537,14 +569,12 @@ export const BentoGridItem = ({
     console.log("Navigating to:", navigateUrl);
     
     // Update location in the background if available
-    if (updateLocation) {
-      updateLocation({
-        data: {
-          fileId,
-          folderId,
-          type
-        } as BentoLocation
-      }).catch(error => {
+    if (space) {
+      space.locations.set({
+        fileId,
+        folderId,
+        type
+      } as BentoLocation).catch(error => {
         console.error('Error updating location:', error);
       });
     }
@@ -742,9 +772,15 @@ export const BentoGridItem = ({
 
 
   const getMemberDisplayInfo = (member: SpaceMember): DisplayInfo => {
-    const profileData = member.profileData as { username?: string; email?: string; avatar?: string } | null;
+    const profileData = member.profileData as { 
+      username?: string; 
+      email?: string; 
+      avatar?: string; 
+      name?: string 
+    } | null;
+    
     return {
-      name: profileData?.username || profileData?.email || 'Anonymous',
+      name: profileData?.username || profileData?.name || profileData?.email || 'Anonymous',
       avatar: typeof profileData?.avatar === 'string' ? profileData.avatar : undefined
     };
   };

@@ -5,7 +5,7 @@ import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import FileHandler from '@/components/file-handling/file-handler';
-import { SpaceProvider } from "@ably/spaces/react";
+import { SpaceProvider, useSpace } from "@ably/spaces/react";
 import LiveCursors from "@/components/ably/live-cursors";
 import AIToolsSidebar from '@/components/ai-tools/ai-tools-sidebar';
 
@@ -16,6 +16,82 @@ interface PageProps {
     fileId: string;
   };
 }
+
+interface BentoLocation {
+  fileId: string;
+  folderId: string;
+  type: "file" | "note";
+}
+
+const FileView = ({ 
+  fileData, 
+  params, 
+  user 
+}: { 
+  fileData: any; 
+  params: PageProps['params']; 
+  user: any;
+}) => {
+  const { space } = useSpace();
+  const [isLocationSet, setIsLocationSet] = useState(false);
+
+  // Set location when user enters a file
+  useEffect(() => {
+    if (!space || !user || isLocationSet) return;
+
+    const setLocation = async () => {
+      try {
+        await space.locations.set({
+          fileId: params.fileId,
+          folderId: params.folderId,
+          type: fileData.type
+        } as BentoLocation);
+        
+        setIsLocationSet(true);
+      } catch (error) {
+        console.error('Error setting location:', error);
+      }
+    };
+
+    setLocation();
+
+    // Clear location when leaving file
+    return () => {
+      if (space && isLocationSet) {
+        // When leaving the file, update to workspace location (removing file location)
+        space.locations.set(null).catch(error => {
+          console.error('Error clearing location:', error);
+        });
+      }
+    };
+  }, [space, user, params.fileId, params.folderId, fileData?.type, isLocationSet]);
+
+  const refString = fileData?.type === 'file' 
+    ? `workspaces/${params.workspaceId}/folders/${params.folderId}/files/${params.fileId}`
+    : `workspaces/${params.workspaceId}/folders/${params.folderId}/notes/${params.fileId}`;
+
+  return (
+    <div className="relative h-[calc(100vh-64px)] flex">
+      <div className="flex-1 overflow-auto">
+        <LiveCursors user={user} workspaceId={params.workspaceId} />
+        <FileHandler
+          fileName={fileData?.name || 'Untitled'}
+          fileUrl={fileData?.fileUrl}
+          fileExtension={fileData?.fileExtension}
+          data={fileData}
+          params={params}
+        />
+      </div>
+      {user && (
+        <AIToolsSidebar 
+          refString={refString} 
+          type={fileData?.type === 'file' ? 'file' : 'note'} 
+          userId={user.uid} 
+        />
+      )}
+    </div>
+  );
+};
 
 const Page: React.FC<PageProps> = ({ params }) => {
   const { user } = useAuth();
@@ -71,31 +147,13 @@ const Page: React.FC<PageProps> = ({ params }) => {
     );
   }
 
-  const refString = fileData?.type === 'file' 
-    ? `workspaces/${params.workspaceId}/folders/${params.folderId}/files/${params.fileId}`
-    : `workspaces/${params.workspaceId}/folders/${params.folderId}/notes/${params.fileId}`;
-
   return (
     <SpaceProvider name={`file-${params.workspaceId}-${params.folderId}-${params.fileId}`}>
-      <div className="relative h-[calc(100vh-64px)] flex">
-        <div className="flex-1 overflow-auto">
-          <LiveCursors user={user} workspaceId={params.workspaceId} />
-          <FileHandler
-            fileName={fileData?.name || 'Untitled'}
-            fileUrl={fileData?.fileUrl}
-            fileExtension={fileData?.fileExtension}
-            data={fileData}
-            params={params}
-          />
-        </div>
-        {user && (
-          <AIToolsSidebar 
-            refString={refString} 
-            type={fileData?.type === 'file' ? 'file' : 'note'} 
-            userId={user.uid} 
-          />
-        )}
-      </div>
+      <FileView 
+        fileData={fileData} 
+        params={params}
+        user={user}
+      />
     </SpaceProvider>
   );
 };
