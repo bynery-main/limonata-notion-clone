@@ -256,53 +256,79 @@ const Layout: React.FC<LayoutProps> = ({ children, params }) => {
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
 
-  /*
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (shareButtonRef.current && 
-          !shareButtonRef.current.contains(event.target as Node) &&
-          shareMenuRef.current && 
-          !shareMenuRef.current.contains(event.target as Node)) {
-        setShowShareMenu(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-*/
   const fetchExistingCollaborators = async () => {
-    const workspaceRef = doc(db, "workspaces", params.workspaceId);
-    const workspaceSnap = await getDoc(workspaceRef);
+    if (!params.workspaceId) return;
+    
+    try {
+      const workspaceRef = doc(db, "workspaces", params.workspaceId);
+      const workspaceSnap = await getDoc(workspaceRef);
 
-    if (workspaceSnap.exists()) {
-      const data = workspaceSnap.data();
-      const collaborators = data.collaborators || [];
+      if (workspaceSnap.exists()) {
+        const data = workspaceSnap.data();
+        const collaborators = data.collaborators || [];
+        
+        // If no change in collaborator IDs, don't trigger a re-render
+        const currentCollaboratorIds = existingCollaborators.map(c => c.uid);
+        
+        // Check if arrays are identical (same elements, possibly different order)
+        if (currentCollaboratorIds.length === collaborators.length && 
+            currentCollaboratorIds.every((id: string) => collaborators.includes(id)) &&
+            collaborators.every((id: string) => currentCollaboratorIds.includes(id))) {
+          // No change, avoid re-render
+          return;
+        }
 
-      const collaboratorsWithEmails = await Promise.all(
-        collaborators.map(async (uid: string) => {
-          const email = await fetchUserEmailById(uid);
-          return { uid, email };
-        })
-      );
+        const collaboratorsWithEmails = await Promise.all(
+          collaborators.map(async (uid: string) => {
+            const email = await fetchUserEmailById(uid);
+            return { uid, email };
+          })
+        );
 
-      setExistingCollaborators(collaboratorsWithEmails);
+        setExistingCollaborators(collaboratorsWithEmails);
+      }
+    } catch (error) {
+      console.error("Error fetching collaborators:", error);
+      toast.error("Failed to load collaborators");
     }
   };
 
+  useEffect(() => {
+    // Fetch collaborators when the workspace ID changes or the user logs in
+    if (params.workspaceId && !loading && user) {
+      fetchExistingCollaborators();
+    }
+  }, [params.workspaceId, loading, user]);
+  
+  // Poll for changes every 5 seconds to ensure UI stays in sync with server
+  useEffect(() => {
+    if (!params.workspaceId || loading || !user) return;
+    
+    const interval = setInterval(() => {
+      fetchExistingCollaborators();
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [params.workspaceId, loading, user]);
+
   const handleAddCollaborator = (user: { uid: string; email: string }) => {
-    setNewCollaborators((prev) => [...prev, user]);
+    // Update the collaborators state immediately for a responsive UI
+    setNewCollaborators((prev) => {
+      // Avoid adding duplicates
+      if (prev.some(c => c.uid === user.uid)) return prev;
+      return [...prev, user];
+    });
   };
 
   const handleShare = () => {
     setShowShareMenu(!showShareMenu);
+    // Refresh the collaborator list when opening the share menu
+    if (!showShareMenu) {
+      fetchExistingCollaborators();
+    }
   };
 
   const handleCopyLink = () => {
-
     // Logic to copy link
   };
   

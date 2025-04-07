@@ -121,7 +121,7 @@ export default function HeroComponent() {
                 />
               ))}
             </AvatarGroup>
-            <span className="social-proof__text">+20,000 students learn with us</span>
+            <span className="social-proof__text">Hundreds of students learn with us</span>
           </SocialProofContainer>
 
           <h1 className="hero__title">

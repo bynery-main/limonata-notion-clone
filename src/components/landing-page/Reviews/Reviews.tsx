@@ -21,10 +21,10 @@ const Reviews = () => {
       id: 1,
       percentage: '400%',
       tagline: 'more productive',
-      quote: 'Thanks to Limonata, my grades are fucking amazing, im going to harvard omg',
+      quote: 'Thanks to Limonata, my grades are amazing, im going to my dream school omg',
       author: {
         name: 'Roco Fernandez Pagella',
-        title: 'Grad Student at Hardvard',
+        title: 'Undergraduate Student at Universidad de Chile',
         image: '/avatars/avatar2.jpg',
       },
     },
