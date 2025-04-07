@@ -12,6 +12,14 @@ import CreateNote from "./create-note";
 import './folder-component.css';
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSpace } from "@ably/spaces/react";
+
+// Add BentoLocation interface for type safety
+interface BentoLocation {
+  fileId: string;
+  folderId: string;
+  type: "file" | "note";
+}
 
 const FolderComponent: React.FC<FolderComponentProps> = ({
   folder,
@@ -42,6 +50,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
   const [isRenamingFolder, setIsRenamingFolder] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
   const fileRenameInputRef = useRef<HTMLInputElement>(null);
+  const { space } = useSpace();
 
   useEffect(() => {
     if (isOpen !== (openFolderId === folder.id)) {
@@ -97,7 +106,35 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
     };
   }, [workspaceId, folder.id]);
 
-  const handleFileClick = (file: FileData) => {
+  const handleFileClick = async (file: FileData) => {
+    // Try to set the user's location before navigation
+    if (space) {
+      try {
+        // Determine file type (file or note)
+        const fileType = file.hasOwnProperty('url') ? 'file' : 'note';
+        
+        // First, explicitly clear any existing location to avoid duplicates
+        // This ensures the user only appears in one place at a time
+        await space.locations.set(null);
+        
+        // Then set the new location
+        await space.locations.set({
+          fileId: file.id,
+          folderId: folder.id,
+          type: fileType
+        } as BentoLocation);
+        
+        console.log('Location set from sidebar navigation:', file.id);
+      } catch (error) {
+        console.error('Error setting location from sidebar:', error);
+        // If setting location fails, still navigate to the file
+        // The file component will set the location when loaded
+      }
+    } else {
+      console.log('Space not available in sidebar. Location will be set by file component.');
+    }
+    
+    // Navigate to the file
     router.push(`/dashboard/${workspaceId}/${folder.id}/${file.id}`);
   };
 
@@ -130,7 +167,7 @@ const FolderComponent: React.FC<FolderComponentProps> = ({
       setIsRenamingFolder(false);
     } catch (error) {
       console.error("Error renaming folder:", error);
-    }
+    } 
   };
 
   const startRenameFile = (file: FileData) => {
